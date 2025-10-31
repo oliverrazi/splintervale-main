@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://nydu05gasfvv"]
+
+[ext_resource type="Script" uid="uid://nixbwfqhbiwh" path="res://scripts/world/world_generator.gd" id="1_pr0gy"]
+[ext_resource type="Texture2D" uid="uid://dqf6r8sjy4wcy" path="res://assets/base_tiles/textures/grasspixel2.png" id="2_ja730"]
+[ext_resource type="Texture2D" uid="uid://d0nds8xjmg4mt" path="res://assets/base_tiles/textures/wall1.png" id="3_c4vv3"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ph3vs"]
+size = Vector2(600, 600)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jkbrw"]
+albedo_texture = ExtResource("2_ja730")
+uv1_scale = Vector3(25, 25, 1)
+
+[node name="WorldGen" type="Node3D"]
+script = ExtResource("1_pr0gy")
+world_size = Vector2(500, 500)
+random_seed = 2400
+num_plateaus = 200
+min_plateau_height = 2.55
+max_plateau_height = 8.27
+shape_variation = 1.0
+grass_texture = ExtResource("2_ja730")
+earth_texture = ExtResource("3_c4vv3")
+texture_scale = null
+
+[node name="@MeshInstance3D@62132" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("PlaneMesh_ph3vs")
+surface_material_override/0 = SubResource("StandardMaterial3D_jkbrw")

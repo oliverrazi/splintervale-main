@@ -1,0 +1,2162 @@
+# Blender 4.5.3 LTS MTL File: 'tree2.blend'
+# www.blender.org
+
+newmtl Material
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.003
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.004
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.005
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.006
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.007
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.008
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.009
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.010
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.011
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.012
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.013
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.014
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.015
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.016
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.017
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.018
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.019
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.020
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.021
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.022
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl Material.023
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/treestump2.png
+
+newmtl pixel_art_large(1)
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).003
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).004
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).005
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).006
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).007
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).008
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).009
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).010
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).011
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).012
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).013
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).014
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).015
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).016
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).017
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).018
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).019
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).020
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).021
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).022
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).023
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).024
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).025
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).026
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).027
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).028
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).029
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).030
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).031
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).032
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).033
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).034
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).035
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).036
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).037
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).038
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).039
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).040
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).041
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).042
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).043
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).044
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).045
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).046
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).047
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).048
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).049
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).050
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).051
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).052
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).053
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).054
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).055
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).056
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).057
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).058
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).059
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).060
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).061
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).062
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).063
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).064
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).065
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).066
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).067
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).068
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).069
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).070
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).071
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).072
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).073
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).074
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).075
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).076
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).077
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).078
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).079
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).080
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).081
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).082
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).083
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).084
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).085
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).086
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).087
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).088
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).089
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).090
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).091
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).092
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).093
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).094
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).095
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).096
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).097
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).098
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).099
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).100
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).101
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).102
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).103
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).104
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).105
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).106
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).107
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).108
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).109
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).110
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).111
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).112
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).113
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).114
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).115
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).116
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).117
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).118
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).119
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).120
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).121
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).122
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).123
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).124
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).125
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).126
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).127
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).128
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).129
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).130
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).131
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).132
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).133
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).134
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).135
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).136
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).137
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).138
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).139
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).140
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).141
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).142
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).143
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).144
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).145
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).146
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).147
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).148
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).149
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).150
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).151
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).152
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).153
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).154
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).155
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).156
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).157
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).158
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).159
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).160
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).161
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).162
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).163
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).164
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).165
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).166
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).167
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).168
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).169
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).170
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).171
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).172
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).173
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).174
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).175
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).176
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).177
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).178
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).179
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).180
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).181
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).182
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).183
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).184
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).185
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).186
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).187
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).188
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).189
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).190
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png
+
+newmtl pixel_art_large(1).191
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Users/flean/Downloads/pixel_art_large(1).png
+map_d C:/Users/flean/Downloads/pixel_art_large(1).png

@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://celywvr05f7m0"]
+
+[ext_resource type="Shader" uid="uid://blghyxka772g4" path="res://scripts/shader/SmoothTerrainBlend.gdshader" id="1_7pooj"]
+[ext_resource type="Texture2D" uid="uid://d0nds8xjmg4mt" path="res://assets/base_tiles/textures/wall1.png" id="2_3u2aj"]
+[ext_resource type="Texture2D" uid="uid://dqf6r8sjy4wcy" path="res://assets/base_tiles/textures/grasspixel2.png" id="3_7pooj"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_7pooj")
+shader_parameter/grass_tex = ExtResource("3_7pooj")
+shader_parameter/dirt_tex = ExtResource("2_3u2aj")
+shader_parameter/wall_threshold = 0.98000004655
+shader_parameter/grass_uv_scale = 5.0
+shader_parameter/dirt_uv_scale = 5.0

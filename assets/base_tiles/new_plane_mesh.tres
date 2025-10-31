@@ -1,0 +1,10 @@
+[gd_resource type="PlaneMesh" load_steps=3 format=3 uid="uid://dndbprih7n43h"]
+
+[ext_resource type="Texture2D" uid="uid://da8ypsnrjpsnh" path="res://assets/base_tiles/grass.png" id="1_74elw"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ikapo"]
+albedo_texture = ExtResource("1_74elw")
+
+[resource]
+material = SubResource("StandardMaterial3D_ikapo")
+orientation = 2

@@ -1,0 +1,76 @@
+[gd_scene load_steps=11 format=3 uid="uid://nydu05gasfvv"]
+
+[ext_resource type="Script" uid="uid://nixbwfqhbiwh" path="res://scripts/world/generator.gd" id="1_ssukr"]
+[ext_resource type="Shader" uid="uid://brvo4l5ljo0ju" path="res://scenes/Water.gdshader" id="2_pr0gy"]
+[ext_resource type="PackedScene" uid="uid://c8u5vyoqg0wea" path="res://assets/base_tiles/trees/pinetree.tscn" id="3_ja730"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_t7dmx"]
+subdivide_width = 200
+subdivide_depth = 200
+orientation = 1
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_2aej8"]
+noise_type = 3
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_tereu"]
+noise = SubResource("FastNoiseLite_2aej8")
+seamless = true
+as_normal_map = true
+bump_strength = 17.4
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rlfn3"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_cdqbm"]
+noise = SubResource("FastNoiseLite_rlfn3")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_imku0"]
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bu4cn"]
+render_priority = 0
+shader = ExtResource("2_pr0gy")
+shader_parameter/albedo = Color(0, 0.007969747, 0.014943279, 1)
+shader_parameter/albedo2 = Color(9.62615e-08, 0.52309686, 0.5177265, 1)
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.1110000052725
+shader_parameter/wave = SubResource("NoiseTexture2D_imku0")
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_tereu")
+shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_cdqbm")
+shader_parameter/wave_direction = Vector2(2, 0)
+shader_parameter/wave_direction2 = Vector2(5, 0)
+shader_parameter/time_scale = 0.005
+shader_parameter/noise_scale = 10.0
+shader_parameter/height_scale = 0.05
+shader_parameter/color_deep = Color(0.5573358, 0.5573358, 0.5573358, 0.055000003)
+shader_parameter/color_shallow = Color(0.44297108, 0.44297108, 0.44297108, 0.072000004)
+shader_parameter/beers_law = 2.0
+shader_parameter/depth_offset = 1.5
+shader_parameter/edge_scale = 0.1
+shader_parameter/near = 1.0
+shader_parameter/far = 100.0
+shader_parameter/edge_color = Color(0, 0, 0, 1)
+
+[node name="WorldGen" type="Node3D"]
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(8.1379, 0, 0, 0, 4.7420015, 0, 0, 0, 6.130637, -7.351636, 0.44897568, 10.526477)
+mesh = SubResource("QuadMesh_t7dmx")
+surface_material_override/0 = SubResource("ShaderMaterial_bu4cn")
+
+[node name="TreeSource" parent="." instance=ExtResource("3_ja730")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.293199, 2.3841858e-07, 0.6942706)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8768359, 0.48078984, 0, -0.48078984, 0.8768359, 0, 3.1841083, 0)
+
+[node name="HTerrain" type="Node3D" parent="."]
+script = ExtResource("1_ssukr")
+seed = 1337
+max_height_m = 20.0
+noise_scale = 80.0
+region_size = 512
+metadata/_custom_type_script = "uid://cp54pt3hkj1or"

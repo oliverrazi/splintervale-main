@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dhukgdyfnek36"]
+
+[ext_resource type="Texture2D" uid="uid://4n47y8x5edo0" path="res://assets/base_tiles/firtree_pixel_art_large(3).png" id="1_y28er"]
+
+[resource]
+resource_name = "pixel_art_large(3).036"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("1_y28er")
+texture_repeat = false
