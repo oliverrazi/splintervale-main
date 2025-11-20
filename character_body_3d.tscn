@@ -84,7 +84,7 @@ script = ExtResource("1_vd578")
 SPEED = 3.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.9434428, 0.33153555, 0, -0.33153555, 0.9434428, 0, 0.070510596, -0.02477815)
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.070510596, -0.02477815)
 shape = SubResource("CapsuleShape3D_nl27k")
 
 [node name="bodysprite" type="Sprite3D" parent="."]
@@ -111,13 +111,13 @@ libraries = {
 }
 
 [node name="SpringArm3D" type="SpringArm3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.9777065, 0.2099769, 0, -0.2099769, 0.9777065, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
 collision_mask = 0
 spring_length = 5.0
 script = ExtResource("3_vd578")
 
 [node name="Camera3D" type="Camera3D" parent="SpringArm3D"]
-transform = Transform3D(1, 0, 0, 0, 0.9999999, -2.9802322e-08, 0, 2.9802322e-08, 0.9999999, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, 0, 0, 0)
 near = 0.065
 
 [node name="ColorRect" type="ColorRect" parent="SpringArm3D/Camera3D"]

@@ -7,7 +7,6 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4w4gy"]
 albedo_texture = ExtResource("1_iiimj")
-emission_intensity = 1000.0
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_wimxs"]
 material = SubResource("StandardMaterial3D_4w4gy")
@@ -30,7 +29,6 @@ data = PackedVector3Array(0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, 0.5,
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_djgao"]
 albedo_color = Color(0, 0.28627452, 0.11764706, 1)
-emission_intensity = 1000.0
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_seqd1"]
 material = SubResource("StandardMaterial3D_djgao")
@@ -50,7 +48,6 @@ image = SubResource("Image_vfsgj")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k5xwo"]
 albedo_texture = ExtResource("2_u5hns")
-emission_intensity = 1000.0
 uv1_offset = Vector3(1, 1, 0)
 
 [sub_resource type="BoxMesh" id="BoxMesh_e4e2d"]
@@ -72,7 +69,6 @@ image = SubResource("Image_skq2h")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4xjeu"]
 albedo_color = Color(0.27058825, 0.13725491, 0, 1)
-emission_intensity = 1000.0
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_gp5rh"]
 material = SubResource("StandardMaterial3D_4xjeu")
@@ -92,7 +88,6 @@ image = SubResource("Image_wimxs")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tye7d"]
 albedo_texture = ExtResource("3_vfsgj")
-emission_intensity = 1000.0
 texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_psdak"]
@@ -123,7 +118,6 @@ image = SubResource("Image_bp7b0")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kdeqk"]
 albedo_texture = ExtResource("4_skq2h")
-emission_intensity = 1000.0
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_4gxwt"]
 material = SubResource("StandardMaterial3D_kdeqk")

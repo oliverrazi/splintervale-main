@@ -1,9 +1,24 @@
 extends SpringArm3D
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+
+@export var smooth_speed: float = 5.0
+var target_position: Vector3
+
+func _ready():
+	target_position = global_position
+
+func _process(delta: float) -> void:
 	handle_camera()
 	#handle_zoom()
+	
+	# Zielposition = Parent (CharacterBody3D)
+	var parent_position = get_parent().global_position
+
+	# Sanft interpolieren
+	target_position = target_position.lerp(parent_position, smooth_speed * delta)
+	global_position = target_position
+
+
 
 func handle_camera():
 	if Input.is_action_just_pressed("rotate_left"):

@@ -43,7 +43,7 @@ void fragment() {
 	vec3 blend_weights = abs(world_normal);
 	blend_weights = blend_weights / (blend_weights.x + blend_weights.y + blend_weights.z);
 	
-	vec2 uv_x = world_position.zy * texture_scale * 0.1;
+	vec2 uv_x = world_position.zy * texture_scale * 0.2;
 	vec2 uv_y = world_position.xz * texture_scale * 0.2;
 	vec2 uv_z = world_position.xy * texture_scale * 0.2;
 	
