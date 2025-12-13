@@ -1,380 +1,303 @@
+@tool
+extends Node3D
 class_name PlateauGenerator
-extends RefCounted
 
-## Generiert und verwaltet Plateaus
+class PlateauInfo:
+	var center: Vector3
+	var size: Vector2
+	var height: float
+	var corner_radius: float
 
-var world_generator: WorldGenerator
-var rng: RandomNumberGenerator
-var plateaus: Array[Dictionary] = []
-var elevation_cache := {} 
+var plateaus: Array[PlateauInfo] = []
 
+@export_group("Plateaus Allgemein")
+@export var plateau_count: int = 8
+@export var min_size: Vector2 = Vector2(8.0, 8.0)
+@export var max_size: Vector2 = Vector2(20.0, 20.0)
+@export var min_height: float = 2.0
+@export var max_height: float = 6.0
 
+@export_group("Ecken")
+@export var min_corner_radius: float = 2.0
+@export var max_corner_radius: float = 6.0
 
-func _init(world_gen: WorldGenerator):
-	world_generator = world_gen
-	rng = world_gen.rng
+@export_group("Detail")
+@export var segment_size: float = 1.0
 
-func generate_all_plateaus():
-	print("Generiere %d Plateaus..." % world_generator.num_plateaus)
-	
+func generate(world_size: Vector2, ground_height: float, rng: RandomNumberGenerator, material: Material) -> void:
+	# Alte Plateaus löschen
+	for child: Node in get_children():
+		child.queue_free()
+		
 	plateaus.clear()
-	elevation_cache.clear()  # Cache leeren
-	
-	for i in range(world_generator.num_plateaus):
-		var plateau_data = create_random_plateau_data()
-		
-		if plateau_data.is_empty() or not plateau_data.has("position"):
-			continue
-		
-		if not can_place_plateau(plateau_data):
-			continue
-		
-		plateaus.append(plateau_data)
-		create_and_add_mesh(plateau_data)
-		
-		print("  Plateau %d erstellt" % (i + 1))
-	
-	# NEU: Vorberechnung für bessere Performance
-	print("  Berechne Elevation-Cache...")
 
-func get_chunk_elevation(world_pos: Vector2) -> float:
-	for plateau in plateaus:
-		var plateau_center_2d := Vector2(plateau.position.x, plateau.position.z)
+	if plateau_count <= 0:
+		return
 
-		# 1. Grober Radius (schneller Early-Out)
-		if world_pos.distance_to(plateau_center_2d) > plateau.radius * 1.05:
-			continue
-
-		# 2. Exakte Form-Prüfung
-		var outline := ShapeGenerator.generate_shape_outline(plateau, 64)
-		if is_point_in_plateau(world_pos, plateau.position, outline):
-			return plateau.position.y + plateau.height
-
-	return 0.0   # Grundebene
-	
-func clear():
-	plateaus.clear()
-	elevation_cache.clear()
-	print("PlateauGenerator cleared")
-	
-# Gibt alle Böden zurück: [ { y : float, radius : float }, ... ]
-func get_ground_levels() -> Array[Dictionary]:
-	var levels: Array[Dictionary] = []          # leeres Typed-Array
-	levels.append({ y = 0.0, radius = INF })   # Grundebene
-
-	for p in plateaus:
-		levels.append({
-			y      = p.position.y + p.height,
-			radius = p.radius
-		})
-	return levels
-
-func can_place_plateau(new_plateau: Dictionary) -> bool:
-	# Prüfe gegen ALLE existierenden Plateaus
-	for existing in plateaus:
-		var dist_2d = Vector2(
-			new_plateau.position.x - existing.position.x,
-			new_plateau.position.z - existing.position.z
-		).length()
-		
-		var combined_radius = new_plateau.radius + existing.radius
-		
-		# Überschneiden sich die Plateaus horizontal?
-		if dist_2d < combined_radius:
-			# Sie überschneiden sich!
-			
-			# Berechne welches tiefer liegt (BEVOR wir die Höhe ändern!)
-			var new_base_y = new_plateau.position.y
-			var existing_top_y = existing.position.y + existing.height
-			var existing_base_y = existing.position.y
-			
-			# Ist das neue Plateau vollständig im existierenden enthalten?
-			var dist_from_existing_center = Vector2(
-				new_plateau.position.x - existing.position.x,
-				new_plateau.position.z - existing.position.z
-			).length()
-			
-			var new_fully_in_existing = (dist_from_existing_center + new_plateau.radius) <= existing.radius
-			var existing_fully_in_new = (dist_from_existing_center + existing.radius) <= new_plateau.radius
-			
-			# FALL 1: Neues Plateau ist vollständig im existierenden
-			if new_fully_in_existing:
-				# Stapele das neue OBEN auf das existierende
-				new_plateau.position.y = existing_top_y
-				print("    → Stapele neues Plateau auf existierendes (Y=%.1f)" % new_plateau.position.y)
-				continue  # Prüfe weiter gegen andere Plateaus
-			
-			# FALL 2: Existierendes ist vollständig im neuen (und neues ist am Boden)
-			elif existing_fully_in_new and new_base_y <= existing_base_y:
-				# Das neue bildet die Basis - existierendes ist bereits oben drauf, OK
-				print("    → Neues Plateau bildet Basis für existierendes")
-				continue
-			
-			# FALL 3: Teilweise Überlappung - NICHT erlaubt!
-			else:
-				print("    → Ungültige Überlappung (nicht vollständig gestapelt)")
-				return false
-	
-	return true
-
-func create_random_plateau_data() -> Dictionary:
-	var data = {}
-	
-	if rng == null:
-		return {}
-	
-	var x = rng.randf_range(-world_generator.world_size.x / 2, world_generator.world_size.x / 2)
-	var z = rng.randf_range(-world_generator.world_size.y / 2, world_generator.world_size.y / 2)
-	data.position = Vector3(x, 0, z)  # STARTET IMMER BEI Y=0
-	
-	data.radius = rng.randf_range(world_generator.min_plateau_radius, world_generator.max_plateau_radius)
-	data.height = rng.randf_range(world_generator.min_plateau_height, world_generator.max_plateau_height)
-	
-	var use_polygon = rng.randf() < 0.6
-	
-	if use_polygon:
-		data.shape_type = 1
-		data.num_sides = rng.randi_range(4, 8)
-		data.corner_roundness = rng.randf_range(0.6, 0.9)
-	else:
-		data.shape_type = 0
-		data.num_sides = 32
-		data.corner_roundness = rng.randf_range(0.6, 0.9)
-	
-	data.irregularity = rng.randf_range(0.0, world_generator.shape_variation * 0.5)
-	data.stretch_x = rng.randf_range(0.7, 1.3)
-	data.stretch_y = rng.randf_range(0.7, 1.3)
-	data.rotation = rng.randf() * TAU
-	data.grass_overhang_variation = rng.randf_range(0.8, 1.2)
-	
-	return data
-
-func create_and_add_mesh(data: Dictionary):
-	var mesh_instance = create_plateau_mesh(data)
-	world_generator.add_child(mesh_instance)
-	
+	var container: Node3D = Node3D.new()
+	container.name = "Plateaus"
+	add_child(container)
 	if Engine.is_editor_hint():
-		var scene_root = world_generator.get_tree().edited_scene_root
-		if scene_root:
-			mesh_instance.owner = scene_root
+		container.owner = get_tree().edited_scene_root
 
-func create_plateau_mesh(data: Dictionary) -> MeshInstance3D:
-	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.position = data.position
-	mesh_instance.name = "Plateau"
-	
-	var array_mesh = ArrayMesh.new()
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	
-	var vertices = PackedVector3Array()
-	var normals = PackedVector3Array()
-	var uvs = PackedVector2Array()
-	var indices = PackedInt32Array()
-	
-	var radius = data.radius
-	var height = data.height
-	var segments = 128  # Erhöht für glattere Formen
-	
-	var outline_points = ShapeGenerator.generate_shape_outline(data, segments)
-	
-	var overhang_var = data.get("grass_overhang_variation", 1.0)
-	var actual_grass_overhang = world_generator.grass_overhang if world_generator.grass_overhang != null else 0.05
-	var material_data = {
-		"grass_overhang": actual_grass_overhang * overhang_var,
-		"height": height
-	}
-	
-	# TOP
-	var center_top = Vector3(0, height, 0)
-	vertices.append(center_top)
-	normals.append(Vector3.UP)
-	uvs.append(Vector2(0.5, 0.5))
-	
-	for i in range(outline_points.size()):
-		var point = outline_points[i]
-		vertices.append(Vector3(point.x, height, point.y))
-		normals.append(Vector3.UP)
+	for i: int in range(plateau_count):
+		var size: Vector2 = Vector2(
+			rng.randf_range(min_size.x, max_size.x),
+			rng.randf_range(min_size.y, max_size.y)
+		)
+
+		var half_x: float = size.x * 0.5
+		var half_z: float = size.y * 0.5
+
+		var center_x: float = rng.randf_range(-world_size.x * 0.5 + half_x, world_size.x * 0.5 - half_x)
+		var center_z: float = rng.randf_range(-world_size.y * 0.5 + half_z, world_size.y * 0.5 - half_z)
+
+		var height: float = rng.randf_range(min_height, max_height)
+		var corner_radius: float = rng.randf_range(min_corner_radius, max_corner_radius)
+		corner_radius = min(corner_radius, min(half_x, half_z) - 0.1)
+
+		if corner_radius <= 0.0:
+			corner_radius = min(half_x, half_z) * 0.5
+
+		_create_plateau(
+			container,
+			Vector3(center_x, ground_height, center_z),
+			size,
+			height,
+			corner_radius,
+			material
+		)
 		
-		var uv_x = (point.x / radius) * 0.5 + 0.5
-		var uv_y = (point.y / radius) * 0.5 + 0.5
-		uvs.append(Vector2(uv_x, uv_y))
-	
-	for i in range(outline_points.size()):
-		var next_i = (i + 1) % outline_points.size()
-		indices.append(0)
-		indices.append(i + 1)
-		indices.append(next_i + 1)
-	
-	# WALLS
-	var accumulated_distances = PackedFloat32Array()
-	accumulated_distances.append(0.0)
-	var total_perimeter = 0.0
-	
-	for i in range(outline_points.size()):
-		var next_i = (i + 1) % outline_points.size()
-		var dist = outline_points[i].distance_to(outline_points[next_i])
-		total_perimeter += dist
-		accumulated_distances.append(total_perimeter)
-	
-	var wall_top_start = vertices.size()
-	for i in range(outline_points.size()):
-		var point = outline_points[i]
-		vertices.append(Vector3(point.x, height, point.y))
-		var normal = Vector3(point.x, 0, point.y).normalized()
-		normals.append(normal)
-		var u = accumulated_distances[i] / total_perimeter
-		uvs.append(Vector2(u, 1.0))
-	
-	var wall_bottom_start = vertices.size()
-	for i in range(outline_points.size()):
-		var point = outline_points[i]
-		vertices.append(Vector3(point.x, 0, point.y))
-		var normal = Vector3(point.x, 0, point.y).normalized()
-		normals.append(normal)
-		var u = accumulated_distances[i] / total_perimeter
-		uvs.append(Vector2(u, 0.0))
-	
-	for i in range(outline_points.size()):
-		var next_i = (i + 1) % outline_points.size()
-		var top_current = wall_top_start + i
-		var top_next = wall_top_start + next_i
-		var bottom_current = wall_bottom_start + i
-		var bottom_next = wall_bottom_start + next_i
-		
-		indices.append(top_current)
-		indices.append(bottom_current)
-		indices.append(top_next)
-		
-		indices.append(top_next)
-		indices.append(bottom_current)
-		indices.append(bottom_next)
-	
-	# BOTTOM
-	var bottom_center_index = vertices.size()
-	vertices.append(Vector3(0, 0, 0))
-	normals.append(Vector3.DOWN)
-	uvs.append(Vector2(0.5, 0.5))
-	
-	for i in range(outline_points.size()):
-		var next_i = (i + 1) % outline_points.size()
-		var bottom_current = wall_bottom_start + i
-		var bottom_next = wall_bottom_start + next_i
-		
-		indices.append(bottom_center_index)
-		indices.append(bottom_next)
-		indices.append(bottom_current)
-	
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_TEX_UV] = uvs
-	arrays[Mesh.ARRAY_INDEX] = indices
-	
-	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	mesh_instance.mesh = array_mesh
-	
-	var material = create_plateau_material(material_data)
-	mesh_instance.set_surface_override_material(0, material)
-	
-	# COLLISION
-	var static_body = StaticBody3D.new()
-	static_body.name = "CollisionBody"
-	var collision_shape = CollisionShape3D.new()
-	collision_shape.name = "CollisionShape"
-	var shape = array_mesh.create_trimesh_shape()
-	collision_shape.shape = shape
-	static_body.add_child(collision_shape)
-	mesh_instance.add_child(static_body)
-	
+		# Plateau-Daten für spätere Höhenabfragen speichern
+		var info := PlateauInfo.new()
+		info.center = Vector3(center_x, ground_height, center_z)
+		info.size = size
+		info.height = height
+		info.corner_radius = corner_radius
+		plateaus.append(info)
+
+func get_height_at(x: float, z: float, base_height: float) -> float:
+	var result: float = base_height
+	for info: PlateauInfo in plateaus:
+		var h: float = _get_plateau_height_at(info, x, z, base_height)
+		if h > result:
+			result = h
+	return result
+
+
+func _get_plateau_height_at(info: PlateauInfo, x: float, z: float, base_height: float) -> float:
+	var lx: float = x - info.center.x
+	var lz: float = z - info.center.z
+
+	var hx: float = info.size.x * 0.5
+	var hz: float = info.size.y * 0.5
+	var r: float = info.corner_radius
+
+	# Kein Radius → einfaches Rechteck
+	if r <= 0.0:
+		if abs(lx) <= hx and abs(lz) <= hz:
+			return base_height + info.height
+		return base_height
+
+	# Rounded-Rectangle-SDF (wie deine Mesh-Form)
+	var px: float = abs(lx)
+	var pz: float = abs(lz)
+
+	var inner_x: float = hx - r
+	var inner_z: float = hz - r
+	if inner_x < 0.0:
+		inner_x = 0.0
+	if inner_z < 0.0:
+		inner_z = 0.0
+
+	var dx: float = max(px - inner_x, 0.0)
+	var dz: float = max(pz - inner_z, 0.0)
+	var dist: float = sqrt(dx * dx + dz * dz)
+
+	# inside -> Plateau-Oberseite
+	if dist <= r:
+		return base_height + info.height
+
+	return base_height
+
+func _create_plateau(
+	parent: Node3D,
+	center: Vector3,
+	size: Vector2,
+	height: float,
+	corner_radius: float,
+	material: Material
+) -> void:
+	var mesh: ArrayMesh = _build_plateau_mesh(size, height, corner_radius)
+
+	var mi: MeshInstance3D = MeshInstance3D.new()
+	mi.name = "Plateau"
+	mi.mesh = mesh
+	mi.position = center
+
+	mi.set_surface_override_material(0, material)
+
+	parent.add_child(mi)
 	if Engine.is_editor_hint():
-		var scene_root = world_generator.get_tree().edited_scene_root
-		if scene_root:
-			static_body.owner = scene_root
-			collision_shape.owner = scene_root
-	
-	return mesh_instance
+		mi.owner = get_tree().edited_scene_root
 
-func create_plateau_material(material_data: Dictionary) -> Material:
-	var material = ShaderMaterial.new()
-	var shader = load("res://scripts/shader/plateau_shader.gdshader")
-	
-	if shader:
-		material.shader = shader
-		if world_generator.grass_texture:
-			material.set_shader_parameter("grass_texture", world_generator.grass_texture)
-		if world_generator.earth_texture:
-			material.set_shader_parameter("earth_texture", world_generator.earth_texture)
-		material.set_shader_parameter("texture_scale", world_generator.texture_scale)
-		material.set_shader_parameter("grass_overhang", material_data.grass_overhang)
-		material.set_shader_parameter("plateau_height", material_data.height)
+	# --- Kollision aus Mesh-Geometrie ---
+	var body: StaticBody3D = StaticBody3D.new()
+	body.name = "Collision"
+
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	var concave: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
+
+	var arrays: Array = mesh.surface_get_arrays(0)
+
+	var vertices_arr: PackedVector3Array = PackedVector3Array()
+	if arrays.size() > Mesh.ARRAY_VERTEX and arrays[Mesh.ARRAY_VERTEX] is PackedVector3Array:
+		vertices_arr = arrays[Mesh.ARRAY_VERTEX]
+
+	var indices: PackedInt32Array = PackedInt32Array()
+	if arrays.size() > Mesh.ARRAY_INDEX and arrays[Mesh.ARRAY_INDEX] is PackedInt32Array:
+		indices = arrays[Mesh.ARRAY_INDEX]
+
+	var tri_data: PackedVector3Array = PackedVector3Array()
+
+	if indices.size() > 0:
+		for idx: int in indices:
+			if idx >= 0 and idx < vertices_arr.size():
+				tri_data.append(vertices_arr[idx])
 	else:
-		var standard = StandardMaterial3D.new()
-		standard.albedo_color = Color(0.3, 0.6, 0.3)
-		return standard
-	
-	return material
+		tri_data = vertices_arr
+
+	concave.data = tri_data
+	shape.shape = concave
+
+	body.add_child(shape)
+	mi.add_child(body)
+
+	if Engine.is_editor_hint():
+		body.owner = get_tree().edited_scene_root
+		shape.owner = get_tree().edited_scene_root
+
+func _add_edge(perimeter: PackedVector3Array, from: Vector3, to: Vector3, segment_len: float) -> void:
+	var dx: float = to.x - from.x
+	var dz: float = to.z - from.z
+	var length: float = sqrt(dx*dx + dz*dz)
+	var segs: int = max(1, int(round(length / segment_len)))
+
+	for i: int in range(segs + 1):
+		var t: float = float(i) / float(segs)
+		var x: float = lerp(from.x, to.x, t)
+		var z: float = lerp(from.z, to.z, t)
+		perimeter.append(Vector3(x, from.y, z))
 
 
-# NEU: Prüft ob Position auf Plateau liegt und gibt Höhe zurück
-func get_elevation_at_position(world_pos: Vector2) -> float:
-	for plateau in plateaus:
-		var plateau_center = Vector2(plateau.position.x, plateau.position.z)
-		var dist = world_pos.distance_to(plateau_center)
-		
-		# Ist Punkt im Plateau-Radius?
-		if dist <= plateau.radius:
-			# Prüfe ob wirklich innerhalb der Form
-			var outline_points = ShapeGenerator.generate_shape_outline(plateau, 64)
-			if is_point_in_plateau(world_pos, plateau.position, outline_points):
-				return plateau.position.y + plateau.height
-	
-	return 0.0  # Boden-Höhe
+func _add_arc(perimeter: PackedVector3Array, center: Vector3, radius: float, start_angle: float, end_angle: float, segment_len: float) -> void:
+	var arc_len: float = abs(end_angle - start_angle) * radius
+	var segs: int = max(3, int(round(arc_len / segment_len)))
 
-func is_point_in_plateau(point_2d: Vector2, plateau_center: Vector3, outline_points: PackedVector2Array) -> bool:
-	var local_point = Vector2(
-		point_2d.x - plateau_center.x,
-		point_2d.y - plateau_center.z
-	)
-	
-	var inside = false
-	var j = outline_points.size() - 1
-	
-	for i in range(outline_points.size()):
-		var vi = outline_points[i]
-		var vj = outline_points[j]
-		
-		if ((vi.y > local_point.y) != (vj.y > local_point.y)) and \
-		   (local_point.x < (vj.x - vi.x) * (local_point.y - vi.y) / (vj.y - vi.y) + vi.x):
-			inside = !inside
-		
-		j = i
-	
-	return inside
+	for i: int in range(segs + 1):
+		var t: float = float(i) / float(segs)
+		var a: float = lerp(start_angle, end_angle, t)
+		var x: float = center.x + cos(a) * radius
+		var z: float = center.z + sin(a) * radius
+		perimeter.append(Vector3(x, center.y, z))
+
+func _build_plateau_mesh(size: Vector2, height: float, corner_radius: float) -> ArrayMesh:
+	var hx: float = size.x * 0.5
+	var hz: float = size.y * 0.5
+
+	var r: float = min(corner_radius, min(hx, hz) - 0.001)
+	if r < 0.0:
+		r = 0.0
+
+	var perimeter: PackedVector3Array = PackedVector3Array()
+	var segment_len: float = max(segment_size, 0.25)
+
+	var ex: float = hx - r
+	var ez: float = hz - r
+	if ex < 0.0:
+		ex = 0.0
+	if ez < 0.0:
+		ez = 0.0
+
+	# Höhe der Außenpunkte ist unten (0.0)
+	var y0: float = 0.0
+
+	# Ohne Radius → einfaches Rechteck
+	if r <= 0.001:
+		_add_edge(perimeter, Vector3( hx, y0,  hz), Vector3(-hx, y0,  hz), segment_len)
+		_add_edge(perimeter, Vector3(-hx, y0,  hz), Vector3(-hx, y0, -hz), segment_len)
+		_add_edge(perimeter, Vector3(-hx, y0, -hz), Vector3( hx, y0, -hz), segment_len)
+		_add_edge(perimeter, Vector3( hx, y0, -hz), Vector3( hx, y0,  hz), segment_len)
+	else:
+		# Vorderseite (oben)
+		_add_edge(perimeter, Vector3(ex, y0, hz), Vector3(-ex, y0, hz), segment_len)
+
+		# Front-Links Bogen
+		_add_arc(perimeter, Vector3(-hx + r, y0, hz - r), r, PI * 0.5, PI, segment_len)
+
+		# Linke Kante
+		_add_edge(perimeter, Vector3(-hx, y0, hz - r), Vector3(-hx, y0, -hz + r), segment_len)
+
+		# Hinten-Links Bogen
+		_add_arc(perimeter, Vector3(-hx + r, y0, -hz + r), r, PI, PI * 1.5, segment_len)
+
+		# Hinterseite
+		_add_edge(perimeter, Vector3(-ex, y0, -hz), Vector3(ex, y0, -hz), segment_len)
+
+		# Hinten-Rechts Bogen
+		_add_arc(perimeter, Vector3(hx - r, y0, -hz + r), r, PI * 1.5, PI * 2.0, segment_len)
+
+		# Rechte Kante
+		_add_edge(perimeter, Vector3(hx, y0, -hz + r), Vector3(hx, y0, hz - r), segment_len)
+
+		# Front-Rechts Bogen
+		_add_arc(perimeter, Vector3(hx - r, y0, hz - r), r, 0.0, PI * 0.5, segment_len)
 
 
-## Liefert die exakte Y-Höhe am gegebenen Weltpunkt (Raycast oder Fallback)
-func get_ground_height(world_pos: Vector3) -> float:
-	var space: PhysicsDirectSpaceState3D = world_generator.get_world_3d().direct_space_state
-	var from: Vector3 = Vector3(world_pos.x, 1000.0, world_pos.z)
-	var to: Vector3   = Vector3(world_pos.x, -1000.0, world_pos.z)
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
-	query.collision_mask = 1                                    # nur Static-Bodies
-	var hit: Dictionary = space.intersect_ray(query)
+	# ----- Mesh-Aufbau -----
+	var st: SurfaceTool = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-	if not hit.is_empty():
-		return hit.position.y                                   # getroffenes Mesh
+	var n: int = perimeter.size()
+	if n < 3:
+		return ArrayMesh.new()
 
-	# Fallback (Editor, bevor Kollisions-Shapes da sind)
-	return get_elevation_at_position(Vector2(world_pos.x, world_pos.z))
-	
-	## Gibt den exakten Plateau-Höhenwert nur zurück, wenn die 2D-Position *innerhalb* des Plateaus liegt
-func get_plateau_elevation_if_inside(world_pos: Vector2) -> float:
-	for plateau: Dictionary in plateaus:
-		var plateau_center: Vector2 = Vector2(plateau.position.x, plateau.position.z)
-		if world_pos.distance_to(plateau_center) > plateau.radius * 1.05:
-			continue
+	# ---- TOP ----
+	var center_top: Vector3 = Vector3(0.0, height, 0.0)
+	var up: Vector3 = Vector3.UP
 
-		var outline: PackedVector2Array = ShapeGenerator.generate_shape_outline(plateau, 64)
-		if is_point_in_plateau(world_pos, plateau.position, outline):
-			return plateau.position.y + plateau.height
-	return NAN  # <- GlobalScope Konstante  # <- wichtig: kein Plateau
+	for i: int in range(n):
+		var j: int = (i + 1) % n
+		var v0: Vector3 = Vector3(perimeter[i].x, height, perimeter[i].z)
+		var v1: Vector3 = Vector3(perimeter[j].x, height, perimeter[j].z)
+
+		st.set_normal(up)
+		st.add_vertex(center_top)
+		st.add_vertex(v0)
+		st.add_vertex(v1)
+
+	# ---- WÄNDE ----
+	for i: int in range(n):
+		var j: int = (i + 1) % n
+
+		var b0: Vector3 = Vector3(perimeter[i].x, 0.0, perimeter[i].z)
+		var b1: Vector3 = Vector3(perimeter[j].x, 0.0, perimeter[j].z)
+		var t0: Vector3 = Vector3(perimeter[i].x, height, perimeter[i].z)
+		var t1: Vector3 = Vector3(perimeter[j].x, height, perimeter[j].z)
+
+		var edge: Vector3 = b1 - b0
+		var side_normal: Vector3 = Vector3.UP.cross(edge).normalized()
+
+		# Quad → zwei Triangles
+		st.set_normal(side_normal)
+		st.add_vertex(b0)
+		st.add_vertex(b1)
+		st.add_vertex(t1)
+
+		st.set_normal(side_normal)
+		st.add_vertex(b0)
+		st.add_vertex(t1)
+		st.add_vertex(t0)
+
+	var mesh: ArrayMesh = st.commit()
+	return mesh

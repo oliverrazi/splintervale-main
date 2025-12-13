@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://cd3ww7pd3fcbo"]
+[gd_scene load_steps=11 format=3 uid="uid://cd3ww7pd3fcbo"]
 
-[ext_resource type="Script" uid="uid://fuyhq4gqsu3t" path="res://assets/characters/player_move.gd" id="1_vd578"]
+[ext_resource type="Script" uid="uid://tjnqn1ifgw2e" path="res://assets/characters/player_move2.gd" id="1_obynr"]
+[ext_resource type="PackedScene" uid="uid://dpg3a6ire7hml" path="res://assets/characters/slashVFX.tscn" id="2_obynr"]
 [ext_resource type="Texture2D" uid="uid://cl143q7hmikeb" path="res://assets/characters/player1.png" id="2_vd578"]
 [ext_resource type="Texture2D" uid="uid://c0ln2wsi1nven" path="res://player/armor1.png" id="3_nl27k"]
 [ext_resource type="Script" uid="uid://bkakfqkpy7x0c" path="res://scripts/player_camera.gd" id="3_vd578"]
@@ -80,26 +81,43 @@ _data = {
 }
 
 [node name="CharacterBody3D" type="CharacterBody3D"]
-script = ExtResource("1_vd578")
-SPEED = 3.0
+script = ExtResource("1_obynr")
+slash_scene = ExtResource("2_obynr")
+slash_lifetime = 0.5
+SPRITE_FACES_RIGHT = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.070510596, -0.02477815)
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.15, -0.025)
 shape = SubResource("CapsuleShape3D_nl27k")
 
+[node name="charactersprite" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0.15754342, 0)
+alpha_cut = 3
+alpha_scissor_threshold = 1.0
+alpha_hash_scale = 0.0
+alpha_antialiasing_mode = 2
+alpha_antialiasing_edge = 0.33
+texture_filter = 5
+texture = ExtResource("2_vd578")
+hframes = 9
+vframes = 9
+
 [node name="bodysprite" type="Sprite3D" parent="."]
+visible = false
 texture = ExtResource("2_vd578")
 hframes = 8
 vframes = 8
 
 [node name="armorsprite" type="Sprite3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
+visible = false
 sorting_offset = 1.0
 texture = ExtResource("3_nl27k")
 hframes = 8
 vframes = 8
 
 [node name="hairsprite" type="Sprite3D" parent="."]
+visible = false
 sorting_offset = 1.0
 texture = ExtResource("4_obynr")
 hframes = 8
@@ -124,3 +142,14 @@ near = 0.065
 offset_right = 40.0
 offset_bottom = 40.0
 color = Color(1, 1, 1, 0)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.31487054, 0.9491346, 0, -0.9491346, 0.31487054, 0, 2.9935412, 1.209533)
+light_indirect_energy = 6.246
+light_volumetric_fog_energy = 9.481
+light_size = 1.0
+light_specular = 2.161
+shadow_enabled = true
+spot_range = 10.827
+spot_attenuation = 0.69
+spot_angle = 70.54

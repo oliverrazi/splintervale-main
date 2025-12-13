@@ -1,0 +1,102 @@
+[gd_scene load_steps=23 format=3 uid="uid://dwhygc03kmfdp"]
+
+[ext_resource type="Script" uid="uid://dxbe6as3mgyrj" path="res://addons/proton_scatter/src/scatter.gd" id="1_se826"]
+[ext_resource type="Script" uid="uid://d2s3eygfy4w3d" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_fd5gv"]
+[ext_resource type="Script" uid="uid://bjr6vtupoqads" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_yblf4"]
+[ext_resource type="Script" uid="uid://pedkkhcfiu6g" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_a0bm7"]
+[ext_resource type="Script" uid="uid://bhl7knpd3mcyr" path="res://addons/proton_scatter/src/modifiers/randomize_transforms.gd" id="5_rqy10"]
+[ext_resource type="Script" uid="uid://8om2527chq3" path="res://addons/proton_scatter/src/modifiers/relax.gd" id="6_6tuwm"]
+[ext_resource type="Script" uid="uid://bwyb0g6mj0l1v" path="res://addons/proton_scatter/src/modifiers/project_on_geometry.gd" id="7_tnv26"]
+[ext_resource type="Script" uid="uid://dkgglvibqh5gu" path="res://addons/proton_scatter/src/scatter_item.gd" id="8_nog5u"]
+[ext_resource type="Shader" uid="uid://xmatnmb0dlji" path="res://scenes/grass.gdshader" id="9_367n1"]
+[ext_resource type="Script" uid="uid://dt3rdsitq7upy" path="res://addons/proton_scatter/src/scatter_shape.gd" id="10_qfc14"]
+[ext_resource type="Script" uid="uid://b1m8asysmojhg" path="res://addons/proton_scatter/src/shapes/box_shape.gd" id="11_ha2r4"]
+
+[sub_resource type="Resource" id="Resource_bdmh3"]
+script = ExtResource("4_a0bm7")
+amount = 300
+custom_seed = 8
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_oeff2"]
+script = ExtResource("5_rqy10")
+position = Vector3(15, 15, 15)
+scale = Vector3(10, 10, 10)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_fxv8n"]
+script = ExtResource("6_6tuwm")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_6xtk6"]
+script = ExtResource("7_tnv26")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_xpkkc"]
+script = ExtResource("2_fd5gv")
+stack = Array[ExtResource("3_yblf4")]([SubResource("Resource_bdmh3"), SubResource("Resource_oeff2"), SubResource("Resource_fxv8n"), SubResource("Resource_6xtk6")])
+
+[sub_resource type="Gradient" id="Gradient_iyosl"]
+offsets = PackedFloat32Array(0.5910653, 1)
+colors = PackedColorArray(0.022688644, 0.36023083, 0.25936148, 1, 0.29222116, 0.532688, 0.3577667, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_884yi"]
+gradient = SubResource("Gradient_iyosl")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_300ja"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0xn52"]
+noise = SubResource("FastNoiseLite_300ja")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3iek8"]
+render_priority = 0
+shader = ExtResource("9_367n1")
+shader_parameter/wind_speed = 0.1
+shader_parameter/wind_strength = 1.0
+shader_parameter/wind_texture_tile_size = 20.0
+shader_parameter/wind_vertical_strength = 0.3
+shader_parameter/wind_horizontal_direction = Vector2(1, 0.5)
+shader_parameter/color_ramp = SubResource("GradientTexture1D_884yi")
+shader_parameter/wind_noise = SubResource("NoiseTexture2D_0xn52")
+shader_parameter/character_position = Vector3(0, 0, 0)
+shader_parameter/character_radius = 3.0
+shader_parameter/character_push_strength = 1.0
+
+[sub_resource type="Resource" id="Resource_7yu3l"]
+script = ExtResource("11_ha2r4")
+
+[node name="OldGrass" type="Node2D"]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.338, 0, 0, 0, 1, 0, 0, 0)
+visible = false
+calculate_tangents = false
+size = Vector3(3, 2, 3)
+
+[node name="ProtonScatter" type="Node3D" parent="CSGBox3D"]
+transform = Transform3D(0.061999973, 0, 0, 0, 0.5, 0, 0, 0, 0.05699999, 0, -4.7683716e-07, 0)
+script = ExtResource("1_se826")
+global_seed = 10
+keep_static_colliders = true
+modifier_stack = SubResource("Resource_xpkkc")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(105, 15, 15)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="CSGBox3D/ProtonScatter"]
+transform = Transform3D(2.0082986, 0, 0, 0, 0.4917245, 0, 0, 0, 1, 0, 6.4738073, 0)
+script = ExtResource("8_nog5u")
+override_material = SubResource("ShaderMaterial_3iek8")
+override_cast_shadow = 0
+path = "uid://cdoow0430qtw"
+
+[node name="ScatterShape" type="Node3D" parent="CSGBox3D/ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0, 0)
+script = ExtResource("10_qfc14")
+shape = SubResource("Resource_7yu3l")

@@ -2,242 +2,275 @@
 extends Node3D
 class_name WorldGenerator
 
-## Hauptklasse für Weltgenerierung
-
-# ============================================
-# EXPORT VARIABLEN
-# ============================================
-
-@export_group("World Settings")
+@export_group("World")
 @export var world_size: Vector2 = Vector2(100, 100)
 @export var random_seed: int = 0
 @export var generate_on_ready: bool = true
-@export var regenerate_button: bool = false:
-	set(value):
-		if value and Engine.is_editor_hint():
-			call_deferred("generate_world")
-		regenerate_button = false
 
-@export_group("Ground Plane")
-@export var show_ground: bool = true
+@export_group("Ground Textures")
 @export var ground_height: float = -0.5
-@export var ground_texture_scale: float = 1.0
+@export var grass_texture: Texture2D
+@export var earth_texture: Texture2D
+@export var path_texture: Texture2D
 
-@export_group("Grass Chunk Settings")
+@export_group("Grass Chunks")
 @export var grass_chunk_scene: PackedScene
 @export var chunk_size: float = 5.0
 @export var active_radius: float = 40.0
 @export var unload_radius: float = 60.0
-@export var use_directional_culling: bool = true
-@export var view_angle: float = 130.0
 @export var max_chunks_per_frame: int = 3
 @export var chunk_fade_duration: float = 0.35
 
-@export_group("Plateau Settings")
-@export var num_plateaus: int = 5
-@export var min_plateau_radius: float = 8.0
-@export var max_plateau_radius: float = 20.0
-@export var min_plateau_height: float = 2.0
-@export var max_plateau_height: float = 8.0
-@export_range(0.0, 1.0) var shape_variation: float = 0.7
+@export_group("Plateaus")
+@export var use_plateaus: bool = true
+@export var plateau_generator: PlateauGenerator
 
-@export_group("Textures")
-@export var grass_texture: Texture2D
-@export var earth_texture: Texture2D
-@export var texture_scale: float = 1.0
-@export_range(0.0, 0.5) var grass_overhang: float = 0.05
+@export_group("Material Tuning")
+@export var tex_scale: float = 0.15
 
+@export var global_brightness: float = 0.85
+@export var global_contrast: float = 1.1
+@export var global_saturation: float = 1.0
 
-# ============================================
-# INTERNE VARIABLEN
-# ============================================
+@export var grass_brightness: float = 1.0
+@export var earth_brightness: float = 0.9
+@export var path_brightness: float = 1.0
+
+# Erde nur auf steilen Flächen:
+@export var earth_start_deg: float = 45.0
+@export var earth_blend_deg: float = 5.0
+
+# Einfacher Pfad als Band entlang der Z-Achse (in local_pos.z)
+@export var path_center_z: float = 0.0
+@export var path_half_width: float = 2.0
+@export var path_edge_softness: float = 1.0  # Übergang: größer = weicher
 
 var rng: RandomNumberGenerator
-var plane: MeshInstance3D
-var plateau_gen: PlateauGenerator
 var grass_manager: GrassChunkManager
-var is_initialized := false
+var ground_material: ShaderMaterial
 
-# ============================================
-# LIFECYCLE
-# ============================================
 
-func _init():
-	if grass_overhang == null:
-		grass_overhang = 0.05
-	if texture_scale == null:
-		texture_scale = 1.0
-
-func _ready():
-	
-	# Im Editor: Warte einen Frame
+func _ready() -> void:
 	if Engine.is_editor_hint():
 		await get_tree().process_frame
-	
 	initialize_systems()
-	
-	# Nur im Spiel automatisch generieren
 	if not Engine.is_editor_hint() and generate_on_ready:
 		call_deferred("generate_world")
 
-func initialize_systems():
-	if is_initialized:
-		return
-	
-	# RNG initialisieren
-	if rng == null:
-		if random_seed == 0:
-			rng = RandomNumberGenerator.new()
-			rng.randomize()
-		else:
-			rng = RandomNumberGenerator.new()
-			rng.seed = random_seed
-	
-	# Plateau Generator
-	plateau_gen = PlateauGenerator.new(self)
-	
-	# Grass Manager - nur erstellen, nicht direkt adden
-	if not has_node("GrassManager"):
-		grass_manager = GrassChunkManager.new()
-		grass_manager.name = "GrassManager"
-		add_child(grass_manager)
-		
-		# Owner setzen im Editor
-		if Engine.is_editor_hint():
-			var scene_root = get_tree().edited_scene_root
-			if scene_root:
-				grass_manager.owner = scene_root
-	else:
-		grass_manager = get_node("GrassManager")
-	
-	# Settings übertragen
-	if grass_manager:
-		grass_manager.chunk_scene = grass_chunk_scene
-		grass_manager.chunk_size = chunk_size
-		grass_manager.active_radius = active_radius
-		grass_manager.unload_radius = unload_radius
-		grass_manager.use_directional_culling = use_directional_culling
-		grass_manager.view_angle = view_angle
-		grass_manager.max_chunks_per_frame = max_chunks_per_frame
-		grass_manager.chunk_fade_duration = chunk_fade_duration
-	
-	# Process nur im Spiel
-	set_process(not Engine.is_editor_hint())
-	
-	is_initialized = true
 
-func _process(delta: float):
+func initialize_systems() -> void:
+	rng = RandomNumberGenerator.new()
+	rng.seed = random_seed if random_seed != 0 else randi()
+
+	# --- Multi-Layer Shader: Gras + Erde + Pfad ---
+	var shader: Shader = Shader.new()
+	shader.code = """
+shader_type spatial;
+
+uniform sampler2D grass_tex;
+uniform sampler2D earth_tex;
+uniform sampler2D path_tex;
+
+uniform float tex_scale = 0.15;
+
+// globale Farbtuning
+uniform float global_brightness = 1.0;
+uniform float global_contrast  = 1.0;
+uniform float global_saturation = 1.0;
+
+// Layer-spezifische Helligkeit
+uniform float grass_brightness = 1.0;
+uniform float earth_brightness = 1.0;
+uniform float path_brightness  = 1.0;
+
+// Erde-Mix (per Winkel)
+uniform float earth_start_deg = 45.0;
+uniform float earth_blend_deg = 5.0;
+
+// Pfad-Parameter (Band entlang Z-Achse)
+uniform float path_center_z = 0.0;
+uniform float path_half_width = 2.0;
+uniform float path_edge_softness = 1.0;
+
+varying vec3 local_pos;
+varying vec3 local_normal;
+
+void vertex() {
+    local_pos = VERTEX;
+    local_normal = NORMAL;
+}
+
+vec3 triplanar_sample(sampler2D tex, vec3 pos, vec3 nrm) {
+    vec3 an = abs(nrm);
+    an = max(an, vec3(0.0001));
+    an /= (an.x + an.y + an.z);
+
+    vec2 uv_x = pos.zy * tex_scale;
+    vec2 uv_y = pos.xz * tex_scale;
+    vec2 uv_z = pos.xy * tex_scale;
+
+    vec3 cx = texture(tex, uv_x).rgb;
+    vec3 cy = texture(tex, uv_y).rgb;
+    vec3 cz = texture(tex, uv_z).rgb;
+
+    return cx * an.x + cy * an.y + cz * an.z;
+}
+
+vec3 apply_color_grade(vec3 col, float br, float ct, float sat) {
+    // brightness
+    col *= br;
+
+    // contrast um 0.5 herum
+    col = (col - 0.5) * ct + 0.5;
+
+    // saturation
+    float gray = dot(col, vec3(0.299, 0.587, 0.114));
+    col = mix(vec3(gray), col, sat);
+
+    return col;
+}
+
+void fragment() {
+    vec3 n = normalize(local_normal);
+    vec3 p = local_pos;
+
+    // 1) Erde-Gewicht (per Neigung)
+    float ny = clamp(abs(n.y), 0.0, 1.0);
+    float angle_deg = degrees(acos(ny)); // 0° flach, 90° Wand
+
+    float earth_t = smoothstep(
+        earth_start_deg - earth_blend_deg,
+        earth_start_deg + earth_blend_deg,
+        angle_deg
+    );
+
+    // 2) Pfad-Maske als Band entlang Z
+    float dist_z = abs(p.z - path_center_z);
+    // innen: dist_z ~ 0, außen: dist_z > path_half_width
+    float edge = max(path_half_width, 0.0001);
+    float path_mask = 1.0 - smoothstep(edge - path_edge_softness, edge + path_edge_softness, dist_z);
+    // Pfad nur auf eher flachen Flächen:
+    path_mask *= (1.0 - earth_t);
+
+    // 3) Raw-Layer-Farben
+    vec3 grass_col = triplanar_sample(grass_tex, p, n) * grass_brightness;
+    vec3 earth_col = triplanar_sample(earth_tex, p, n) * earth_brightness;
+    vec3 path_col  = triplanar_sample(path_tex,  p, n) * path_brightness;
+
+    // 4) Layer-Gewichte
+    float w_path  = clamp(path_mask, 0.0, 1.0);
+    float w_earth = clamp((1.0 - w_path) * earth_t, 0.0, 1.0);
+    float w_grass = 1.0 - w_path - w_earth;
+
+    // Sicherheit
+    w_grass = clamp(w_grass, 0.0, 1.0);
+
+    float w_sum = w_grass + w_earth + w_path;
+    if (w_sum > 0.0001) {
+        w_grass /= w_sum;
+        w_earth /= w_sum;
+        w_path  /= w_sum;
+    }
+
+    vec3 col = grass_col * w_grass + earth_col * w_earth + path_col * w_path;
+
+    // 5) globales Color Grading
+    col = apply_color_grade(col, global_brightness, global_contrast, global_saturation);
+
+    ALBEDO = col;
+}
+"""
+
+	ground_material = ShaderMaterial.new()
+	ground_material.shader = shader
+
+	if grass_texture:
+		ground_material.set_shader_parameter("grass_tex", grass_texture)
+	if earth_texture:
+		ground_material.set_shader_parameter("earth_tex", earth_texture)
+	if path_texture:
+		ground_material.set_shader_parameter("path_tex", path_texture)
+
+	ground_material.set_shader_parameter("tex_scale", tex_scale)
+
+	ground_material.set_shader_parameter("global_brightness", global_brightness)
+	ground_material.set_shader_parameter("global_contrast", global_contrast)
+	ground_material.set_shader_parameter("global_saturation", global_saturation)
+
+	ground_material.set_shader_parameter("grass_brightness", grass_brightness)
+	ground_material.set_shader_parameter("earth_brightness", earth_brightness)
+	ground_material.set_shader_parameter("path_brightness", path_brightness)
+
+	ground_material.set_shader_parameter("earth_start_deg", earth_start_deg)
+	ground_material.set_shader_parameter("earth_blend_deg", earth_blend_deg)
+
+	ground_material.set_shader_parameter("path_center_z", path_center_z)
+	ground_material.set_shader_parameter("path_half_width", path_half_width)
+	ground_material.set_shader_parameter("path_edge_softness", path_edge_softness)
+
+	# --- Grass-Manager ---
+	grass_manager = GrassChunkManager.new()
+	grass_manager.name = "GrassManager"
+	add_child(grass_manager)
+	if Engine.is_editor_hint():
+		grass_manager.owner = get_tree().edited_scene_root
+
+	grass_manager.chunk_scene = grass_chunk_scene
+	grass_manager.chunk_size = chunk_size
+	grass_manager.active_radius = active_radius
+	grass_manager.unload_radius = unload_radius
+	grass_manager.max_chunks_per_frame = max_chunks_per_frame
+	grass_manager.chunk_fade_duration = chunk_fade_duration
+
+	set_process(not Engine.is_editor_hint())
+
+
+func _process(delta: float) -> void:
 	if grass_manager:
 		grass_manager.process_chunks(delta)
 
-# ============================================
-# WORLD GENERATION
-# ============================================
-var is_generating := false
 
-func generate_world():
-	
-	if is_generating:
-		print("!!! WARNUNG: generate_world läuft bereits !!!")
-		return
-		
-	is_generating = true
-	
-	if not is_initialized:
-		initialize_systems()
-	
-	print("=== Weltgenerierung gestartet ===")
-	
+func generate_world() -> void:
 	clear_world()
-	
-	if show_ground:
-		generate_ground_plane()
-	
-	if plateau_gen:
-		plateau_gen.generate_all_plateaus()
-		print("DEBUG: %d Plateaus generiert" % plateau_gen.plateaus.size())
-	
-	# Plateau-Böden finden -> tiefsten Punkt ermitteln
-	var lowest_plateau_base := ground_height
-	if plateau_gen and not plateau_gen.plateaus.is_empty():
-		for p in plateau_gen.plateaus:
-			lowest_plateau_base = min(lowest_plateau_base, p.position.y)
+	generate_ground()
 
-	grass_manager.setup(world_size, lowest_plateau_base, plateau_gen)
-	
-	# Grass Setup im Editor: MINIMALE Vorschau
+	if use_plateaus and plateau_generator:
+		plateau_generator.generate(world_size, ground_height, rng, ground_material)
+
 	if grass_manager:
-		if Engine.is_editor_hint():
-			grass_manager.setup_editor_preview(world_size, ground_height)
-		else:
-			grass_manager.setup(world_size, ground_height, plateau_gen)
-	
-	print("=== Weltgenerierung abgeschlossen ===")
-	is_generating = false
+		grass_manager.setup(world_size, ground_height, plateau_generator)
 
-func clear_world():
-	print("=== CLEARING WORLD ===")
-	
-	# Plateau Generator clearen!
-	if plateau_gen:
-		plateau_gen.clear()
-	
-	# Grass Manager clearen
+
+func clear_world() -> void:
+	for child: Node in get_children():
+		if child != grass_manager and child != plateau_generator:
+			child.queue_free()
 	if grass_manager:
 		grass_manager.clear()
-	
-	# Alle anderen Kinder löschen
-	for child in get_children():
-		if child != grass_manager:
-			print("  Lösche: %s" % child.name)
-			child.queue_free()
-	
-	print("=== CLEAR COMPLETE ===")
 
 
-func generate_ground_plane():
-	print("Generiere Grundfläche...")
-	
-	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.position = Vector3(0, ground_height, 0)
-	mesh_instance.name = "GroundPlane"
-	
-	var plane_mesh = PlaneMesh.new()
-	plane_mesh.size = Vector2(world_size.x * 1.2, world_size.y * 1.2)
-	mesh_instance.mesh = plane_mesh
-	
-	var material = StandardMaterial3D.new()
-	if grass_texture:
-		material.albedo_texture = grass_texture
-		material.uv1_scale = Vector3(
-			world_size.x * 0.05 * ground_texture_scale,
-			world_size.y * 0.05 * ground_texture_scale,
-			1.0
-		)
-	else:
-		material.albedo_color = Color(0.3, 0.6, 0.3)
-	
-	mesh_instance.set_surface_override_material(0, material)
-	plane = mesh_instance
-	add_child(mesh_instance)
-	
-	# Kollision
-	var static_body = StaticBody3D.new()
-	static_body.name = "GroundCollision"
-	mesh_instance.add_child(static_body)
-	
-	var collision_shape = CollisionShape3D.new()
-	var box_shape = BoxShape3D.new()
-	box_shape.size = Vector3(world_size.x * 1.2, 0.1, world_size.y * 1.2)
-	collision_shape.shape = box_shape
-	collision_shape.position = Vector3(0, -0.05, 0)
-	static_body.add_child(collision_shape)
-	
+func generate_ground() -> void:
+	var mesh: MeshInstance3D = MeshInstance3D.new()
+	mesh.name = "Ground"
+	mesh.position = Vector3(0.0, ground_height, 0.0)
+
+	var plane: PlaneMesh = PlaneMesh.new()
+	plane.size = world_size
+	mesh.mesh = plane
+
+	mesh.set_surface_override_material(0, ground_material)
+	add_child(mesh)
 	if Engine.is_editor_hint():
-		var scene_root = get_tree().edited_scene_root
-		if scene_root:
-			collision_shape.owner = scene_root
-			mesh_instance.owner = scene_root
-			static_body.owner = scene_root
-	
-	print("  Boden generiert")
+		mesh.owner = get_tree().edited_scene_root
+
+	var body: StaticBody3D = StaticBody3D.new()
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	var box: BoxShape3D = BoxShape3D.new()
+	box.size = Vector3(world_size.x, 0.1, world_size.y)
+	shape.shape = box
+	body.add_child(shape)
+	mesh.add_child(body)
+
+	if Engine.is_editor_hint():
+		body.owner = get_tree().edited_scene_root
+		shape.owner = get_tree().edited_scene_root
