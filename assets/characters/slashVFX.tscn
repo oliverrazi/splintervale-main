@@ -1,8 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://dpg3a6ire7hml"]
+[gd_scene load_steps=10 format=3 uid="uid://dpg3a6ire7hml"]
 
 [ext_resource type="Shader" uid="uid://bxjh1ho7blw1d" path="res://assets/characters/slash.gdshader" id="2_pia35"]
 [ext_resource type="ArrayMesh" uid="uid://bvoheqrn7vtl6" path="res://assets/characters/slash.obj" id="2_w5txv"]
-[ext_resource type="Texture2D" uid="uid://cu84c3rcid7gm" path="res://assets/characters/textures/slash_distortion_swirl.png" id="4_0h6ik"]
 [ext_resource type="Texture2D" uid="uid://diqxx6utgjpje" path="res://assets/characters/textures/slash_tex_1_base_1.png" id="4_w5txv"]
 [ext_resource type="Texture2D" uid="uid://baggrujuhobr6" path="res://assets/characters/textures/slash_text_1_hl.png" id="5_pia35"]
 
@@ -11,7 +10,7 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7a3c3"]
 render_priority = 0
 shader = ExtResource("2_pia35")
-shader_parameter/BaseColor = Color(0.88416094, 1.3693931, 1.468, 1)
+shader_parameter/BaseColor = Color(6.7378996e-06, 0.9027443, 1.0252002, 1)
 shader_parameter/BaseTexture = ExtResource("4_w5txv")
 shader_parameter/HighlightColor = Color(4.123, 4.123, 4.123, 1)
 shader_parameter/HighlightTexture = ExtResource("5_pia35")
@@ -19,9 +18,8 @@ shader_parameter/progress = -1.0
 shader_parameter/DissolveTexture = SubResource("NoiseTexture2D_0h6ik")
 shader_parameter/DissolveValue = 0.0
 shader_parameter/GlowIntensity = 2.0
-shader_parameter/GlowColor = Color(1, 1, 1, 1)
+shader_parameter/GlowColor = Color(1, 0.9, 0.6, 1)
 shader_parameter/DistortionStrength = 0.03
-shader_parameter/DistortionTexture = ExtResource("4_0h6ik")
 
 [sub_resource type="Animation" id="Animation_16vmh"]
 length = 0.45

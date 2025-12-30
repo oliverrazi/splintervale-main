@@ -1,0 +1,1907 @@
+[gd_scene load_steps=102 format=3 uid="uid://buyot0jcuwm0l"]
+
+[ext_resource type="Texture2D" uid="uid://dhdosyhlqia2e" path="res://assets/base_tiles/textures/grass_pixel.png" id="1_2u3nc"]
+[ext_resource type="Texture2D" uid="uid://da553bbr72aa6" path="res://assets/base_tiles/textures/grass_pixel_normal.png" id="2_udxuc"]
+[ext_resource type="Texture2D" uid="uid://d0nds8xjmg4mt" path="res://assets/base_tiles/textures/wall1.png" id="3_ikiii"]
+[ext_resource type="Texture2D" uid="uid://djjsjsl6vx3ie" path="res://assets/base_tiles/textures/wall1_specular.png" id="4_cbp6q"]
+[ext_resource type="PackedScene" uid="uid://cd3ww7pd3fcbo" path="res://character_body_3d.tscn" id="4_ioo17"]
+[ext_resource type="Texture2D" uid="uid://b5tn2d3f4o34f" path="res://assets/base_tiles/textures/dirtpixel.png" id="5_k83mh"]
+[ext_resource type="Shader" uid="uid://cr5caoegammj2" path="res://scenes/skyshader.gdshader" id="5_wse8f"]
+[ext_resource type="CameraAttributesPractical" uid="uid://p16ene1hmixs" path="res://assets/camera_attributes/new_camera_attributes_practical.tres" id="6_ic0uy"]
+[ext_resource type="Texture2D" uid="uid://r4yk0pdb8ndm" path="res://assets/base_tiles/textures/dirtpixel_normal.png" id="6_qktwf"]
+[ext_resource type="Script" uid="uid://d2s3eygfy4w3d" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="7_26xuy"]
+[ext_resource type="Script" uid="uid://bjr6vtupoqads" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="8_bc84e"]
+[ext_resource type="Script" uid="uid://cbhr7copeixmt" path="res://scripts/tree_distance_culling.gd" id="8_o3ebs"]
+[ext_resource type="Script" uid="uid://bfursro1ef0cy" path="res://scripts/world/grass_chunk_painter.gd" id="8_wse8f"]
+[ext_resource type="PackedScene" uid="uid://dbw8pa1qxayia" path="res://scenes/world/grass_chunk.tscn" id="9_ic0uy"]
+[ext_resource type="Script" uid="uid://c1cosj70m0bns" path="res://scripts/grass_distance_culling.gd" id="11_o3ebs"]
+[ext_resource type="Script" uid="uid://pedkkhcfiu6g" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="11_wjb0r"]
+[ext_resource type="Script" uid="uid://dxbe6as3mgyrj" path="res://addons/proton_scatter/src/scatter.gd" id="12_bc84e"]
+[ext_resource type="Script" uid="uid://bhl7knpd3mcyr" path="res://addons/proton_scatter/src/modifiers/randomize_transforms.gd" id="12_mc2jv"]
+[ext_resource type="Script" uid="uid://8om2527chq3" path="res://addons/proton_scatter/src/modifiers/relax.gd" id="13_bo7i5"]
+[ext_resource type="Script" uid="uid://bwyb0g6mj0l1v" path="res://addons/proton_scatter/src/modifiers/project_on_geometry.gd" id="14_4h6ng"]
+[ext_resource type="Script" uid="uid://b1m8asysmojhg" path="res://addons/proton_scatter/src/shapes/box_shape.gd" id="16_bc84e"]
+[ext_resource type="Shader" uid="uid://dud3t7cf1ck31" path="res://scenes/grass2.gdshader" id="16_wukud"]
+[ext_resource type="Script" uid="uid://dirmtvl6hlx61" path="res://addons/proton_scatter/src/shapes/path_shape.gd" id="19_il2jm"]
+[ext_resource type="Script" uid="uid://dkgglvibqh5gu" path="res://addons/proton_scatter/src/scatter_item.gd" id="19_o3ebs"]
+[ext_resource type="Script" uid="uid://dt3rdsitq7upy" path="res://addons/proton_scatter/src/scatter_shape.gd" id="20_k83mh"]
+[ext_resource type="PackedScene" uid="uid://c8u5vyoqg0wea" path="res://assets/base_tiles/trees/pinetree.tscn" id="20_wjb0r"]
+[ext_resource type="PackedScene" uid="uid://ct7vr1uk5nocu" path="res://assets/base_tiles/trees/tree_2.tscn" id="21_mc2jv"]
+[ext_resource type="PackedScene" uid="uid://cif4kcojy56oj" path="res://assets/base_tiles/trees/tree_1.tscn" id="22_bo7i5"]
+[ext_resource type="Shader" uid="uid://brvo4l5ljo0ju" path="res://scenes/Water.gdshader" id="24_qktwf"]
+[ext_resource type="PackedScene" uid="uid://carynrqtho3nk" path="res://assets/enemies/goblin/goblin.tscn" id="25_bh8nc"]
+[ext_resource type="AudioStream" uid="uid://cls0vrcyxd2j4" path="res://assets/audio/music/overworld2.mp3" id="29_k83mh"]
+
+[sub_resource type="Gradient" id="Gradient_wukud"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_il2jm"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_wjb0r"]
+noise = SubResource("FastNoiseLite_il2jm")
+color_ramp = SubResource("Gradient_wukud")
+seamless = true
+
+[sub_resource type="Shader" id="Shader_mc2jv"]
+code = "shader_type spatial;
+render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;
+
+/* The terrain depends on this shader to function. Don't change most things in vertex() or 
+ * terrain normal calculations in fragment(). You probably only want to customize the 
+ * material calculation and PBR application in fragment().
+ *
+ * Uniforms that begin with _ are private and will not display in the inspector. However, 
+ * you can set them via code. You are welcome to create more of your own hidden uniforms.
+ *
+ * This system only supports albedo, height, normal, roughness. Most textures don't need the other
+ * PBR channels. Height can be used as an approximation for AO. For the rare textures do need
+ * additional channels, you can add maps for that one texture. e.g. an emissive map for lava.
+ *
+ */
+
+// Defined Constants
+#define SKIP_PASS 0
+#define VERTEX_PASS 1
+#define FRAGMENT_PASS 2
+#define COLOR_MAP_DEF vec4(1.0, 1.0, 1.0, 0.5)
+#define DIV_255 0.003921568627450 // 1. / 255.
+#define DIV_1024 0.0009765625 // 1. / 1024.
+#define TAU_16TH -0.392699081698724 // -TAU / 16.
+
+// Inline Functions
+#define DECODE_BLEND(control) float(control >> 14u & 0xFFu) * DIV_255
+#define DECODE_AUTO(control) bool(control & 0x1u)
+#define DECODE_BASE(control) int(control >> 27u & 0x1Fu)
+#define DECODE_OVER(control) int(control >> 22u & 0x1Fu)
+#define DECODE_ANGLE(control) float(control >>10u & 0xFu) * TAU_16TH
+// This math recreates the scale value directly rather than using an 8 float const array.
+#define DECODE_SCALE(control) (0.9 - float(((control >>7u & 0x7u) + 3u) % 8u + 1u) * 0.1)
+#define DECODE_HOLE(control) bool(control >>2u & 0x1u)
+
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+    #define fma(a, b, c) ((a) * (b) + (c))
+    #define dFdxCoarse(a) dFdx(a)
+    #define dFdyCoarse(a) dFdy(a)
+#endif
+
+// Private uniforms
+uniform vec3 _camera_pos = vec3(0.f);
+uniform float _mesh_size = 48.f;
+uniform uint _background_mode = 1u; // NONE = 0, FLAT = 1, NOISE = 2
+uniform uint _mouse_layer = 0x80000000u; // Layer 32
+uniform float _vertex_spacing = 1.0;
+uniform float _vertex_density = 1.0; // = 1./_vertex_spacing
+uniform float _region_size = 1024.0;
+uniform float _region_texel_size = 0.0009765625; // = 1./region_size
+uniform int _region_map_size = 32;
+uniform int _region_map[1024];
+uniform vec2 _region_locations[1024];
+uniform float _texture_normal_depth_array[32];
+uniform float _texture_ao_strength_array[32];
+uniform float _texture_roughness_mod_array[32];
+uniform float _texture_uv_scale_array[32];
+uniform vec2 _texture_detile_array[32];
+uniform vec4 _texture_color_array[32];
+uniform highp sampler2DArray _height_maps : repeat_disable;
+uniform highp sampler2DArray _control_maps : repeat_disable;
+#define FILTER_LINEAR
+uniform highp sampler2DArray _color_maps : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
+uniform highp sampler2DArray _texture_array_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform highp sampler2DArray _texture_array_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+
+
+// Public uniforms
+uniform float blend_sharpness : hint_range(0, 1) = 0.5;
+uniform bool flat_terrain_normals = false;
+uniform bool enable_projection = true;
+uniform float projection_threshold : hint_range(0.0, 0.99, 0.01) = 0.8;
+
+uniform float mipmap_bias : hint_range(0.5, 1.5, 0.01) = 1.0;
+uniform float depth_blur : hint_range(0.0, 35.0, 0.1) = 0.0;
+uniform float bias_distance : hint_range(0.0, 16384.0, 0.1) = 512.0;
+
+uniform bool enable_macro_variation = true;
+uniform vec3 macro_variation1 : source_color = vec3(1.);
+uniform vec3 macro_variation2 : source_color = vec3(1.);
+uniform float macro_variation_slope : hint_range(0., 1.)  = 0.333;
+
+// Generic noise at 2 scales, which can be used for anything 
+uniform highp sampler2D noise_texture : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+
+uniform float noise1_scale : hint_range(0.001, 1.) = 0.04; // Used for macro variation 1. Scaled up 10x
+uniform float noise1_angle : hint_range(0, 6.283) = 0.;
+uniform vec2 noise1_offset = vec2(0.5);
+uniform float noise2_scale : hint_range(0.001, 1.) = 0.076;	// Used for macro variation 2. Scaled up 10x
+
+// Varyings & Types
+
+struct material {
+	vec4 albedo_height;
+	vec4 normal_rough;
+	float normal_map_depth;
+	float ao_strength;
+	float total_weight;
+};
+
+varying float v_vertex_xz_dist;
+varying vec3 v_vertex;
+
+////////////////////////
+// Vertex
+////////////////////////
+
+// Takes in world space XZ (UV) coordinates & search depth (only applicable for background mode none)
+// Returns ivec3 with:
+// XY: (0 to _region_size - 1) coordinates within a region
+// Z: layer index used for texturearrays, -1 if not in a region
+ivec3 get_index_coord(const vec2 uv, const int search) {
+	vec2 r_uv = round(uv);
+	vec2 o_uv = mod(r_uv,_region_size);
+	ivec2 pos;
+	int bounds, layer_index = -1;
+	for (int i = -1; i < clamp(search, SKIP_PASS, FRAGMENT_PASS); i++) {
+		if ((layer_index == -1 && _background_mode == 0u ) || i < 0) {
+			r_uv -= i == -1 ? vec2(0.0) : vec2(float(o_uv.x <= o_uv.y), float(o_uv.y <= o_uv.x));
+			pos = ivec2(floor((r_uv) * _region_texel_size)) + (_region_map_size / 2);
+			bounds = int(uint(pos.x | pos.y) < uint(_region_map_size));
+			layer_index = (_region_map[ pos.y * _region_map_size + pos.x ] * bounds - 1);
+		}
+	}
+	return ivec3(ivec2(mod(r_uv,_region_size)), layer_index);
+}
+
+// Takes in descaled (world_space / region_size) world to region space XZ (UV2) coordinates, returns vec3 with:
+// XY: (0. to 1.) coordinates within a region
+// Z: layer index used for texturearrays, -1 if not in a region
+vec3 get_index_uv(const vec2 uv2) {
+	ivec2 pos = ivec2(floor(uv2)) + (_region_map_size / 2);
+	int bounds = int(uint(pos.x | pos.y) < uint(_region_map_size));
+	int layer_index = _region_map[ pos.y * _region_map_size + pos.x ] * bounds - 1;
+	return vec3(uv2 - _region_locations[layer_index], float(layer_index));
+}
+
+void vertex() {
+	// Get vertex of flat plane in world coordinates and set world UV
+	v_vertex = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+
+	// Camera distance to vertex on flat plane
+	v_vertex_xz_dist = length(v_vertex.xz - _camera_pos.xz);
+
+	// Geomorph vertex, set end and start for linear height interpolate
+	float scale = MODEL_MATRIX[0][0];
+	float vertex_lerp = smoothstep(0.55, 0.95, (v_vertex_xz_dist / scale - _mesh_size - 4.0) / (_mesh_size - 2.0));
+	vec2 v_fract = fract(VERTEX.xz * 0.5) * 2.0;
+	// For LOD0 morph from a regular grid to an alternating grid to align with LOD1+
+	vec2 shift = (scale < _vertex_spacing + 1e-6) ? // LOD0 or not
+		// Shift from regular to symetric
+		mix(v_fract, vec2(v_fract.x, -v_fract.y),
+			round(fract(round(mod(v_vertex.z * _vertex_density, 4.0)) *
+			round(mod(v_vertex.x * _vertex_density, 4.0)) * 0.25))
+			) :
+		// Symetric shift
+		v_fract * round((fract(v_vertex.xz * 0.25 / scale) - 0.5) * 4.0);
+	vec2 start_pos = v_vertex.xz * _vertex_density;
+	vec2 end_pos = (v_vertex.xz - shift * scale) * _vertex_density;
+	v_vertex.xz -= shift * scale * vertex_lerp;
+
+	// UV coordinates in world space. Values are 0 to _region_size within regions
+	UV = v_vertex.xz * _vertex_density;
+
+	// UV coordinates in region space + texel offset. Values are 0 to 1 within regions
+	UV2 = fma(UV, vec2(_region_texel_size), vec2(0.5 * _region_texel_size));
+
+	// Discard vertices for Holes. 1 lookup
+	ivec3 v_region = get_index_coord(start_pos, VERTEX_PASS);
+	uint control = floatBitsToUint(texelFetch(_control_maps, v_region, 0)).r;
+	bool hole = DECODE_HOLE(control);
+
+	// Show holes to all cameras except mouse camera (on exactly 1 layer)
+	if ( !(CAMERA_VISIBLE_LAYERS == _mouse_layer) && 
+			(hole || (_background_mode == 0u && v_region.z == -1))) {
+		v_vertex.x = 0. / 0.;
+	} else {		
+		// Set final vertex height & calculate vertex normals. 3 lookups
+		ivec3 coord_a = get_index_coord(start_pos, VERTEX_PASS);
+		ivec3 coord_b = get_index_coord(end_pos, VERTEX_PASS);
+		float h = mix(texelFetch(_height_maps, coord_a, 0).r,texelFetch(_height_maps, coord_b, 0).r,vertex_lerp);
+		v_vertex.y = h;
+	}
+
+	// Convert model space to view space w/ skip_vertex_transform render mode
+	VERTEX = (VIEW_MATRIX * vec4(v_vertex, 1.0)).xyz;
+	NORMAL = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
+	BINORMAL = normalize((MODELVIEW_MATRIX * vec4(BINORMAL, 0.0)).xyz);
+	TANGENT = normalize((MODELVIEW_MATRIX * vec4(TANGENT, 0.0)).xyz);
+}
+
+////////////////////////
+// Fragment
+////////////////////////
+
+float random(in vec2 xy) {
+	return fract(sin(dot(xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+vec2 rotate_vec2(const vec2 v, const vec2 cs) {
+	return vec2(fma(cs.x, v.x,  cs.y * v.y), fma(cs.x, v.y, -cs.y * v.x));
+}
+
+// 2-4 lookups ( 2-6 with dual scaling )
+void accumulate_material(const vec3 base_ddx, const vec3 base_ddy, const float weight, const ivec3 index,
+			const uint control, const vec2 texture_weight, const ivec2 texture_id, const vec3 i_normal,
+			const float h, inout material mat) {
+
+	// Index position for detiling.
+	vec2 i_pos = fma(_region_locations[index.z], vec2(_region_size), vec2(index.xy)) * _vertex_spacing;
+
+	// Projection
+	vec2 i_uv = v_vertex.xz;
+	vec4 i_dd = vec4(base_ddx.xz, base_ddy.xz);
+	mat2 p_align = mat2(1.);
+	if (i_normal.y <= projection_threshold && enable_projection) {
+		// Projected normal map alignment matrix
+		p_align = mat2(vec2(i_normal.z, -i_normal.x), vec2(i_normal.x, i_normal.z));
+		// Fast 45 degree snapping https://iquilezles.org/articles/noatan/
+		vec2 xz = round(normalize(-i_normal.xz) * 1.3065629648763765); // sqrt(1.0 + sqrt(0.5))
+		xz *= abs(xz.x) + abs(xz.y) > 1.5 ? 0.7071067811865475 : 1.0; // sqrt(0.5)
+		xz = vec2(-xz.y, xz.x);
+		i_pos = floor(vec2(dot(i_pos, xz), -h));
+		i_uv = vec2(dot(v_vertex.xz, xz), -v_vertex.y);
+		i_dd.xy = vec2(dot(base_ddx.xz, xz), -base_ddx.y);
+		i_dd.zw = vec2(dot(base_ddy.xz, xz), -base_ddy.y);
+	}
+
+	// Control map scale
+	float control_scale = DECODE_SCALE(control);
+	i_dd *= control_scale;
+	i_uv *= control_scale;
+	i_pos *= control_scale;
+
+	// Control map rotation. Must be applied seperatley from detiling to maintain UV continuity.
+	float c_angle = DECODE_ANGLE(control);
+	vec2 c_cs_angle = vec2(cos(c_angle), sin(c_angle));
+	i_uv = rotate_vec2(i_uv, c_cs_angle);
+	i_pos = rotate_vec2(i_pos, c_cs_angle);
+
+	// Blend adjustment of Higher ID from Lower ID normal map in world space.
+	float world_normal = 1.;
+	vec3 T = normalize(base_ddx), B = -normalize(base_ddy);
+	// mat3 multiply, reduced to 2x fma and 1x mult.
+	#define FAST_WORLD_NORMAL(n) fma(T, vec3(n.x), fma(B, vec3(n.z), i_normal * vec3(n.y)))
+	
+	float blend = DECODE_BLEND(control); // only used for branching.
+	float sharpness = fma(56., blend_sharpness, 8.);
+
+
+	// 1st Texture Asset ID
+	if (blend < 1.0 
+			) {
+		const int id = texture_id[0];
+		const float id_w = texture_weight[0];
+		float id_scale = _texture_uv_scale_array[id];
+		vec4 id_dd = i_dd * id_scale;
+
+		// Detiling and Control map rotation
+		vec2 uv_center = floor(fma(i_pos, vec2(id_scale), vec2(0.5)));
+		vec2 id_detile = fma(random(uv_center), 2.0, -1.0) * _texture_detile_array[id] * TAU;
+		vec2 id_cs_angle = vec2(cos(id_detile.x), sin(id_detile.x));
+		// Apply UV rotation and shift around pivot.
+		vec2 id_uv = rotate_vec2(fma(i_uv, vec2(id_scale), -uv_center), id_cs_angle) + uv_center + id_detile.y - 0.5;
+		// Manual transpose to rotate derivatives and normals counter to uv rotation whilst also
+		// including control map rotation. avoids extra matrix op, and sin/cos calls.
+		id_cs_angle = vec2(
+			fma(id_cs_angle.x, c_cs_angle.x, -id_cs_angle.y * c_cs_angle.y),
+			fma(id_cs_angle.y, c_cs_angle.x, id_cs_angle.x * c_cs_angle.y));
+		// Align derivatives for correct anisotropic filtering
+		id_dd.xy = rotate_vec2(id_dd.xy, id_cs_angle);
+		id_dd.zw = rotate_vec2(id_dd.zw, id_cs_angle);
+
+		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+
+		alb.rgb *= _texture_color_array[id].rgb;
+		nrm.a = clamp(nrm.a + _texture_roughness_mod_array[id], 0., 1.);
+		// Unpack and rotate normal map.
+		nrm.xyz = fma(nrm.xzy, vec3(2.0), vec3(-1.0));
+		nrm.xz = rotate_vec2(nrm.xz, id_cs_angle) * p_align;
+
+		world_normal = FAST_WORLD_NORMAL(nrm).y;
+
+		float id_weight = exp2(sharpness * log2(weight + id_w + alb.a)) * weight;
+		mat.albedo_height = fma(alb, vec4(id_weight), mat.albedo_height);
+		mat.normal_rough = fma(nrm, vec4(id_weight), mat.normal_rough);
+		mat.normal_map_depth = fma(_texture_normal_depth_array[id], id_weight, mat.normal_map_depth);
+		mat.ao_strength = fma(_texture_ao_strength_array[id], id_weight, mat.ao_strength);
+		mat.total_weight += id_weight;
+	}
+
+	// 2nd Texture Asset ID
+	if (blend > 0.0 && texture_id[1] != texture_id[0]
+		) {
+		const int id = texture_id[1];
+		const float id_w = texture_weight[1];
+		float id_scale = _texture_uv_scale_array[id];
+		vec4 id_dd = i_dd * id_scale;
+
+		// Detiling and Control map rotation
+		vec2 uv_center = floor(fma(i_pos, vec2(id_scale), vec2(0.5)));
+		vec2 id_detile = _texture_detile_array[id] * fma(random(uv_center), 2.0, -1.0) * TAU;
+		vec2 id_cs_angle = vec2(cos(id_detile.x), sin(id_detile.x));
+		// Apply UV rotation and shift around pivot.
+		vec2 id_uv = rotate_vec2(fma(i_uv, vec2(id_scale), -uv_center), id_cs_angle) + uv_center + id_detile.y - 0.5;
+		// Manual transpose to rotate derivatives and normals counter to uv rotation whilst also
+		// including control map rotation. avoids extra matrix op, and sin/cos calls.
+		id_cs_angle = vec2(
+			fma(id_cs_angle.x, c_cs_angle.x, -id_cs_angle.y * c_cs_angle.y),
+			fma(id_cs_angle.y, c_cs_angle.x,  id_cs_angle.x * c_cs_angle.y));
+		// Align derivatives for correct anisotropic filtering
+		id_dd.xy = rotate_vec2(id_dd.xy, id_cs_angle);
+		id_dd.zw = rotate_vec2(id_dd.zw, id_cs_angle);
+
+		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		alb.rgb *= _texture_color_array[id].rgb;
+		nrm.a = clamp(nrm.a + _texture_roughness_mod_array[id], 0., 1.);
+		// Unpack and rotate normal map.
+		nrm.xyz = fma(nrm.xzy, vec3(2.0), vec3(-1.0));
+		nrm.xz = rotate_vec2(nrm.xz, id_cs_angle) * p_align;
+
+		float id_weight = exp2(sharpness * log2(weight + id_w + alb.a * clamp(world_normal, 0., 1.))) * weight;
+		mat.albedo_height = fma(alb, vec4(id_weight), mat.albedo_height);
+		mat.normal_rough = fma(nrm, vec4(id_weight), mat.normal_rough);
+		mat.normal_map_depth = fma(_texture_normal_depth_array[id], id_weight, mat.normal_map_depth);
+		mat.ao_strength = fma(_texture_ao_strength_array[id], id_weight, mat.ao_strength);
+		mat.total_weight += id_weight;
+	}
+}
+
+void fragment() {
+	// Recover UVs
+	vec2 uv = UV;
+	vec2 uv2 = UV2;
+	
+	// Lookup offsets, ID and blend weight
+	vec3 region_uv = get_index_uv(uv2);
+	const vec3 offsets = vec3(0, 1, 2);
+	vec2 index_id = floor(uv);
+	vec2 weight = fract(uv);
+	vec2 invert = 1.0 - weight;
+	vec4 weights = vec4(
+		invert.x * weight.y, // 0
+		weight.x * weight.y, // 1
+		weight.x * invert.y, // 2
+		invert.x * invert.y  // 3
+	);
+
+	ivec3 index[4];
+	// control map lookups, used for some normal lookups as well
+	index[0] = get_index_coord(index_id + offsets.xy, FRAGMENT_PASS);
+	index[1] = get_index_coord(index_id + offsets.yy, FRAGMENT_PASS);
+	index[2] = get_index_coord(index_id + offsets.yx, FRAGMENT_PASS);
+	index[3] = get_index_coord(index_id + offsets.xx, FRAGMENT_PASS);
+	
+	vec3 base_ddx = dFdxCoarse(v_vertex);
+	vec3 base_ddy = dFdyCoarse(v_vertex);
+	// Calculate the effective mipmap for regionspace, and when less than 0,
+	// skip all extra lookups required for bilinear blend.
+	float region_mip = log2(max(length(base_ddx.xz), length(base_ddy.xz)) * _vertex_density);
+	bool bilerp = region_mip < 0.0 && region_uv.z > -1.;
+
+	// Terrain normals
+	vec3 index_normal[4];
+	float h[4];
+	// allows additional derivatives, eg world noise, brush previews etc
+	float u = 0.0;
+	float v = 0.0;
+	
+	// Re-use index[] for the first lookups, skipping some math. 3 lookups
+	h[3] = texelFetch(_height_maps, index[3], 0).r; // 0 (0,0)
+	h[2] = texelFetch(_height_maps, index[2], 0).r; // 1 (1,0)
+	h[0] = texelFetch(_height_maps, index[0], 0).r; // 2 (0,1)
+	index_normal[3] = normalize(vec3(h[3] - h[2] + u, _vertex_spacing, h[3] - h[0] + v));
+
+	// Set flat world normal - overwritten if bilerp is true
+	vec3 w_normal = index_normal[3];
+
+	// Adjust derivatives for mipmap bias and depth blur effect
+	float bias = mix(mipmap_bias,
+		depth_blur + 1.,
+		smoothstep(0.0, 1.0, (v_vertex_xz_dist - bias_distance) * DIV_1024));
+	base_ddx *= bias;
+	base_ddy *= bias;
+
+	// Color map
+	vec4 color_map = region_uv.z > -1.0 ? textureLod(_color_maps, region_uv, region_mip) : COLOR_MAP_DEF;
+
+	// Branching smooth normals and manually interpolated color map - fixes cross region artifacts
+	if (bilerp) {
+		// 4 lookups if linear filtering, else 1 lookup.
+		vec4 col_map[4];
+		col_map[3] = index[3].z > -1 ? texelFetch(_color_maps, index[3], 0) : COLOR_MAP_DEF;
+		#ifdef FILTER_LINEAR
+		col_map[0] = index[0].z > -1 ? texelFetch(_color_maps, index[0], 0) : COLOR_MAP_DEF;
+		col_map[1] = index[1].z > -1 ? texelFetch(_color_maps, index[1], 0) : COLOR_MAP_DEF;
+		col_map[2] = index[2].z > -1 ? texelFetch(_color_maps, index[2], 0) : COLOR_MAP_DEF;
+
+		color_map =
+			col_map[0] * weights[0] +
+			col_map[1] * weights[1] +
+			col_map[2] * weights[2] +
+			col_map[3] * weights[3] ;
+		#else
+		color_map = col_map[3];
+		#endif
+
+		// 5 lookups
+		// Fetch the additional required height values for smooth normals
+		h[1] = texelFetch(_height_maps, index[1], 0).r; // 3 (1,1)
+		float h_4 = texelFetch(_height_maps, get_index_coord(index_id + offsets.yz, FRAGMENT_PASS), 0).r; // 4 (1,2)
+		float h_5 = texelFetch(_height_maps, get_index_coord(index_id + offsets.zy, FRAGMENT_PASS), 0).r; // 5 (2,1)
+		float h_6 = texelFetch(_height_maps, get_index_coord(index_id + offsets.zx, FRAGMENT_PASS), 0).r; // 6 (2,0)
+		float h_7 = texelFetch(_height_maps, get_index_coord(index_id + offsets.xz, FRAGMENT_PASS), 0).r; // 7 (0,2)
+
+		// Calculate the normal for the remaining index ids.
+		index_normal[0] = normalize(vec3(h[0] - h[1] + u, _vertex_spacing, h[0] - h_7 + v));
+		index_normal[1] = normalize(vec3(h[1] - h_5 + u, _vertex_spacing, h[1] - h_4 + v));
+		index_normal[2] = normalize(vec3(h[2] - h_6 + u, _vertex_spacing, h[2] - h[1] + v));
+
+		// Set interpolated world normal
+		w_normal =
+			index_normal[0] * weights[0] +
+			index_normal[1] * weights[1] +
+			index_normal[2] * weights[2] +
+			index_normal[3] * weights[3] ;
+	}
+
+	// Apply terrain normals
+	if (flat_terrain_normals) {
+		NORMAL = normalize(cross(dFdyCoarse(VERTEX),dFdxCoarse(VERTEX)));
+		TANGENT = normalize(cross(NORMAL, VIEW_MATRIX[2].xyz));
+		BINORMAL = normalize(cross(NORMAL, TANGENT));
+	} else {
+		vec3 w_tangent = normalize(cross(w_normal, vec3(0.0, 0.0, 1.0)));
+		vec3 w_binormal = normalize(cross(w_normal, w_tangent));
+		NORMAL = mat3(VIEW_MATRIX) * w_normal;
+		TANGENT = mat3(VIEW_MATRIX) * w_tangent;
+		BINORMAL = mat3(VIEW_MATRIX) * w_binormal;
+	}
+
+	// Get index control data
+	// 1 - 4 lookups
+	uvec4 control = uvec4(floatBitsToUint(texelFetch(_control_maps, index[3], 0).r));
+	if (bilerp) {
+		control = uvec4(
+		floatBitsToUint(texelFetch(_control_maps, index[0], 0).r),
+		floatBitsToUint(texelFetch(_control_maps, index[1], 0).r),
+		floatBitsToUint(texelFetch(_control_maps, index[2], 0).r),
+		control[3]);
+	}
+
+
+	// Texture weights
+	// Vectorised Deocode of all texture IDs, then swizzle to per index mapping.
+	// Passed to accumulate_material to avoid repeated decoding.
+	ivec4 t_id[2] = {ivec4(control >> uvec4(27u) & uvec4(0x1Fu)),
+		ivec4(control >> uvec4(22u) & uvec4(0x1Fu))};
+	ivec2 texture_ids[4] = ivec2[4](
+		ivec2(t_id[0].x, t_id[1].x),
+		ivec2(t_id[0].y, t_id[1].y),
+		ivec2(t_id[0].z, t_id[1].z),
+		ivec2(t_id[0].w, t_id[1].w));
+
+	// uninterpolated weights.
+	vec4 weights_id_1 = vec4(control >> uvec4(14u) & uvec4(0xFFu)) * DIV_255;
+	vec4 weights_id_0 = 1.0 - weights_id_1;
+	vec2 t_weights[4] = vec2[4](
+				vec2(weights_id_0[0], weights_id_1[0]),
+				vec2(weights_id_0[1], weights_id_1[1]),
+				vec2(weights_id_0[2], weights_id_1[2]),
+				vec2(weights_id_0[3], weights_id_1[3]));
+	// interpolated weights
+	#if CURRENT_RENDERER == RENDERER_FORWARD_PLUS
+	if (bilerp) {
+		t_weights = {vec2(0), vec2(0), vec2(0), vec2(0)};
+		weights_id_0 *= weights;
+		weights_id_1 *= weights;
+		for (int i = 0; i < 4; i++) {
+			vec2 w_0 = vec2(weights_id_0[i]);
+			vec2 w_1 = vec2(weights_id_1[i]);
+			ivec2 id_0 = texture_ids[i].xx;
+			ivec2 id_1 = texture_ids[i].yy;
+			t_weights[0] += fma(w_0, vec2(equal(texture_ids[0], id_0)), w_1 * vec2(equal(texture_ids[0], id_1)));
+			t_weights[1] += fma(w_0, vec2(equal(texture_ids[1], id_0)), w_1 * vec2(equal(texture_ids[1], id_1)));
+			t_weights[2] += fma(w_0, vec2(equal(texture_ids[2], id_0)), w_1 * vec2(equal(texture_ids[2], id_1)));
+			t_weights[3] += fma(w_0, vec2(equal(texture_ids[3], id_0)), w_1 * vec2(equal(texture_ids[3], id_1)));
+		}
+	}
+	#endif
+
+	// Struct to accumulate all texture data.
+	material mat = material(vec4(0.0), vec4(0.0), 0., 0., 0.);
+
+	// 2 - 4 lookups, 2 - 6 if dual scale texture
+	accumulate_material(base_ddx, base_ddy, weights[3], index[3], control[3], t_weights[3],
+		texture_ids[3], index_normal[3], h[3], mat);
+
+	// 6 - 12 lookups, 6 - 18 if dual scale texture
+	if (bilerp) {
+		accumulate_material(base_ddx, base_ddy, weights[2], index[2], control[2], t_weights[2],
+			texture_ids[2], index_normal[2], h[2], mat);
+		accumulate_material(base_ddx, base_ddy, weights[1], index[1], control[1], t_weights[1],
+			texture_ids[1], index_normal[1], h[1], mat);
+		accumulate_material(base_ddx, base_ddy, weights[0], index[0], control[0], t_weights[0],
+			texture_ids[0], index_normal[0], h[0], mat);
+	}
+
+	// normalize accumulated values back to 0.0 - 1.0 range.
+	float weight_inv = 1.0 / mat.total_weight;
+	mat.albedo_height *= weight_inv;
+	mat.normal_rough *= weight_inv;
+	mat.normal_map_depth *= weight_inv;
+	mat.ao_strength *= weight_inv;
+
+	// Macro variation. 2 lookups
+	vec3 macrov = vec3(1.);
+	if (enable_macro_variation) {
+		float noise1 = texture(noise_texture, rotate_vec2(fma(uv, vec2(noise1_scale * .1), noise1_offset) , vec2(cos(noise1_angle), sin(noise1_angle)))).r;
+		float noise2 = texture(noise_texture, uv * noise2_scale * .1).r;
+		macrov = mix(macro_variation1, vec3(1.), noise1);
+		macrov *= mix(macro_variation2, vec3(1.), noise2);
+		macrov = mix(vec3(1.0), macrov, clamp(w_normal.y + macro_variation_slope, 0., 1.));
+	}
+	
+	// Wetness/roughness modifier, converting 0 - 1 range to -1 to 1 range, clamped to Godot roughness values 
+	float roughness = clamp(fma(color_map.a - 0.5, 2.0, mat.normal_rough.a), 0., 1.);
+	
+	// Apply PBR
+	ALBEDO = mat.albedo_height.rgb * color_map.rgb * macrov;
+	ROUGHNESS = roughness;
+	SPECULAR = 1. - mat.normal_rough.a;
+	// Repack final normal map value.
+	NORMAL_MAP = fma(normalize(mat.normal_rough.xzy), vec3(0.5), vec3(0.5));
+	NORMAL_MAP_DEPTH = mat.normal_map_depth;
+
+	// Higher and/or facing up, less occluded.
+	float ao = (1. - (mat.albedo_height.a * log(2.1 - mat.ao_strength))) * (1. - mat.normal_rough.y);
+	AO = clamp(1. - ao * mat.ao_strength, mat.albedo_height.a, 1.0);
+	AO_LIGHT_AFFECT = (1.0 - mat.albedo_height.a) * clamp(mat.normal_rough.y, 0., 1.);
+
+}
+
+"
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_bo7i5"]
+_shader_parameters = {
+&"auto_base_texture": 1,
+&"auto_height_reduction": 0.1,
+&"auto_overlay_texture": 0,
+&"auto_slope": 1.8110000860225,
+&"bias_distance": 512.0,
+&"blend_sharpness": 0.0,
+&"depth_blur": 0.0,
+&"enable_macro_variation": true,
+&"enable_projection": false,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1, 1, 1, 1),
+&"macro_variation2": Color(1, 1, 1, 1),
+&"macro_variation_slope": 0.333,
+&"mipmap_bias": 1.0,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.076,
+&"noise_texture": SubResource("NoiseTexture2D_wjb0r"),
+&"projection_threshold": 0.8
+}
+auto_shader = true
+shader_override = SubResource("Shader_mc2jv")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4h6ng"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_o3ebs"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_4h6ng")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_k83mh"]
+name = "grass"
+albedo_texture = ExtResource("1_2u3nc")
+normal_texture = ExtResource("2_udxuc")
+normal_depth = 2.0
+ao_strength = 0.0
+roughness = 0.554
+uv_scale = 0.9
+detiling_rotation = 0.959
+detiling_shift = 0.856
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_qktwf"]
+name = "wall1"
+id = 1
+albedo_texture = ExtResource("3_ikiii")
+normal_texture = ExtResource("4_cbp6q")
+roughness = 0.419
+uv_scale = 1.105
+detiling_rotation = 0.585
+detiling_shift = 0.7
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_bh8nc"]
+name = "wall1"
+id = 2
+albedo_texture = ExtResource("5_k83mh")
+normal_texture = ExtResource("6_qktwf")
+normal_depth = 2.0
+ao_strength = 2.0
+roughness = 0.564
+uv_scale = 1.574
+detiling_rotation = 0.67
+detiling_shift = 0.43
+
+[sub_resource type="Terrain3DAssets" id="Terrain3DAssets_jjr1n"]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_o3ebs")])
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_k83mh"), SubResource("Terrain3DTextureAsset_qktwf"), SubResource("Terrain3DTextureAsset_bh8nc")])
+
+[sub_resource type="Resource" id="Resource_bh8nc"]
+script = ExtResource("11_wjb0r")
+amount = 20000
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_jjr1n"]
+script = ExtResource("12_mc2jv")
+rotation = Vector3(0, 360, 0)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_gggvi"]
+script = ExtResource("13_bo7i5")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_w44yn"]
+script = ExtResource("14_4h6ng")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_6ah6f"]
+script = ExtResource("7_26xuy")
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_bh8nc"), SubResource("Resource_jjr1n"), SubResource("Resource_gggvi"), SubResource("Resource_w44yn")])
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_wukud"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_il2jm"]
+noise = SubResource("FastNoiseLite_wukud")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_k83mh"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_qktwf"]
+noise = SubResource("FastNoiseLite_k83mh")
+seamless_blend_skirt = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w44yn"]
+render_priority = 0
+shader = ExtResource("16_wukud")
+shader_parameter/size = 0.5
+shader_parameter/blade_bend = 0.3
+shader_parameter/size_small = 0.5
+shader_parameter/size_large = 0.6
+shader_parameter/color = Vector3(0.05, 0.2, 0.05)
+shader_parameter/color_small = Color(0.113941975, 0.39445353, 0.12961656, 1)
+shader_parameter/color_large = Color(0.0991359, 0.19597241, 0.01483356, 1)
+shader_parameter/patch_noise = SubResource("NoiseTexture2D_il2jm")
+shader_parameter/patch_scale = 10.0
+shader_parameter/wind_noise = SubResource("NoiseTexture2D_qktwf")
+shader_parameter/wind_strength = 0.2
+shader_parameter/wind_direction = Vector2(1, 0)
+shader_parameter/wind_bend_strength = 0.5
+shader_parameter/wind_ao_affect = 1.5
+shader_parameter/object_radius = 1.0
+shader_parameter/object_position = Vector3(0, 0, 0)
+
+[sub_resource type="Resource" id="Resource_4h6ng"]
+script = ExtResource("16_bc84e")
+size = Vector3(150, 1, 150)
+metadata/_custom_type_script = "uid://b1m8asysmojhg"
+
+[sub_resource type="Curve3D" id="Curve3D_k83mh"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 8.48419, -3.5762787e-07, -5.6220856, 0, 0, 0, 0, 0, 0, 4.8468037, 1.1920929e-07, -6.334259, 0, 0, 0, 0, 0, 0, 3.830824, 1.1920929e-07, -3.4480286, 0, 0, 0, 0, 0, 0, -0.25883484, -3.5762787e-07, -1.9923248, 0, 0, 0, 0, 0, 0, -1.6275158, -3.5762787e-07, -1.7236328, 0, 0, 0, 0, 0, 0, -3.6020527, 1.1920929e-07, -1.305603, 0, 0, 0, 0, 0, 0, -3.3525505, 1.1920929e-07, 6.6971283, 0, 0, 0, 0, 0, 0, 2.6810303, 1.1920929e-07, 4.6921997, 0, 0, 0, 0, 0, 0, 4.107271, 1.1920929e-07, 3.9151917, 0, 0, 0, 0, 0, 0, 4.270443, 1.1920929e-07, 5.9439697, 0, 0, 0, 0, 0, 0, 5.9987793, -3.5762787e-07, 6.2989197, 0, 0, 0, 0, 0, 0, 9.870485, -3.5762787e-07, 6.574295, 0, 0, 0, 0, 0, 0, 9.554613, -3.5762787e-07, -6.7194214),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 13
+
+[sub_resource type="Resource" id="Resource_o3ebs"]
+script = ExtResource("19_il2jm")
+curve = SubResource("Curve3D_k83mh")
+metadata/_custom_type_script = "uid://dirmtvl6hlx61"
+
+[sub_resource type="Resource" id="Resource_g1i3r"]
+script = ExtResource("11_wjb0r")
+amount = 20000
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_my276"]
+script = ExtResource("12_mc2jv")
+rotation = Vector3(0, 360, 0)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_yx0jh"]
+script = ExtResource("13_bo7i5")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_ryup7"]
+script = ExtResource("14_4h6ng")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_ytpkv"]
+script = ExtResource("7_26xuy")
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_g1i3r"), SubResource("Resource_my276"), SubResource("Resource_yx0jh"), SubResource("Resource_ryup7")])
+
+[sub_resource type="Resource" id="Resource_xpnt2"]
+script = ExtResource("16_bc84e")
+size = Vector3(67.97651, 1, 150)
+
+[sub_resource type="Curve3D" id="Curve3D_qktwf"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -7.8323364, -3.5762787e-07, 7.0142975, 0, 0, 0, 0, 0, 0, -8.874472, 1.1920929e-07, 7.9072266, 0, 0, 0, 0, 0, 0, -10.368208, 1.1920929e-07, 7.507431, 0, 0, 0, 0, 0, 0, -12.069017, 1.1920929e-07, 7.556717, 0, 0, 0, 0, 0, 0, -12.878141, 1.1920929e-07, 7.3003387, 0, 0, 0, 0, 0, 0, -13.562984, 1.1920929e-07, 5.724945, 0, 0, 0, 0, 0, 0, -14.741434, 1.1920929e-07, 4.99588, 0, 0, 0, 0, 0, 0, -16.78233, -1.1920929e-07, 4.5977783, 0, 0, 0, 0, 0, 0, -17.912766, -1.1920929e-07, 3.0735931, 0, 0, 0, 0, 0, 0, -19.337793, -1.1920929e-07, 3.1226501, 0, 0, 0, 0, 0, 0, -20.16209, -1.1920929e-07, 1.6129608, 0, 0, 0, 0, 0, 0, -20.522594, 1.1920929e-07, 1.2588806, 0, 0, 0, 0, 0, 0, -20.496721, 3.5762787e-07, 8.662476, 0, 0, 0, 0, 0, 0, -18.162928, 1.1920929e-07, 9.004303, 0, 0, 0, 0, 0, 0, -18.35751, -1.1920929e-07, 12.33139, 0, 0, 0, 0, 0, 0, -18.37347, 1.1920929e-07, 15.9114685, 0, 0, 0, 0, 0, 0, -16.426983, 1.1920929e-07, 16.7238, 0, 0, 0, 0, 0, 0, -17.417095, 1.1920929e-07, 19.317444, 0, 0, 0, 0, 0, 0, -18.416584, -1.1920929e-07, 22.561768, 0, 0, 0, 0, 0, 0, -11.320818, 1.1920929e-07, 22.155716, 0, 0, 0, 0, 0, 0, -10.659975, 1.1920929e-07, 16.628174, 0, 0, 0, 0, 0, 0, -9.357668, 1.1920929e-07, 16.070938, 0, 0, 0, 0, 0, 0, -8.508314, 1.1920929e-07, 14.269104, 0, 0, 0, 0, 0, 0, -8.668283, -1.1920929e-07, 12.726074, 0, 0, 0, 0, 0, 0, -7.922617, -1.1920929e-07, 12.558884, 0, 0, 0, 0, 0, 0, -7.6255836, -1.1920929e-07, 12.416962, 0, 0, 0, 0, 0, 0, -7.181221, -1.1920929e-07, 12.4652405, 0, 0, 0, 0, 0, 0, -6.8578587, -1.1920929e-07, 6.7821045, 0, 0, 0, 0, 0, 0, -7.8846283, -1.1920929e-07, 6.531891),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 29
+
+[sub_resource type="Resource" id="Resource_ct3wn"]
+script = ExtResource("19_il2jm")
+curve = SubResource("Curve3D_qktwf")
+metadata/_custom_type_script = "uid://dirmtvl6hlx61"
+
+[sub_resource type="Resource" id="Resource_jas3d"]
+script = ExtResource("11_wjb0r")
+amount = 15000
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_7htu6"]
+script = ExtResource("12_mc2jv")
+rotation = Vector3(0, 360, 0)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_7qk3m"]
+script = ExtResource("13_bo7i5")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_ruyqm"]
+script = ExtResource("14_4h6ng")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_fnoqa"]
+script = ExtResource("7_26xuy")
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_jas3d"), SubResource("Resource_7htu6"), SubResource("Resource_7qk3m"), SubResource("Resource_ruyqm")])
+
+[sub_resource type="Resource" id="Resource_1ew0l"]
+script = ExtResource("16_bc84e")
+size = Vector3(150, 1, 150)
+
+[sub_resource type="Curve3D" id="Curve3D_bh8nc"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -359.9286, -3.5762787e-07, -407.11426, 0, 0, 0, 0, 0, 0, -371.8031, -3.5762787e-07, -336.63965, 0, 0, 0, 0, 0, 0, -455.06604, -3.5762787e-07, -263.90625, 0, 0, 0, 0, 0, 0, -496.6339, -3.5762787e-07, -183.57422, 0, 0, 0, 0, 0, 0, -557.52893, -3.5762787e-07, -97.725586, 0, 0, 0, 0, 0, 0, -620.7028, -3.5762787e-07, -2.4072266, 0, 0, 0, 0, 0, 0, -679.6665, -3.5762787e-07, 68.31543, 0, 0, 0, 0, 0, 0, -731.28284, -3.5762787e-07, 77.81836, 0, 0, 0, 0, 0, 0, -755.4831, -3.5762787e-07, 244.29297, 0, 0, 0, 0, 0, 0, -753.6265, -3.5762787e-07, 325.13037, 0, 0, 0, 0, 0, 0, -717.54425, -3.5762787e-07, 348.0879, 0, 0, 0, 0, 0, 0, -697.9734, 5.9604645e-07, 417.4375, 0, 0, 0, 0, 0, 0, -918.6951, -3.5762787e-07, 409.33203, 0, 0, 0, 0, 0, 0, -915.23944, -1.3113022e-06, -171.03027, 0, 0, 0, 0, 0, 0, -837.0884, -1.3113022e-06, -229.26709, 0, 0, 0, 0, 0, 0, -780.5071, -3.5762787e-07, -298.26025, 0, 0, 0, 0, 0, 0, -768.0646, -3.5762787e-07, -352.85986, 0, 0, 0, 0, 0, 0, -710.6426, -3.5762787e-07, -383.3789),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 18
+
+[sub_resource type="Resource" id="Resource_yy5nj"]
+script = ExtResource("19_il2jm")
+curve = SubResource("Curve3D_bh8nc")
+metadata/_custom_type_script = "uid://dirmtvl6hlx61"
+
+[sub_resource type="Resource" id="Resource_nx736"]
+script = ExtResource("11_wjb0r")
+amount = 15000
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_55kwu"]
+script = ExtResource("12_mc2jv")
+rotation = Vector3(0, 360, 0)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_f3o6s"]
+script = ExtResource("13_bo7i5")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_k3lar"]
+script = ExtResource("14_4h6ng")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_olr1q"]
+script = ExtResource("7_26xuy")
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_nx736"), SubResource("Resource_55kwu"), SubResource("Resource_f3o6s"), SubResource("Resource_k3lar")])
+
+[sub_resource type="Resource" id="Resource_w4lh7"]
+script = ExtResource("16_bc84e")
+size = Vector3(150, 1, 150)
+
+[sub_resource type="Resource" id="Resource_q42o5"]
+script = ExtResource("11_wjb0r")
+amount = 15000
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_b7btk"]
+script = ExtResource("12_mc2jv")
+rotation = Vector3(0, 360, 0)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_kkgr2"]
+script = ExtResource("13_bo7i5")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_iett8"]
+script = ExtResource("14_4h6ng")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_r5m4j"]
+script = ExtResource("7_26xuy")
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_q42o5"), SubResource("Resource_b7btk"), SubResource("Resource_kkgr2"), SubResource("Resource_iett8")])
+
+[sub_resource type="Resource" id="Resource_75cpn"]
+script = ExtResource("16_bc84e")
+size = Vector3(150, 1, 150)
+
+[sub_resource type="Curve3D" id="Curve3D_ct3wn"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 7.7425976, -3.5762787e-07, -8.262711, 0, 0, 0, 0, 0, 0, 5.857235, -3.5762787e-07, -4.7358093, 0, 0, 0, 0, 0, 0, 5.145834, -3.5762787e-07, -2.3702545, 0, 0, 0, 0, 0, 0, -0.25883484, -3.5762787e-07, -1.9923248, 0, 0, 0, 0, 0, 0, -1.6275158, -3.5762787e-07, -1.7236328, 0, 0, 0, 0, 0, 0, -3.6020527, 1.1920929e-07, -1.305603, 0, 0, 0, 0, 0, 0, -3.3525505, 1.1920929e-07, 6.6971283, 0, 0, 0, 0, 0, 0, 2.9311295, -3.5762787e-07, 5.298294, 0, 0, 0, 0, 0, 0, 3.1444817, -3.5762787e-07, 3.83313, 0, 0, 0, 0, 0, 0, 5.665104, -3.5762787e-07, 3.6189117, 0, 0, 0, 0, 0, 0, 5.9987793, -3.5762787e-07, 6.2989197, 0, 0, 0, 0, 0, 0, 9.870485, -3.5762787e-07, 6.574295, 0, 0, 0, 0, 0, 0, 9.554613, -3.5762787e-07, -6.7194214),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 13
+
+[sub_resource type="Resource" id="Resource_ynm8w"]
+script = ExtResource("19_il2jm")
+curve = SubResource("Curve3D_ct3wn")
+
+[sub_resource type="Resource" id="Resource_e77ka"]
+script = ExtResource("11_wjb0r")
+amount = 15000
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_c0wax"]
+script = ExtResource("12_mc2jv")
+rotation = Vector3(0, 360, 0)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_sedwk"]
+script = ExtResource("13_bo7i5")
+offset_step = 0.2
+consecutive_step_multiplier = 0.75
+restrict_height = true
+
+[sub_resource type="Resource" id="Resource_37ykd"]
+script = ExtResource("14_4h6ng")
+ray_length = 5.0
+ray_offset = 5.0
+remove_points_on_miss = false
+
+[sub_resource type="Resource" id="Resource_1hvhf"]
+script = ExtResource("7_26xuy")
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_e77ka"), SubResource("Resource_c0wax"), SubResource("Resource_sedwk"), SubResource("Resource_37ykd")])
+
+[sub_resource type="Resource" id="Resource_tj74d"]
+script = ExtResource("16_bc84e")
+size = Vector3(150, 1, 150)
+
+[sub_resource type="QuadMesh" id="QuadMesh_bh8nc"]
+subdivide_width = 200
+subdivide_depth = 200
+orientation = 1
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_jjr1n"]
+noise_type = 3
+frequency = 0.0024
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_tcnuu"]
+noise = SubResource("FastNoiseLite_jjr1n")
+seamless = true
+as_normal_map = true
+bump_strength = 17.4
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gggvi"]
+noise_type = 3
+frequency = 0.0212
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_tuemg"]
+noise = SubResource("FastNoiseLite_gggvi")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_i0g27"]
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ah6f"]
+render_priority = 0
+shader = ExtResource("24_qktwf")
+shader_parameter/albedo = Color(0, 0, 0, 1)
+shader_parameter/albedo2 = Color(9.62615e-08, 0.52309686, 0.5177265, 1)
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.02
+shader_parameter/wave = SubResource("NoiseTexture2D_i0g27")
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_tcnuu")
+shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_tuemg")
+shader_parameter/wave_direction = Vector2(2, 0)
+shader_parameter/wave_direction2 = Vector2(5, 0)
+shader_parameter/time_scale = 0.005
+shader_parameter/noise_scale = 10.0
+shader_parameter/height_scale = 0.05
+shader_parameter/color_deep = Color(0.39308554, 0.39308554, 0.39308533, 0.05490196)
+shader_parameter/color_shallow = Color(0.44297108, 0.44297108, 0.44297108, 0.072000004)
+shader_parameter/beers_law = 2.0
+shader_parameter/depth_offset = 1.5
+shader_parameter/water_transparency = 0.0
+shader_parameter/refreaction_strength = 0.0
+shader_parameter/edge_scale = 0.1
+shader_parameter/near = 1.0
+shader_parameter/far = 100.0
+shader_parameter/edge_color = Color(0, 0, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wjb0r"]
+shader = ExtResource("5_wse8f")
+shader_parameter/skyColor = Color(0.7605341, 0.84164023, 0.9999998, 1)
+shader_parameter/horizonColor = Color(1.4439225e-06, 0.81353146, 0.6894747, 1)
+
+[sub_resource type="Sky" id="Sky_4arys"]
+sky_material = SubResource("ShaderMaterial_wjb0r")
+
+[sub_resource type="Environment" id="Environment_mc2jv"]
+background_mode = 2
+background_color = Color(0.06263664, 0.6265164, 0.46390855, 1)
+background_energy_multiplier = 0.46
+sky = SubResource("Sky_4arys")
+sky_custom_fov = 74.7
+ambient_light_source = 3
+ambient_light_color = Color(0.574992, 0.8786219, 0.94494164, 1)
+ambient_light_sky_contribution = 0.21
+reflected_light_source = 2
+glow_normalized = true
+glow_intensity = 0.0
+glow_bloom = 0.34
+glow_hdr_threshold = 0.91
+fog_enabled = true
+fog_light_color = Color(0, 0.40465555, 0.29033482, 1)
+fog_light_energy = 0.1
+fog_sky_affect = 0.714
+fog_height = -44.85
+
+[node name="World" type="Node3D"]
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+data_directory = "res://new_world"
+material = SubResource("Terrain3DMaterial_bo7i5")
+assets = SubResource("Terrain3DAssets_jjr1n")
+collision_mode = 2
+cast_shadows = 0
+top_level = true
+metadata/_edit_lock_ = true
+
+[node name="Trees" type="Node3D" parent="Terrain3D"]
+
+[node name="Pine" type="Node3D" parent="Terrain3D/Trees"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2004528, 0)
+script = ExtResource("8_o3ebs")
+tree_cull_distance = 100
+
+[node name="pinetree50" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 73.442795, 0.32322192, 88.62846)
+
+[node name="pinetree54" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 103.323555, 0.32322192, 23.709526)
+
+[node name="pinetree55" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 73.78775, 0.32322192, 85.4844)
+
+[node name="pinetree56" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.44090915, 0, -0.96314526, 0, 0.8504929, 0, 0.8476286, 0, 0.5009972, 77.40231, 0.32322192, 86.02986)
+
+[node name="pinetree57" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 104.58615, 0.32322192, 22.16566)
+
+[node name="pinetree58" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 107.767586, 0.32322192, 20.408743)
+
+[node name="pinetree59" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.04980856, 0, -0.9987588, 0, 0.65, 0, 0.9987588, 0, 0.04980856, 80.954994, 0.32322192, 87.90373)
+
+[node name="pinetree60" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 104.10799, 0.32322192, 17.453781)
+
+[node name="pinetree61" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 73.73028, 0.32322192, 82.02839)
+
+[node name="pinetree62" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 76.75708, 0.32322192, 84.040054)
+
+[node name="pinetree63" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 74.07523, 0.32322192, 78.88432)
+
+[node name="pinetree64" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 77.6898, 0.32322192, 79.42979)
+
+[node name="pinetree65" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 81.2097, 0.32322192, 84.43967)
+
+[node name="pinetree66" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 84.2365, 0.32322192, 86.451324)
+
+[node name="pinetree67" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 81.55466, 0.32322192, 81.2956)
+
+[node name="pinetree68" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 99.532036, 0.32322192, 11.931099)
+
+[node name="pinetree70" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 107.73993, 0.32322192, 29.337387)
+
+[node name="pinetree71" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 110.921364, 0.32322192, 27.58047)
+
+[node name="pinetree72" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 105.10984, 0.32322192, 27.58047)
+
+[node name="pinetree73" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 107.261765, 0.32322192, 24.625507)
+
+[node name="pinetree74" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 112.18396, 0.32322192, 26.036604)
+
+[node name="pinetree75" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 115.365395, 0.32322192, 24.279686)
+
+[node name="pinetree76" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 109.55387, 0.32322192, 24.279686)
+
+[node name="pinetree77" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 111.705795, 0.32322192, 21.324724)
+
+[node name="pinetree78" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 73.802315, 0.32322192, 90.55515)
+
+[node name="pinetree79" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 105.19874, 0.32322192, 24.279686)
+
+[node name="pinetree80" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 74.14727, 0.32322192, 87.41109)
+
+[node name="pinetree81" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.43574518, 0, -0.9822304, 0, 0.59291184, 0, 0.83770114, 0, 0.5109247, 77.761826, 0.32322192, 87.95655)
+
+[node name="pinetree82" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 107.60801, 0.32322192, 20.513922)
+
+[node name="pinetree83" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 110.789444, 0.32322192, 18.757004)
+
+[node name="pinetree84" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 104.97792, 0.32322192, 18.757004)
+
+[node name="pinetree85" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 107.129845, 0.32322192, 15.802042)
+
+[node name="pinetree87" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 62.94827, 0.32322192, 88.61777)
+
+[node name="pinetree88" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.45633286, 0, -0.9061417, 0, 0.7687185, 0, 0.87728, 0, 0.47134578, 65.97507, 0.32322192, 90.62943)
+
+[node name="pinetree89" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.45066488, 0, -0.92708975, 0, 0.5665301, 0, 0.86638355, 0, 0.4822423, 63.293224, 0.32322192, 85.4737)
+
+[node name="pinetree90" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.5359352, 0, -0.81081885, 0, 0.7449922, 0, 1.0303122, 0, 0.4217619, 66.90778, 0.32322192, 86.019165)
+
+[node name="pinetree91" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 68.94449, 0.32322192, 90.37827)
+
+[node name="pinetree92" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 102.91519, 0.32322192, 29.714087)
+
+[node name="pinetree93" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 68.272316, 0.32322192, 87.893036)
+
+[node name="pinetree94" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46413857, 0, -0.8772931, 0, 0.57907265, 0, 0.8922861, 0, 0.4563397, 71.88688, 0.32322192, 88.43851)
+
+[node name="pinetree95" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 63.235756, 0.32322192, 82.01769)
+
+[node name="pinetree96" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 66.26256, 0.32322192, 84.02936)
+
+[node name="pinetree97" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 63.58071, 0.32322192, 78.873634)
+
+[node name="pinetree98" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 67.195274, 0.32322192, 79.4191)
+
+[node name="pinetree99" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.54867226, 0, -0.88624257, 0, 0.9200282, 0, 1.0547985, 0, 0.4609949, 70.71519, 0.32322192, 84.42897)
+
+[node name="pinetree100" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 73.741974, 0.32322192, 86.440636)
+
+[node name="pinetree101" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 71.060135, 0.32322192, 81.284904)
+
+[node name="pinetree102" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 74.6747, 0.32322192, 83.99671)
+
+[node name="pinetree51" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 29.766, 0.1, 94.767)
+
+[node name="pinetree52" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 21.795673, 0.1, 88.34698)
+
+[node name="pinetree53" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 77.58954, 0.1, 108.99729)
+
+[node name="pinetree69" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 69.61922, 0.1, 102.57727)
+
+[node name="pinetree86" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 44.823963, 0.1, 107.69862)
+
+[node name="pinetree103" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 67.42533, 0.1, 121.35568)
+
+[node name="pinetree104" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 82.14792, 0.1, 104.67569)
+
+[node name="pinetree105" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.1134236, 0, 0, 0, 0.65, 0, 0, 0, 1.0675254, 79.97426, 0.24874732, 94.331764)
+
+[node name="pinetree106" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 47.879047, 0.1, 105.55061)
+
+[node name="pinetree107" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 74.92317, 0.1, 115.59016)
+
+[node name="pinetree108" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 107.62343, 0.32322192, 88.278496)
+
+[node name="pinetree109" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 106.84252, 0.32322192, 85.213486)
+
+[node name="pinetree110" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 110.41848, 0.32322192, 84.455124)
+
+[node name="pinetree111" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.86684775, 0, -0.69592184, 0, 0.65, 0, 0.7795001, 0, 0.773904, 112.35407, 0.32322192, 85.7306)
+
+[node name="pinetree112" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 105.57528, 0.32322192, 81.99768)
+
+[node name="pinetree113" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 109.11569, 0.32322192, 82.81854)
+
+[node name="pinetree114" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 113.42515, 0.32322192, 81.62937)
+
+[node name="pinetree115" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.6488084, 0, -0.6177186, 0, 0.65, 0, 0.5834315, 0, 0.68693763, 116.96555, 0.32322192, 82.450226)
+
+[node name="pinetree116" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 112.64424, 0.32322192, 78.564354)
+
+[node name="pinetree117" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 108.636536, 0.32322192, 89.9563)
+
+[node name="pinetree118" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 107.85563, 0.32322192, 86.89128)
+
+[node name="pinetree119" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 111.43158, 0.32322192, 86.13293)
+
+[node name="pinetree120" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 101.33369, 0.32322192, 92.77405)
+
+[node name="pinetree121" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.6557679, 0, -0.56953955, 0, 0.65, 0, 0.5896897, 0, 0.63335985, 97.012375, 0.32322192, 88.88816)
+
+[node name="pinetree122" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 100.588326, 0.32322192, 88.12981)
+
+[node name="pinetree123" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 103.30482, 0.32322192, 92.4703)
+
+[node name="pinetree124" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 102.52391, 0.32322192, 89.40528)
+
+[node name="pinetree125" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.8860121, 0, -0.6806616, 0, 0.65, 0, 0.7967334, 0, 0.75693375, 106.09988, 0.32322192, 88.64693)
+
+[node name="pinetree126" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 95.74513, 0.32322192, 85.672356)
+
+[node name="pinetree127" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 99.285545, 0.32322192, 86.49322)
+
+[node name="pinetree128" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 103.595, 0.32322192, 85.30405)
+
+[node name="pinetree129" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 107.1354, 0.32322192, 86.124916)
+
+[node name="pinetree130" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.7557316, 0, -0.67964864, 0, 0.65, 0, 0.67958057, 0, 0.7558073, 102.81409, 0.32322192, 82.23903)
+
+[node name="pinetree131" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.74357677, 0, -0.6686505, 0, 0.65, 0, 0.6686505, 0, 0.74357677, 106.39005, 0.32322192, 81.48067)
+
+[node name="pinetree132" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 16.793417, 0.32322192, 103.55867)
+
+[node name="pinetree133" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 26.488798, 0.32322192, 105.18487)
+
+[node name="pinetree134" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 19.036484, 0.32322192, 102.83235)
+
+[node name="pinetree135" parent="Terrain3D/Trees/Pine" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.46146995, 0, -0.88715583, 0, 0.65, 0, 0.88715583, 0, 0.46146995, 18.409473, 0.32322192, 104.897194)
+
+[node name="Birch" type="Node3D" parent="Terrain3D/Trees"]
+script = ExtResource("8_o3ebs")
+tree_cull_distance = 100
+
+[node name="tree2" parent="Terrain3D/Trees/Birch" instance=ExtResource("21_mc2jv")]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 27.56121, 0, 81.78014)
+
+[node name="tree3" parent="Terrain3D/Trees/Birch" instance=ExtResource("21_mc2jv")]
+transform = Transform3D(0.31686473, 0, -0.24412444, 0, 0.4, 0, 0.24412444, 0, 0.31686473, 86.45551, 9.536743e-07, 87.203354)
+
+[node name="tree4" parent="Terrain3D/Trees/Birch" instance=ExtResource("21_mc2jv")]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 60.49797, 0, 100.50881)
+
+[node name="tree5" parent="Terrain3D/Trees/Birch" instance=ExtResource("21_mc2jv")]
+transform = Transform3D(0.28124702, 0, 0, 0, 0.35954794, 0, 0, 0, 0.003033209, 60.54273, 6.2590556, 112.642654)
+
+[node name="tree6" parent="Terrain3D/Trees/Birch" instance=ExtResource("21_mc2jv")]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 21.168343, 0, 95.610634)
+
+[node name="Apple" type="Node3D" parent="Terrain3D/Trees"]
+script = ExtResource("8_o3ebs")
+tree_cull_distance = 100
+
+[node name="tree4" parent="Terrain3D/Trees/Apple" instance=ExtResource("22_bo7i5")]
+transform = Transform3D(0.37821856, 0, 0.46577975, 0, 0.4, 0, -0.46577975, 0, 0.37821856, 38.26218, 0, 93.910286)
+
+[node name="tree5" parent="Terrain3D/Trees/Apple" instance=ExtResource("22_bo7i5")]
+transform = Transform3D(0.6, 0, 0, 0, 0.4, 0, 0, 0, 0.6, 31.017963, 0, 88.30614)
+
+[node name="tree6" parent="Terrain3D/Trees/Apple" instance=ExtResource("22_bo7i5")]
+transform = Transform3D(0.37821856, 0, 0.46577975, 0, 0.4, 0, -0.46577975, 0, 0.37821856, 48.171707, 9.536743e-07, 91.38639)
+
+[node name="tree7" parent="Terrain3D/Trees/Apple" instance=ExtResource("22_bo7i5")]
+transform = Transform3D(0.37821856, 0, 0.46577975, 0, 0.4, 0, -0.46577975, 0, 0.37821856, 67.49473, 0, 82.7545)
+
+[node name="PineForest" type="Node3D" parent="Terrain3D/Trees"]
+script = ExtResource("8_o3ebs")
+
+[node name="pinetree108" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 130.97432, 0.3232218, 67.477646)
+
+[node name="pinetree109" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(2.0012088, 0, 0.37431613, 0, 1.4335005, 0, -0.55141264, 0, 1.358483, 126.50019, 0.3232218, 68.78431)
+
+[node name="pinetree110" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4979374, 0, 0.30239096, 0, 1.4446541, 0, -0.4127414, 0, 1.0974493, 128.42206, 0.3232218, 63.062073)
+
+[node name="pinetree111" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.6532068, 0, 0.3098887, 0, 1.2348727, 0, -0.45552456, 0, 1.12466, 131.57823, 0.3232218, 62.11979)
+
+[node name="pinetree112" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 121.44599, 0.3232218, 70.374794)
+
+[node name="pinetree113" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 125.32123, 0.3232218, 63.276703)
+
+[node name="pinetree114" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 127.291885, 0.3232218, 59.00623)
+
+[node name="pinetree115" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2293376, 0, 0.27457315, 0, 1.3293628, 0, -0.33873147, 0, 0.99649143, 131.16711, 0.3232218, 56.46731)
+
+[node name="pinetree116" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4698507, 0, 0.30073816, 0, 1.3850657, 0, -0.4050024, 0, 1.0914508, 122.81773, 0.3232218, 58.011093)
+
+[node name="pinetree117" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 133.89407, 0.3232218, 67.5292)
+
+[node name="pinetree118" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 129.41995, 0.3232218, 66.53405)
+
+[node name="pinetree119" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 131.34184, 0.3232218, 63.113625)
+
+[node name="pinetree120" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2556939, 0, 0.28834873, 0, 1.118543, 0, -0.34599367, 0, 1.0464867, 131.56183, 0.3232218, 75.198746)
+
+[node name="pinetree121" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.1121322, 0, 0.2458721, 0, 1.0652531, 0, -0.30643678, 0, 0.8923286, 123.21244, 0.3232218, 76.742516)
+
+[node name="pinetree122" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4593107, 0, 0.3001284, 0, 1.3838177, 0, -0.40209818, 0, 1.0892379, 125.13432, 0.3232218, 73.32209)
+
+[node name="pinetree123" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 132.76463, 0.3232218, 73.37496)
+
+[node name="pinetree124" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 128.29048, 0.3232218, 72.37982)
+
+[node name="pinetree125" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.6897562, 0, 0.3030934, 0, 1.2348728, 0, -0.46559513, 0, 1.0999984, 130.21239, 0.3232218, 68.95937)
+
+[node name="pinetree126" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 118.15825, 0.3232218, 76.07563)
+
+[node name="pinetree127" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 122.03349, 0.3232218, 73.53671)
+
+[node name="pinetree128" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 124.004135, 0.3232218, 67.16482)
+
+[node name="pinetree129" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4339381, 0, 0.29866055, 0, 1.0622301, 0, -0.39510703, 0, 1.0839107, 133.03333, 0.3232218, 69.89878)
+
+[node name="pinetree130" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4412918, 0, 0.30264232, 0, 1.2348727, 0, -0.39713326, 0, 1.0983614, 119.52999, 0.3232218, 68.27111)
+
+[node name="pinetree131" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.418111, 0, 0.2977449, 0, 1.2348726, 0, -0.39074603, 0, 1.0805876, 121.451866, 0.3232218, 64.85067)
+
+[node name="pinetree132" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 145.77013, 0.3232218, 69.20128)
+
+[node name="pinetree133" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.7258332, 0, -0.782982, 0, 1.4335006, 0, 1.1534264, 0, -1.1715493, 149.60533, 0.3232218, 66.552444)
+
+[node name="pinetree134" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2918142, 0, -0.6325312, 0, 1.4446541, 0, 0.86335856, 0, -0.9464351, 149.58278, 0.3232218, 72.58875)
+
+[node name="pinetree135" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4257178, 0, -0.6482147, 0, 1.2348727, 0, 0.95285076, 0, -0.96990156, 143.80396, 0.3232218, 74.4768)
+
+[node name="pinetree136" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 153.90176, 0.3232218, 63.45159)
+
+[node name="pinetree137" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 152.45834, 0.3232218, 71.40878)
+
+[node name="pinetree138" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 147.5003, 0.3232218, 76.08252)
+
+[node name="pinetree139" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.060175, 0, -0.5743428, 0, 1.3293629, 0, 0.70854706, 0, -0.85936946, 140.7673, 0.3232218, 77.298035)
+
+[node name="pinetree140" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2675923, 0, -0.629074, 0, 1.3850658, 0, 0.8471704, 0, -0.9412621, 150.51517, 0.3232218, 75.618416)
+
+[node name="pinetree141" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 142.98262, 0.3232218, 70.071594)
+
+[node name="pinetree142" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 147.54253, 0.3232218, 69.60751)
+
+[node name="pinetree143" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 146.79526, 0.3232218, 74.76694)
+
+[node name="pinetree144" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.0829045, 0, -0.6031582, 0, 1.1185431, 0, 0.72373796, 0, -0.9024854, 142.7816, 0.3232218, 62.0578)
+
+[node name="pinetree145" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-0.95909745, 0, -0.5143069, 0, 1.065253, 0, 0.64099395, 0, -0.7695399, 150.22034, 0.3232218, 57.96384)
+
+[node name="pinetree146" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2585026, 0, -0.6277985, 0, 1.3838177, 0, 0.8410953, 0, -0.93935364, 149.47308, 0.3232218, 61.815403)
+
+[node name="pinetree147" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 142.21416, 0.3232218, 64.16753)
+
+[node name="pinetree148" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 146.7741, 0.3232218, 58.1838)
+
+[node name="pinetree149" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4572377, 0, -0.63400054, 0, 1.2348728, 0, 0.9739162, 0, -0.9486334, 146.02681, 0.3232218, 67.55502)
+
+[node name="pinetree150" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 155.22748, 0.3232218, 57.00556)
+
+[node name="pinetree151" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 152.34865, 0.3232218, 60.635437)
+
+[node name="pinetree152" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 152.48433, 0.3232218, 67.30373)
+
+[node name="pinetree153" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2366215, 0, -0.6247281, 0, 1.0622302, 0, 0.8264717, 0, -0.9347596, 143.05356, 0.3232218, 67.55152)
+
+[node name="pinetree154" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2429633, 0, -0.633057, 0, 1.2348727, 0, 0.83071, 0, -0.94722164, 156.38266, 0.3232218, 64.84506)
+
+[node name="pinetree155" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2229722, 0, -0.62281275, 0, 1.2348727, 0, 0.81734943, 0, -0.9318938, 155.63539, 0.3232218, 68.69663)
+
+[node name="pinetree156" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 145.41937, 0.3232218, 44.19044)
+
+[node name="pinetree157" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.9935069, 0, -0.39279833, 0, 1.4335008, 0, 0.57863885, 0, -1.3532548, 149.87527, 0.3232218, 42.822914)
+
+[node name="pinetree158" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4921725, 0, -0.3173217, 0, 1.4446541, 0, 0.43312073, 0, -1.0932256, 148.03159, 0.3232218, 48.570816)
+
+[node name="pinetree159" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.6468446, 0, -0.3251897, 0, 1.2348728, 0, 0.47801653, 0, -1.1203318, 144.88855, 0.3232218, 49.556034)
+
+[node name="pinetree160" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 154.90732, 0.3232218, 41.163685)
+
+[node name="pinetree161" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 151.1292, 0.3232218, 48.31394)
+
+[node name="pinetree162" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 149.21693, 0.3232218, 52.610878)
+
+[node name="pinetree163" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2246063, 0, -0.2881304, 0, 1.329363, 0, 0.3554566, 0, -0.9926564, 145.37666, 0.3232218, 55.202377)
+
+[node name="pinetree164" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4641937, 0, -0.31558728, 0, 1.3850658, 0, 0.42499968, 0, -1.0872502, 153.70424, 0.3232218, 53.544933)
+
+[node name="pinetree165" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 142.49918, 0.3232218, 44.178688)
+
+[node name="pinetree166" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 146.98645, 0.3232218, 45.11276)
+
+[node name="pinetree167" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 145.11136, 0.3232218, 48.559067)
+
+[node name="pinetree168" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.2508612, 0, -0.30258608, 0, 1.118543, 0, 0.3630774, 0, -1.0424592, 144.72667, 0.3232218, 36.478065)
+
+[node name="pinetree169" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.1078519, 0, -0.25801212, 0, 1.065253, 0, 0.32156724, 0, -0.8888943, 153.05424, 0.3232218, 34.820637)
+
+[node name="pinetree170" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4536942, 0, -0.31494746, 0, 1.3838177, 0, 0.421952, 0, -1.0850458, 151.17915, 0.3232218, 38.266937)
+
+[node name="pinetree171" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 143.54883, 0.3232218, 38.318073)
+
+[node name="pinetree172" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 148.03613, 0.3232218, 39.252136)
+
+[node name="pinetree173" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.6832529, 0, -0.31805873, 0, 1.2348727, 0, 0.48858407, 0, -1.0957649, 146.16103, 0.3232218, 42.698463)
+
+[node name="pinetree174" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 154.27676, 0.3232218, 38.010067)
+
+[node name="pinetree175" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 152.39316, 0.3232218, 44.40823)
+
+[node name="pinetree176" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4284195, 0, -0.313407, 0, 1.0622302, 0, 0.4146157, 0, -1.0797393, 143.32755, 0.3232218, 41.797596)
+
+[node name="pinetree177" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.4357449, 0, -0.3175854, 0, 1.2348728, 0, 0.41674194, 0, -1.0941343, 156.8518, 0.3232218, 43.241055)
+
+[node name="pinetree178" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(-1.412653, 0, -0.31244627, 0, 1.2348726, 0, 0.4100394, 0, -1.0764289, 154.97673, 0.3232218, 46.687378)
+
+[node name="pinetree179" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 130.60144, 0.3232218, 42.66864)
+
+[node name="pinetree180" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.7099513, 0, 0.79887813, 0, 1.4335009, 0, -1.1768436, 0, 1.1607683, 126.8027, 0.3232218, 45.369507)
+
+[node name="pinetree181" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2799261, 0, 0.645373, 0, 1.4446542, 0, -0.88088655, 0, 0.9377254, 126.742966, 0.3232218, 39.33345)
+
+[node name="pinetree182" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4125977, 0, 0.6613748, 0, 1.2348727, 0, -0.9721955, 0, 0.9609761, 132.49551, 0.3232218, 37.36681)
+
+[node name="pinetree183" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 122.54893, 0.3232218, 48.528633)
+
+[node name="pinetree184" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 123.88375, 0.3232218, 40.5525)
+
+[node name="pinetree185" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 128.77762, 0.3232218, 35.811626)
+
+[node name="pinetree186" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.0504187, 0, 0.5860032, 0, 1.329363, 0, -0.72293204, 0, 0.8514612, 135.49344, 0.3232218, 34.504444)
+
+[node name="pinetree187" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2559272, 0, 0.64184546, 0, 1.3850657, 0, -0.86436963, 0, 0.9326001, 125.76937, 0.3232218, 36.31678)
+
+[node name="pinetree188" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 133.37683, 0.3232218, 41.76041)
+
+[node name="pinetree189" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 128.82367, 0.3232218, 42.286606)
+
+[node name="pinetree190" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 129.50053, 0.3232218, 37.117474)
+
+[node name="pinetree191" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.0729389, 0, 0.6154035, 0, 1.1185431, 0, -0.7384314, 0, 0.8941803, 133.68706, 0.3232218, 49.770718)
+
+[node name="pinetree192" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(0.95027125, 0, 0.5247483, 0, 1.0652531, 0, -0.65400743, 0, 0.76245815, 126.30481, 0.3232218, 53.965694)
+
+[node name="pinetree193" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2469211, 0, 0.64054394, 0, 1.3838176, 0, -0.8581712, 0, 0.930709, 126.9995, 0.3232218, 50.104305)
+
+[node name="pinetree194" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 134.2257, 0.3232218, 47.653458)
+
+[node name="pinetree195" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 129.6725, 0.3232218, 48.179665)
+
+[node name="pinetree196" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.4438275, 0, 0.64687216, 0, 1.2348727, 0, -0.9936886, 0, 0.9399035, 130.36722, 0.3232218, 44.318245)
+
+[node name="pinetree197" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 121.3112, 0.3232218, 54.992134)
+
+[node name="pinetree198" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 124.14028, 0.3232218, 51.32336)
+
+[node name="pinetree199" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 123.91373, 0.3232218, 44.657536)
+
+[node name="pinetree200" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2252414, 0, 0.63741136, 0, 1.0622302, 0, -0.84325063, 0, 0.9261574, 133.34024, 0.3232218, 44.28122)
+
+[node name="pinetree201" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2315246, 0, 0.6459092, 0, 1.2348726, 0, -0.847575, 0, 0.9385047, 120.04927, 0.3232218, 47.16911)
+
+[node name="pinetree202" parent="Terrain3D/Trees/PineForest" instance=ExtResource("20_wjb0r")]
+transform = Transform3D(1.2117176, 0, 0.63545704, 0, 1.2348725, 0, -0.8339433, 0, 0.923318, 120.74397, 0.3232218, 43.30771)
+
+[node name="Grass" type="Node3D" parent="Terrain3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.5198637, 0, 0, 47.44715)
+script = ExtResource("11_o3ebs")
+
+[node name="ProtonScatter" type="Node3D" parent="Terrain3D/Grass"]
+transform = Transform3D(0.02, 0, 0, 0, 1, 0, 0, 0, 0.039028227, 33.97058, -0.04827273, 99.02921)
+script = ExtResource("12_bc84e")
+keep_static_colliders = true
+enable_updates_in_game = true
+modifier_stack = SubResource("Resource_6ah6f")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(1, 1, 1)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="Terrain3D/Grass/ProtonScatter"]
+transform = Transform3D(0.02, 0, 0, 0, 5, 0, 0, 0, 0.02, 0, 0, 0)
+script = ExtResource("19_o3ebs")
+source_scale_multiplier = 0.05
+override_material = SubResource("ShaderMaterial_w44yn")
+override_cast_shadow = 0
+path = "uid://25e4vm5gvojq"
+
+[node name="ScatterShape" type="Node3D" parent="Terrain3D/Grass/ProtonScatter"]
+transform = Transform3D(4.9999995, 0, -2.3841855e-07, 0, 1, 0, 2.3841855e-07, 0, 4.9999995, 134.57458, 0.5178519, 15.703613)
+script = ExtResource("20_k83mh")
+shape = SubResource("Resource_4h6ng")
+
+[node name="ScatterShape2" type="Node3D" parent="Terrain3D/Grass/ProtonScatter"]
+transform = Transform3D(59.831043, 0, -1.1920929e-07, 0, 1, 0, -2.3841858e-07, 0, 22.684412, -41.951904, 0, 1.9880371)
+script = ExtResource("20_k83mh")
+negative = true
+shape = SubResource("Resource_o3ebs")
+metadata/_custom_type_script = "uid://dt3rdsitq7upy"
+
+[node name="ProtonScatter3" type="Node3D" parent="Terrain3D/Grass"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.451847, -0.04827273, 91.923775)
+script = ExtResource("12_bc84e")
+keep_static_colliders = true
+enable_updates_in_game = true
+modifier_stack = SubResource("Resource_ytpkv")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(1, 1, 1)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="Terrain3D/Grass/ProtonScatter3"]
+transform = Transform3D(0.02, 0, 0, 0, 5, 0, 0, 0, 0.02, 0, 0, 0)
+script = ExtResource("19_o3ebs")
+source_scale_multiplier = 0.2
+override_material = SubResource("ShaderMaterial_w44yn")
+override_cast_shadow = 0
+path = "uid://dnlnw703jwg4y"
+
+[node name="ScatterShape" type="Node3D" parent="Terrain3D/Grass/ProtonScatter3"]
+transform = Transform3D(0.18987525, 0, -9.142024e-09, 0, 1, 0, 9.053957e-09, 0, 0.19172205, -13.701735, 0.5178519, 7.5722656)
+script = ExtResource("20_k83mh")
+shape = SubResource("Resource_xpnt2")
+
+[node name="ScatterShape2" type="Node3D" parent="Terrain3D/Grass/ProtonScatter3"]
+script = ExtResource("20_k83mh")
+negative = true
+shape = SubResource("Resource_ct3wn")
+metadata/_custom_type_script = "uid://dt3rdsitq7upy"
+
+[node name="ProtonScatter2" type="Node3D" parent="Terrain3D/Grass"]
+transform = Transform3D(0.02, 0, 0, 0, 1, 0, 0, 0, 0.039, 31.99643, -0.04827273, 128.31766)
+script = ExtResource("12_bc84e")
+keep_static_colliders = true
+enable_updates_in_game = true
+modifier_stack = SubResource("Resource_fnoqa")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(1, 1, 1)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="Terrain3D/Grass/ProtonScatter2"]
+transform = Transform3D(0.02, 0, 0, 0, 5, 0, 0, 0, 0.02, 0, 0, 0)
+script = ExtResource("19_o3ebs")
+source_scale_multiplier = 0.05
+override_material = SubResource("ShaderMaterial_w44yn")
+override_cast_shadow = 0
+path = "uid://25e4vm5gvojq"
+
+[node name="ScatterShape" type="Node3D" parent="Terrain3D/Grass/ProtonScatter2"]
+transform = Transform3D(4.9999995, 0, -2.3841855e-07, 0, 1, 0, 2.3841854e-07, 0, 4.999999, -517.3181, 0.5178519, 15.703125)
+script = ExtResource("20_k83mh")
+shape = SubResource("Resource_1ew0l")
+
+[node name="ScatterShape2" type="Node3D" parent="Terrain3D/Grass/ProtonScatter2"]
+script = ExtResource("20_k83mh")
+negative = true
+shape = SubResource("Resource_yy5nj")
+metadata/_custom_type_script = "uid://dt3rdsitq7upy"
+
+[node name="ProtonScatter4" type="Node3D" parent="Terrain3D/Grass"]
+transform = Transform3D(0.02, 0, 0, 0, 1, 0, 0, 0, 0.039028227, 33.97058, -0.04827273, 122.88941)
+script = ExtResource("12_bc84e")
+keep_static_colliders = true
+enable_updates_in_game = true
+modifier_stack = SubResource("Resource_olr1q")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(1, 1, 1)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="Terrain3D/Grass/ProtonScatter4"]
+transform = Transform3D(0.02, 0, 0, 0, 5, 0, 0, 0, 0.02, 0, 0, 0)
+script = ExtResource("19_o3ebs")
+source_scale_multiplier = 0.05
+override_material = SubResource("ShaderMaterial_w44yn")
+override_cast_shadow = 0
+path = "uid://25e4vm5gvojq"
+
+[node name="ScatterShape" type="Node3D" parent="Terrain3D/Grass/ProtonScatter4"]
+transform = Transform3D(4.9999995, 0, -2.3841855e-07, 0, 1, 0, 2.3841855e-07, 0, 4.9999995, 134.57458, 0.5178519, 15.703613)
+script = ExtResource("20_k83mh")
+shape = SubResource("Resource_w4lh7")
+
+[node name="ProtonScatter6" type="Node3D" parent="Terrain3D/Grass"]
+transform = Transform3D(0.02, 0, 0, 0, 1, 0, 0, 0, 0.039028227, 33.97058, -0.04827273, 157.95053)
+script = ExtResource("12_bc84e")
+keep_static_colliders = true
+enable_updates_in_game = true
+modifier_stack = SubResource("Resource_r5m4j")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(1, 1, 1)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="Terrain3D/Grass/ProtonScatter6"]
+transform = Transform3D(0.02, 0, 0, 0, 5, 0, 0, 0, 0.02, 0, 0, 0)
+script = ExtResource("19_o3ebs")
+source_scale_multiplier = 0.05
+override_material = SubResource("ShaderMaterial_w44yn")
+override_cast_shadow = 0
+path = "uid://25e4vm5gvojq"
+
+[node name="ScatterShape" type="Node3D" parent="Terrain3D/Grass/ProtonScatter6"]
+transform = Transform3D(4.9999995, 0, -2.3841855e-07, 0, 1, 0, 2.3841855e-07, 0, 4.9999995, 134.57458, 0.5178519, 15.703613)
+script = ExtResource("20_k83mh")
+shape = SubResource("Resource_75cpn")
+
+[node name="ScatterShape2" type="Node3D" parent="Terrain3D/Grass/ProtonScatter6"]
+transform = Transform3D(59.831043, 0, -1.1920929e-07, 0, 1, 0, -2.3841858e-07, 0, 22.684412, -41.951904, 0, 1.9880371)
+script = ExtResource("20_k83mh")
+negative = true
+shape = SubResource("Resource_ynm8w")
+metadata/_custom_type_script = "uid://dt3rdsitq7upy"
+
+[node name="ProtonScatter7" type="Node3D" parent="Terrain3D/Grass"]
+transform = Transform3D(0.02, 0, 0, 0, 1, 0, 0, 0, 0.039, 79.26971, 11.562753, 194.20917)
+script = ExtResource("12_bc84e")
+keep_static_colliders = true
+enable_updates_in_game = true
+modifier_stack = SubResource("Resource_1hvhf")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(1, 1, 1)
+metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
+
+[node name="ScatterItem" type="Node3D" parent="Terrain3D/Grass/ProtonScatter7"]
+transform = Transform3D(0.02, 0, 0, 0, 5, 0, 0, 0, 0.02, 0, 0, 0)
+script = ExtResource("19_o3ebs")
+source_scale_multiplier = 0.05
+override_material = SubResource("ShaderMaterial_w44yn")
+override_cast_shadow = 0
+path = "uid://25e4vm5gvojq"
+
+[node name="ScatterShape" type="Node3D" parent="Terrain3D/Grass/ProtonScatter7"]
+transform = Transform3D(4.9999995, 0, -2.3841855e-07, 0, 1, 0, 2.3841854e-07, 0, 4.999999, -517.3181, 0.5178519, 15.703125)
+script = ExtResource("20_k83mh")
+shape = SubResource("Resource_tj74d")
+
+[node name="Lod_timer" type="Timer" parent="Terrain3D"]
+wait_time = 0.5
+autostart = true
+
+[node name="Water" type="MeshInstance3D" parent="Terrain3D"]
+transform = Transform3D(21.74697, 0, 0, 0, 4.7420015, 0, 0, 0, 20.486326, -22.243803, -0.43286407, 117.03591)
+mesh = SubResource("QuadMesh_bh8nc")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("ShaderMaterial_6ah6f")
+
+[node name="Water2" type="MeshInstance3D" parent="Terrain3D"]
+transform = Transform3D(31.085226, 0, 0, 0, 4.7420015, 0, 0, 0, 30.338621, -12.773739, -0.43286407, 60.37578)
+mesh = SubResource("QuadMesh_bh8nc")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("ShaderMaterial_6ah6f")
+
+[node name="Water3" type="MeshInstance3D" parent="Terrain3D"]
+transform = Transform3D(31.085226, 0, 0, 0, 15.433481, 0, 0, 0, 30.338621, 20.168842, -0.87114704, 73.431755)
+mesh = SubResource("QuadMesh_bh8nc")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("ShaderMaterial_6ah6f")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mc2jv")
+camera_attributes = ExtResource("6_ic0uy")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.06383562, 0.99796045, 0, -0.99796045, -0.06383562, -0.18538141, 44.057716, 0.0012370544)
+shadow_enabled = true
+shadow_bias = 0.29
+shadow_normal_bias = 2.601
+shadow_transmittance_bias = -0.854
+shadow_blur = 1.226
+directional_shadow_mode = 0
+directional_shadow_fade_start = 0.698
+
+[node name="GrassChunkPainter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.780785, 0, 3.7122183)
+visible = false
+script = ExtResource("8_wse8f")
+chunk_scene = ExtResource("9_ic0uy")
+chunk_size = 1.0
+brush_radius = 1.0
+snap_to_ground = true
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("29_k83mh")
+volume_db = -4.402
+playback_type = 1
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.06383562, 0.99796045, 0, -0.99796045, -0.06383562, -0.18538141, 0.89151716, 0.0012370544)
+visible = false
+light_color = Color(0.8450385, 0.8586215, 0.60209715, 1)
+shadow_enabled = true
+shadow_blur = 0.5
+directional_shadow_mode = 0
+
+[node name="Player" parent="." instance=ExtResource("4_ioo17")]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 16.064327, 1.0828092, 103.09981)
+floor_stop_on_slope = false
+SPEED = 3.0
+
+[node name="EnemyGroup" type="Node3D" parent="."]
+
+[node name="Goblin" parent="EnemyGroup" instance=ExtResource("25_bh8nc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.776146, 0.27941906, 99.75418)
+VFRAMES = 10
+WALK_SPEED = 1.0
+RUN_SPEED = 10.0
+patrol_radius = 3.0
+patrol_wait_time_max = 1.0
+max_health = 5
+knockback_strength = 0.5
+detection_range = 0.0
+lose_interest_range = 6.0
+
+[node name="Goblin2" parent="EnemyGroup" instance=ExtResource("25_bh8nc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.214273, 0.27941906, 100.36012)
+VFRAMES = 10
+WALK_SPEED = 1.0
+RUN_SPEED = 10.0
+patrol_radius = 3.0
+patrol_wait_time_max = 1.0
+max_health = 5
+knockback_strength = 0.5
+detection_range = 0.0
+lose_interest_range = 6.0
+
+[node name="Goblin3" parent="EnemyGroup" instance=ExtResource("25_bh8nc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.373642, 0.27941906, 100.30505)
+VFRAMES = 10
+WALK_SPEED = 1.0
+RUN_SPEED = 10.0
+patrol_radius = 3.0
+patrol_wait_time_max = 1.0
+max_health = 5
+knockback_strength = 0.5
+detection_range = 0.0
+lose_interest_range = 6.0
+
+[connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Trees" method="_on_lod_timer_timeout"]
+[connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Grass" method="_on_lod_timer_timeout"]

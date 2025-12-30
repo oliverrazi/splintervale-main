@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://carynrqtho3nk"]
+
+[ext_resource type="Texture2D" uid="uid://c0oopeb7njtr7" path="res://assets/enemies/goblin/goblin2.png" id="1_55a57"]
+[ext_resource type="Script" uid="uid://cduu8of6josce" path="res://assets/enemies/goblin/goblinscript.gd" id="1_jny38"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_55a57"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jny38"]
+
+[node name="Goblin" type="CharacterBody3D"]
+script = ExtResource("1_jny38")
+IDLE_FPS = 1.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_55a57")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0)
+billboard = 1
+alpha_cut = 3
+alpha_scissor_threshold = 1.0
+alpha_hash_scale = 0.0
+alpha_antialiasing_mode = 2
+alpha_antialiasing_edge = 0.2
+texture_filter = 1
+texture = ExtResource("1_55a57")
+hframes = 10
+vframes = 10
+
+[node name="DetectionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_jny38")
+
+[node name="AttackArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_jny38")

@@ -19,7 +19,7 @@ func _process(delta: float) -> void:
 		var camera_distance = global_position.distance_to(camera_pos)
 
 		if camera_distance < lod_switch:
-			$Grass.multimesh = preload("res://assets/base_tiles/grass/grass_multimesh.tres")
+			$Grass.multimesh = preload("res://assets/base_tiles/grass/grass_multimesh_simple.tres")
 		else:
 			$Grass.multimesh = preload("res://assets/base_tiles/grass/grass_multimesh_simple.tres")
 

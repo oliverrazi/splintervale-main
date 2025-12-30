@@ -2,7 +2,7 @@
 extends EditorScript
 
 # Konfigurierbare Werte
-const TARGET_SCENE := "res://assets/base_tiles/pinetree.tscn"
+const TARGET_SCENE := "res://assets/base_tiles/trees/pinetree_cut.tscn"
 const THRESHOLD := 0.4
 
 func _run() -> void:

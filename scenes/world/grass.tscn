@@ -1,0 +1,43 @@
+[gd_scene load_steps=9 format=3 uid="uid://sj0lu5i7eooh"]
+
+[ext_resource type="Shader" uid="uid://dud3t7cf1ck31" path="res://scenes/grass2.gdshader" id="1_apf4k"]
+[ext_resource type="MultiMesh" uid="uid://chp3ayp2hf0kt" path="res://assets/base_tiles/grass/grass_multimesh.tres" id="2_qekh3"]
+[ext_resource type="Script" uid="uid://babiup8es4dao" path="res://scenes/grass.gd" id="3_3oo8n"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_en638"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_pwql5"]
+noise = SubResource("FastNoiseLite_en638")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ue6gk"]
+noise_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_en638"]
+noise = SubResource("FastNoiseLite_ue6gk")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y1cep"]
+render_priority = 0
+shader = ExtResource("1_apf4k")
+shader_parameter/size = 0.5
+shader_parameter/blade_bend = 0.4
+shader_parameter/size_small = 0.2
+shader_parameter/size_large = 0.6
+shader_parameter/color = Vector3(0.05, 0.2, 0.05)
+shader_parameter/color_small = Color(0, 0.44705883, 0.3372549, 1)
+shader_parameter/color_large = Color(0, 0.28235295, 0, 1)
+shader_parameter/patch_noise = SubResource("NoiseTexture2D_pwql5")
+shader_parameter/patch_scale = 5.0
+shader_parameter/wind_noise = SubResource("NoiseTexture2D_en638")
+shader_parameter/wind_strength = 0.1
+shader_parameter/wind_direction = Vector2(1, 0)
+shader_parameter/wind_bend_strength = 1.0
+shader_parameter/wind_ao_affect = 1.5
+shader_parameter/object_radius = 0.1
+shader_parameter/object_position = Vector3(0, 0, 0)
+
+[node name="Grass" type="MultiMeshInstance3D"]
+material_override = SubResource("ShaderMaterial_y1cep")
+cast_shadow = 0
+multimesh = ExtResource("2_qekh3")
+script = ExtResource("3_3oo8n")

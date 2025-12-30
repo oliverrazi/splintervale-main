@@ -1,0 +1,100 @@
+[gd_scene load_steps=10 format=3 uid="uid://ci4hjbhp656fj"]
+
+[ext_resource type="ArrayMesh" uid="uid://tbiyenfedl6u" path="res://assets/characters/spin-slash.obj" id="1_e1w1j"]
+[ext_resource type="Shader" uid="uid://cplsnvvffiwaj" path="res://assets/characters/slashVFX.tres" id="2_evgtq"]
+[ext_resource type="Texture2D" uid="uid://diqxx6utgjpje" path="res://assets/characters/textures/slash_tex_1_base_1.png" id="3_8kox2"]
+[ext_resource type="Texture2D" uid="uid://baggrujuhobr6" path="res://assets/characters/textures/slash_text_1_hl.png" id="4_57bam"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0h6ik"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jft6n"]
+render_priority = 0
+shader = ExtResource("2_evgtq")
+shader_parameter/BaseColor = Color(6.7378996e-06, 0.9027443, 1.0252002, 1)
+shader_parameter/progress = -1.0
+shader_parameter/BaseTexture = ExtResource("3_8kox2")
+shader_parameter/HighlightColor = Color(4.123, 4.123, 4.123, 1)
+shader_parameter/HighlightTexture = ExtResource("4_57bam")
+shader_parameter/DissolveTexture = SubResource("NoiseTexture2D_0h6ik")
+shader_parameter/DissolveValue = 0.0
+
+[sub_resource type="Animation" id="Animation_16vmh"]
+length = 0.45
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shader_parameter/progress")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(-0.10000001, 0.06666667, 0.26666668, 0.46666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [-1.0, -1.0, 4.7499999933364734e-08, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shader_parameter/DissolveValue")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_7a3c3"]
+resource_name = "slash"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shader_parameter/progress")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.2, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-1.0, 4.7499999933364734e-08, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shader_parameter/DissolveValue")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.2000000095, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_smphs"]
+_data = {
+&"RESET": SubResource("Animation_16vmh"),
+&"slash": SubResource("Animation_7a3c3")
+}
+
+[node name="SpinSlashVFX" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_e1w1j")
+
+[node name="Node3D" type="Node3D" parent="."]
+visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+mesh = ExtResource("1_e1w1j")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("ShaderMaterial_jft6n")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Node3D"]
+root_node = NodePath("../..")
+libraries = {
+&"": SubResource("AnimationLibrary_smphs")
+}

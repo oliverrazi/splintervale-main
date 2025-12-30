@@ -1,5 +1,6 @@
-[gd_scene load_steps=29 format=4 uid="uid://bat10h11p5wie"]
+[gd_scene load_steps=31 format=4 uid="uid://bat10h11p5wie"]
 
+[ext_resource type="Script" uid="uid://ckc6rp5jceupb" path="res://scripts/occludable.gd" id="1_2nbqt"]
 [ext_resource type="Texture2D" uid="uid://dab45tiiik2ck" path="res://assets/buildings/small-house_house-wall.png" id="1_5flpq"]
 [ext_resource type="Texture2D" uid="uid://bfqmo4w4codbo" path="res://assets/buildings/small-house_rooftile.png" id="2_2nbqt"]
 [ext_resource type="Texture2D" uid="uid://bdjcq6maxc33j" path="res://assets/buildings/small-house_door.png" id="3_8wm7a"]
@@ -380,7 +381,10 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_l21gc")
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_8wm7a"]
+
 [node name="small-house" type="Node3D"]
+script = ExtResource("1_2nbqt")
 
 [node name="Walls" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1.75, -7.6494935e-08, -4.3711392e-08, 7.6494935e-08, 0, -1, 7.6494935e-08, -1.75, 1.9106857e-15, 0, 0, -1.7529111)
@@ -422,3 +426,11 @@ skeleton = NodePath("")
 transform = Transform3D(0.1, 0, 0, 0, 0, -0.1, 0, 1.8, 0, 0, 2.975, -0.0029111728)
 mesh = SubResource("ArrayMesh_x0gt4")
 skeleton = NodePath("")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.42612505, 0, 0, -1.6666889)
+collision_layer = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(3.3, 0, 0, 0, 3.3, 0, 0, 0, 3.3, 0, 1.6337345, 0)
+shape = SubResource("BoxShape3D_8wm7a")

@@ -1,0 +1,98 @@
+[gd_scene load_steps=7 format=3 uid="uid://ckghjmy400fcu"]
+
+[ext_resource type="Shader" uid="uid://bxjh1ho7blw1d" path="res://assets/characters/slash.gdshader" id="1_2k7gy"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_52sy1"]
+render_priority = 0
+shader = ExtResource("1_2k7gy")
+shader_parameter/progress = 0.0
+shader_parameter/color_core = Color(1, 1, 1, 1)
+shader_parameter/color_glow = Color(0.25, 0.85, 1, 1)
+shader_parameter/inner_radius = 0.18
+shader_parameter/outer_radius = 0.95
+shader_parameter/thickness = 0.35
+shader_parameter/start_angle_deg = 60.0
+shader_parameter/end_angle_deg = 300.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_7qxpd"]
+size = Vector2(0.8, 0.4)
+
+[sub_resource type="Animation" id="Animation_qbprb"]
+length = 0.15
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("alt/MeshInstance3D:material_override:shader")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("1_2k7gy")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("alt/MeshInstance3D:material_override:shader_parameter/progress")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_v0lq6"]
+resource_name = "Old"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = false
+tracks/0/path = NodePath("alt/MeshInstance3D:material_override:shader")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.15),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("1_2k7gy")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("alt/MeshInstance3D:material_override:shader_parameter/progress")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qarao"]
+_data = {
+&"Old": SubResource("Animation_v0lq6"),
+&"RESET": SubResource("Animation_qbprb")
+}
+
+[node name="Node3D" type="Node3D"]
+
+[node name="alt" type="Node3D" parent="."]
+visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="alt"]
+visible = false
+material_override = SubResource("ShaderMaterial_52sy1")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_7qxpd")
+skeleton = NodePath("../..")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="alt"]
+root_node = NodePath("../..")
+libraries = {
+&"": SubResource("AnimationLibrary_qarao")
+}

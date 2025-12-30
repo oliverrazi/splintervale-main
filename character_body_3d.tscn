@@ -1,11 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://cd3ww7pd3fcbo"]
+[gd_scene load_steps=14 format=3 uid="uid://cd3ww7pd3fcbo"]
 
 [ext_resource type="Script" uid="uid://tjnqn1ifgw2e" path="res://assets/characters/player_move2.gd" id="1_obynr"]
 [ext_resource type="PackedScene" uid="uid://dpg3a6ire7hml" path="res://assets/characters/slashVFX.tscn" id="2_obynr"]
 [ext_resource type="Texture2D" uid="uid://cl143q7hmikeb" path="res://assets/characters/player1.png" id="2_vd578"]
+[ext_resource type="AudioStream" uid="uid://34hq5kcf2fgj" path="res://assets/audio/sfx/swoosh1.wav" id="3_ew7rt"]
 [ext_resource type="Texture2D" uid="uid://c0ln2wsi1nven" path="res://player/armor1.png" id="3_nl27k"]
 [ext_resource type="Script" uid="uid://bkakfqkpy7x0c" path="res://scripts/player_camera.gd" id="3_vd578"]
 [ext_resource type="Texture2D" uid="uid://bn1x1aex2dvmo" path="res://player/hair1.png" id="4_obynr"]
+[ext_resource type="AudioStream" uid="uid://rgr5mhpts1j0" path="res://assets/audio/sfx/swoosh2.wav" id="4_u3olo"]
+[ext_resource type="AudioStream" uid="uid://4qpy7rlo1n2j" path="res://assets/audio/sfx/swoosh3.wav" id="5_nvtkd"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nl27k"]
 radius = 0.119140625
@@ -80,10 +83,13 @@ _data = {
 &"walk": SubResource("Animation_c7tqt")
 }
 
-[node name="CharacterBody3D" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 5
+collision_mask = 5
 script = ExtResource("1_obynr")
 slash_scene = ExtResource("2_obynr")
 slash_lifetime = 0.5
+swoosh_sounds = Array[AudioStream]([ExtResource("3_ew7rt"), ExtResource("4_u3olo"), ExtResource("5_nvtkd")])
 SPRITE_FACES_RIGHT = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -91,16 +97,17 @@ transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.15, -0.0
 shape = SubResource("CapsuleShape3D_nl27k")
 
 [node name="charactersprite" type="Sprite3D" parent="."]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0.15754342, 0)
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.0031206608, 0.15754342, 0)
+billboard = 1
 alpha_cut = 3
 alpha_scissor_threshold = 1.0
 alpha_hash_scale = 0.0
 alpha_antialiasing_mode = 2
-alpha_antialiasing_edge = 0.33
+alpha_antialiasing_edge = 0.3
 texture_filter = 5
 texture = ExtResource("2_vd578")
 hframes = 9
-vframes = 9
+vframes = 11
 
 [node name="bodysprite" type="Sprite3D" parent="."]
 visible = false
@@ -133,9 +140,10 @@ transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
 collision_mask = 0
 spring_length = 5.0
 script = ExtResource("3_vd578")
+camera_path = NodePath("../CollisionShape3D")
 
 [node name="Camera3D" type="Camera3D" parent="SpringArm3D"]
-transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
 near = 0.065
 
 [node name="ColorRect" type="ColorRect" parent="SpringArm3D/Camera3D"]
@@ -145,11 +153,23 @@ color = Color(1, 1, 1, 0)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.31487054, 0.9491346, 0, -0.9491346, 0.31487054, 0, 2.9935412, 1.209533)
-light_indirect_energy = 6.246
-light_volumetric_fog_energy = 9.481
-light_size = 1.0
-light_specular = 2.161
+visible = false
+light_color = Color(0.47007585, 0.47007585, 0.47007585, 1)
+light_energy = 8.768
+light_indirect_energy = 5.972
+light_volumetric_fog_energy = 7.955
+light_size = 0.514
+light_specular = 1.946
 shadow_enabled = true
-spot_range = 10.827
-spot_attenuation = 0.69
-spot_angle = 70.54
+distance_fade_begin = 46.3
+spot_attenuation = 11.31
+spot_angle_attenuation = 1.624505
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8405002, 1.3374801)
+light_size = 1.0
+shadow_enabled = true
+shadow_bias = 1.908
+shadow_normal_bias = 1.565
+omni_range = 14.678
+omni_attenuation = 0.548
