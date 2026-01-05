@@ -2238,3 +2238,4 @@ playback_type = 1
 
 [node name="Goblin" parent="." instance=ExtResource("25_5t8nk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2312765, 0.23596096, -1.6798561)
+RUN_SPEED = 3.0

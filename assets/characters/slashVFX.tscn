@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dpg3a6ire7hml"]
+[gd_scene load_steps=11 format=3 uid="uid://dpg3a6ire7hml"]
 
 [ext_resource type="Shader" uid="uid://bxjh1ho7blw1d" path="res://assets/characters/slash.gdshader" id="2_pia35"]
 [ext_resource type="ArrayMesh" uid="uid://bvoheqrn7vtl6" path="res://assets/characters/slash.obj" id="2_w5txv"]
@@ -17,7 +17,7 @@ shader_parameter/HighlightTexture = ExtResource("5_pia35")
 shader_parameter/progress = -1.0
 shader_parameter/DissolveTexture = SubResource("NoiseTexture2D_0h6ik")
 shader_parameter/DissolveValue = 0.0
-shader_parameter/GlowIntensity = 2.0
+shader_parameter/GlowIntensity = 5.0
 shader_parameter/GlowColor = Color(1, 0.9, 0.6, 1)
 shader_parameter/DistortionStrength = 0.03
 
@@ -58,7 +58,7 @@ tracks/0/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shad
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0.2, 0.4, 0.5),
+"times": PackedFloat32Array(1.4901161e-08, 0.20000002, 0.3),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
 "values": [-1.0, 4.7499999933364734e-08, 1.0]
@@ -70,7 +70,7 @@ tracks/1/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shad
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.2, 0.3, 0.4, 0.5),
+"times": PackedFloat32Array(1.4901161e-08, 0.100000024, 0.20000002, 0.3),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
 "values": [0.0, 0.0, 0.2000000095, 1.0]
@@ -81,6 +81,9 @@ _data = {
 &"RESET": SubResource("Animation_16vmh"),
 &"slash": SubResource("Animation_7a3c3")
 }
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w5txv"]
+size = Vector3(1.1, 0.1, 0.65)
 
 [node name="SlashVFX" type="Node3D"]
 
@@ -97,3 +100,11 @@ root_node = NodePath("../..")
 libraries = {
 &"": SubResource("AnimationLibrary_smphs")
 }
+
+[node name="HitArea" type="Area3D" parent="Node3D"]
+collision_layer = 32
+collision_mask = 16
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D/HitArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.2263066)
+shape = SubResource("BoxShape3D_w5txv")

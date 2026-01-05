@@ -1,18 +1,36 @@
-[gd_scene load_steps=5 format=3 uid="uid://carynrqtho3nk"]
+[gd_scene load_steps=8 format=3 uid="uid://carynrqtho3nk"]
 
 [ext_resource type="Texture2D" uid="uid://c0oopeb7njtr7" path="res://assets/enemies/goblin/goblin2.png" id="1_55a57"]
 [ext_resource type="Script" uid="uid://cduu8of6josce" path="res://assets/enemies/goblin/goblinscript.gd" id="1_jny38"]
+[ext_resource type="PackedScene" uid="uid://cx70e3v3318wj" path="res://assets/sfx/thrust/ThrustVFX.tscn" id="2_687al"]
+[ext_resource type="PackedScene" uid="uid://jrf05g6oulvw" path="res://assets/sfx/deaths/DeathVFX1.tscn" id="3_stram"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_55a57"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_stram"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jny38"]
 
 [node name="Goblin" type="CharacterBody3D"]
+process_mode = 1
+collision_layer = 17
+collision_mask = 37
 script = ExtResource("1_jny38")
-IDLE_FPS = 1.0
+attack_chance_per_pause = 0.8
+exp_reward = 60
+thrust_scene = ExtResource("2_687al")
+thrust_offset_up = Vector3(0, 0, -0.2)
+thrust_offset_up_right = Vector3(0.15, 0, 0.1)
+thrust_offset_right = Vector3(0.25, 0, 0.35)
+thrust_offset_down_right = Vector3(0, 0, 0.28)
+thrust_offset_down_left = Vector3(0, 0, 0.28)
+thrust_offset_left = Vector3(-0.25, -0.1, 0.35)
+thrust_offset_up_left = Vector3(-0.15, 0, 0.1)
+death_vfx_scene = ExtResource("3_stram")
+death_vfx_lifetime = 3.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0, 0)
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.06611407, 0)
 shape = SubResource("CapsuleShape3D_55a57")
 
 [node name="Sprite3D" type="Sprite3D" parent="."]
@@ -21,8 +39,8 @@ billboard = 1
 alpha_cut = 3
 alpha_scissor_threshold = 1.0
 alpha_hash_scale = 0.0
-alpha_antialiasing_mode = 2
-alpha_antialiasing_edge = 0.2
+alpha_antialiasing_mode = 1
+alpha_antialiasing_edge = 0.3
 texture_filter = 1
 texture = ExtResource("1_55a57")
 hframes = 10
@@ -31,8 +49,7 @@ vframes = 10
 [node name="DetectionArea" type="Area3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_jny38")
+shape = SubResource("SphereShape3D_stram")
 
 [node name="AttackArea" type="Area3D" parent="."]
 

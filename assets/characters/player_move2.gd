@@ -3,15 +3,27 @@ extends CharacterBody3D
 # --- Slash VFX ---
 @export_group("Slash VFX")
 @export var slash_scene: PackedScene
-@export var slash_lifetime: float = 0.4
+@export var slash_lifetime: float = 0.3
 @export var dissolve_duration := 0.0
+@export var impact_scene: PackedScene
+@export var impact_lifetime: float = 0.5
+@export var impact_scale: float = 1.0
+@export var impact_delay: float = 0.1
 
 @export_group("Sound")
 @export var swoosh_sounds: Array[AudioStream] = []
 @export var swoosh_volume_db := -6.0
 @export var swoosh_pitch_variation := 0.08
+@export var hit_sounds: Array[AudioStream] = []
+@export var hit_volume_db: float = -3.0
+@export var hit_pitch_variation: float = 0.1
+@export var footstep_sounds: Array[AudioStream] = []
+@export var footstep_volume_db: float = -10.0
+@export var footstep_pitch_variation: float = 0.15
+@export var footstep_interval: float = 0.25 
 
 var _slash_spawned_this_attack: bool = false
+var _slash_spawn_frame: int = 2
 
 @export_group("Controls")
 @export var SPEED: float = 50.0
@@ -54,6 +66,32 @@ var _slash_spawned_this_attack: bool = false
 @export var UP_RIGHT_RUN_START_FRAME: int = 64
 @export var UP_RIGHT_RUN_END_FRAME: int = 69
 
+
+@export_group("Combat")
+@export var max_health: int = 30
+@export var attack_damage: int = 5
+@export var knockback_force: float = 5.0
+@export var knockback_duration: float = 0.2
+@export var invincibility_duration: float = 0.5
+@export var hurt_flash_duration: float = 0.15 
+@export var hurt_blink_speed: float = 0.1
+
+@export_group("LevelUpNotification")
+@export var levelup_popup_scene: PackedScene
+@onready var head_anchor: Marker3D = $HeadAnchor
+
+# --- Bei den Variablen ---
+var hud: Node = null
+var _health: int
+var _knockback_velocity: Vector3 = Vector3.ZERO
+var _knockback_timer: float = 0.0
+var _invincibility_timer: float = 0.0
+var _is_knocked_back: bool = false
+var _is_hurt_flashing: bool = false
+var _hurt_flash_timer: float = 0.0
+
+var _footstep_timer: float = 0.0
+
 # --- Attack-Kombos (8 Richtungen) ---
 # Down
 const ATTACK_DOWN_1: Array[int] = [27, 27, 29]
@@ -82,6 +120,9 @@ const ATTACK_UP_RIGHT_3: Array[int] = [81, 81, 83]
 
 const COMBO_SPRITE_FLIP_FRAMES := {}
 
+const HURT_DOWN_LEFT: int = 61
+const HURT_UP_RIGHT: int = 70
+
 @export var SPRITE_FACES_RIGHT: bool = true
 
 # --- Intern ---
@@ -106,17 +147,86 @@ var _current_attack_frames: Array[int] = []
 var _current_attack_duration: float = 0.0
 var _current_attack_base_duration: float = 0.0
 
+
 @onready var character: Sprite3D = $charactersprite
 
 
 func _ready() -> void:
+	GameManager.player_data.hp_changed.connect(_on_hp_changed)
+	GameManager.player_data.level_changed.connect(_on_level_changed)
+	
+	add_to_group("player")
+	
+	# HUD initialisieren
+	_update_hud()
+	
 	if character:
 		character.hframes = HFRAMES
 		character.vframes = VFRAMES
 	_show_idle()
 
+func _update_hud() -> void:
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud:
+		var pd := GameManager.player_data
+		hud.update_hp(pd.current_hp, pd.max_hp)
+		hud.update_exp(pd.current_exp, pd.exp_to_next_level)
+		hud.set_level(pd.level)
+		hud.update_gold(pd.gold)
+
+
+func _on_hp_changed(current: int, maximum: int) -> void:
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud:
+		hud.animate_hp_change(current)
+		
+func _on_level_changed(new_level: int) -> void:
+
+	_spawn_levelup_popup(new_level) # hier deine Anzeige / Popup-Logik
+
+func _exit_tree() -> void:
+	if GameManager.player_data.level_changed.is_connected(_on_level_changed):
+		GameManager.player_data.level_changed.disconnect(_on_level_changed)
+
+func _spawn_levelup_popup(new_level: int) -> void:
+	print("=== SPAWNING LEVEL UP POPUP ===")
+	
+	if levelup_popup_scene == null:
+		push_warning("levelup_popup_scene ist nicht gesetzt.")
+		return
+	
+	var popup := levelup_popup_scene.instantiate() as Node3D
+	get_tree().current_scene.add_child(popup)
+	popup.global_position = head_anchor.global_position
+	
+	print("Popup position: ", popup.global_position)
+	print("Head anchor position: ", head_anchor.global_position)
+	
+	var label: Label3D = popup.get_node_or_null("Label3D")
+	print("Label3D found: ", label != null)
+	if label:
+		label.text = "Level Up!\nLevel %d" % new_level
+		print("Label text set to: ", label.text)
+	
+	var anim_player: AnimationPlayer = popup.get_node_or_null("AnimationPlayer")
+	print("AnimationPlayer found: ", anim_player != null)
+	
+	if anim_player:
+		print("Available animations: ", anim_player.get_animation_list())
+		anim_player.play("pop")  # Ändere den Namen falls anders
+		anim_player.animation_finished.connect(func(_name): popup.queue_free())
+	else:
+		get_tree().create_timer(2.0).timeout.connect(popup.queue_free)
 
 func _physics_process(delta: float) -> void:
+	_process_invincibility(delta)
+	
+	# Knockback verarbeiten
+	if _is_knocked_back:
+		_process_knockback(delta)
+		return
+	
+	# --- Rest des originalen _physics_process Codes ---
 	if _attack_cooldown_timer > 0.0:
 		_attack_cooldown_timer -= delta
 		if _attack_cooldown_timer < 0.0:
@@ -157,9 +267,43 @@ func _physics_process(delta: float) -> void:
 		_update_attack(delta)
 	else:
 		_update_animation(input_dir, delta)
-
-
 # ---------- 8-Richtungen Erkennung ----------
+
+func take_damage(amount: int, from_position: Vector3) -> void:
+	if _invincibility_timer > 0.0:
+		return
+	
+	# Schaden über PlayerData berechnen (mit Defense)
+	GameManager.player_data.take_damage(amount)
+	
+	var knockback_dir := (global_position - from_position).normalized()
+	knockback_dir.y = 0
+	_knockback_velocity = knockback_dir * knockback_force
+	_knockback_timer = knockback_duration
+	_is_knocked_back = true
+	_invincibility_timer = invincibility_duration
+	
+	_is_hurt_flashing = true
+	_hurt_flash_timer = hurt_flash_duration
+	
+	if _is_attacking:
+		_end_attack()
+	
+	if not GameManager.player_data.is_alive():
+		_die()
+		
+func is_alive() -> bool:
+	return GameManager.player_data.is_alive()
+		
+func _die() -> void:
+	print("Player died!")
+	# Hier kannst du Game Over Logik hinzufügen
+	# z.B. get_tree().reload_current_scene()
+
+
+func get_health() -> int:
+	return _health
+
 
 func _get_direction_from_input(dir: Vector2) -> int:
 	if dir == Vector2.ZERO:
@@ -209,6 +353,11 @@ func _update_animation(dir: Vector2, delta: float) -> void:
 
 func _animate_run_8dir(delta: float) -> void:
 	_anim_time += delta
+	
+	_footstep_timer -= delta
+	if _footstep_timer <= 0.0:
+		_play_footstep_sound()
+		_footstep_timer = footstep_interval
 	
 	var start_frame: int
 	var end_frame: int
@@ -348,9 +497,9 @@ func _start_attack(step: int) -> void:
 	_current_attack_base_duration = _get_attack_base_duration(_current_attack_frames)
 	_current_attack_duration = _get_attack_duration(_current_attack_frames)
 
-	var world_pos: Vector3 = _get_slash_spawn_position(_last_dir_mode)
-	_spawn_slash_vfx(step, _last_dir_mode, world_pos)
-	_play_swoosh_sound(world_pos)
+	#var world_pos: Vector3 = _get_slash_spawn_position(_last_dir_mode)
+	#_spawn_slash_vfx(step, _last_dir_mode, world_pos)
+	#_play_swoosh_sound(world_pos)
 
 
 func _end_attack() -> void:
@@ -395,6 +544,12 @@ func _update_attack(delta: float) -> void:
 		frame_index_in_array = frames_count - 1
 
 	_attack_can_chain = _attack_time >= _current_attack_base_duration
+	
+	if not _slash_spawned_this_attack and frame_index_in_array >= _slash_spawn_frame:
+		_slash_spawned_this_attack = true
+		var world_pos: Vector3 = _get_slash_spawn_position(_last_dir_mode)
+		_spawn_slash_vfx(_attack_step, _last_dir_mode, world_pos)
+		_play_swoosh_sound(world_pos)
 
 	var frame_index: int = _current_attack_frames[frame_index_in_array]
 	var use_flip: bool = _is_flipped_direction(_last_dir_mode)
@@ -513,6 +668,7 @@ const COMBO_MIRRORED := {
 	DirMode.UP_LEFT:    { 0: false, 1: true, 2: false },
 }
 
+var hit_already: bool = false
 
 func _spawn_slash_vfx(combo_index: int, dir_mode: int, world_pos: Vector3) -> void:
 	if slash_scene == null:
@@ -521,6 +677,8 @@ func _spawn_slash_vfx(combo_index: int, dir_mode: int, world_pos: Vector3) -> vo
 	var vfx := slash_scene.instantiate() as Node3D
 	get_tree().current_scene.add_child(vfx)
 	vfx.global_position = world_pos
+	
+	vfx.process_mode = Node.PROCESS_MODE_ALWAYS
 	
 	var base_yaw: float = DIR_YAW_DEG.get(dir_mode, 180.0)
 	
@@ -534,11 +692,54 @@ func _spawn_slash_vfx(combo_index: int, dir_mode: int, world_pos: Vector3) -> vo
 	if is_mirrored:
 		pivot.scale.x = -1.0
 	
+	# Hitbox Setup
+	var hit_area: Area3D = pivot.get_node_or_null("HitArea")
+
+	hit_already = false
+	if hit_area:
+		hit_area.set_meta("damage", attack_damage)
+		hit_area.set_meta("source_position", global_position)
+		hit_area.set_meta("attacker", self)
+		
+
+		
+		# Verbinde Signal für Treffer
+		hit_area.body_entered.connect(func(body: Node3D) -> void:
+			_on_slash_hit(body, hit_area)
+		)
+	else:
+		print("ERROR: HitArea not found in slash VFX!")
+	
 	var anim_player: AnimationPlayer = vfx.get_node("Node3D/AnimationPlayer")
 	if anim_player and anim_player.has_animation("slash"):
 		anim_player.play("slash")
 	
 	_cleanup_vfx(vfx, slash_lifetime)
+	
+func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
+	# Nicht sich selbst treffen
+	if body == self:
+		return
+	
+	# Nur Gegner treffen
+	if body.has_method("take_damage"):
+		
+		var base_damage: int = hit_area.get_meta("damage", attack_damage)
+		var actual_damage: int = GameManager.player_data.get_attack_damage(base_damage)
+		
+		var source_pos: Vector3 = hit_area.get_meta("source_position", global_position)
+		#print("-> Dealing ", actual_damage, " damage to ", body.name)
+		if !hit_already:
+			body.take_damage(actual_damage, source_pos)
+			hit_already = true
+			var impact_pos: Vector3 = (global_position + body.global_position) / 2.0
+			impact_pos.y += 0.3
+			_spawn_impact_vfx(impact_pos)
+		
+			_play_hit_sound(body.global_position)
+		
+	else:
+		print("-> Body has no take_damage method")
 
 
 func _cleanup_vfx(vfx: Node3D, lifetime: float) -> void:
@@ -604,3 +805,120 @@ func _play_swoosh_sound(world_pos: Vector3) -> void:
 	player.finished.connect(func() -> void:
 		player.queue_free()
 	)
+	
+func _play_footstep_sound() -> void:
+	if footstep_sounds.is_empty():
+		return
+	
+	var player := AudioStreamPlayer3D.new()
+	player.stream = footstep_sounds.pick_random()
+	player.volume_db = footstep_volume_db
+	player.pitch_scale = randf_range(1.0 - footstep_pitch_variation, 1.0 + footstep_pitch_variation)
+	player.global_position = global_position
+	
+	get_tree().current_scene.add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+	
+func _play_hit_sound(world_pos: Vector3) -> void:
+	if hit_sounds.is_empty():
+		return
+
+	var player := AudioStreamPlayer3D.new()
+	player.stream = hit_sounds.pick_random()
+	player.volume_db = hit_volume_db
+	player.pitch_scale = randf_range(1.0 - hit_pitch_variation, 1.0 + hit_pitch_variation)
+	player.global_position = world_pos
+	
+	get_tree().current_scene.add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+	
+func _get_hurt_frame() -> Dictionary:
+	match _last_dir_mode:
+		DirMode.DOWN, DirMode.DOWN_LEFT, DirMode.LEFT:
+			return {frame = HURT_DOWN_LEFT, flip = false}
+		DirMode.DOWN_RIGHT, DirMode.RIGHT:
+			return {frame = HURT_DOWN_LEFT, flip = true}
+		DirMode.UP, DirMode.UP_RIGHT:
+			return {frame = HURT_UP_RIGHT, flip = false}
+		DirMode.UP_LEFT:
+			return {frame = HURT_UP_RIGHT, flip = true}
+		_:
+			return {frame = HURT_DOWN_LEFT, flip = false}
+
+func _process_invincibility(delta: float) -> void:
+	# Hurt Flash (rot aufleuchten)
+	if _is_hurt_flashing:
+		_hurt_flash_timer -= delta
+		character.modulate = Color(1.5, 0.5, 0.5)  # Rot
+		
+		if _hurt_flash_timer <= 0.0:
+			_is_hurt_flashing = false
+			character.modulate = Color.WHITE
+	
+	# Invincibility Blinken
+	if _invincibility_timer > 0.0:
+		_invincibility_timer -= delta
+		
+		if not _is_hurt_flashing:
+			# Blinken (transparent/sichtbar wechseln)
+			var blink := fmod(_invincibility_timer, hurt_blink_speed * 2.0) < hurt_blink_speed
+			character.modulate.a = 0.3 if blink else 1.0
+		
+		if _invincibility_timer <= 0.0:
+			character.modulate = Color.WHITE
+			character.modulate.a = 1.0
+			
+func _process_knockback(delta: float) -> void:
+	_knockback_timer -= delta
+	velocity.x = _knockback_velocity.x
+	velocity.z = _knockback_velocity.z
+	_knockback_velocity = _knockback_velocity.move_toward(Vector3.ZERO, knockback_force * 2.0 * delta)
+	
+	# Hurt Frame anzeigen
+	var hurt_data := _get_hurt_frame()
+	character.frame = hurt_data.frame
+	character.flip_h = hurt_data.flip
+	
+	if _knockback_timer <= 0.0:
+		_is_knocked_back = false
+		_knockback_velocity = Vector3.ZERO
+	
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+	
+	move_and_slide()
+	
+func _spawn_impact_vfx(pos: Vector3) -> void:
+	if impact_scene == null:
+		return
+	
+	var vfx := impact_scene.instantiate() as Node3D
+	get_tree().current_scene.add_child(vfx)
+	vfx.global_position = pos
+	vfx.rotation_degrees.y = randf() * 360.0
+	vfx.scale = Vector3(impact_scale, impact_scale, impact_scale)
+	
+	# Partikel erst nach delay starten
+	if impact_delay > 0.0:
+		# Alle Partikel erstmal deaktivieren
+		for child in vfx.get_children():
+			if child is GPUParticles3D:
+				child.emitting = false
+		
+		# Nach delay starten
+		get_tree().create_timer(impact_delay).timeout.connect(func():
+			if is_instance_valid(vfx):
+				for child in vfx.get_children():
+					if child is GPUParticles3D:
+						child.emitting = true
+		)
+	else:
+		# Sofort starten
+		for child in vfx.get_children():
+			if child is GPUParticles3D:
+				child.emitting = true
+	
+	# Aufräumen nach lifetime + delay
+	get_tree().create_timer(impact_lifetime + impact_delay).timeout.connect(vfx.queue_free)

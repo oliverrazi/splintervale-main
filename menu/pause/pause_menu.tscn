@@ -1,0 +1,244 @@
+[gd_scene format=3 uid="uid://dsennl7lwghh4"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.1)
+
+[node name="MainContainer" type="HBoxContainer" parent="Background"]
+custom_minimum_size = Vector2(900, 500)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="TabBarPanel" type="PanelContainer" parent="Background/MainContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/TabBarPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TabStats" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+layout_mode = 2
+text = "📊 Character
+"
+alignment = 0
+
+[node name="TabInventory" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+layout_mode = 2
+text = "🎒 Inventory"
+alignment = 0
+
+[node name="TabMap" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+layout_mode = 2
+text = "🗺️ Map"
+alignment = 0
+
+[node name="TabQuests" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+layout_mode = 2
+text = "📜 Quests"
+alignment = 0
+
+[node name="TabSettings" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+layout_mode = 2
+text = "⚙️ Settings"
+alignment = 0
+
+[node name="ContentPanel" type="PanelContainer" parent="Background/MainContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ContentContainer" type="MarginContainer" parent="Background/MainContainer/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="StatsContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+visible = false
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Character
+"
+
+[node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Level:"
+
+[node name="LevelValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="Label2" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "EXP:"
+
+[node name="ExpValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "0 / 100"
+
+[node name="Label3" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "HP:"
+
+[node name="HPValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "100 / 100"
+
+[node name="Label4" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "MP:"
+
+[node name="MPValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "100 / 100"
+
+[node name="Label9" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Stamina: "
+
+[node name="STAValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "100 / 100"
+
+[node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label5" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Strength:"
+
+[node name="STRValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="Label6" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Defense:"
+
+[node name="DEFValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="Label7" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Magic:"
+
+[node name="MAGValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="Label8" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Endurance:"
+
+[node name="ENDValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="Label10" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Vitality:"
+
+[node name="VITValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="InventoryContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/InventoryContent"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 24
+text = "Inventory coming soon"
+
+[node name="MapContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/MapContent"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 24
+text = "Map coming soon"
+
+[node name="QuestsContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/QuestsContent"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 24
+text = "Quests coming soon"
+
+[node name="SettingsContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Options"
+
+[node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
+layout_mode = 2
+
+[node name="SaveButton" type="Button" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+text = "💾 Save Game"
+
+[node name="LoadButton" type="Button" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+text = "📂 Load Game"
+
+[node name="QuitButton" type="Button" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+text = "🚪 Quit Game"
+
+[node name="NotificationLabel" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
+visible = false
+modulate = Color(0, 1, 0, 1)
+layout_mode = 2
+horizontal_alignment = 1
