@@ -125,6 +125,19 @@ const HURT_UP_RIGHT: int = 70
 
 @export var SPRITE_FACES_RIGHT: bool = true
 
+
+const DEATH_FRAME_1: int = 78  # Knie knicken
+const DEATH_FRAME_2: int = 79  # Auf den Knien
+const DEATH_FRAME_3: int = 80  # Am Boden
+
+const DEATH_FRAME_1_DURATION: float = 0.2  # Kurz
+const DEATH_FRAME_2_DURATION: float = 0.6  # Etwas länger
+const DEATH_GAME_OVER_DELAY: float = 2.0   # Sekunden bis Game Over Screen
+
+var _is_dead: bool = false
+var _death_anim_time: float = 0.0
+var _death_phase: int = 0
+
 # --- Intern ---
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _anim_time: float = 0.0
@@ -182,6 +195,8 @@ func _on_hp_changed(current: int, maximum: int) -> void:
 		
 func _on_level_changed(new_level: int) -> void:
 
+	if GameManager.is_loading:
+		return
 	_spawn_levelup_popup(new_level) # hier deine Anzeige / Popup-Logik
 
 func _exit_tree() -> void:
@@ -205,7 +220,7 @@ func _spawn_levelup_popup(new_level: int) -> void:
 	var label: Label3D = popup.get_node_or_null("Label3D")
 	print("Label3D found: ", label != null)
 	if label:
-		label.text = "Level Up!\nLevel %d" % new_level
+		label.text = "Level Up!"
 		print("Label text set to: ", label.text)
 	
 	var anim_player: AnimationPlayer = popup.get_node_or_null("AnimationPlayer")
@@ -219,6 +234,11 @@ func _spawn_levelup_popup(new_level: int) -> void:
 		get_tree().create_timer(2.0).timeout.connect(popup.queue_free)
 
 func _physics_process(delta: float) -> void:
+	
+	if _is_dead:
+		_process_death(delta)
+		return
+	
 	_process_invincibility(delta)
 	
 	# Knockback verarbeiten
@@ -238,6 +258,9 @@ func _physics_process(delta: float) -> void:
 		velocity.y = JUMP_VELOCITY
 
 	var input_dir: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	if input_dir.length_squared() > 0.01:  # length_squared ist performanter
+		input_dir = input_dir.normalized()
 
 	_handle_attack_input(input_dir)
 
@@ -269,6 +292,18 @@ func _physics_process(delta: float) -> void:
 		_update_animation(input_dir, delta)
 # ---------- 8-Richtungen Erkennung ----------
 
+func reset_death_state() -> void:
+	_is_dead = false
+	_death_phase = 0
+	_death_anim_time = 0.0
+	_is_attacking = false
+	_is_knocked_back = false
+	_is_hurt_flashing = false
+	character.modulate = Color.WHITE
+	character.modulate.a = 1.0
+	_show_idle()
+
+
 func take_damage(amount: int, from_position: Vector3) -> void:
 	if _invincibility_timer > 0.0:
 		return
@@ -293,12 +328,44 @@ func take_damage(amount: int, from_position: Vector3) -> void:
 		_die()
 		
 func is_alive() -> bool:
-	return GameManager.player_data.is_alive()
+	return not _is_dead and GameManager.player_data.is_alive()
 		
 func _die() -> void:
+	if _is_dead:
+		return
+	
 	print("Player died!")
-	# Hier kannst du Game Over Logik hinzufügen
-	# z.B. get_tree().reload_current_scene()
+	_is_dead = true
+	_death_phase = 0
+	_death_anim_time = 0.0
+	
+	# Alles stoppen
+	velocity = Vector3.ZERO
+	_is_attacking = false
+	_is_knocked_back = false
+	_is_hurt_flashing = false
+	
+	# Game Over Screen nach Delay anzeigen
+	GameOverScreen.show_game_over(DEATH_GAME_OVER_DELAY)
+
+func _process_death(delta: float) -> void:
+	_death_anim_time += delta
+	
+	match _death_phase:
+		0:  # Frame 1 - Knie knicken
+			character.frame = DEATH_FRAME_1
+			if _death_anim_time >= DEATH_FRAME_1_DURATION:
+				_death_phase = 1
+				_death_anim_time = 0.0
+		
+		1:  # Frame 2 - Auf den Knien
+			character.frame = DEATH_FRAME_2
+			if _death_anim_time >= DEATH_FRAME_2_DURATION:
+				_death_phase = 2
+				_death_anim_time = 0.0
+		
+		2:  # Frame 3 - Am Boden (bleibt)
+			character.frame = DEATH_FRAME_3
 
 
 func get_health() -> int:

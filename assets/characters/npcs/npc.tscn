@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=3 uid="uid://7qetjl5g7b7a"]
+
+[ext_resource type="Script" uid="uid://bwb8lnio2axjr" path="res://assets/characters/npcs/npc.gd" id="1_wm3tf"]
+[ext_resource type="Texture2D" uid="uid://cpe1fe7toik75" path="res://assets/characters/npcs/villager11.png" id="2_wm3tf"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wm3tf"]
+radius = 0.17871094
+height = 0.6546631
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_irbu2"]
+radius = 0.1640625
+height = 0.5042114
+
+[node name="Npc" type="CharacterBody3D"]
+script = ExtResource("1_wm3tf")
+sprite_hframes = 2
+sprite_vframes = 1
+frames_up = Array[int]([11, 12, 14, 15])
+frames_left = Array[int]([16, 25, 17, 26])
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.11640245, 0)
+shape = SubResource("CapsuleShape3D_wm3tf")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+billboard = 1
+alpha_cut = 3
+alpha_scissor_threshold = 1.0
+alpha_hash_scale = 0.0
+alpha_antialiasing_mode = 2
+alpha_antialiasing_edge = 0.3
+texture_filter = 1
+texture = ExtResource("2_wm3tf")
+hframes = 9
+vframes = 11
+
+[node name="InteractionArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26900363, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_irbu2")
+
+[node name="DialogueMarker" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19186962, 0)

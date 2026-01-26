@@ -1,8 +1,45 @@
-[gd_scene format=3 uid="uid://dsennl7lwghh4"]
+[gd_scene load_steps=15 format=3 uid="uid://dsennl7lwghh4"]
+
+[ext_resource type="Script" uid="uid://be4qyrqmq8rfi" path="res://menu/pause/pause_menu.gd" id="1_qssgc"]
+[ext_resource type="FontFile" uid="uid://b3gyiro3elvvy" path="res://menu/assets/LeagueGothic-Italic.otf" id="2_tllbf"]
+[ext_resource type="Texture2D" uid="uid://c62rqe1ysw5lp" path="res://menu/assets/icons/stats-icon.png" id="3_f3dd2"]
+[ext_resource type="Texture2D" uid="uid://dxrrhe0a0yutp" path="res://menu/assets/icons/map-icon.png" id="3_sbl3r"]
+[ext_resource type="Texture2D" uid="uid://cpq02ael6bq0t" path="res://menu/assets/icons/inventory-icon.png" id="4_xm4lc"]
+[ext_resource type="Texture2D" uid="uid://btgky7euxrgn" path="res://menu/assets/icons/quests-icon.png" id="6_rwt5x"]
+[ext_resource type="Texture2D" uid="uid://dpbmt6coaxcpf" path="res://menu/assets/icons/settings-icon.png" id="7_h2e5x"]
+[ext_resource type="FontFile" uid="uid://bf8r2nx6mtj26" path="res://menu/assets/fonts/Merriweather-Regular.ttf" id="8_xm4lc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f3dd2"]
+bg_color = Color(1, 1, 1, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xm4lc"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rwt5x"]
+bg_color = Color(0.3623615, 0.3623615, 0.3623615, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_722e3"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h2e5x"]
+bg_color = Color(0.33003333, 0.33003333, 0.33003333, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xv2go"]
+bg_color = Color(0, 0, 0, 0.3)
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="PauseMenu" type="CanvasLayer"]
+script = ExtResource("1_qssgc")
 
 [node name="Background" type="ColorRect" parent="."]
+texture_filter = 2
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -10,7 +47,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 1, 1, 0.1)
 
-[node name="MainContainer" type="HBoxContainer" parent="Background"]
+[node name="MainContainer" type="VBoxContainer" parent="Background"]
 custom_minimum_size = Vector2(900, 500)
 layout_mode = 1
 anchors_preset = 15
@@ -18,46 +55,93 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
 
 [node name="TabBarPanel" type="PanelContainer" parent="Background/MainContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_f3dd2")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/TabBarPanel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Background/MainContainer/TabBarPanel"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 50
+alignment = 1
 
-[node name="TabStats" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+[node name="TabStats" type="Button" parent="Background/MainContainer/TabBarPanel/HBoxContainer"]
+modulate = Color(1, 1, 1, 0.5)
 layout_mode = 2
-text = "📊 Character
-"
-alignment = 0
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_xm4lc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
+theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
+theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
+text = "Stats"
+icon = ExtResource("3_f3dd2")
+icon_alignment = 1
+vertical_icon_alignment = 0
 
-[node name="TabInventory" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+[node name="TabInventory" type="Button" parent="Background/MainContainer/TabBarPanel/HBoxContainer"]
+modulate = Color(1, 1, 1, 0.5)
 layout_mode = 2
-text = "🎒 Inventory"
-alignment = 0
+theme_override_constants/h_separation = 0
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_xm4lc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
+theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
+theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
+text = "Inventory"
+icon = ExtResource("4_xm4lc")
+icon_alignment = 1
+vertical_icon_alignment = 0
 
-[node name="TabMap" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+[node name="TabMap" type="Button" parent="Background/MainContainer/TabBarPanel/HBoxContainer"]
+modulate = Color(1, 1, 1, 0.5)
 layout_mode = 2
-text = "🗺️ Map"
-alignment = 0
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_xm4lc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
+theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
+theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
+text = "Map"
+icon = ExtResource("3_sbl3r")
+icon_alignment = 1
+vertical_icon_alignment = 0
 
-[node name="TabQuests" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+[node name="TabQuests" type="Button" parent="Background/MainContainer/TabBarPanel/HBoxContainer"]
+modulate = Color(1, 1, 1, 0.5)
 layout_mode = 2
-text = "📜 Quests"
-alignment = 0
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_xm4lc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
+theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
+theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
+text = "Quests"
+icon = ExtResource("6_rwt5x")
+icon_alignment = 1
+vertical_icon_alignment = 0
 
-[node name="TabSettings" type="Button" parent="Background/MainContainer/TabBarPanel/VBoxContainer"]
+[node name="TabSettings" type="Button" parent="Background/MainContainer/TabBarPanel/HBoxContainer"]
+modulate = Color(1, 1, 1, 0.5)
 layout_mode = 2
-text = "⚙️ Settings"
-alignment = 0
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_xm4lc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
+theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
+theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
+text = "Options"
+icon = ExtResource("7_h2e5x")
+icon_alignment = 1
+vertical_icon_alignment = 0
 
 [node name="ContentPanel" type="PanelContainer" parent="Background/MainContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_xv2go")
 
 [node name="ContentContainer" type="MarginContainer" parent="Background/MainContainer/ContentPanel"]
+custom_minimum_size = Vector2(0, 550)
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
@@ -65,19 +149,22 @@ theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
 [node name="StatsContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
-visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Character
-"
+theme_override_colors/font_color = Color(1, 0.91764706, 0.8352941, 1)
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 38
+text = "Character"
 
 [node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
 layout_mode = 2
@@ -88,42 +175,61 @@ columns = 2
 
 [node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 20
 text = "Level:"
 
 [node name="LevelValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "1"
 
 [node name="Label2" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "EXP:"
 
 [node name="ExpValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "0 / 100"
 
 [node name="Label3" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "HP:"
 
 [node name="HPValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "100 / 100"
 
 [node name="Label4" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "MP:"
 
 [node name="MPValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "100 / 100"
 
 [node name="Label9" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Stamina: "
 
 [node name="STAValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "100 / 100"
 
 [node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
@@ -134,42 +240,62 @@ layout_mode = 2
 
 [node name="Label5" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "Strength:"
 
 [node name="STRValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "1"
 
 [node name="Label6" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "Defense:"
 
 [node name="DEFValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "1"
 
 [node name="Label7" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "Magic:"
 
 [node name="MAGValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "1"
 
 [node name="Label8" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "Endurance:"
 
 [node name="ENDValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "1"
 
 [node name="Label10" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "Vitality:"
 
 [node name="VITValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 20
 text = "1"
 
 [node name="InventoryContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
@@ -206,18 +332,28 @@ theme_override_font_sizes/font_size = 24
 text = "Quests coming soon"
 
 [node name="SettingsContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+visible = false
+custom_minimum_size = Vector2(0, 53)
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_right = 100.0
+offset_bottom = 220.0
+grow_horizontal = 2
 theme_override_constants/separation = 16
+alignment = 1
 
 [node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_fonts/font = ExtResource("2_tllbf")
+theme_override_font_sizes/font_size = 30
 text = "Options"
+horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
 layout_mode = 2
@@ -225,17 +361,23 @@ layout_mode = 2
 [node name="SaveButton" type="Button" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
-text = "💾 Save Game"
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 20
+text = "Save Game"
 
 [node name="LoadButton" type="Button" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
-text = "📂 Load Game"
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 20
+text = "Load Game"
 
 [node name="QuitButton" type="Button" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
-text = "🚪 Quit Game"
+theme_override_fonts/font = ExtResource("8_xm4lc")
+theme_override_font_sizes/font_size = 20
+text = "Quit Game"
 
 [node name="NotificationLabel" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/SettingsContent/VBoxContainer"]
 visible = false

@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://cntp80ppy8jmc"]
+
+[ext_resource type="Script" uid="uid://el821odmlt03" path="res://assets/enemies/assets/enemy_hp_bar.gd" id="1_00tje"]
+
+[node name="EnemyHpBar" type="Node3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+script = ExtResource("1_00tje")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+size = Vector2i(64, 8)
+render_target_update_mode = 4
+
+[node name="Control" type="Control" parent="SubViewport"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="SubViewport/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.702)
+
+[node name="Fill" type="ColorRect" parent="SubViewport/Control"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 63.0
+offset_bottom = 7.0
+color = Color(0.68455744, 0, 0.057232954, 1)
+
+[node name="BarSprite" type="Sprite3D" parent="."]
+pixel_size = 0.08
+billboard = 1
+no_depth_test = true
+render_priority = 10

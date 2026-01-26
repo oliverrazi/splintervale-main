@@ -1,0 +1,412 @@
+[gd_scene load_steps=25 format=3 uid="uid://biknhwdme7qdk"]
+
+[ext_resource type="Texture2D" uid="uid://dhdosyhlqia2e" path="res://assets/base_tiles/textures/grass_pixel.png" id="1_3f1wp"]
+[ext_resource type="Texture2D" uid="uid://da553bbr72aa6" path="res://assets/base_tiles/textures/grass_pixel_normal.png" id="2_01qs0"]
+[ext_resource type="Texture2D" uid="uid://d0nds8xjmg4mt" path="res://assets/base_tiles/textures/wall1.png" id="3_du4ea"]
+[ext_resource type="Texture2D" uid="uid://djjsjsl6vx3ie" path="res://assets/base_tiles/textures/wall1_specular.png" id="4_ssbmh"]
+[ext_resource type="Texture2D" uid="uid://b5tn2d3f4o34f" path="res://assets/base_tiles/textures/dirtpixel.png" id="5_ofnes"]
+[ext_resource type="Texture2D" uid="uid://r4yk0pdb8ndm" path="res://assets/base_tiles/textures/dirtpixel_normal.png" id="6_7yqqu"]
+[ext_resource type="PackedScene" uid="uid://c8v6cm2w74xo5" path="res://assets/decoration/griffin.glb" id="7_01qs0"]
+[ext_resource type="PackedScene" uid="uid://is3bd0xy057q" path="res://scenes/grass_blue.tscn" id="8_7yqqu"]
+[ext_resource type="PackedScene" uid="uid://b8mf8juvjuq0b" path="res://assets/base_tiles/trees/pinetree5.tscn" id="9_8rv8s"]
+[ext_resource type="Shader" uid="uid://cr5caoegammj2" path="res://scenes/skyshader.gdshader" id="10_wofq7"]
+[ext_resource type="CameraAttributesPractical" uid="uid://p16ene1hmixs" path="res://assets/camera_attributes/new_camera_attributes_practical.tres" id="11_g44bh"]
+
+[sub_resource type="Gradient" id="Gradient_wukud"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_il2jm"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_wjb0r"]
+noise = SubResource("FastNoiseLite_il2jm")
+color_ramp = SubResource("Gradient_wukud")
+seamless = true
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_8rv8s"]
+_shader_parameters = {
+&"bias_distance": 512.0,
+&"blend_sharpness": 0.5,
+&"depth_blur": 0.0,
+&"enable_macro_variation": true,
+&"enable_projection": true,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1, 1, 1, 1),
+&"macro_variation2": Color(1, 1, 1, 1),
+&"macro_variation_slope": 0.333,
+&"mipmap_bias": 0.999999988824,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.076,
+&"noise_texture": SubResource("NoiseTexture2D_wjb0r"),
+&"projection_threshold": 0.8
+}
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gggvi"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_w44yn"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_gggvi")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_k83mh"]
+name = "grass"
+albedo_texture = ExtResource("1_3f1wp")
+normal_texture = ExtResource("2_01qs0")
+normal_depth = 2.0
+ao_strength = 0.0
+roughness = 0.554
+uv_scale = 0.9
+detiling_rotation = 0.959
+detiling_shift = 0.856
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_qktwf"]
+name = "wall1"
+id = 1
+albedo_texture = ExtResource("3_du4ea")
+normal_texture = ExtResource("4_ssbmh")
+roughness = 0.489
+uv_scale = 0.836
+detiling_rotation = 0.585
+detiling_shift = 0.244
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_bh8nc"]
+name = "wall1"
+id = 2
+albedo_texture = ExtResource("5_ofnes")
+normal_texture = ExtResource("6_7yqqu")
+normal_depth = 2.0
+ao_strength = 2.0
+roughness = 0.564
+uv_scale = 1.574
+detiling_rotation = 0.67
+detiling_shift = 0.43
+
+[sub_resource type="Terrain3DAssets" id="Terrain3DAssets_wofq7"]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_w44yn")])
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_k83mh"), SubResource("Terrain3DTextureAsset_qktwf"), SubResource("Terrain3DTextureAsset_bh8nc")])
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o6okc"]
+shader = ExtResource("10_wofq7")
+shader_parameter/skyColor = Color(0.52907544, 0.8069028, 1, 1)
+shader_parameter/horizonColor = Color(0.28533614, 0.44589186, 0.6039341, 1)
+
+[sub_resource type="Sky" id="Sky_4arys"]
+sky_material = SubResource("ShaderMaterial_o6okc")
+
+[sub_resource type="Environment" id="Environment_8lmb4"]
+background_mode = 2
+background_color = Color(0.06263664, 0.6265164, 0.46390855, 1)
+background_energy_multiplier = 0.46
+sky = SubResource("Sky_4arys")
+sky_custom_fov = 77.8
+ambient_light_source = 3
+ambient_light_color = Color(0.574992, 0.8786219, 0.94494164, 1)
+ambient_light_sky_contribution = 0.21
+reflected_light_source = 2
+tonemap_mode = 3
+sdfgi_enabled = true
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.7
+glow_bloom = 0.1
+glow_blend_mode = 0
+glow_hdr_threshold = 0.8
+fog_enabled = true
+fog_light_color = Color(0.044828042, 0.41078568, 0.4215717, 1)
+fog_density = 0.1767
+fog_sky_affect = 0.153
+fog_height = -44.85
+volumetric_fog_density = 0.08
+volumetric_fog_albedo = Color(0.41960785, 0.49019608, 0.5411765, 1)
+volumetric_fog_emission = Color(0.20915431, 0.60057753, 0.4746408, 1)
+volumetric_fog_emission_energy = 0.0
+volumetric_fog_gi_inject = 0.0
+volumetric_fog_anisotropy = 0.5
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="Node3D" type="Node3D" parent="SubViewportContainer/SubViewport"]
+
+[node name="Terrain3D" type="Terrain3D" parent="SubViewportContainer/SubViewport/Node3D"]
+data_directory = "res://menu/mainmenu"
+material = SubResource("Terrain3DMaterial_8rv8s")
+assets = SubResource("Terrain3DAssets_wofq7")
+collision_shape_size = 24
+collision_radius = 96
+vertex_spacing = 0.25
+top_level = true
+metadata/_edit_lock_ = true
+
+[node name="griffin" parent="SubViewportContainer/SubViewport/Node3D" instance=ExtResource("7_01qs0")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 11.666134, 0, 0.12965715)
+
+[node name="Grass" type="Node3D" parent="SubViewportContainer/SubViewport/Node3D"]
+
+[node name="GrassChunk2" parent="SubViewportContainer/SubViewport/Node3D/Grass" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.340795, 0, 2.6597078)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk2" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk2/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk3" parent="SubViewportContainer/SubViewport/Node3D/Grass" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.371143, 0, 2.6597078)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk3" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk3/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk4" parent="SubViewportContainer/SubViewport/Node3D/Grass" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.514646, 0, -12.329624)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk4" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk4/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk5" parent="SubViewportContainer/SubViewport/Node3D/Grass" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.340795, 0, -12.329624)
+lod_switch = 100.0
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk5" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk5/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk6" parent="SubViewportContainer/SubViewport/Node3D/Grass" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.371143, 0, -12.329624)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk6" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk6/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+lod_switch = 50.0
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.514646, 0, 2.6597078)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/Node3D/Grass/GrassChunk/GrassChunk" instance=ExtResource("8_7yqqu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
+impostor_fade_in_start = 100.0
+impostor_fade_in_end = 100.0
+grass_fade_out_start = 100.0
+grass_fade_out_end = 100.0
+
+[node name="Trees" type="Node3D" parent="SubViewportContainer/SubViewport/Node3D"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 5.9186187, 0, 0)
+
+[node name="pinetree_cut" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6434612, 0, 4.4799633)
+
+[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6434612, -0.12020135, -5.3510056)
+
+[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 5.36449, 0, 1.9925945)
+
+[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 5.2178326, -0.12020135, -7.838374)
+
+[node name="pinetree_cut5" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7601, 0, 6.616326)
+
+[node name="pinetree_cut6" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7601, -0.12020135, -3.214643)
+
+[node name="pinetree_cut7" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 8.334471, 0, 4.128957)
+
+[node name="pinetree_cut8" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 8.334471, -0.12020135, -5.7020116)
+
+[node name="pinetree_cut9" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2474451, 0, 7.5519776)
+
+[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2474451, -0.12020135, -2.2789912)
+
+[node name="pinetree_cut11" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 2.8278809, 0, 5.0646086)
+
+[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 4.8218164, -0.12020135, -4.76636)
+
+[node name="pinetree_cut13" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.364084, 0, 9.68834)
+
+[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8305964, -0.12020135, -0.14262867)
+
+[node name="pinetree_cut15" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 7.9384546, 0, 7.200971)
+
+[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 7.9384546, -0.12020135, -2.6299973)
+
+[node name="pinetree_cut17" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 6.9692755, 0.21889639, 9.736336)
+
+[node name="pinetree_cut18" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, -2.6197386, 0.09869504, 7.568675)
+
+[node name="pinetree_cut19" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 4.8915997, 0.21889639, 7.64635)
+
+[node name="pinetree_cut20" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, -4.257765, 0.09869504, 3.5338264)
+
+[node name="pinetree_cut21" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 9.740256, 0.21889639, -4.102485)
+
+[node name="pinetree_cut22" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 0.1512425, 0.09869504, 4.999795)
+
+[node name="pinetree_cut23" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 8.91711, 0.21889639, 1.5957513)
+
+[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, -1.486784, 0.09869504, 0.96494675)
+
+[node name="pinetree_cut25" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 9.878364, 0.21889639, 10.799964)
+
+[node name="pinetree_cut26" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 0.28935003, 0.09869504, 8.632303)
+
+[node name="pinetree_cut27" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 7.800688, 0.21889639, 8.709978)
+
+[node name="pinetree_cut28" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, -1.3486762, 0.09869504, 4.597454)
+
+[node name="pinetree_cut29" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 12.649345, 0.21889639, 3.021401)
+
+[node name="pinetree_cut30" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 3.0603313, 0.09869504, 6.0634227)
+
+[node name="pinetree_cut31" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 11.011318, 0.21889639, 4.1962357)
+
+[node name="pinetree_cut32" parent="SubViewportContainer/SubViewport/Node3D/Trees" instance=ExtResource("9_8rv8s")]
+transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, 1.4223046, 0.09869504, 2.0285745)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewportContainer/SubViewport/Node3D"]
+environment = SubResource("Environment_8lmb4")
+camera_attributes = ExtResource("11_g44bh")

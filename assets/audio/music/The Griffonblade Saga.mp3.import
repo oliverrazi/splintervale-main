@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ddixwky0jfybg"
+path="res://.godot/imported/The Griffonblade Saga.mp3-251d76a6bc7d371928f9ab3e6fb93d7a.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/music/The Griffonblade Saga.mp3"
+dest_files=["res://.godot/imported/The Griffonblade Saga.mp3-251d76a6bc7d371928f9ab3e6fb93d7a.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

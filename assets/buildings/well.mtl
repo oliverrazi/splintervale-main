@@ -1,0 +1,102 @@
+# Blender 4.5.3 LTS MTL File: 'well.blend'
+# www.blender.org
+
+newmtl Material.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/house/roofside.png
+
+newmtl Material.003
+Ns 0.000000
+Ka 0.290909 0.290909 0.290909
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/stonewall2.png
+
+newmtl Material.004
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/house-wall.png
+
+newmtl Material.015
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/house/house-wall2.png
+
+newmtl Material.016
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/house/house-wall2.png
+
+newmtl Material.017
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/house/house-wall2.png
+
+newmtl Material.018
+Ns 0.000000
+Ka 0.459091 0.459091 0.459091
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 3
+map_Kd -s 3 3 1 C:/Projekte/Eigene Projekte/Splintervale/studio/house/rooftile.png
+
+newmtl Material.019
+Ns 0.000000
+Ka 0.654545 0.654545 0.654545
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 3
+map_Kd -s 3 3 1 C:/Projekte/Eigene Projekte/Splintervale/studio/house/rooftile.png
+
+newmtl Material.020
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/rope.png
+
+newmtl Material.021
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/rope.png

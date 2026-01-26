@@ -19,7 +19,7 @@ shader_parameter/DissolveTexture = SubResource("NoiseTexture2D_0h6ik")
 shader_parameter/DissolveValue = 0.0
 shader_parameter/GlowIntensity = 5.0
 shader_parameter/GlowColor = Color(1, 0.9, 0.6, 1)
-shader_parameter/DistortionStrength = 0.03
+shader_parameter/DistortionStrength = 0.0710000033725
 
 [sub_resource type="Animation" id="Animation_16vmh"]
 length = 0.45
@@ -90,7 +90,7 @@ size = Vector3(1.1, 0.1, 0.65)
 [node name="Node3D" type="Node3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+transform = Transform3D(0.3, 0, 0, 0, 0.01, 0, 0, 0, 0.3, 0, 0, 0)
 mesh = ExtResource("2_w5txv")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_7a3c3")

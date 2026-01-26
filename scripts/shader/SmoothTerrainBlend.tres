@@ -9,6 +9,6 @@ render_priority = 0
 shader = ExtResource("1_7pooj")
 shader_parameter/grass_tex = ExtResource("3_7pooj")
 shader_parameter/dirt_tex = ExtResource("2_3u2aj")
-shader_parameter/wall_threshold = 0.98000004655
+shader_parameter/material_threshold = 0.7
 shader_parameter/grass_uv_scale = 5.0
 shader_parameter/dirt_uv_scale = 5.0

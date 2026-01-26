@@ -1,4 +1,4 @@
-[gd_scene load_steps=173 format=4 uid="uid://c8u5vyoqg0wea"]
+[gd_scene load_steps=172 format=4 uid="uid://c8u5vyoqg0wea"]
 
 [ext_resource type="Script" uid="uid://ckc6rp5jceupb" path="res://scripts/occludable.gd" id="1_wl8v5"]
 [ext_resource type="Texture2D" uid="uid://dqiruftw2ebwd" path="res://assets/base_tiles/pinetree_cut_treestump3.png" id="2_jrkwc"]
@@ -91,15 +91,6 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_uypi4")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k7qgp"]
-resource_name = "pineleaf.004"
-transparency = 2
-alpha_scissor_threshold = 0.5
-alpha_antialiasing_mode = 0
-cull_mode = 2
-albedo_texture = ExtResource("3_cqmia")
-texture_repeat = false
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nj3py"]
 resource_name = "pineleaf.005"
@@ -2372,7 +2363,6 @@ transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0, 1.0948539, 0.30231047)
 transform = Transform3D(-0.34643775, 0.36575973, 0.56716853, 0.013698638, -0.3825054, 0.7218007, 0.59890914, 0.22032186, 0.311568, -0.31580183, 2.8036273, -0.25836048)
 mesh = SubResource("ArrayMesh_hr22f")
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_k7qgp")
 
 [node name="pineleaf_005" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.24138868, -0.371981, -0.65924114, -0.016492823, -0.4077475, 0.68478113, -0.64534473, -0.12871738, -0.26408726, 0.6540774, 2.7206507, 0.18893778)

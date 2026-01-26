@@ -10,22 +10,22 @@ signal stats_changed()
 # === LEVEL & EXP ===
 @export var level: int = 1
 @export var current_exp: int = 0
-@export var exp_to_next_level: int = 100
+@export var exp_to_next_level: int = 30
 
 # === RESOURCES ===
-@export var current_hp: int = 100
-@export var max_hp: int = 100
-@export var current_mp: int = 50
-@export var max_mp: int = 50
-@export var current_stamina: int = 100
-@export var max_stamina: int = 100
+@export var current_hp: int = 60
+@export var max_hp: int = 60
+@export var current_mp: int = 30
+@export var max_mp: int = 30
+@export var current_stamina: int = 30
+@export var max_stamina: int = 30
 
 # === BASE STATS ===
-@export var base_health: int = 10      # Beeinflusst max_hp
-@export var base_magic: int = 5        # Beeinflusst max_mp
-@export var base_strength: int = 5     # Beeinflusst Schaden
-@export var base_defense: int = 5      # Reduziert eingehenden Schaden
-@export var base_endurance: int = 5    # Beeinflusst max_stamina
+@export var base_health: int = 6      # Beeinflusst max_hp
+@export var base_magic: int = 3        # Beeinflusst max_mp
+@export var base_strength: int = 3     # Beeinflusst Schaden
+@export var base_defense: int = 3     # Reduziert eingehenden Schaden
+@export var base_endurance: int = 3    # Beeinflusst max_stamina
 
 # === GOLD ===
 @export var gold: int = 0
@@ -45,8 +45,8 @@ const DAMAGE_PER_STRENGTH: float = 0.5
 const DAMAGE_REDUCTION_PER_DEFENSE: float = 0.02  # 2% pro Punkt
 
 # === EXP CURVE ===
-const BASE_EXP_REQUIREMENT: int = 100
-const EXP_GROWTH_RATE: float = 1.5
+const BASE_EXP_REQUIREMENT: int = 30
+const EXP_GROWTH_RATE: float = 1.8
 
 
 func _init() -> void:

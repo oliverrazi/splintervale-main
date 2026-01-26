@@ -37,10 +37,24 @@ class_name Goblin
 
 # --- Detection ---
 @export_group("Detection")
-@export var detection_range: float = 10.0
-@export var lose_interest_range: float = 15.0
+@export var detection_range: float = 0.1
+@export var lose_interest_range: float = 12.0
 @export var preferred_distance: float = 1
 @export var preferred_distance_tolerance: float = 0.3
+
+@export_group("Obstacle Avoidance")
+@export var stuck_detection_time: float = 0.4
+@export var stuck_min_movement: float = 0.05
+@export var strafe_raycast_length: float = 1.5
+@export var strafe_escape_duration: float = 0.6
+
+# --- Neue Variablen bei den internen Vars ---
+var _last_position_check: Vector3 = Vector3.ZERO
+var _stuck_timer: float = 0.0
+var _stuck_check_initialized: bool = false  # NEU
+var _is_strafe_escaping: bool = false
+var _strafe_escape_timer: float = 0.0
+var _strafe_escape_dir: Vector3 = Vector3.ZERO
 
 # --- Animation ---
 @export_group("Animation")
@@ -70,6 +84,18 @@ class_name Goblin
 @export var thrust_offset_down_left: Vector3 = Vector3(-0.28, 0.0, 0.28)
 @export var thrust_offset_left: Vector3 = Vector3(-0.4, 0.0, 0.0)
 @export var thrust_offset_up_left: Vector3 = Vector3(-0.28, 0.0, -0.28)
+
+
+@export_group("Alert")
+@export var alert_popup_scene: PackedScene
+@export var alert_duration: float = 1
+@export var alert_offset: Vector3 = Vector3(0, 0.2, 0)
+
+@export_group("HP Bar")
+@export var hp_bar_scene: PackedScene
+@export var hp_bar_offset: Vector3 = Vector3(0, 0.45, 0)
+
+var _hp_bar: EnemyHPBar = null
 
 # --- Frame Definitions ---
 # Idle (1 Frame each)
@@ -113,11 +139,13 @@ const DEATH_FPS: float = 8.0
 @export var death_dissolve_time: float = 0.5  # Wie lange das Auflösen dauert
 
 
-@export var freeze_distance: float = 50.0
-@export var unfreeze_distance: float = 45.0 
+@export var freeze_distance: float = 25.0
+@export var unfreeze_distance: float = 25.0 
+
 
 var _is_frozen: bool = false
 var _player_ref: Node3D = null
+
 
 # --- Thrust VFX Rotation für 8 Richtungen ---
 const THRUST_YAW_DEG := {
@@ -135,6 +163,7 @@ const THRUST_YAW_DEG := {
 enum State { 
 	PATROL_IDLE,
 	PATROL_WALK,
+	ALERT,
 	CHASE,
 	CIRCLE_IDLE,
 	CIRCLE_STRAFE,
@@ -192,20 +221,43 @@ var _death_phase: int = 0  # 0 = Animation, 1 = Hold, 2 = Dissolve
 var _death_timer: float = 0.0
 
 
+
+
 func _ready() -> void:
 	_health = max_health
 	_spawn_position = global_position
+	_last_position_check = global_position
 	
 	_player_ref = get_tree().get_first_node_in_group("player")
 	
-	print(_player_ref)
 	if sprite:
 		sprite.hframes = HFRAMES
 		sprite.vframes = VFRAMES
-				
+	
+	_setup_hp_bar()
+	
 	call_deferred("_setup_detection")
-
-	_enter_state(State.PATROL_IDLE)
+	
+	# Zufälliger Start-Offset für Desync
+	_state_timer = randf_range(0.0, patrol_wait_time_max)
+	current_state = State.PATROL_IDLE
+	
+	
+func _setup_hp_bar() -> void:
+	if hp_bar_scene == null:
+		return
+	
+	_hp_bar = hp_bar_scene.instantiate() as EnemyHPBar
+	add_child(_hp_bar)
+	_hp_bar.position = hp_bar_offset
+	
+func _spawn_alert_popup() -> void:
+	if alert_popup_scene == null:
+		return
+	
+	var popup := alert_popup_scene.instantiate() as AlertPopup
+	add_child(popup)
+	popup.position = alert_offset
 
 func _setup_detection() -> void:
 	# Warte einen Frame damit _group gesetzt werden kann
@@ -244,10 +296,12 @@ func _freeze() -> void:
 	
 	_is_frozen = true
 	velocity = Vector3.ZERO
-	set_physics_process(false)
 	
-	# Speichere aktuelle Position (sollte gültig sein)
-	# Sprite kann sichtbar bleiben, nur Physics stoppt
+	# Speichere die XZ-Position, Y wird beim Unfreeze neu berechnet
+	_spawn_position.x = global_position.x
+	_spawn_position.z = global_position.z
+	
+	set_physics_process(false)
 
 
 func _unfreeze() -> void:
@@ -256,32 +310,38 @@ func _unfreeze() -> void:
 	
 	_is_frozen = false
 	
-	# Sicherheits-Reset falls Position korrupt
-	if global_position.y < _spawn_position.y - 2.0:
-		global_position = _spawn_position
-		velocity = Vector3.ZERO
+	# Einfach leicht anheben - Gravity erledigt den Rest
+	global_position.y = _spawn_position.y + 1.0
+	velocity = Vector3.ZERO
 	
 	set_physics_process(true)
 
 func _process(delta: float) -> void:
 	# Freeze-Check läuft immer (in _process, nicht _physics_process)
 	_check_freeze_state()
+	
 
 func _physics_process(delta: float) -> void:
+
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	
 	if global_position.y < _spawn_position.y - 5.0:
 		global_position = _spawn_position
+		global_position.y += 1.5
 		velocity = Vector3.ZERO
 		return
-
+	
+	if current_state not in [State.DEAD, State.HIT, State.ATTACK_CHARGE, State.ATTACK_WINDUP, State.ALERT]:
+		_check_player_detection()
 	
 	match current_state:
 		State.PATROL_IDLE:
 			_process_patrol_idle(delta)
 		State.PATROL_WALK:
 			_process_patrol_walk(delta)
+		State.ALERT: 
+			_process_alert(delta)
 		State.CHASE:
 			_process_chase(delta)
 		State.CIRCLE_IDLE:
@@ -304,10 +364,48 @@ func _physics_process(delta: float) -> void:
 	_update_thrust_vfx_position()
 	move_and_slide()
 
+
+func _check_player_detection() -> void:
+	# Wenn in Gruppe, überlässt die Gruppe die Detection
+	# ABER: Reagiere trotzdem wenn kürzlich Schaden erhalten
+	if _group != null and not _was_recently_damaged():
+		return
+	
+	# Target finden falls nicht vorhanden
+	if _target == null or not is_instance_valid(_target):
+		_target = get_tree().get_first_node_in_group("player")
+	
+	if _target == null:
+		return
+	
+	var distance := global_position.distance_to(_target.global_position)
+	
+	# Re-Aggro Bedingungen:
+	# 1. Spieler in Detection Range
+	# 2. ODER kürzlich Schaden erhalten (dann größere Range)
+	var effective_range := detection_range
+	if _was_recently_damaged():
+		effective_range = lose_interest_range  # Größere Range wenn beschädigt
+	
+	
+	if distance <= effective_range:
+		# Nur State wechseln wenn nicht bereits im Kampf
+		if current_state in [State.PATROL_IDLE, State.PATROL_WALK]:
+			_enter_state(State.ALERT)
+		# Auch während ATTACK_RECOVERY wieder Chase aufnehmen
+		elif current_state == State.ATTACK_RECOVERY and distance > preferred_distance + preferred_distance_tolerance:
+			_enter_state(State.CHASE)
+			
+var _last_damage_time: float = -5.0
+			
+func _was_recently_damaged() -> bool:
+	var current_time := Time.get_ticks_msec() / 1000.0
+	return (current_time - _last_damage_time) < 5.0  # 5 Sekunden "wütend"
+	
+
 # ============ STATE MANAGEMENT ============
 
 func _enter_state(new_state: State) -> void:
-		
 	current_state = new_state
 	_anim_time = 0.0
 	
@@ -316,24 +414,38 @@ func _enter_state(new_state: State) -> void:
 			_state_timer = randf_range(patrol_wait_time_min, patrol_wait_time_max)
 			velocity.x = 0.0
 			velocity.z = 0.0
+			_reset_stuck_detection()
 		
 		State.PATROL_WALK:
 			_patrol_target = _get_random_patrol_point()
+			_reset_stuck_detection()
+			
+		State.ALERT:
+			_state_timer = alert_duration
+			velocity.x = 0.0
+			velocity.z = 0.0
+			_reset_stuck_detection()
+			_spawn_alert_popup()
+			if _target and is_instance_valid(_target):
+				var dir := (_target.global_position - global_position)
+				dir.y = 0
+				_update_facing_direction(dir.normalized())
 		
 		State.CHASE:
-			pass
+			_reset_stuck_detection()
 		
 		State.CIRCLE_IDLE:
 			_state_timer = randf_range(circle_pause_min, circle_pause_max)
 			velocity.x = 0.0
 			velocity.z = 0.0
+			_reset_stuck_detection()
 			if _target and is_instance_valid(_target):
 				var dir := (_target.global_position - global_position)
 				dir.y = 0
 				_update_facing_direction(dir.normalized())
 		
 		State.CIRCLE_STRAFE:
-			# Optimale Strafe-Richtung von der Gruppe holen
+			_reset_stuck_detection()
 			if _group:
 				_strafe_direction = _group.get_optimal_strafe_direction(self, _target.global_position)
 			elif randf() > 0.7:
@@ -346,6 +458,7 @@ func _enter_state(new_state: State) -> void:
 			_state_timer = 0.4
 			velocity.x = 0.0
 			velocity.z = 0.0
+			_reset_stuck_detection()
 			if _target and is_instance_valid(_target):
 				var dir := (_target.global_position - global_position)
 				dir.y = 0
@@ -356,6 +469,7 @@ func _enter_state(new_state: State) -> void:
 			_charge_speed_current = CHARGE_SPEED
 			_has_hit_player = false
 			_state_timer = charge_duration
+			_reset_stuck_detection()
 			if _target and is_instance_valid(_target):
 				var dir := (_target.global_position - global_position)
 				dir.y = 0
@@ -366,21 +480,39 @@ func _enter_state(new_state: State) -> void:
 			_state_timer = attack_recovery
 			velocity.x = 0.0
 			velocity.z = 0.0
-			# VFX sofort entfernen wenn Attack endet
+			_reset_stuck_detection()
 			_cleanup_thrust_vfx_immediate()
 		
 		State.HIT:
 			_hit_timer = 0.3
+			_reset_stuck_detection()
 			_cleanup_thrust_vfx_immediate()
 		
 		State.DEAD:
 			velocity.x = 0.0
 			velocity.z = 0.0
+			_reset_stuck_detection()
 			_cleanup_thrust_vfx_immediate()
 			_death_phase = 0
 			_death_timer = 0.0
 			_anim_time = 0.0
 
+
+func _process_alert(delta: float) -> void:
+	# Idle Animation während Alert
+	_animate_idle()
+	
+	# Zum Ziel schauen
+	if _target and is_instance_valid(_target):
+		var dir := (_target.global_position - global_position)
+		dir.y = 0
+		if dir.length() > 0.1:
+			_update_facing_direction(dir.normalized())
+	
+	_state_timer -= delta
+	
+	if _state_timer <= 0:
+		_enter_state(State.CHASE)
 
 func _spawn_thrust_vfx() -> void:
 	if thrust_scene == null:
@@ -543,14 +675,18 @@ func _process_patrol_idle(delta: float) -> void:
 
 func _process_patrol_walk(delta: float) -> void:
 	if _check_for_target():
+		_reset_stuck_detection()
 		_enter_state(State.CHASE)
 		return
+		
+
 	
 	var dir := (_patrol_target - global_position)
 	dir.y = 0
 	var dist := dir.length()
 	
 	if dist < 0.2:
+		_reset_stuck_detection()
 		_enter_state(State.PATROL_IDLE)
 		return
 		
@@ -566,10 +702,14 @@ func _process_patrol_walk(delta: float) -> void:
 	velocity.z = dir.z * WALK_SPEED
 	
 	_animate_walk(delta)
+	
+	if _check_if_stuck(delta):
+		_abort_patrol()
 
 
 func _process_chase(delta: float) -> void:
 	if not _target or not is_instance_valid(_target):
+		_reset_stuck_detection()
 		_enter_state(State.PATROL_IDLE)
 		return
 	
@@ -578,20 +718,38 @@ func _process_chase(delta: float) -> void:
 	var dist := to_target.length()
 	
 	if dist > lose_interest_range:
+		_reset_stuck_detection()
 		_target = null
 		_enter_state(State.PATROL_IDLE)
 		return
 	
 	if dist <= preferred_distance + preferred_distance_tolerance:
+		_reset_stuck_detection()
 		_enter_state(State.CIRCLE_IDLE)
 		return
 	
 	var dir := to_target.normalized()
 	
-	# Separation von anderen Goblins
+	# Strafe-Escape aktiv?
+	if _is_strafe_escaping:
+		_strafe_escape_timer -= delta
+		
+		if _strafe_escape_timer <= 0.0:
+			_is_strafe_escaping = false
+			_reset_stuck_detection()
+		else:
+			# Seitlich + leicht vorwärts bewegen
+			var escape_move := (_strafe_escape_dir * 0.7 + dir * 0.3).normalized()
+			velocity.x = escape_move.x * RUN_SPEED
+			velocity.z = escape_move.z * RUN_SPEED
+			_update_facing_direction(escape_move)
+			_animate_run(delta)
+			return
+	
+	# Normale Chase-Bewegung ZUERST, dann Stuck-Check
 	var separation := Vector3.ZERO
 	if _group:
-		separation = _group.get_separation_vector(self) * 0.5  # Weniger stark beim Chasing
+		separation = _group.get_separation_vector(self) * 0.5
 	
 	var move_dir := (dir + separation).normalized()
 	_update_facing_direction(move_dir)
@@ -600,7 +758,13 @@ func _process_chase(delta: float) -> void:
 	velocity.z = move_dir.z * RUN_SPEED
 	
 	_animate_run(delta)
-
+	
+	# Stuck-Check NACH der Bewegung (nur einmal!)
+	if _check_if_stuck(delta):
+		_is_strafe_escaping = true
+		_strafe_escape_timer = strafe_escape_duration
+		_strafe_escape_dir = _find_strafe_escape_direction(dir)
+		
 
 func _process_circle_idle(delta: float) -> void:
 	if not _target or not is_instance_valid(_target):
@@ -633,6 +797,7 @@ func _process_circle_idle(delta: float) -> void:
 
 func _process_circle_strafe(delta: float) -> void:
 	if not _target or not is_instance_valid(_target):
+		_reset_stuck_detection()
 		_enter_state(State.PATROL_IDLE)
 		return
 	
@@ -641,13 +806,19 @@ func _process_circle_strafe(delta: float) -> void:
 	var dist := to_target.length()
 	
 	if dist > lose_interest_range:
+		_reset_stuck_detection()
 		_target = null
 		_enter_state(State.PATROL_IDLE)
 		return
 	
 	if dist > preferred_distance + preferred_distance_tolerance * 3:
+		_reset_stuck_detection()
 		_enter_state(State.CHASE)
 		return
+		
+	if _check_if_stuck(delta):
+		_strafe_direction *= -1
+		_stuck_timer = 0.0
 	
 	var dir_to_target := to_target.normalized()
 	_update_facing_direction(dir_to_target)
@@ -703,20 +874,42 @@ func _process_attack_windup(delta: float) -> void:
 
 
 func _process_attack_charge(delta: float) -> void:
-	_charge_speed_current = move_toward(_charge_speed_current, CHARGE_SPEED * 0.3, CHARGE_DECELERATION * delta)
-	
-	velocity.x = _charge_direction.x * _charge_speed_current
-	velocity.z = _charge_direction.z * _charge_speed_current
+	# Strafe-Escape aktiv?
+	if _is_strafe_escaping:
+		var strafe_move := _strafe_escape_dir * STRAFE_SPEED * 2.0
+		velocity.x = strafe_move.x + _charge_direction.x * _charge_speed_current * 0.3
+		velocity.z = strafe_move.z + _charge_direction.z * _charge_speed_current * 0.3
+		
+		# Prüfen ob wieder frei
+		var horizontal_movement := Vector3(
+			global_position.x - _last_position_check.x,
+			0,
+			global_position.z - _last_position_check.z
+		).length()
+		
+		if horizontal_movement > stuck_min_movement * 3.0:
+			_is_strafe_escaping = false
+			_stuck_timer = 0.0
+	else:
+		# Stuck-Check nur wenn nicht am Escapen
+		if _check_if_stuck(delta):
+			_is_strafe_escaping = true
+			_strafe_escape_dir = _find_strafe_escape_direction(_charge_direction)
+		
+		# Normale Charge-Bewegung
+		_charge_speed_current = move_toward(_charge_speed_current, CHARGE_SPEED * 0.3, CHARGE_DECELERATION * delta)
+		velocity.x = _charge_direction.x * _charge_speed_current
+		velocity.z = _charge_direction.z * _charge_speed_current
 	
 	if not _has_hit_player:
 		_check_charge_hit()
 	
 	_show_attack_strike_frame()
 	
-	
 	_state_timer -= delta
 	
 	if _state_timer <= 0.0:
+		_reset_stuck_detection()
 		_enter_state(State.ATTACK_RECOVERY)
 
 
@@ -790,7 +983,7 @@ func _process_dead(delta: float) -> void:
 		
 		2:  # Dissolve
 			_death_timer -= delta
-			var progress: float = 1.0 - (_death_timer / death_dissolve_time)
+			var progress: float = 1.5 - (_death_timer / death_dissolve_time)
 			sprite.modulate.a = 1.0 - progress
 			
 			if _death_timer <= 0.0:
@@ -817,7 +1010,7 @@ func _spawn_death_vfx() -> void:
 	
 	var vfx := death_vfx_scene.instantiate() as Node3D
 	get_tree().current_scene.add_child(vfx)
-	vfx.global_position = global_position + Vector3(-0.2, 0, 0.3)
+	vfx.global_position = global_position + Vector3(0.0, -0.1, 0.4)
 	vfx.scale = Vector3(death_vfx_scale, death_vfx_scale, death_vfx_scale)
 	
 	# Partikel starten
@@ -1034,6 +1227,15 @@ func take_damage(amount: int, from_position: Vector3) -> void:
 	_health -= amount
 	_anim_time = 0.0
 	
+	_last_damage_time = Time.get_ticks_msec() / 1000.0
+	
+	if _hp_bar:
+		_hp_bar.set_health(_health, max_health)
+	
+	var attacker := get_tree().get_first_node_in_group("player")
+	if attacker:
+		_target = attacker
+	
 	var knockback_dir := (global_position - from_position).normalized()
 	knockback_dir.y = 0
 	_knockback_velocity = knockback_dir * knockback_strength
@@ -1041,7 +1243,9 @@ func take_damage(amount: int, from_position: Vector3) -> void:
 	_update_facing_direction(-knockback_dir)
 	
 	_enter_state(State.HIT)
-
+	
+	if _group:
+		_group.alert_group(_target)
 
 func get_health() -> int:
 	return _health
@@ -1069,10 +1273,101 @@ func set_group(group: EnemyGroup) -> void:
 func set_target(target: Node3D) -> void:
 	_target = target
 	if _target and current_state in [State.PATROL_IDLE, State.PATROL_WALK]:
-		_enter_state(State.CHASE)
+		_enter_state(State.ALERT)
 
 
 func clear_target() -> void:
+	
+	if _was_recently_damaged():
+		# Wütend bleiben, weiter verfolgen
+		if _target and is_instance_valid(_target):
+			_enter_state(State.CHASE)
+		return
+	
 	_target = null
 	if current_state not in [State.HIT, State.DEAD]:
 		_enter_state(State.PATROL_IDLE)
+		
+		
+# ============ STUCK DETECTION ============
+
+func _check_if_stuck(delta: float) -> bool:
+	# Nur prüfen wenn wir uns bewegen wollen
+	var intended_speed := Vector2(velocity.x, velocity.z).length()
+	if intended_speed < 0.1:
+		_stuck_timer = 0.0
+		return false
+	
+	# Tatsächliche Bewegung messen
+	var actual_movement := Vector2(
+		global_position.x - _last_position_check.x,
+		global_position.z - _last_position_check.z
+	).length()
+	
+	_last_position_check = global_position
+	
+	# Verhältnis: Wie viel von der gewünschten Bewegung haben wir geschafft?
+	var expected := intended_speed * delta
+	var ratio := actual_movement / maxf(expected, 0.001)
+	
+	# Unter 30% der erwarteten Bewegung = stuck
+	if ratio < 0.3:
+		_stuck_timer += delta
+		if _stuck_timer >= stuck_detection_time:
+			return true
+	else:
+		_stuck_timer = 0.0
+	
+	return false
+
+
+func _reset_stuck_detection() -> void:
+	_stuck_timer = 0.0
+	_last_position_check = global_position
+	_is_strafe_escaping = false
+	_strafe_escape_timer = 0.0
+
+
+func _find_strafe_escape_direction(blocked_direction: Vector3) -> Vector3:
+	# Prüfe links und rechts vom blockierten Pfad
+	var right: Vector3 = blocked_direction.cross(Vector3.UP).normalized()
+	
+	var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+	
+	# Rechts prüfen
+	var query_right := PhysicsRayQueryParameters3D.create(
+		global_position + Vector3(0, 0.3, 0),
+		global_position + Vector3(0, 0.3, 0) + right * strafe_raycast_length
+	)
+	query_right.exclude = [self]
+	
+	# Links prüfen
+	var query_left := PhysicsRayQueryParameters3D.create(
+		global_position + Vector3(0, 0.3, 0),
+		global_position + Vector3(0, 0.3, 0) - right * strafe_raycast_length
+	)
+	query_left.exclude = [self]
+	
+	var result_right: Dictionary = space_state.intersect_ray(query_right)
+	var result_left: Dictionary = space_state.intersect_ray(query_left)
+	
+	var right_free: bool = result_right.is_empty()
+	var left_free: bool = result_left.is_empty()
+	
+	if right_free and not left_free:
+		return right
+	elif left_free and not right_free:
+		return -right
+	elif right_free and left_free:
+		# Beide frei - zufällig, aber konsistent für diesen Escape
+		return right if randf() > 0.5 else -right
+	else:
+		# Beide blockiert - versuche diagonal zurück
+		return (-blocked_direction + right * (1.0 if randf() > 0.5 else -1.0)).normalized()
+
+
+func _abort_patrol() -> void:
+	_reset_stuck_detection()
+	velocity.x = 0.0
+	velocity.z = 0.0
+	_enter_state(State.PATROL_IDLE)

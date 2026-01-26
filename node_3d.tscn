@@ -1,10 +1,11 @@
-[gd_scene load_steps=63 format=3 uid="uid://bys0qx7akx3qb"]
+[gd_scene load_steps=64 format=3 uid="uid://bys0qx7akx3qb"]
 
 [ext_resource type="PackedScene" uid="uid://cd3ww7pd3fcbo" path="res://character_body_3d.tscn" id="1_noarx"]
 [ext_resource type="CameraAttributesPractical" uid="uid://p16ene1hmixs" path="res://assets/camera_attributes/new_camera_attributes_practical.tres" id="2_a0tk4"]
 [ext_resource type="ArrayMesh" uid="uid://dodjqb4jxfvyh" path="res://assets/mesh/grass.res" id="2_r3fl7"]
 [ext_resource type="Shader" uid="uid://cr5caoegammj2" path="res://scenes/skyshader.gdshader" id="4_6iypd"]
 [ext_resource type="Shader" uid="uid://brvo4l5ljo0ju" path="res://scenes/Water.gdshader" id="9_6iypd"]
+[ext_resource type="Texture2D" uid="uid://dtk1p7a8vuhkc" path="res://assets/enemies/bosses/stonebound wrath/wrath.png" id="9_j3e5s"]
 [ext_resource type="PackedScene" uid="uid://c8u5vyoqg0wea" path="res://assets/base_tiles/trees/pinetree.tscn" id="14_tcnuu"]
 [ext_resource type="PackedScene" uid="uid://cif4kcojy56oj" path="res://assets/base_tiles/trees/tree_1.tscn" id="15_tuemg"]
 [ext_resource type="PackedScene" uid="uid://ct7vr1uk5nocu" path="res://assets/base_tiles/trees/tree_2.tscn" id="16_i0g27"]
@@ -308,6 +309,10 @@ shader_parameter/wind_bend_strength = 2.0
 shader_parameter/wind_ao_affect = 1.5
 shader_parameter/object_radius = 1.0
 shader_parameter/object_position = Vector3(0, 0, 0)
+shader_parameter/mask_world_offset = Vector2(0, 0)
+shader_parameter/mask_world_size = 100.0
+shader_parameter/mask_edge_softness = 0.1
+shader_parameter/use_path_mask = false
 
 [sub_resource type="MultiMesh" id="MultiMesh_riyl1"]
 transform_format = 1
@@ -985,7 +990,7 @@ texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_
 [node name="Node3D" type="Node3D"]
 
 [node name="CharacterBody3D" parent="." instance=ExtResource("1_noarx")]
-transform = Transform3D(1, 0, 0, 0, 0.7071067, 0.7071067, 0, -0.7071067, 0.7071067, -0.20952322, 0.6877189, -0.01232399)
+transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, -0.20952322, 0.6877189, -0.01232399)
 SPEED = 2.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -1183,6 +1188,13 @@ transform = Transform3D(0.4736923, 0, 0, 0, 0.47826564, 0, 0, 0, 0.45214647, 5.3
 
 [node name="small-house" parent="buildings" instance=ExtResource("17_tuemg")]
 transform = Transform3D(0.49999997, 0, 0, 0, 0.49999994, 0, 0, 0, 0.49999997, 1.8905268, 1.19209275e-07, -1.9777849)
+
+[node name="Sprite3D" type="Sprite3D" parent="buildings"]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -1.5074904, 0.8868854, -4.115142)
+billboard = 1
+alpha_hash_scale = 0.0
+texture_filter = 1
+texture = ExtResource("9_j3e5s")
 
 [node name="TreeSource" type="Node3D" parent="."]
 

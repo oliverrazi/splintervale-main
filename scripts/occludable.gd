@@ -53,29 +53,30 @@ func _process(delta: float) -> void:
 	if not _initialized:
 		return
 	
-	var old_fade := _current_fade
-	_current_fade = lerp(_current_fade, _target_fade, delta * fade_speed)
+	# Prüfen ob wir noch animieren müssen
+	var diff : Variant = abs(_current_fade - _target_fade)
+	if diff < 0.001:
+		# Ziel erreicht - finale Werte setzen falls nötig
+		if _current_fade != _target_fade:
+			_current_fade = _target_fade
+			_update_materials()
+		return
 	
-	if abs(_current_fade - old_fade) > 0.001 or _current_fade > 0.01:
-		_update_materials()
+	# Weiter animieren
+	_current_fade = lerp(_current_fade, _target_fade, delta * fade_speed)
+	_update_materials()
 
 func _update_materials() -> void:
 	for i in _materials.size():
 		var mat := _materials[i]
 		var mi := _mesh_instances[i]
 		
-		# Distanz vom Mesh zum Spieler (XZ-Ebene)
 		var dist := Vector2(mi.global_position.x, mi.global_position.z).distance_to(
 			Vector2(_player_position.x, _player_position.z)
 		)
 		
-		# Smoothstep: nah = 0, weit = 1
 		var circle_mask := smoothstep(circle_radius - circle_softness, circle_radius + circle_softness, dist)
-		
-		# Alpha: nah = min_alpha, weit = 1.0
 		var target_alpha := lerpf(min_alpha, 1.0, circle_mask)
-		
-		# Fade steuert ob Effekt aktiv
 		var final_alpha := lerpf(1.0, target_alpha, _current_fade)
 		
 		mat.albedo_color.a = final_alpha

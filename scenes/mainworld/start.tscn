@@ -1,0 +1,77 @@
+[gd_scene load_steps=17 format=3 uid="uid://c68e5e8xblc2q"]
+
+[ext_resource type="Script" uid="uid://cp54pt3hkj1or" path="res://addons/zylann.hterrain/hterrain.gd" id="1_02etf"]
+[ext_resource type="Resource" uid="uid://dblpvwqaytfym" path="res://scenes/mainworld/data.hterrain" id="2_02tfa"]
+[ext_resource type="Script" uid="uid://nax0ocqj3wxv" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_gfj2v"]
+[ext_resource type="Texture2D" uid="uid://dibe0q05m8w5b" path="res://assets/base_tiles/world_texture/grass_pixel.png" id="4_ryvnu"]
+[ext_resource type="Texture2D" uid="uid://drtxi631780j" path="res://assets/base_tiles/world_texture/wall1.png" id="5_n2tfm"]
+[ext_resource type="Texture2D" uid="uid://dbaru0h5t0e5b" path="res://assets/base_tiles/world_texture/dirtpixel.png" id="6_21u6r"]
+[ext_resource type="Texture2D" uid="uid://21jrpng5yatu" path="res://assets/base_tiles/world_texture/grass_pixel_normal.png" id="7_vchji"]
+[ext_resource type="Texture2D" uid="uid://c4n7vs477g5oq" path="res://assets/base_tiles/world_texture/wall1_specular.png" id="8_jdsep"]
+[ext_resource type="Texture2D" uid="uid://d2iax8an1ycm8" path="res://assets/base_tiles/world_texture/dirtpixel_normal.png" id="9_tjlxu"]
+[ext_resource type="Shader" uid="uid://cr5caoegammj2" path="res://scenes/skyshader.gdshader" id="10_evqis"]
+[ext_resource type="CameraAttributesPractical" uid="uid://p16ene1hmixs" path="res://assets/camera_attributes/new_camera_attributes_practical.tres" id="11_00eg1"]
+[ext_resource type="PackedScene" uid="uid://cd3ww7pd3fcbo" path="res://character_body_3d.tscn" id="12_oa3xb"]
+
+[sub_resource type="Resource" id="Resource_q2rkh"]
+script = ExtResource("3_gfj2v")
+mode = 0
+textures = [[ExtResource("4_ryvnu"), ExtResource("5_n2tfm"), ExtResource("6_21u6r")], [ExtResource("7_vchji"), ExtResource("8_jdsep"), ExtResource("9_tjlxu")]]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ish1l"]
+shader = ExtResource("10_evqis")
+shader_parameter/skyColor = Color(0.20993096, 0.7093656, 0.9999998, 1)
+shader_parameter/horizonColor = Color(1.4439225e-06, 0.81353146, 0.6894747, 1)
+
+[sub_resource type="Sky" id="Sky_4arys"]
+sky_material = SubResource("ShaderMaterial_ish1l")
+
+[sub_resource type="Environment" id="Environment_ni7na"]
+background_mode = 2
+background_color = Color(0.06263664, 0.6265164, 0.46390855, 1)
+background_energy_multiplier = 0.46
+sky = SubResource("Sky_4arys")
+sky_custom_fov = 74.7
+ambient_light_source = 3
+ambient_light_color = Color(0.574992, 0.8786219, 0.94494164, 1)
+ambient_light_sky_contribution = 0.21
+reflected_light_source = 2
+glow_normalized = true
+glow_intensity = 0.0
+glow_bloom = 0.34
+glow_hdr_threshold = 0.91
+fog_enabled = true
+fog_light_color = Color(0, 0.40465555, 0.29033482, 1)
+fog_light_energy = 0.1
+fog_sky_affect = 0.714
+fog_height = -44.85
+
+[node name="Start" type="Node3D"]
+
+[node name="HTerrain" type="Node3D" parent="."]
+script = ExtResource("1_02etf")
+_terrain_data = ExtResource("2_02tfa")
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource("Resource_q2rkh")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = null
+shader_params/u_tile_reduction = null
+metadata/_custom_type_script = "uid://cp54pt3hkj1or"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ni7na")
+camera_attributes = ExtResource("11_00eg1")
+
+[node name="Player" parent="." instance=ExtResource("12_oa3xb")]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 10.551804, 0.8496723, 121.82382)
+floor_stop_on_slope = false
+SPEED = 3.0

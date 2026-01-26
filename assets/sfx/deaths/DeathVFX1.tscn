@@ -12,6 +12,8 @@ billboard_mode = 3
 particles_anim_h_frames = 1
 particles_anim_v_frames = 1
 particles_anim_loop = false
+grow = true
+grow_amount = -0.5
 
 [sub_resource type="Curve" id="Curve_wnlha"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.23208192, 0.80988866), 0.0, 0.0, 0, 0, Vector2(0.66211605, 0.7917828), 0.0, 0.0, 0, 0, Vector2(0.9692833, 0.06754875), 0.0, 0.0, 0, 0]
@@ -42,7 +44,7 @@ emission_sphere_radius = 0.1
 angle_min = -179.99998
 angle_max = 180.00002
 direction = Vector3(0, 1, 0)
-spread = 15.0
+spread = 20.0
 initial_velocity_min = 1.0
 initial_velocity_max = 2.0
 angular_velocity_min = -50.000015
