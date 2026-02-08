@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://n4y5c05yp4d0"]
+
+[ext_resource type="PackedScene" uid="uid://di8glklyctocx" path="res://assets/buildings/fences/fence1.glb" id="1_g5dmv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g5dmv"]
+size = Vector3(0.69569093, 1, 0.24204102)
+
+[node name="fence1" instance=ExtResource("1_g5dmv")]
+
+[node name="Area3D" type="StaticBody3D" parent="." index="4"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -0.045697004)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.035957336, 0.17469418, 0.0064208894)
+shape = SubResource("BoxShape3D_g5dmv")

@@ -22,7 +22,7 @@ var _has_choices: bool = false
 func _ready() -> void:
 	layer = 50
 	visible = false
-	continue_hint.text = "[Leertaste] Weiter"
+	continue_hint.text = "[Space] continue"
 
 
 func _process(delta: float) -> void:

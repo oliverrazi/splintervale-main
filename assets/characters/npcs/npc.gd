@@ -27,9 +27,9 @@ enum MovementMode {
 
 @export_group("Animation Frames (4 Richtungen)")
 @export var frames_down: Array[int] = [2, 3, 5, 6]
-@export var frames_up: Array[int] = [10,11, 13, 14]
-@export var frames_left: Array[int] = [19, 20, 22, 23]
-@export var anim_fps: float = 8.0
+@export var frames_up: Array[int] = [11,12, 14, 15]
+@export var frames_left: Array[int] = [16, 26, 17, 25]
+@export var anim_fps: float = 4.0
 
 @export_group("Idle Frames (je Richtung)")
 @export var idle_frame_down: int = 0
@@ -54,7 +54,7 @@ enum MovementMode {
 
 @export_group("Interaction")
 @export var interaction_radius: float = 2.0
-@export var dialogue_resource: Resource = null
+@export var dialogue_resource: DialogueData = null
 
 @export_group("Collision Handling")
 @export var stuck_detection_time: float = 0.5
@@ -122,8 +122,17 @@ func _ready() -> void:
 	
 	if _interaction_area:
 		var collision: CollisionShape3D = _interaction_area.get_node_or_null("CollisionShape3D")
-		if collision and collision.shape is SphereShape3D:
-			(collision.shape as SphereShape3D).radius = interaction_radius
+		if collision:
+			# Immer eine neue SphereShape mit dem richtigen Radius erstellen
+			var sphere := SphereShape3D.new()
+			sphere.radius = interaction_radius
+			collision.shape = sphere
+		
+		# Collision Settings
+		_interaction_area.collision_layer = 0  # Area braucht keinen eigenen Layer
+		_interaction_area.collision_mask = 1   # Player auf Layer 1 erkennen
+		_interaction_area.monitoring = true
+		_interaction_area.monitorable = false
 		
 		_interaction_area.body_entered.connect(_on_body_entered)
 		_interaction_area.body_exited.connect(_on_body_exited)
@@ -139,6 +148,10 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
+		return
+		
+	if _is_in_dialogue:
+		_face_player()
 		return
 	
 	# Gravity
@@ -494,35 +507,69 @@ func _pick_next_patrol_point() -> void:
 func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		_player_in_range = true
+		print("Player entered NPC range: ", npc_name)
 
 
 func _on_body_exited(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		_player_in_range = false
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if Engine.is_editor_hint():
-		return
+		print("Player exited NPC range: ", npc_name)
+		
+func can_interact() -> bool:
+	if not _player_in_range:
+		return false
 	
-	if event.is_action_pressed("interact") and _player_in_range and not _is_in_dialogue:
-		start_dialogue()
+	if _is_in_dialogue:
+		return false
+	
+	# DialogueManager Cooldown prüfen
+	var dialogue_manager: Node = get_node_or_null("/root/DialogueManager")
+	if dialogue_manager and dialogue_manager.is_on_cooldown():
+		return false
+	
+	return true
+
+func interact() -> bool:
+	"""Wird vom Player aufgerufen. Gibt true zurück wenn Interaktion stattfand."""
+	print("NPC.interact() called - can_interact: ", can_interact())
+	if not can_interact():
+		return false
+	
+	start_dialogue()
+	return true
+
 
 
 func start_dialogue() -> void:
+	if _is_in_dialogue:
+		return
+	
+	print("Starting dialogue with: ", npc_name)
+	print("Dialogue resource: ", dialogue_resource)
+	
 	_is_in_dialogue = true
+	_is_moving = false
 	velocity = Vector3.ZERO
-	_face_player()
+	
 	dialogue_started.emit(self)
 	
-	var dialogue_manager: Node = get_tree().get_first_node_in_group("dialogue_manager")
-	if dialogue_manager and dialogue_resource:
+	var dialogue_manager: Node = get_node_or_null("/root/DialogueManager")
+	if dialogue_manager:
 		dialogue_manager.start_dialogue(self, dialogue_resource)
+	else:
+		push_error("DialogueManager not found!")
+		end_dialogue()
 
 
 func end_dialogue() -> void:
 	_is_in_dialogue = false
 	dialogue_ended.emit(self)
+	print("Dialogue ended with: ", npc_name)
+	
+func get_dialogue_position() -> Vector3:
+	if _dialogue_marker:
+		return _dialogue_marker.global_position
+	return global_position + Vector3(0, 1.5, 0)
 
 
 # ============ EDITOR ============
@@ -549,3 +596,15 @@ func _update_editor_visualization() -> void:
 	elif _wander_mesh:
 		_wander_mesh.queue_free()
 		_wander_mesh = null
+		
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings := PackedStringArray()
+	
+	if movement_mode in [MovementMode.PATROL_ROUTE, MovementMode.PATROL_LOOP, MovementMode.PATROL_PINGPONG]:
+		if patrol_points.is_empty():
+			warnings.append("Patrol mode benötigt mindestens einen Patrol Point!")
+	
+	if dialogue_resource == null:
+		warnings.append("Kein Dialogue Resource zugewiesen!")
+	
+	return warnings

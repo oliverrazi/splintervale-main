@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://ctclybjv3wluq"]
+
+[ext_resource type="Script" uid="uid://bu8fdm1llpqdp" path="res://assets/base_tiles/grass/billboard/grass_system.gd" id="1_3e7wn"]
+[ext_resource type="Texture2D" uid="uid://bs3ldrkdxvc75" path="res://assets/base_tiles/grass/billboard/grassblade.png" id="1_tktl6"]
+
+[node name="BillboardGrass" type="Node3D"]
+script = ExtResource("1_3e7wn")
+grass_texture = ExtResource("1_tktl6")
+density = 25.0
+grass_scale = Vector2(0.1, 0.5)
+scale_variation = 0.3
+shape_points = PackedVector2Array(-5, -5, 5, -5, 5, 5, -5, 5)
+lod_fade_start = null
+lod_fade_end = null
+depth_bias_strength = null

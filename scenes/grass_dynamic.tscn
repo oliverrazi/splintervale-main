@@ -1,0 +1,22 @@
+[gd_scene load_steps=6 format=3 uid="uid://dqwt4jd1nooea"]
+
+[ext_resource type="Script" uid="uid://vv2r0nnexvrv" path="res://assets/base_tiles/grass/grass_chunk.gd" id="1_qgtj7"]
+[ext_resource type="Material" uid="uid://bys58opt2f2ni" path="res://assets/base_tiles/grass/grass3.tres" id="2_pnrfa"]
+[ext_resource type="MultiMesh" uid="uid://dyrc455fa1243" path="res://assets/base_tiles/grass/grass_multimesh_simple.tres" id="3_pnrfa"]
+[ext_resource type="Script" uid="uid://babiup8es4dao" path="res://scenes/grass.gd" id="4_5cdoq"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1keya"]
+
+[node name="GrassDynamic" type="Node3D"]
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(5, 0, 0, 0, 0.01, 0, 0, 0, 5, 0, 0, 0)
+mesh = SubResource("CylinderMesh_1keya")
+script = ExtResource("1_qgtj7")
+
+[node name="Grass" type="MultiMeshInstance3D" parent="Ground"]
+transform = Transform3D(0.20000002, 0, 0, 0, 100.000015, 0, 0, 0, 0.20000002, 0, 0, 0)
+material_override = ExtResource("2_pnrfa")
+cast_shadow = 0
+multimesh = ExtResource("3_pnrfa")
+script = ExtResource("4_5cdoq")

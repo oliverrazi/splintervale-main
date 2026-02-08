@@ -6,6 +6,13 @@ class_name Occludable
 @export var circle_radius := 111.2
 @export var circle_softness := 10.6
 
+@export_group("Tree Components")
+## Optional: Occlusion-Script das automatisch hinzugefügt wird
+@export var occlusion_script: Script
+## Optional: Collision Shape die automatisch hinzugefügt wird
+@export var collision_shape: Shape3D
+
+
 var _target_fade := 0.0
 var _current_fade := 0.0
 var _initialized := false

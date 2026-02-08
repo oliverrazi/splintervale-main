@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bb584p3gy3yrj"]
+
+[ext_resource type="Script" uid="uid://t2c1xltykwj3" path="res://assets/vfx/itempickup/item_pickup_effect.gd" id="1_72mvt"]
+
+[node name="ItemPickupEffect" type="Node3D"]
+script = ExtResource("1_72mvt")

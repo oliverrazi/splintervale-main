@@ -1,10 +1,10 @@
-[gd_scene load_steps=18 format=3 uid="uid://cd3ww7pd3fcbo"]
+[gd_scene load_steps=19 format=3 uid="uid://cd3ww7pd3fcbo"]
 
-[ext_resource type="Script" uid="uid://tjnqn1ifgw2e" path="res://assets/characters/player_move2.gd" id="1_obynr"]
+[ext_resource type="Script" uid="uid://tjnqn1ifgw2e" path="res://assets/characters/player.gd" id="1_obynr"]
 [ext_resource type="PackedScene" uid="uid://dpg3a6ire7hml" path="res://assets/characters/slashVFX.tscn" id="2_obynr"]
 [ext_resource type="Texture2D" uid="uid://cl143q7hmikeb" path="res://assets/characters/player1.png" id="2_vd578"]
 [ext_resource type="AudioStream" uid="uid://34hq5kcf2fgj" path="res://assets/audio/sfx/swoosh1.wav" id="3_ew7rt"]
-[ext_resource type="PackedScene" uid="uid://c6m87rolirnhh" path="res://assets/sfx/hits/impact1.tscn" id="3_nvtkd"]
+[ext_resource type="PackedScene" uid="uid://c6m87rolirnhh" path="res://assets/vfx/hits/impact1.tscn" id="3_nvtkd"]
 [ext_resource type="Script" uid="uid://bkakfqkpy7x0c" path="res://scripts/player_camera.gd" id="3_vd578"]
 [ext_resource type="AudioStream" uid="uid://rgr5mhpts1j0" path="res://assets/audio/sfx/swoosh2.wav" id="4_u3olo"]
 [ext_resource type="AudioStream" uid="uid://4qpy7rlo1n2j" path="res://assets/audio/sfx/swoosh3.wav" id="5_nvtkd"]
@@ -12,11 +12,12 @@
 [ext_resource type="AudioStream" uid="uid://cucn2tr1rj62q" path="res://assets/audio/sfx/step1.wav" id="8_gy32l"]
 [ext_resource type="AudioStream" uid="uid://5mo7s8yo71fj" path="res://assets/audio/sfx/hit2.wav" id="8_m1lp5"]
 [ext_resource type="AudioStream" uid="uid://diwujtqh85ilr" path="res://assets/audio/sfx/hit3.wav" id="9_klace"]
-[ext_resource type="PackedScene" uid="uid://d3ctwicr7f8nm" path="res://assets/sfx/notifications/LevelUpPopup.tscn" id="9_ltcqi"]
+[ext_resource type="PackedScene" uid="uid://d3ctwicr7f8nm" path="res://assets/vfx/notifications/LevelUpPopup.tscn" id="9_ltcqi"]
+[ext_resource type="Script" uid="uid://c6c5eudbjsxaf" path="res://assets/characters/abilities/dodge_component.gd" id="14_ltcqi"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nl27k"]
 radius = 0.119140625
-height = 0.5042114
+height = 0.48550415
 
 [sub_resource type="Animation" id="Animation_nl27k"]
 length = 0.001
@@ -81,7 +82,7 @@ hurt_blink_speed = 0.2
 levelup_popup_scene = ExtResource("9_ltcqi")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.15, -0.025)
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.15935364, -0.025)
 shape = SubResource("CapsuleShape3D_nl27k")
 
 [node name="charactersprite" type="Sprite3D" parent="."]
@@ -103,9 +104,9 @@ libraries = {
 }
 
 [node name="SpringArm3D" type="SpringArm3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.6427877, 0.76604456, 0, -0.76604456, 0.6427877, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.76604456, 0.64278764, 0, -0.64278764, 0.76604456, 0, 0, 0)
 collision_mask = 0
-spring_length = 6.0
+spring_length = 12.0
 script = ExtResource("3_vd578")
 camera_path = NodePath("../CollisionShape3D")
 
@@ -113,7 +114,7 @@ camera_path = NodePath("../CollisionShape3D")
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
 doppler_tracking = 1
 current = true
-fov = 65.0
+fov = 35.0
 size = 0.1
 near = 0.065
 far = 2000.0
@@ -149,3 +150,12 @@ omni_attenuation = 0.548
 
 [node name="HeadAnchor" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4350574, 0)
+
+[node name="DodgeComponent" type="Node" parent="."]
+script = ExtResource("14_ltcqi")
+dodge_speed = 6.0
+dodge_invincibility = false
+afterimage_fade_time = 0.5
+afterimage_color = Color(0.44313726, 0.8, 1, 0.93333334)
+afterimage_emission_strength = 3.0
+shimmer_color = Color(0.5151882, 0.8464151, 0.99999946, 1)

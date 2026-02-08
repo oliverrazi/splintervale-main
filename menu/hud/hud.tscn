@@ -1,11 +1,9 @@
-[gd_scene load_steps=16 format=3 uid="uid://cha40ttjmdp01"]
+[gd_scene load_steps=14 format=3 uid="uid://cha40ttjmdp01"]
 
 [ext_resource type="Script" uid="uid://x3fo3nd3yyfe" path="res://menu/hud/hud.gd" id="1_21lnx"]
 [ext_resource type="Script" uid="uid://ckj45kn0rsxp8" path="res://menu/hud/hexbar.gd" id="2_b2g07"]
-[ext_resource type="Texture2D" uid="uid://cg60d4dauuhd5" path="res://assets/icons/sword.png" id="2_drx24"]
 [ext_resource type="FontFile" uid="uid://bf8r2nx6mtj26" path="res://menu/assets/fonts/Merriweather-Regular.ttf" id="2_nnfdf"]
 [ext_resource type="Texture2D" uid="uid://dvww4oevxc0po" path="res://menu/hud/left-mouse.png" id="2_u2e21"]
-[ext_resource type="Texture2D" uid="uid://cdj05efif6lg3" path="res://assets/icons/potion.png" id="6_nnfdf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drx24"]
 bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
@@ -42,9 +40,9 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b2g07"]
-bg_color = Color(0.94521743, 0.021861251, 7.70092e-07, 0.5019608)
+bg_color = Color(0.7379217, 0.013480569, 0, 0.5019608)
 border_width_top = 20
-border_color = Color(0.47427702, 0.012920001, 0.21802102, 0.58400005)
+border_color = Color(0.9945505, 0.6036402, 0.7048225, 0.58431375)
 border_blend = true
 corner_radius_top_left = 10
 corner_radius_top_right = 10
@@ -61,9 +59,9 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8e7f4"]
-bg_color = Color(2.7915835e-06, 0.74224705, 0.53035384, 0.5019608)
+bg_color = Color(0.06918016, 0.42932427, 0.642076, 0.5019608)
 border_width_top = 20
-border_color = Color(0, 0.3074523, 0.40457204, 1)
+border_color = Color(0.62352943, 0.88235295, 1, 0.5176471)
 border_blend = true
 corner_radius_top_left = 10
 corner_radius_top_right = 10
@@ -217,7 +215,7 @@ theme_override_fonts/font = ExtResource("2_nnfdf")
 theme_override_font_sizes/font_size = 16
 text = "HP"
 
-[node name="EPBar" type="ProgressBar" parent="MainContainer/LeftPanel/Control/StatsContainer"]
+[node name="ResonanceBar" type="ProgressBar" parent="MainContainer/LeftPanel/Control/StatsContainer"]
 custom_minimum_size = Vector2(230, 28)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_1sve8")
@@ -225,7 +223,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_8e7f4")
 value = 100.0
 show_percentage = false
 
-[node name="Label" type="Label" parent="MainContainer/LeftPanel/Control/StatsContainer/EPBar"]
+[node name="Label" type="Label" parent="MainContainer/LeftPanel/Control/StatsContainer/ResonanceBar"]
 layout_mode = 0
 offset_right = 240.0
 offset_bottom = 28.0
@@ -234,22 +232,22 @@ theme_override_colors/font_outline_color = Color(0.30588236, 0.15294118, 0, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_nnfdf")
 theme_override_font_sizes/font_size = 12
-text = "100"
+text = "30"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="EPLabel" type="Label" parent="MainContainer/LeftPanel/Control/StatsContainer/EPBar"]
+[node name="ResonanceLabel" type="Label" parent="MainContainer/LeftPanel/Control/StatsContainer/ResonanceBar"]
 layout_mode = 0
 offset_left = 5.0
 offset_top = -7.0
-offset_right = 79.0
+offset_right = 94.999985
 offset_bottom = 16.0
 theme_override_colors/font_color = Color(1, 0.91764706, 0.8352941, 1)
 theme_override_colors/font_outline_color = Color(0.30655414, 0.15271893, 7.219613e-08, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_nnfdf")
 theme_override_font_sizes/font_size = 16
-text = "Stamina"
+text = "RP"
 clip_text = true
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/LeftPanel/Control"]
@@ -311,7 +309,6 @@ offset_left = 4.0
 offset_top = 5.0
 offset_right = 54.0
 offset_bottom = 50.0
-texture = ExtResource("2_drx24")
 expand_mode = 2
 stretch_mode = 4
 
@@ -327,10 +324,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_21lnx")
 
 [node name="Control" type="Control" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer2/Slot2"]
 layout_mode = 2
-
-[node name="Icon" type="TextureRect" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer2/Slot2/Control"]
-layout_mode = 0
-offset_right = 56.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer2/Slot2/Control"]
 layout_mode = 0
@@ -356,6 +349,15 @@ theme_override_fonts/font = ExtResource("2_nnfdf")
 text = "A"
 horizontal_alignment = 2
 vertical_alignment = 2
+
+[node name="Icon" type="TextureRect" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer2/Slot2/Control"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 5.0
+offset_right = 54.0
+offset_bottom = 50.0
+expand_mode = 2
+stretch_mode = 4
 
 [node name="Slot3" type="PanelContainer" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer2"]
 custom_minimum_size = Vector2(56, 56)
@@ -385,9 +387,14 @@ offset_left = 4.0
 offset_top = 5.0
 offset_right = 54.0
 offset_bottom = 50.0
-texture = ExtResource("6_nnfdf")
 expand_mode = 2
 stretch_mode = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer2/Slot3/Control"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots"]
 layout_mode = 2
@@ -403,7 +410,18 @@ layout_mode = 2
 
 [node name="Icon" type="TextureRect" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer3/Slot4/Control"]
 layout_mode = 0
-offset_right = 56.0
+offset_left = 4.0
+offset_top = 5.0
+offset_right = 54.0
+offset_bottom = 50.0
+expand_mode = 2
+stretch_mode = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer3/Slot4/Control"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="KeyLabel" type="Label" parent="MainContainer/LeftPanel/Control/MarginContainer/ActionSlots/HBoxContainer3/Slot4/Control"]
 layout_mode = 0

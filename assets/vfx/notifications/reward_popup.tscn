@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1tptoi87nwir"]
+
+[ext_resource type="Script" uid="uid://44jbgnoxheb8" path="res://assets/vfx/notifications/reward_popup.gd" id="1_k3r1g"]
+
+[node name="RewardPopup" type="Node3D"]
+script = ExtResource("1_k3r1g")
+
+[node name="Label3D" type="Label3D" parent="."]
+pixel_size = 0.01
+billboard = 1
+no_depth_test = true
+font_size = 12
+outline_size = 2

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://b14a48trhw5ha"]
+
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_3yttg"]
+[ext_resource type="Texture2D" uid="uid://cg60d4dauuhd5" path="res://assets/icons/sword.png" id="1_xehxl"]
+
+[resource]
+script = ExtResource("1_3yttg")
+item_id = "sword1"
+item_name = "Sword Lvl.1"
+description = "A simple sword made of iron. Solid, but nothing special."
+icon = ExtResource("1_xehxl")
+item_type = 0
+stackable = false
+consumable = false
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"

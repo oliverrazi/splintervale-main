@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://bwpighk5ocudq"]
+
+[ext_resource type="Script" uid="uid://b6r5kja1tyni5" path="res://menu/quest/quest_data.gd" id="1_n53f2"]
+
+[resource]
+script = ExtResource("1_n53f2")
+quest_id = "find_bag"
+quest_name = "The lost bag"
+description = "Lyscenne lost her bag in the hills. Find it and bring it back to her. "
+quest_type = 1
+target_id = "bag_01"
+reward_exp = 50
+reward_gold = 5
+giver_npc_id = "Lyscenne"
+turn_in_npc_id = "Lyscenne"
+metadata/_custom_type_script = "uid://b6r5kja1tyni5"

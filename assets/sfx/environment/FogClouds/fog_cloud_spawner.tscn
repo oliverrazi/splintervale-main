@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dxg8l6bds7rjl"]
-
-[ext_resource type="Script" uid="uid://p54q28ep5rb" path="res://assets/sfx/environment/FogClouds/fog_cloud_spawner.gd" id="1_keowo"]
-
-[node name="FogCloudSpawner" type="Node3D"]
-script = ExtResource("1_keowo")

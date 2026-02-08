@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsldbd17vin4"]
+
+[ext_resource type="PackedScene" uid="uid://cx0txnvlsk7eb" path="res://assets/base_tiles/bush/bush2.glb" id="1_1bo2q"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_1bo2q"]
+height = 1.128418
+radius = 0.41552734
+
+[node name="bush2" instance=ExtResource("1_1bo2q")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="37"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5505371, 0)
+shape = SubResource("CylinderShape3D_1bo2q")

@@ -2349,6 +2349,7 @@ _data = {
 height = 2.2895508
 
 [node name="pinetree_cut" type="Node3D"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 script = ExtResource("1_wl8v5")
 
 [node name="Cube" type="MeshInstance3D" parent="."]

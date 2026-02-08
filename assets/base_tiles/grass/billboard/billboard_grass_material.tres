@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://bvqgo173hlju5"]
+
+[ext_resource type="Shader" uid="uid://b2m0ry0i7ntvf" path="res://assets/base_tiles/grass/billboard/grass_billboard.gdshader" id="1_xjkle"]
+[ext_resource type="Texture2D" uid="uid://bs3ldrkdxvc75" path="res://assets/base_tiles/grass/billboard/grassblade.png" id="2_n64ji"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_xjkle")
+shader_parameter/grass_texture = ExtResource("2_n64ji")
+shader_parameter/alpha_cutoff = 0.1
+shader_parameter/color_top = Color(0.4, 0.7, 0.2, 1)
+shader_parameter/color_bottom = Color(0.2, 0.4, 0.1, 1)
+shader_parameter/color_variation = 0.2
+shader_parameter/wind_strength = 0.3
+shader_parameter/wind_speed = 1.5
+shader_parameter/wind_scale = 0.1
+shader_parameter/wind_direction = Vector2(1, 0.5)
+shader_parameter/interaction_point = Vector3(0, 0, 0)
+shader_parameter/interaction_radius = 2.0
+shader_parameter/interaction_strength = 0.5

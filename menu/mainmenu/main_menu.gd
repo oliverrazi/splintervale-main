@@ -5,6 +5,8 @@ extends Control
 # Pfade zu deinen Szenen anpassen
 @export var game_scene_path: String = "res://demo.tscn"
 @export var options_scene_path: String = "res://scenes/ui/options/options.tscn"
+@export var select_sound_path: String = "res://menu/assets/sounds/select.wav"
+@export var confirm_sound_path: String = "res://menu/assets/sounds/confirm.wav"
 
 # Kamera-Bewegung
 @export var camera_sway_speed: float = 0.3
@@ -20,6 +22,7 @@ const OUTLINE_SIZE = 4
 const BUTTON_BG_COLOR = Color(1.0, 1.0, 1.0, 0.15)
 const BUTTON_HOVER_COLOR = Color(1.0, 1.0, 1.0, 0.25)
 const BUTTON_PRESSED_COLOR = Color(1.0, 1.0, 1.0, 0.35)
+const BUTTON_FOCUS_COLOR = Color(1.0, 1.0, 1.0, 0.3)
 const BUTTON_CORNER_RADIUS = 8
 
 # Referenzen
@@ -32,24 +35,74 @@ const BUTTON_CORNER_RADIUS = 8
 
 var time_elapsed: float = 0.0
 var base_font: Font
+var menu_buttons: Array[Button] = []
+var select_sound: AudioStreamPlayer
+var confirm_sound: AudioStreamPlayer
+var _initial_focus_done: bool = false
+var _last_focused_button: Button = null
+var _block_select_sound: bool = false
 
 
 func _ready() -> void:
-	
 	if has_node("/root/Hud"):
 		get_node("/root/Hud").hide()
 	
 	_load_font()
+	_setup_sounds()
 	_setup_buttons()
+	_setup_navigation()
 	_connect_signals()
 	_update_viewport_size()
 	
-	# Viewport-Größe bei Fensteränderung aktualisieren
 	get_tree().root.size_changed.connect(_update_viewport_size)
+	
+	# Ersten Button fokussieren nach kurzer Verzögerung
+	await get_tree().process_frame
+	button_start.grab_focus()
+	await get_tree().process_frame
+	_initial_focus_done = true
 
 
 func _process(delta: float) -> void:
 	_update_camera_sway(delta)
+
+
+func _setup_sounds() -> void:
+	# Select Sound
+	select_sound = AudioStreamPlayer.new()
+	select_sound.bus = "UI"
+	if ResourceLoader.exists(select_sound_path):
+		select_sound.stream = load(select_sound_path)
+	add_child(select_sound)
+	
+	# Confirm Sound
+	confirm_sound = AudioStreamPlayer.new()
+	confirm_sound.bus = "UI"
+	if ResourceLoader.exists(confirm_sound_path):
+		confirm_sound.stream = load(confirm_sound_path)
+	add_child(confirm_sound)
+
+
+func _on_button_focused(button: Button) -> void:
+	if not _initial_focus_done:
+		_last_focused_button = button
+		return
+	
+	if _block_select_sound:
+		_last_focused_button = button
+		return
+	
+	if button != _last_focused_button:
+		if select_sound and select_sound.stream:
+			select_sound.play()
+		_last_focused_button = button
+
+
+func _play_confirm_sound() -> void:
+	if confirm_sound and confirm_sound.stream:
+		_block_select_sound = true
+		confirm_sound.play()
+		get_tree().create_timer(0.15).timeout.connect(func(): _block_select_sound = false)
 
 
 func _load_font() -> void:
@@ -60,12 +113,31 @@ func _load_font() -> void:
 		base_font = ThemeDB.fallback_font
 
 
-
 func _setup_buttons() -> void:
-	var buttons = [button_start, button_load, button_options, button_quit]
+	menu_buttons = [button_start, button_load, button_options, button_quit]
 	
-	for button in buttons:
+	for button in menu_buttons:
 		_style_button(button)
+		button.focus_entered.connect(_on_button_focused.bind(button))
+		button.pressed.connect(_play_confirm_sound)
+
+
+func _setup_navigation() -> void:
+	# Vertikale Navigation zwischen Buttons einrichten
+	for i in range(menu_buttons.size()):
+		var button = menu_buttons[i]
+		
+		# Vorheriger Button (nach oben)
+		var prev_index = i - 1 if i > 0 else menu_buttons.size() - 1
+		button.focus_neighbor_top = menu_buttons[prev_index].get_path()
+		
+		# Nächster Button (nach unten)
+		var next_index = i + 1 if i < menu_buttons.size() - 1 else 0
+		button.focus_neighbor_bottom = menu_buttons[next_index].get_path()
+		
+		# Links/Rechts auf sich selbst (verhindert ungewollte Navigation)
+		button.focus_neighbor_left = button.get_path()
+		button.focus_neighbor_right = button.get_path()
 
 
 func _style_button(button: Button) -> void:
@@ -75,6 +147,7 @@ func _style_button(button: Button) -> void:
 	button.add_theme_color_override("font_color", FONT_COLOR)
 	button.add_theme_color_override("font_hover_color", FONT_COLOR)
 	button.add_theme_color_override("font_pressed_color", FONT_COLOR)
+	button.add_theme_color_override("font_focus_color", FONT_COLOR)
 	button.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
 	button.add_theme_constant_override("outline_size", OUTLINE_SIZE)
 	
@@ -98,8 +171,14 @@ func _style_button(button: Button) -> void:
 	var style_pressed = style_normal.duplicate()
 	style_pressed.bg_color = BUTTON_PRESSED_COLOR
 	
-	# Focus StyleBox (gleich wie hover)
-	var style_focus = style_hover.duplicate()
+	# Focus StyleBox - deutlich sichtbar für Gamepad/Tastatur
+	var style_focus = style_normal.duplicate()
+	style_focus.bg_color = BUTTON_FOCUS_COLOR
+	style_focus.border_width_left = 3
+	style_focus.border_width_right = 3
+	style_focus.border_width_top = 3
+	style_focus.border_width_bottom = 3
+	style_focus.border_color = FONT_COLOR
 	
 	# Styles anwenden
 	button.add_theme_stylebox_override("normal", style_normal)
@@ -116,7 +195,6 @@ func _connect_signals() -> void:
 
 
 func _update_viewport_size() -> void:
-	# SubViewport an Fenstergröße anpassen
 	var window_size = get_viewport().get_visible_rect().size
 	sub_viewport.size = Vector2i(window_size)
 
@@ -124,7 +202,6 @@ func _update_viewport_size() -> void:
 func _update_camera_sway(delta: float) -> void:
 	time_elapsed += delta
 	
-	# Sanfte Sinus-Bewegung für natürliches Schwanken
 	var sway_x = sin(time_elapsed * camera_sway_speed) * camera_sway_amount
 	var sway_y = sin(time_elapsed * camera_sway_speed * 0.7) * camera_sway_amount * 0.5
 	
@@ -135,46 +212,32 @@ func _update_camera_sway(delta: float) -> void:
 # === Button Callbacks ===
 
 func _on_start_pressed() -> void:
-
-	if has_node("/root/Hud"):
-		get_node("/root/Hud").show()
-
-	get_tree().change_scene_to_file(game_scene_path)
-	
-
+	if has_node("/root/SceneTransition"):
+		get_node("/root/SceneTransition").transition_to_game(game_scene_path)
+	else:
+		_simple_transition(game_scene_path)
 
 
 func _on_load_pressed() -> void:
-	print("Load button pressed!")
-	
 	if not GameManager.has_save_file():
-		#_show_notification("No save file found!")
 		return
 	
-	# Menü schließen BEVOR wir laden (falls Szene wechselt)
-	#_is_open = false
-	visible = false
-	get_tree().paused = false
-	
-	# Laden (kann Szene wechseln)
-	if await GameManager.load_game():
-		if has_node("/root/Hud"):
-			get_node("/root/Hud").show()
-	
-		get_tree().change_scene_to_file(game_scene_path)
+	if has_node("/root/SceneTransition"):
+		get_node("/root/SceneTransition").transition_to_game(game_scene_path, true)
 	else:
-		# Falls Laden fehlschlägt, Menü wieder öffnen
-		visible = true
-		get_tree().paused = true
-		#_show_notification("Load Failed!")
+		await GameManager.load_game()
+		_simple_transition(game_scene_path)
+
+
+func _simple_transition(scene_path: String) -> void:
+	if has_node("/root/Hud"):
+		get_node("/root/Hud").show()
+	get_tree().change_scene_to_file(scene_path)
 
 
 func _on_options_pressed() -> void:
 	print("Öffne Optionen...")
-	# TODO: Options-Menü als Overlay oder Szene
-	# Beispiel: get_tree().change_scene_to_file(options_scene_path)
 
 
 func _on_quit_pressed() -> void:
-	print("Spiel wird beendet...")
 	get_tree().quit()

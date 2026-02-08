@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dsennl7lwghh4"]
+[gd_scene load_steps=16 format=3 uid="uid://dsennl7lwghh4"]
 
 [ext_resource type="Script" uid="uid://be4qyrqmq8rfi" path="res://menu/pause/pause_menu.gd" id="1_qssgc"]
 [ext_resource type="FontFile" uid="uid://b3gyiro3elvvy" path="res://menu/assets/LeagueGothic-Italic.otf" id="2_tllbf"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cpq02ael6bq0t" path="res://menu/assets/icons/inventory-icon.png" id="4_xm4lc"]
 [ext_resource type="Texture2D" uid="uid://btgky7euxrgn" path="res://menu/assets/icons/quests-icon.png" id="6_rwt5x"]
 [ext_resource type="Texture2D" uid="uid://dpbmt6coaxcpf" path="res://menu/assets/icons/settings-icon.png" id="7_h2e5x"]
+[ext_resource type="PackedScene" uid="uid://3j71sb2xfict" path="res://menu/pause/stats_content.tscn" id="8_rwt5x"]
 [ext_resource type="FontFile" uid="uid://bf8r2nx6mtj26" path="res://menu/assets/fonts/Merriweather-Regular.ttf" id="8_xm4lc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f3dd2"]
@@ -74,7 +75,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_xm4lc")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
 theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
-text = "Stats"
+text = "Character"
 icon = ExtResource("3_f3dd2")
 icon_alignment = 1
 vertical_icon_alignment = 0
@@ -148,158 +149,10 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="StatsContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
+[node name="StatsContent" parent="Background/MainContainer/ContentPanel/ContentContainer" instance=ExtResource("8_rwt5x")]
 layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.91764706, 0.8352941, 1)
-theme_override_fonts/font = ExtResource("8_xm4lc")
-theme_override_font_sizes/font_size = 38
-text = "Character"
-
-[node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
-layout_mode = 2
-
-[node name="GridContainer" type="GridContainer" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer"]
-layout_mode = 2
-columns = 2
-
-[node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("8_xm4lc")
-theme_override_font_sizes/font_size = 20
-text = "Level:"
-
-[node name="LevelValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "1"
-
-[node name="Label2" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "EXP:"
-
-[node name="ExpValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "0 / 100"
-
-[node name="Label3" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "HP:"
-
-[node name="HPValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "100 / 100"
-
-[node name="Label4" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "MP:"
-
-[node name="MPValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "100 / 100"
-
-[node name="Label9" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Stamina: "
-
-[node name="STAValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "100 / 100"
-
-[node name="HSeparator" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-
-[node name="HSeparator2" type="HSeparator" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-
-[node name="Label5" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "Strength:"
-
-[node name="STRValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "1"
-
-[node name="Label6" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "Defense:"
-
-[node name="DEFValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "1"
-
-[node name="Label7" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "Magic:"
-
-[node name="MAGValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "1"
-
-[node name="Label8" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "Endurance:"
-
-[node name="ENDValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "1"
-
-[node name="Label10" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "Vitality:"
-
-[node name="VITValue" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/StatsContent/VBoxContainer/GridContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_tllbf")
-theme_override_font_sizes/font_size = 20
-text = "1"
 
 [node name="InventoryContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
-visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/InventoryContent"]
@@ -310,7 +163,6 @@ theme_override_font_sizes/font_size = 24
 text = "Inventory coming soon"
 
 [node name="MapContent" type="Control" parent="Background/MainContainer/ContentPanel/ContentContainer"]
-visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Background/MainContainer/ContentPanel/ContentContainer/MapContent"]

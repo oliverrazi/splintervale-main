@@ -14,9 +14,7 @@ height = 0.5042114
 [node name="Npc" type="CharacterBody3D"]
 script = ExtResource("1_wm3tf")
 sprite_hframes = 2
-sprite_vframes = 1
-frames_up = Array[int]([11, 12, 14, 15])
-frames_left = Array[int]([16, 25, 17, 26])
+move_speed = 0.3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.11640245, 0)

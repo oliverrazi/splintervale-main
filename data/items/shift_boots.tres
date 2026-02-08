@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://cy6hlnimqnq1u"]
+
+[ext_resource type="Texture2D" uid="uid://bs5itglovpdtj" path="res://assets/icons/shift-boots.png" id="1_lql1w"]
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_phror"]
+
+[resource]
+script = ExtResource("1_phror")
+item_id = "shift_boots"
+item_name = "Shift Boots"
+icon = ExtResource("1_lql1w")
+item_type = 4
+rarity = 2
+stackable = false
+consumable = false
+effect_action = "dodge"
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"

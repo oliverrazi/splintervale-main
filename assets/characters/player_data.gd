@@ -2,52 +2,52 @@ extends Resource
 class_name PlayerData
 
 signal hp_changed(current: int, maximum: int)
+signal resonance_changed(current: int, maximum: int)
 signal exp_changed(current: int, needed: int)
 signal level_changed(new_level: int)
 signal gold_changed(amount: int)
 signal stats_changed()
+signal stat_points_changed(points: int)
+signal skill_points_changed(points: int)
 
 # === LEVEL & EXP ===
 @export var level: int = 1
 @export var current_exp: int = 0
 @export var exp_to_next_level: int = 30
 
+# === UNSPENT POINTS ===
+@export var stat_points: int = 0
+@export var skill_points: int = 0
+
 # === RESOURCES ===
 @export var current_hp: int = 60
 @export var max_hp: int = 60
-@export var current_mp: int = 30
-@export var max_mp: int = 30
-@export var current_stamina: int = 30
-@export var max_stamina: int = 30
+@export var current_resonance: float  = 30.0
+@export var max_resonance: float = 30.0
 
-# === BASE STATS ===
-@export var base_health: int = 6      # Beeinflusst max_hp
-@export var base_magic: int = 3        # Beeinflusst max_mp
-@export var base_strength: int = 3     # Beeinflusst Schaden
-@export var base_defense: int = 3     # Reduziert eingehenden Schaden
-@export var base_endurance: int = 3    # Beeinflusst max_stamina
+# === BASE STATS (vom Spieler verteilt) ===
+@export var base_vitality: int = 6       # Beeinflusst max_hp
+@export var base_strength: int = 3       # Beeinflusst Schaden
+@export var base_attunement: int = 3      # Beeinflusst max_resonance
+@export var base_attack_speed: int = 3   # Beeinflusst Angriffsgeschwindigkeit
+
+@export var resonance_regen_rate: float = 5.0      # Resonance pro Sekunde
+@export var resonance_regen_delay: float = 1.5  
 
 # === GOLD ===
 @export var gold: int = 0
 
-# === STAT GROWTH PER LEVEL ===
-const HEALTH_PER_LEVEL: int = 3
-const MAGIC_PER_LEVEL: int = 2
-const STRENGTH_PER_LEVEL: int = 1
-const DEFENSE_PER_LEVEL: int = 1
-const ENDURANCE_PER_LEVEL: int = 1
-
 # === STAT MULTIPLIERS ===
-const HP_PER_HEALTH: int = 10
-const MP_PER_MAGIC: int = 10
-const STAMINA_PER_ENDURANCE: int = 10
+const HP_PER_VITALITY: int = 10
+const RESONANCE_PER_ATTUNEMENT: int = 10
 const DAMAGE_PER_STRENGTH: float = 0.5
-const DAMAGE_REDUCTION_PER_DEFENSE: float = 0.02  # 2% pro Punkt
+const ATTACK_SPEED_PER_POINT: float = 0.05  # 5% schneller pro Punkt
 
 # === EXP CURVE ===
 const BASE_EXP_REQUIREMENT: int = 30
 const EXP_GROWTH_RATE: float = 1.8
 
+var _resonance_regen_timer: float = 0.0
 
 func _init() -> void:
 	recalculate_stats()
@@ -57,12 +57,10 @@ func _init() -> void:
 
 func recalculate_stats() -> void:
 	var old_max_hp := max_hp
-	var old_max_mp := max_mp
-	var old_max_stamina := max_stamina
+	var old_max_resonance := max_resonance
 	
-	max_hp = base_health * HP_PER_HEALTH
-	max_mp = base_magic * MP_PER_MAGIC
-	max_stamina = base_endurance * STAMINA_PER_ENDURANCE
+	max_hp = base_vitality * HP_PER_VITALITY
+	max_resonance = base_attunement * RESONANCE_PER_ATTUNEMENT
 	
 	# HP proportional anpassen wenn max_hp sich ändert
 	if old_max_hp > 0:
@@ -71,19 +69,12 @@ func recalculate_stats() -> void:
 	else:
 		current_hp = max_hp
 	
-	# MP proportional anpassen
-	if old_max_mp > 0:
-		var mp_ratio := float(current_mp) / float(old_max_mp)
-		current_mp = int(mp_ratio * max_mp)
+	# Resonance proportional anpassen
+	if old_max_resonance > 0:
+		var resonance_ratio := float(current_resonance) / float(old_max_resonance)
+		current_resonance = int(resonance_ratio * max_resonance)
 	else:
-		current_mp = max_mp
-	
-	# Stamina proportional anpassen
-	if old_max_stamina > 0:
-		var stamina_ratio := float(current_stamina) / float(old_max_stamina)
-		current_stamina = int(stamina_ratio * max_stamina)
-	else:
-		current_stamina = max_stamina
+		current_resonance = max_resonance
 	
 	exp_to_next_level = calculate_exp_for_level(level + 1)
 	
@@ -99,20 +90,76 @@ func get_attack_damage(base_damage: int) -> int:
 	return base_damage + bonus
 
 
-func get_damage_reduction() -> float:
-	return clamp(base_defense * DAMAGE_REDUCTION_PER_DEFENSE, 0.0, 0.8)  # Max 80% Reduktion
+func get_attack_speed_multiplier() -> float:
+	# Basis 1.0, wird schneller mit mehr Punkten
+	return 1.0 + (base_attack_speed * ATTACK_SPEED_PER_POINT)
+
+func process_regeneration(delta: float) -> void:#
+	if _resonance_regen_timer > 0.0:
+		_resonance_regen_timer -= delta
+		return
+	if current_resonance < max_resonance:
+		var regen_amount: float = resonance_regen_rate * delta
+		current_resonance = min(max_resonance, current_resonance + regen_amount)
+		# Signal nur bei ganzzahligen Änderungen für Performance
+		resonance_changed.emit(int(current_resonance), max_resonance)
+
+# ============ STAT POINT ALLOCATION ============
+
+func can_spend_stat_point() -> bool:
+	return stat_points > 0
 
 
-func calculate_incoming_damage(raw_damage: int) -> int:
-	var reduction := get_damage_reduction()
-	return max(1, int(raw_damage * (1.0 - reduction)))
+func spend_stat_point_vitality() -> bool:
+	if not can_spend_stat_point():
+		return false
+	
+	stat_points -= 1
+	base_vitality += 1
+	recalculate_stats()
+	stat_points_changed.emit(stat_points)
+	hp_changed.emit(current_hp, max_hp)
+	return true
+
+
+func spend_stat_point_strength() -> bool:
+	if not can_spend_stat_point():
+		return false
+	
+	stat_points -= 1
+	base_strength += 1
+	recalculate_stats()
+	stat_points_changed.emit(stat_points)
+	return true
+
+
+func spend_stat_point_attunement() -> bool:
+	if not can_spend_stat_point():
+		return false
+	
+	stat_points -= 1
+	base_attunement += 1
+	recalculate_stats()
+	stat_points_changed.emit(stat_points)
+	resonance_changed.emit(current_resonance, max_resonance)
+	return true
+
+
+func spend_stat_point_attack_speed() -> bool:
+	if not can_spend_stat_point():
+		return false
+	
+	stat_points -= 1
+	base_attack_speed += 1
+	recalculate_stats()
+	stat_points_changed.emit(stat_points)
+	return true
 
 
 # ============ HP ============
 
 func take_damage(amount: int) -> void:
-	var actual_damage := calculate_incoming_damage(amount)
-	current_hp = max(0, current_hp - actual_damage)
+	current_hp = max(0, current_hp - amount)
 	hp_changed.emit(current_hp, max_hp)
 
 
@@ -123,13 +170,30 @@ func heal(amount: int) -> void:
 
 func heal_full() -> void:
 	current_hp = max_hp
-	current_mp = max_mp
-	current_stamina = max_stamina
+	current_resonance = max_resonance
 	hp_changed.emit(current_hp, max_hp)
+	resonance_changed.emit(current_resonance, max_resonance)
 
 
 func is_alive() -> bool:
 	return current_hp > 0
+
+
+# ============ RESONANCE ============
+
+func use_resonance(amount: int) -> bool:
+
+	if current_resonance >= amount:
+		current_resonance -= amount
+		_resonance_regen_timer = resonance_regen_delay  # Regen-Verzögerung starten
+		resonance_changed.emit(int(current_resonance), max_resonance)
+		return true
+	return false
+
+
+func restore_resonance(amount: int) -> void:
+	current_resonance = min(max_resonance, current_resonance + amount)
+	resonance_changed.emit(current_resonance, max_resonance)
 
 
 # ============ EXP & LEVELING ============
@@ -138,7 +202,6 @@ func add_exp(amount: int) -> void:
 	current_exp += amount
 	exp_changed.emit(current_exp, exp_to_next_level)
 	
-	print("current",current_exp, "NEXT",exp_to_next_level)
 	# Level Up Check
 	while current_exp >= exp_to_next_level:
 		_level_up()
@@ -148,29 +211,28 @@ func _level_up() -> void:
 	current_exp -= exp_to_next_level
 	level += 1
 	
-	# Stats erhöhen
-	base_health += HEALTH_PER_LEVEL
-	base_magic += MAGIC_PER_LEVEL
-	base_strength += STRENGTH_PER_LEVEL
-	base_defense += DEFENSE_PER_LEVEL
-	base_endurance += ENDURANCE_PER_LEVEL
+	# Punkte vergeben statt automatischer Stat-Erhöhung
+	stat_points += 1
+	skill_points += 1
 	
-	# Neu berechnen (heilt auch voll)
-	recalculate_stats()
+	# EXP für nächstes Level berechnen
+	exp_to_next_level = calculate_exp_for_level(level + 1)
 	
 	# Voll heilen bei Level Up
 	current_hp = max_hp
-	current_mp = max_mp
-	current_stamina = max_stamina
+	current_resonance = max_resonance
 	
+	# Signals
 	level_changed.emit(level)
 	hp_changed.emit(current_hp, max_hp)
+	resonance_changed.emit(current_resonance, max_resonance)
 	exp_changed.emit(current_exp, exp_to_next_level)
+	stat_points_changed.emit(stat_points)
+	skill_points_changed.emit(skill_points)
 	
 	print("=== LEVEL UP! ===")
 	print("Level: ", level)
-	print("HP: ", max_hp, " | MP: ", max_mp, " | Stamina: ", max_stamina)
-	print("STR: ", base_strength, " | DEF: ", base_defense)
+	print("Stat Points: ", stat_points, " | Skill Points: ", skill_points)
 
 
 # ============ GOLD ============
@@ -195,13 +257,15 @@ func to_dict() -> Dictionary:
 		"level": level,
 		"current_exp": current_exp,
 		"current_hp": current_hp,
-		"current_mp": current_mp,
-		"current_stamina": current_stamina,
-		"base_health": base_health,
-		"base_magic": base_magic,
+		"current_resonance": current_resonance,
+		"resonance_regen_rate": resonance_regen_rate,
+		"resonance_regen_delay": resonance_regen_delay,
+		"base_vitality": base_vitality,
 		"base_strength": base_strength,
-		"base_defense": base_defense,
-		"base_endurance": base_endurance,
+		"base_attunement": base_attunement,
+		"base_attack_speed": base_attack_speed,
+		"stat_points": stat_points,
+		"skill_points": skill_points,
 		"gold": gold
 	}
 
@@ -209,15 +273,17 @@ func to_dict() -> Dictionary:
 func from_dict(data: Dictionary) -> void:
 	level = data.get("level", 1)
 	current_exp = data.get("current_exp", 0)
-	base_health = data.get("base_health", 10)
-	base_magic = data.get("base_magic", 5)
-	base_strength = data.get("base_strength", 5)
-	base_defense = data.get("base_defense", 5)
-	base_endurance = data.get("base_endurance", 5)
+	resonance_regen_rate = data.get("resonance_regen_rate", 5.0)
+	resonance_regen_delay = data.get("resonance_regen_delay", 1.5)
+	base_vitality = data.get("base_vitality", 6)
+	base_strength = data.get("base_strength", 3)
+	base_attunement = data.get("base_attunement", 3)
+	base_attack_speed = data.get("base_attack_speed", 3)
+	stat_points = data.get("stat_points", 0)
+	skill_points = data.get("skill_points", 0)
 	gold = data.get("gold", 0)
 	
 	recalculate_stats()
 	
 	current_hp = data.get("current_hp", max_hp)
-	current_mp = data.get("current_mp", max_mp)
-	current_stamina = data.get("current_stamina", max_stamina)
+	current_resonance = data.get("current_resonance", max_resonance)

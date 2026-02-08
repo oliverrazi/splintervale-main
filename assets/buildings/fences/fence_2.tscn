@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://d06emqdcwoj1t"]
+
+[ext_resource type="PackedScene" uid="uid://cpjliyguw0kbh" path="res://assets/buildings/fences/fence2.glb" id="1_trwam"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trwam"]
+size = Vector3(0.66653746, 1, 0.12763672)
+
+[node name="fence2" instance=ExtResource("1_trwam")]
+
+[node name="Area3D" type="StaticBody3D" parent="." index="4"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0.14857909)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15843648, 0.17469418, -0.013818347)
+shape = SubResource("BoxShape3D_trwam")

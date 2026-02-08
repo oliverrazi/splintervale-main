@@ -1,0 +1,276 @@
+[gd_scene format=3 uid="uid://3j71sb2xfict"]
+
+[node name="StatsContent" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="LeftColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ResourcesTitle" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+text = "— Ressources —"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="LevelRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/LevelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Level"
+
+[node name="LevelValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/LevelRow"]
+layout_mode = 2
+text = "1"
+horizontal_alignment = 2
+
+[node name="ExpRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="ExpLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/ExpRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "EXP"
+
+[node name="ExpValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/ExpRow"]
+layout_mode = 2
+text = "0 / 30"
+horizontal_alignment = 2
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="HPRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="HPLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/HPRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "HP"
+
+[node name="HPValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/HPRow"]
+layout_mode = 2
+text = "60 / 60"
+horizontal_alignment = 2
+
+[node name="ResonanceRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="ResonanceLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/ResonanceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Resonance"
+
+[node name="ResonanceValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/ResonanceRow"]
+layout_mode = 2
+text = "30 / 30"
+horizontal_alignment = 2
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="GoldRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="GoldLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/GoldRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Gold"
+
+[node name="GoldValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/GoldRow"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="HSeparator4" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="StatsTitle" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+text = "— Attributes —"
+horizontal_alignment = 1
+
+[node name="PointsRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="PointsLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/PointsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Available Points:"
+
+[node name="StatPointsValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/PointsRow"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="HSeparator5" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="VitalityRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="VitalityLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/VitalityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Vitality"
+
+[node name="VitalityValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/VitalityRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "6"
+horizontal_alignment = 2
+
+[node name="VitalityAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/VitalityRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="StrengthRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="StrengthLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/StrengthRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Strength"
+
+[node name="StrengthValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/StrengthRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "3"
+horizontal_alignment = 2
+
+[node name="StrengthAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/StrengthRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="AttunementRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="AttunementLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttunementRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attunement"
+
+[node name="AttunementValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttunementRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "3"
+horizontal_alignment = 2
+
+[node name="AttunementAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/AttunementRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="AttackSpeedRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+
+[node name="AttackSpeedLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttackSpeedRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attack Speed"
+
+[node name="AttackSpeedValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttackSpeedRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "3"
+horizontal_alignment = 2
+
+[node name="AttackSpeedAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/AttackSpeedRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="Spacer" type="Control" parent="MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="VSeparator2" type="VSeparator" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="RightColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="SkillsTitle" type="Label" parent="MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+text = "— Skills —"
+horizontal_alignment = 1
+
+[node name="SkillPointsRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+
+[node name="SkillPointsLabel" type="Label" parent="MarginContainer/HBoxContainer/RightColumn/SkillPointsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skill-Points:"
+
+[node name="SkillPointsValue" type="Label" parent="MarginContainer/HBoxContainer/RightColumn/SkillPointsRow"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="HSeparator4" type="HSeparator" parent="MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+
+[node name="SkillGrid" type="GridContainer" parent="MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="SkillSlot1" type="Panel" parent="MarginContainer/HBoxContainer/RightColumn/SkillGrid"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="SkillSlot2" type="Panel" parent="MarginContainer/HBoxContainer/RightColumn/SkillGrid"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="SkillSlot3" type="Panel" parent="MarginContainer/HBoxContainer/RightColumn/SkillGrid"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="SkillSlot4" type="Panel" parent="MarginContainer/HBoxContainer/RightColumn/SkillGrid"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="SkillSlot5" type="Panel" parent="MarginContainer/HBoxContainer/RightColumn/SkillGrid"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="SkillSlot6" type="Panel" parent="MarginContainer/HBoxContainer/RightColumn/SkillGrid"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Spacer3" type="Control" parent="MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+size_flags_vertical = 3

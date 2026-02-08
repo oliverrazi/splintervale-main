@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://bf8k18l7cvbwm"]
+
+[ext_resource type="Script" uid="uid://cdosbppmu7lwe" path="res://assets/vfx/environment/FogClouds/fog_cloud.gd" id="1_if7u8"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_30ih4"]
+
+[node name="FogCloud" type="Node3D"]
+script = ExtResource("1_if7u8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("QuadMesh_30ih4")

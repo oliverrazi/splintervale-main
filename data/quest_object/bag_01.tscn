@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7aotf1jyojuc"]
+
+[ext_resource type="Script" uid="uid://c875q5yiqhi2k" path="res://data/quest_object/quest_object.gd" id="1_fv4um"]
+[ext_resource type="Texture2D" uid="uid://qua8t3mnnxm2" path="res://assets/icons/satchel.png" id="2_veto1"]
+
+[node name="QuestObject" type="Area3D"]
+script = ExtResource("1_fv4um")
+object_id = "bag_01"
+item_id = "bag_01"
+related_quest_id = "find_bag"
+sprite_texture = ExtResource("2_veto1")

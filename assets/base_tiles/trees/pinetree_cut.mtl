@@ -1,0 +1,502 @@
+# Blender 4.5.3 LTS MTL File: 'pinetree_cut.blend'
+# www.blender.org
+
+newmtl Material
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/treestump3.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/treestump3.png
+
+newmtl Material.001
+Ns 9.111576
+Ka 0.577273 0.577273 0.577273
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 2.000000
+d 1.000000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/studio/tree/tree-stump.png
+
+newmtl pineleaf.004
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.005
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.006
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.007
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.008
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.009
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.010
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.011
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.012
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.013
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.014
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.015
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.016
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.017
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.018
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.019
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.020
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.021
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.022
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.023
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.024
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.025
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.028
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.029
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.030
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.031
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.032
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.033
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.034
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.035
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.036
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.037
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.038
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.039
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.040
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.041
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.042
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.043
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.044
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.045
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.046
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.047
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.048
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.049
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.050
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.051
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.052
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+
+newmtl pineleaf.053
+Ns 0.000000
+Ka 0.450000 0.450000 0.450000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png
+map_d C:/Projekte/Eigene Projekte/Splintervale/splintervale/assets/base_tiles/pineleaf.png

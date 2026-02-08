@@ -1,0 +1,114 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=18 format=3 uid="uid://ctvjlsej518if"]
+
+[ext_resource type="Script" uid="uid://0rmy68shugxh" path="res://menu/dialogue/dialogue_line.gd" id="1_hff7k"]
+[ext_resource type="Script" uid="uid://cdlvg7v3e5uqu" path="res://menu/dialogue/dialogue_choice.gd" id="2_en07c"]
+[ext_resource type="Script" uid="uid://cfduj634a8k68" path="res://menu/dialogue/dialogue_data.gd" id="3_hs5vi"]
+
+[sub_resource type="Resource" id="Resource_3pu2i"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "Nice to see you, Daryn!"
+condition = "\"!quest_active:find_bag\", \"!quest_turned_in:find_bag\""
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_hff7k"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "I went to the eastern hills earlier today and I was planting seed bulbs. The soil there still holds."
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_en07c"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "I didn’t expect trouble but goblins showed up. More than usual"
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_hs5vi"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "I had to leave quick and then I lost my satchel. Brown leather. Worn Strap."
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_fhcdw"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "It should still be there anywhere. I need you to bring it back to me. I'll reward you with my special boots."
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_id52t"]
+script = ExtResource("2_en07c")
+text = "Sure!"
+next_line_index = 8
+metadata/_custom_type_script = "uid://cdlvg7v3e5uqu"
+
+[sub_resource type="Resource" id="Resource_widf3"]
+script = ExtResource("2_en07c")
+text = "Sorry, I'm too busy."
+next_line_index = 6
+metadata/_custom_type_script = "uid://cdlvg7v3e5uqu"
+
+[sub_resource type="Resource" id="Resource_v0sc8"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "Will you help me?"
+choices = Array[ExtResource("2_en07c")]([SubResource("Resource_id52t"), SubResource("Resource_widf3")])
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_qixrl"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "I see."
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_4747c"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "If the seeds are lost, the soil will suffer."
+ends_dialogue = true
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_g88tr"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "Thank you."
+action = "add_quest:find_bag"
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_nauoe"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "I knew I could rely on you."
+block_id = "intro"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_c3x42"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "Just come back if you have found my bag."
+condition = "\"quest_active:find_bag\", \"!has_item:bag_01\""
+block_id = "searching"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_tpt7a"]
+script = ExtResource("1_hff7k")
+speaker_name = "Lyscenne"
+text = "You really found my bag! Thank you! As promised here are the shift boots."
+condition = "\"quest_active:find_bag\", \"has_item:bag_01\""
+action = "\"remove_item:bag_01\",\"give_item:shift_boots:1:You got the Shift Boots! use them to dodge. But watch out! They will consume your resonance.\""
+ends_dialogue = true
+block_id = "success"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[resource]
+script = ExtResource("3_hs5vi")
+dialogue_lines = Array[ExtResource("1_hff7k")]([SubResource("Resource_3pu2i"), SubResource("Resource_hff7k"), SubResource("Resource_en07c"), SubResource("Resource_hs5vi"), SubResource("Resource_fhcdw"), SubResource("Resource_v0sc8"), SubResource("Resource_qixrl"), SubResource("Resource_4747c"), SubResource("Resource_g88tr"), SubResource("Resource_nauoe"), SubResource("Resource_c3x42"), SubResource("Resource_tpt7a")])
+metadata/_custom_type_script = "uid://cfduj634a8k68"

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://dgfgvqigh1kmx"]
+
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_7esp8"]
+[ext_resource type="Texture2D" uid="uid://cdj05efif6lg3" path="res://assets/icons/potion.png" id="1_tn1hx"]
+
+[resource]
+script = ExtResource("1_7esp8")
+item_id = "health_potion1"
+item_name = "Health potion"
+description = "Recovers 50 HP."
+icon = ExtResource("1_tn1hx")
+max_stack = 1
+heal_amount = 50
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"

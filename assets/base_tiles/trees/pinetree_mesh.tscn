@@ -1,0 +1,560 @@
+[gd_scene load_steps=55 format=3 uid="uid://1akfkq1m1vfw"]
+
+[ext_resource type="ArrayMesh" uid="uid://c847fjgcxx6kf" path="res://assets/base_tiles/trees/pinetree_mesh.tres" id="1_23cr8"]
+[ext_resource type="Texture2D" uid="uid://dphw5b05yj8gq" path="res://assets/base_tiles/pinetree_mesh_treestump3.png" id="1_kyk57"]
+[ext_resource type="Texture2D" uid="uid://bfdxr2b1v5lpt" path="res://assets/base_tiles/pinetree_mesh_pineleaf.png" id="3_e2utq"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ofrjx"]
+resource_name = "Material"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("1_kyk57")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sm4yv"]
+resource_name = "pineleaf.004"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h7ifw"]
+resource_name = "pineleaf.005"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1n000"]
+resource_name = "pineleaf.006"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1iw8e"]
+resource_name = "pineleaf.007"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bpwgv"]
+resource_name = "pineleaf.008"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jffqe"]
+resource_name = "pineleaf.009"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_003np"]
+resource_name = "pineleaf.010"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m1440"]
+resource_name = "pineleaf.011"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o41fa"]
+resource_name = "pineleaf.012"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4op5q"]
+resource_name = "pineleaf.013"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6i05g"]
+resource_name = "pineleaf.014"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r5hr4"]
+resource_name = "pineleaf.015"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_raqvb"]
+resource_name = "pineleaf.016"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vqygw"]
+resource_name = "pineleaf.017"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p7elu"]
+resource_name = "pineleaf.018"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2w4qe"]
+resource_name = "pineleaf.019"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oldlx"]
+resource_name = "pineleaf.020"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pxemb"]
+resource_name = "pineleaf.021"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3uvm2"]
+resource_name = "pineleaf.022"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qbed1"]
+resource_name = "pineleaf.023"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iwa5c"]
+resource_name = "pineleaf.024"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cx8ir"]
+resource_name = "pineleaf.029"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rpotq"]
+resource_name = "pineleaf.025"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_38x67"]
+resource_name = "pineleaf.028"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e34qi"]
+resource_name = "pineleaf.030"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g6wnw"]
+resource_name = "pineleaf.031"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gewgv"]
+resource_name = "pineleaf.032"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_53hla"]
+resource_name = "pineleaf.033"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12rxd"]
+resource_name = "pineleaf.034"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_clash"]
+resource_name = "pineleaf.035"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1gpck"]
+resource_name = "pineleaf.036"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j03q8"]
+resource_name = "pineleaf.037"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l64ql"]
+resource_name = "pineleaf.038"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5t6y3"]
+resource_name = "pineleaf.039"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yk7qi"]
+resource_name = "pineleaf.040"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jqqjy"]
+resource_name = "pineleaf.041"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xbty1"]
+resource_name = "pineleaf.042"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ojita"]
+resource_name = "pineleaf.043"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r1vch"]
+resource_name = "pineleaf.044"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eyfrx"]
+resource_name = "pineleaf.045"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pc0y2"]
+resource_name = "pineleaf.046"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j1yom"]
+resource_name = "pineleaf.047"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ww160"]
+resource_name = "pineleaf.048"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8nrdi"]
+resource_name = "pineleaf.049"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ua18q"]
+resource_name = "pineleaf.050"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_thfsu"]
+resource_name = "pineleaf.051"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h0ao3"]
+resource_name = "pineleaf.052"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a3l6w"]
+resource_name = "pineleaf.053"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_e2utq")
+metallic = 0.45
+texture_repeat = false
+
+[sub_resource type="Animation" id="Animation_txqr8"]
+resource_name = "CubeAction_001"
+length = 0.041666668
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_johd8"]
+_data = {
+&"CubeAction_001": SubResource("Animation_txqr8")
+}
+
+[node name="pinetree_mesh" type="Node3D"]
+
+[node name="pinetree_mesh" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_23cr8")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_ofrjx")
+surface_material_override/2 = SubResource("StandardMaterial3D_sm4yv")
+surface_material_override/3 = SubResource("StandardMaterial3D_h7ifw")
+surface_material_override/4 = SubResource("StandardMaterial3D_1n000")
+surface_material_override/5 = SubResource("StandardMaterial3D_1iw8e")
+surface_material_override/6 = SubResource("StandardMaterial3D_bpwgv")
+surface_material_override/7 = SubResource("StandardMaterial3D_jffqe")
+surface_material_override/8 = SubResource("StandardMaterial3D_003np")
+surface_material_override/9 = SubResource("StandardMaterial3D_m1440")
+surface_material_override/10 = SubResource("StandardMaterial3D_o41fa")
+surface_material_override/11 = SubResource("StandardMaterial3D_4op5q")
+surface_material_override/12 = SubResource("StandardMaterial3D_6i05g")
+surface_material_override/13 = SubResource("StandardMaterial3D_r5hr4")
+surface_material_override/14 = SubResource("StandardMaterial3D_raqvb")
+surface_material_override/15 = SubResource("StandardMaterial3D_vqygw")
+surface_material_override/16 = SubResource("StandardMaterial3D_p7elu")
+surface_material_override/17 = SubResource("StandardMaterial3D_2w4qe")
+surface_material_override/18 = SubResource("StandardMaterial3D_oldlx")
+surface_material_override/19 = SubResource("StandardMaterial3D_pxemb")
+surface_material_override/20 = SubResource("StandardMaterial3D_3uvm2")
+surface_material_override/21 = SubResource("StandardMaterial3D_qbed1")
+surface_material_override/22 = SubResource("StandardMaterial3D_iwa5c")
+surface_material_override/23 = SubResource("StandardMaterial3D_cx8ir")
+surface_material_override/24 = SubResource("StandardMaterial3D_rpotq")
+surface_material_override/25 = SubResource("StandardMaterial3D_38x67")
+surface_material_override/26 = SubResource("StandardMaterial3D_e34qi")
+surface_material_override/27 = SubResource("StandardMaterial3D_g6wnw")
+surface_material_override/28 = SubResource("StandardMaterial3D_gewgv")
+surface_material_override/29 = SubResource("StandardMaterial3D_53hla")
+surface_material_override/30 = SubResource("StandardMaterial3D_12rxd")
+surface_material_override/31 = SubResource("StandardMaterial3D_clash")
+surface_material_override/32 = SubResource("StandardMaterial3D_1gpck")
+surface_material_override/33 = SubResource("StandardMaterial3D_j03q8")
+surface_material_override/34 = SubResource("StandardMaterial3D_l64ql")
+surface_material_override/35 = SubResource("StandardMaterial3D_5t6y3")
+surface_material_override/36 = SubResource("StandardMaterial3D_yk7qi")
+surface_material_override/37 = SubResource("StandardMaterial3D_jqqjy")
+surface_material_override/38 = SubResource("StandardMaterial3D_xbty1")
+surface_material_override/39 = SubResource("StandardMaterial3D_ojita")
+surface_material_override/40 = SubResource("StandardMaterial3D_r1vch")
+surface_material_override/41 = SubResource("StandardMaterial3D_eyfrx")
+surface_material_override/42 = SubResource("StandardMaterial3D_pc0y2")
+surface_material_override/43 = SubResource("StandardMaterial3D_j1yom")
+surface_material_override/44 = SubResource("StandardMaterial3D_ww160")
+surface_material_override/45 = SubResource("StandardMaterial3D_8nrdi")
+surface_material_override/46 = SubResource("StandardMaterial3D_ua18q")
+surface_material_override/47 = SubResource("StandardMaterial3D_thfsu")
+surface_material_override/48 = SubResource("StandardMaterial3D_h0ao3")
+surface_material_override/49 = SubResource("StandardMaterial3D_a3l6w")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_johd8")
+}

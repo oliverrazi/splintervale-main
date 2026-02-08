@@ -35,6 +35,10 @@ shader_parameter/wind_bend_strength = 1.0
 shader_parameter/wind_ao_affect = 1.5
 shader_parameter/object_radius = 0.1
 shader_parameter/object_position = Vector3(0, 0, 0)
+shader_parameter/mask_world_offset = Vector2(0, 0)
+shader_parameter/mask_world_size = 100.0
+shader_parameter/mask_edge_softness = 0.1
+shader_parameter/use_path_mask = false
 
 [node name="Grass" type="MultiMeshInstance3D"]
 material_override = SubResource("ShaderMaterial_y1cep")

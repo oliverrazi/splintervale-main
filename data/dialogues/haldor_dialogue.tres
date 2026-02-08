@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=7 format=3 uid="uid://bp1n48j0dugma"]
+
+[ext_resource type="Script" uid="uid://0rmy68shugxh" path="res://menu/dialogue/dialogue_line.gd" id="1_7u6ch"]
+[ext_resource type="Script" uid="uid://cfduj634a8k68" path="res://menu/dialogue/dialogue_data.gd" id="2_kdj7l"]
+[ext_resource type="Script" uid="uid://cdlvg7v3e5uqu" path="res://menu/dialogue/dialogue_choice.gd" id="3_heh0k"]
+
+[sub_resource type="Resource" id="Resource_kdj7l"]
+script = ExtResource("1_7u6ch")
+speaker_name = "Haldor"
+text = "Nice to see you, Daryn!"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_pnvxp"]
+script = ExtResource("1_7u6ch")
+speaker_name = "Haldor"
+text = "I have an important task for you. But I see you're not strong enough."
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[sub_resource type="Resource" id="Resource_heh0k"]
+script = ExtResource("1_7u6ch")
+speaker_name = "Haldor"
+text = "Come back to me when you're stronger!"
+metadata/_custom_type_script = "uid://0rmy68shugxh"
+
+[resource]
+script = ExtResource("2_kdj7l")
+dialogue_lines = Array[ExtResource("1_7u6ch")]([SubResource("Resource_kdj7l"), SubResource("Resource_pnvxp"), SubResource("Resource_heh0k")])
+metadata/_custom_type_script = "uid://cfduj634a8k68"

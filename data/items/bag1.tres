@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://ccgq4b5qwbhkp"]
+
+[ext_resource type="Texture2D" uid="uid://qua8t3mnnxm2" path="res://assets/icons/satchel.png" id="1_j2b0p"]
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_ojrb2"]
+
+[resource]
+script = ExtResource("1_ojrb2")
+item_id = "bag_01"
+item_name = "Bag"
+description = "This is Lyscenne's satchel. Bring it back to her. She will be very happy."
+icon = ExtResource("1_j2b0p")
+item_type = 2
+pickup_text = "You found Lyscenne's satchel. Hurry up and bring it back to her."
+stackable = false
+usable = false
+consumable = false
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"
