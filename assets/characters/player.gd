@@ -88,6 +88,7 @@ var _is_frozen: bool = false
 
 
 var _nearby_npc: NPC = null
+var _nearby_chest: TreasureChest = null
 
 # --- Bei den Variablen ---
 var hud: Node = null
@@ -175,8 +176,10 @@ const CONSUMABLE_COOLDOWN_TIME: float = 0.5
 var _equipped_weapon_id: String = "sword1"
 
 
-@onready var character: Sprite3D = $charactersprite
+@onready var character: SmoothPixelSprite3D = $charactersprite
 @onready var dodge_component: DodgeComponent = $DodgeComponent
+
+
 
 
 func _ready() -> void:
@@ -307,7 +310,7 @@ func _physics_process(delta: float) -> void:
 	if _consumable_cooldown > 0.0:
 		_consumable_cooldown -= delta
 	
-	
+		
 	_update_nearby_npc()
 		
 	_process_hotbar_input()
@@ -367,6 +370,9 @@ func _physics_process(delta: float) -> void:
 		_update_attack(delta)
 	else:
 		_update_animation(input_dir, delta)
+
+func _set_nearby_chest(chest: TreasureChest) -> void:
+	_nearby_chest = chest
 
 func _update_nearby_npc() -> void:
 	_nearby_npc = null
@@ -881,8 +887,8 @@ func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
 	if body == self:
 		return
 	
-	# Nur Gegner treffen
-	if body.has_method("take_damage"):
+	# Nur Gegner treffen, die noch leben
+	if body.has_method("take_damage") && !body._is_dead:
 		
 		var base_damage: int = hit_area.get_meta("damage", attack_damage)
 		var actual_damage: int = GameManager.player_data.get_attack_damage(base_damage)
@@ -948,51 +954,32 @@ func _play_swoosh_sound(world_pos: Vector3) -> void:
 	if swoosh_sounds.is_empty():
 		return
 
-	var player := AudioStreamPlayer3D.new()
-	player.stream = swoosh_sounds.pick_random()
-	player.volume_db = swoosh_volume_db
-
-	if swoosh_pitch_variation > 0.0:
-		player.pitch_scale = randf_range(
-			1.0 - swoosh_pitch_variation,
-			1.0 + swoosh_pitch_variation
-		)
-
-	player.global_position = world_pos
-	get_tree().current_scene.add_child(player)
-	player.play()
-
-	player.finished.connect(func() -> void:
-		player.queue_free()
+	AudioPool.play_3d(
+		swoosh_sounds.pick_random(),
+		world_pos,
+		swoosh_volume_db,
+		randf_range(1.0 - swoosh_pitch_variation, 1.0 + swoosh_pitch_variation) if swoosh_pitch_variation > 0.0 else 1.0
 	)
 	
 func _play_footstep_sound() -> void:
 	if footstep_sounds.is_empty():
 		return
-	
-	var player := AudioStreamPlayer3D.new()
-	player.stream = footstep_sounds.pick_random()
-	player.volume_db = footstep_volume_db
-	player.pitch_scale = randf_range(1.0 - footstep_pitch_variation, 1.0 + footstep_pitch_variation)
-	#player.global_position = global_position
-	
-	get_tree().current_scene.add_child(player)
-	player.play()
-	player.finished.connect(player.queue_free)
+	AudioPool.play_3d(
+		footstep_sounds.pick_random(),
+		global_position,
+		footstep_volume_db,
+		randf_range(1.0 - footstep_pitch_variation, 1.0 + footstep_pitch_variation)
+	)
 	
 func _play_hit_sound(world_pos: Vector3) -> void:
 	if hit_sounds.is_empty():
 		return
-
-	var player := AudioStreamPlayer3D.new()
-	player.stream = hit_sounds.pick_random()
-	player.volume_db = hit_volume_db
-	player.pitch_scale = randf_range(1.0 - hit_pitch_variation, 1.0 + hit_pitch_variation)
-	player.global_position = world_pos
-	
-	get_tree().current_scene.add_child(player)
-	player.play()
-	player.finished.connect(player.queue_free)
+	AudioPool.play_3d(
+		hit_sounds.pick_random(),
+		world_pos,
+		hit_volume_db,
+		randf_range(1.0 - hit_pitch_variation, 1.0 + hit_pitch_variation)
+	)
 	
 func _get_hurt_frame() -> Dictionary:
 	match _last_dir_mode:
@@ -1103,6 +1090,10 @@ func _process_hotbar_input() -> void:
 		if _nearby_npc and _nearby_npc.can_interact():
 			_nearby_npc.interact()
 			return
+		if _nearby_chest and _nearby_chest.can_interact():
+			print("INTERACT")
+			_nearby_chest.interact()
+			return
 		
 		# Ansonsten Hotbar-Slot benutzen (mit Kombo-Support)
 		_use_hotbar_slot_with_combo(0)
@@ -1170,6 +1161,9 @@ func _handle_weapon_input() -> void:
 	
 func can_interact_with_npc() -> bool:
 	return _nearby_npc != null and _nearby_npc.can_interact()
+	
+func can_interact_with_chest() -> bool:
+	return _nearby_chest != null and _nearby_chest.can_interact()
 
 func _use_equipment(item_id: String, item_data: ItemData) -> void:
 	"""Benutzt ein Equipment-Item (wie Shift-Boots)"""

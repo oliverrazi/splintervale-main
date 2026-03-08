@@ -18,7 +18,7 @@ func _ready() -> void:
 func enter_zone(zone: MusicZone) -> void:
 	if zone not in _active_zones:
 		_active_zones.append(zone)
-	#_update_music()
+	_update_music()
 
 func exit_zone(zone: MusicZone) -> void:
 	_active_zones.erase(zone)

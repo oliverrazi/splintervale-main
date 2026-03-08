@@ -1,8 +1,10 @@
-[gd_scene load_steps=28 format=3 uid="uid://nfjq5bnx8iop"]
+[gd_scene load_steps=30 format=3 uid="uid://nfjq5bnx8iop"]
 
 [ext_resource type="Script" uid="uid://8vx8klns2yvp" path="res://menu/mainmenu/main_menu.gd" id="1_menu"]
+[ext_resource type="AudioStream" uid="uid://ohygvbp5hm6i" path="res://menu/assets/sounds/select.wav" id="2_g44bh"]
 [ext_resource type="Texture2D" uid="uid://dhdosyhlqia2e" path="res://assets/base_tiles/textures/grass_pixel.png" id="2_k17ts"]
 [ext_resource type="Texture2D" uid="uid://da553bbr72aa6" path="res://assets/base_tiles/textures/grass_pixel_normal.png" id="3_1vfm6"]
+[ext_resource type="AudioStream" uid="uid://nnr5kx5qyuwa" path="res://menu/assets/sounds/confirm.wav" id="3_o6okc"]
 [ext_resource type="Texture2D" uid="uid://d0nds8xjmg4mt" path="res://assets/base_tiles/textures/wall1.png" id="4_23ste"]
 [ext_resource type="Texture2D" uid="uid://djjsjsl6vx3ie" path="res://assets/base_tiles/textures/wall1_specular.png" id="5_b06p2"]
 [ext_resource type="Texture2D" uid="uid://b5tn2d3f4o34f" path="res://assets/base_tiles/textures/dirtpixel.png" id="6_lb3k0"]
@@ -124,8 +126,8 @@ void sky() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_23ste"]
 shader = SubResource("Shader_1vfm6")
-shader_parameter/skyColor = Color(0.011650914, 0.7997753, 0.9343361, 1)
-shader_parameter/horizonColor = Color(0.44141358, 0.6071288, 0.73610336, 1)
+shader_parameter/skyColor = Color(0.17787182, 0.49777663, 0.57138443, 1)
+shader_parameter/horizonColor = Color(0.31148154, 0.5308548, 0.5260358, 1)
 
 [sub_resource type="Sky" id="Sky_b06p2"]
 sky_material = SubResource("ShaderMaterial_23ste")
@@ -145,7 +147,8 @@ glow_blend_mode = 0
 glow_hdr_threshold = 0.8
 fog_enabled = true
 fog_light_color = Color(0.086513795, 0.3398392, 0.44037375, 1)
-fog_density = 0.3562
+fog_light_energy = 0.6
+fog_density = 0.3062
 fog_sky_affect = 0.153
 fog_height = -44.85
 volumetric_fog_density = 0.08
@@ -173,6 +176,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_menu")
+select_sound = ExtResource("2_g44bh")
+confirm_sound = ExtResource("3_o6okc")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 layout_mode = 1

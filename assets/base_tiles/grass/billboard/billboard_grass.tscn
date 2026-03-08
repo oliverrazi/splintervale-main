@@ -7,9 +7,5 @@
 script = ExtResource("1_3e7wn")
 grass_texture = ExtResource("1_tktl6")
 density = 25.0
-grass_scale = Vector2(0.1, 0.5)
 scale_variation = 0.3
 shape_points = PackedVector2Array(-5, -5, 5, -5, 5, 5, -5, 5)
-lod_fade_start = null
-lod_fade_end = null
-depth_bias_strength = null

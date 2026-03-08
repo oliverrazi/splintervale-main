@@ -73,9 +73,15 @@ func _scan_for_player() -> void:
 	if player == null:
 		return
 	
-	var dist := global_position.distance_to(player.global_position)
+	# Distanz vom nächsten Enemy messen, nicht vom Group-Node
+	var closest_dist := INF
+	for enemy in _enemies:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		var dist := enemy.global_position.distance_to(player.global_position)
+		closest_dist = min(closest_dist, dist)
 	
-	if dist <= detection_range:
+	if closest_dist <= detection_range:
 		_set_target(player)
 
 
@@ -91,11 +97,15 @@ func _update_enemy_targets() -> void:
 		
 		# Enemy hat kein Target aber sollte eins haben
 		if enemy._target == null and dist <= re_aggro_range:
+			if enemy.has_method("set_target_from_group"):
+				enemy.set_target_from_group(_target)
 			if enemy.has_method("set_target"):
 				enemy.set_target(_target)
 		
 		# Enemy ist im Patrol-State aber Spieler ist nah
 		elif _is_enemy_patrolling(enemy) and dist <= re_aggro_range:
+			if enemy.has_method("set_target_from_group"):
+				enemy.set_target_from_group(_target)
 			if enemy.has_method("set_target"):
 				enemy.set_target(_target)
 
@@ -149,7 +159,9 @@ func _set_target(target: Node3D) -> void:
 	_target = target
 	for enemy in _enemies:
 		if is_instance_valid(enemy) and enemy.is_alive():
-			if enemy.has_method("set_target"):
+			if enemy.has_method("set_target_from_group"):
+				enemy.set_target_from_group(target)
+			elif enemy.has_method("set_target"):
 				enemy.set_target(target)
 
 

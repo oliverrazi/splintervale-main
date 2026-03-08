@@ -61,8 +61,8 @@ enum MovementMode {
 @export var min_progress_distance: float = 0.1
 
 @export_group("Freeze/Performance")
-@export var freeze_distance: float = 25.0
-@export var unfreeze_distance: float = 25.0
+@export var freeze_distance: float = 20.0
+@export var unfreeze_distance: float = 20.0
 
 @export_group("Editor Visualization")
 @export var show_wander_area: bool = true:
@@ -70,7 +70,7 @@ enum MovementMode {
 		show_wander_area = value
 		_update_editor_visualization()
 
-@onready var _sprite: Sprite3D = $Sprite3D
+@onready var _sprite: MeshInstance3D = $Sprite3D
 @onready var _interaction_area: Area3D = $InteractionArea
 @onready var _dialogue_marker: Marker3D = $DialogueMarker
 
@@ -149,21 +149,14 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
-		
-	if _is_in_dialogue:
-		_face_player()
-		return
 	
-	# Gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
 		velocity.y = 0.0
 	
-	# Fall-Reset
-	if global_position.y < _start_position.y - 5.0:
+	if global_position.y < _start_position.y - 8.0:
 		global_position = _start_position
-		global_position.y += 1.5
 		velocity = Vector3.ZERO
 		return
 	
@@ -203,7 +196,6 @@ func _check_freeze_state() -> void:
 func _freeze() -> void:
 	if _is_frozen:
 		return
-	
 	_is_frozen = true
 	velocity = Vector3.ZERO
 	set_physics_process(false)
@@ -212,15 +204,9 @@ func _freeze() -> void:
 func _unfreeze() -> void:
 	if not _is_frozen:
 		return
-	
 	_is_frozen = false
-	
-	# Leicht anheben, Gravity macht den Rest
-	global_position.y = _start_position.y + 1.5
 	velocity = Vector3.ZERO
-	
 	set_physics_process(true)
-
 
 # ============ MOVEMENT PROCESSING ============
 

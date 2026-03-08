@@ -3,20 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cpe1fe7toik75"
-path.s3tc="res://.godot/imported/villager11.png-5232775440a8e986182ea9a4931f4d9a.s3tc.ctex"
+path="res://.godot/imported/villager11.png-5232775440a8e986182ea9a4931f4d9a.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/characters/npcs/villager11.png"
-dest_files=["res://.godot/imported/villager11.png-5232775440a8e986182ea9a4931f4d9a.s3tc.ctex"]
+dest_files=["res://.godot/imported/villager11.png-5232775440a8e986182ea9a4931f4d9a.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

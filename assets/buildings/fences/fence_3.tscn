@@ -1,11 +1,69 @@
-[gd_scene load_steps=3 format=3 uid="uid://ch3wi4xtox6mu"]
+[gd_scene load_steps=12 format=3 uid="uid://ch3wi4xtox6mu"]
 
 [ext_resource type="PackedScene" uid="uid://cpyktmpjxf2g7" path="res://assets/buildings/fences/fence3.glb" id="1_8iadx"]
+[ext_resource type="Shader" uid="uid://msyiealf1m1w" path="res://assets/buildings/fences/fence_no_specular.gdshader" id="2_tloum"]
+[ext_resource type="Texture2D" uid="uid://da85ejvpn6j4m" path="res://assets/mesh/fence.tres" id="3_dt237"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_heltd"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5272i"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pukj7"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_40mwv"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8mnis"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5gepo"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vmltx"]
+render_priority = 0
+shader = ExtResource("2_tloum")
+shader_parameter/albedo_texture = ExtResource("3_dt237")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8iadx"]
 size = Vector3(1.0854094, 1, 0.253833)
 
 [node name="fence3" instance=ExtResource("1_8iadx")]
+
+[node name="Cube_006" parent="." index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_heltd")
+
+[node name="Cube_007" parent="." index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_5272i")
+
+[node name="Cube_001" parent="." index="2"]
+surface_material_override/0 = SubResource("ShaderMaterial_pukj7")
+
+[node name="Cube_002" parent="." index="3"]
+surface_material_override/0 = SubResource("ShaderMaterial_40mwv")
+
+[node name="Cube_003" parent="." index="4"]
+surface_material_override/0 = SubResource("ShaderMaterial_8mnis")
+
+[node name="Cube_004" parent="." index="5"]
+surface_material_override/0 = SubResource("ShaderMaterial_5gepo")
+
+[node name="Cube_005" parent="." index="6"]
+surface_material_override/0 = SubResource("ShaderMaterial_vmltx")
 
 [node name="Area3D" type="StaticBody3D" parent="." index="7"]
 transform = Transform3D(-4.3711385e-08, 0, 0.99999994, 0, 1, 0, -0.99999994, 0, -4.3711385e-08, 0.088255346, 0, -0.25513464)

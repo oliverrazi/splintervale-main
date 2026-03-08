@@ -1,15 +1,67 @@
-[gd_scene load_steps=5 format=3 uid="uid://7qetjl5g7b7a"]
+[gd_scene load_steps=13 format=3 uid="uid://7qetjl5g7b7a"]
 
 [ext_resource type="Script" uid="uid://bwb8lnio2axjr" path="res://assets/characters/npcs/npc.gd" id="1_wm3tf"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="2_irbu2"]
 [ext_resource type="Texture2D" uid="uid://cpe1fe7toik75" path="res://assets/characters/npcs/villager11.png" id="2_wm3tf"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="4_5nvrq"]
+[ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="5_5nvrq"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wm3tf"]
 radius = 0.17871094
 height = 0.6546631
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ln2mu"]
+render_priority = 0
+shader = ExtResource("2_irbu2")
+shader_parameter/sprite_texture = ExtResource("2_wm3tf")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(0.1, 0.1)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.09
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_4efxa"]
+size = Vector2(0.576, 0.704)
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_irbu2"]
 radius = 0.1640625
 height = 0.5042114
+
+[sub_resource type="Shader" id="Shader_4efxa"]
+code = "
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
+
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.05, 1.0);
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.35;
+uniform float softness : hint_range(0.0, 1.0) = 0.4;
+
+void fragment() {
+	vec2 uv = UV * 2.0 - 1.0;
+	float dist = length(uv);
+	float inner = 1.0 - softness;
+	float alpha = 1.0 - smoothstep(inner, 1.0, dist);
+	alpha *= alpha;
+
+	ALBEDO = shadow_color.rgb;
+	ALPHA = alpha * shadow_opacity;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7k36o"]
+render_priority = 0
+shader = SubResource("Shader_4efxa")
+shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
+shader_parameter/shadow_opacity = 0.6
+shader_parameter/softness = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_mxncp"]
+size = Vector2(0.5, 0.3)
+orientation = 1
 
 [node name="Npc" type="CharacterBody3D"]
 script = ExtResource("1_wm3tf")
@@ -20,8 +72,21 @@ move_speed = 0.3
 transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0.11640245, 0)
 shape = SubResource("CapsuleShape3D_wm3tf")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
+[node name="Sprite3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_ln2mu")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_4efxa")
+script = ExtResource("4_5nvrq")
+texture = ExtResource("2_wm3tf")
+hframes = 10
+vframes = 10
+tilt_amount = 0.09
+aa_sharpness = 1.7
+
+[node name="Sprite3D_old" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+visible = false
 billboard = 1
 alpha_cut = 3
 alpha_scissor_threshold = 1.0
@@ -42,3 +107,14 @@ shape = SubResource("CapsuleShape3D_irbu2")
 
 [node name="DialogueMarker" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19186962, 0)
+
+[node name="BlobShadow" type="MeshInstance3D" parent="."]
+top_level = true
+material_override = SubResource("ShaderMaterial_7k36o")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_mxncp")
+script = ExtResource("5_5nvrq")
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.1
+ground_offset = 0.02

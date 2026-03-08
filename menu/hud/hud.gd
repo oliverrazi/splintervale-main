@@ -5,14 +5,18 @@ extends CanvasLayer
 @onready var bottom_panel: PanelContainer = $MainContainer/BottomPanel
 
 # References - Main Bars
-@onready var hp_bar: ProgressBar = $MainContainer/LeftPanel/Control/StatsContainer/HPBar
-@onready var hp_label: Label = $MainContainer/LeftPanel/Control/StatsContainer/HPBar/Label
-@onready var resonance_bar: ProgressBar = $MainContainer/LeftPanel/Control/StatsContainer/ResonanceBar
-@onready var resonance_label: Label = $MainContainer/LeftPanel/Control/StatsContainer/ResonanceBar/Label
-@onready var exp_bar: ProgressBar = $MainContainer/LeftPanel/Control/StatsContainer/HBoxContainer/Control2/EXPBar
-@onready var exp_label: Label = $MainContainer/LeftPanel/Control/StatsContainer/HBoxContainer/Control2/EXPBar/Label
-@onready var lvl_label: Label = $MainContainer/LeftPanel/Control/StatsContainer/HBoxContainer/PanelContainer/Control/LvlLabel
+@onready var hp_bar: ProgressBar = $MainContainer/LeftPanel/Control/BarsContainer/HPBar
+@onready var hp_label: Label = $MainContainer/LeftPanel/Control/BarsContainer/HPBar/Label
+@onready var resonance_bar: ProgressBar = $MainContainer/LeftPanel/Control/BarsContainer/ResonanceBar
+@onready var resonance_label: Label = $MainContainer/LeftPanel/Control/BarsContainer/ResonanceBar/Label
 @onready var gold_label: Label = $MainContainer/RightPanel/GoldContainer/GoldAmount
+
+@onready var level_circle: TextureRect = $MainContainer/LeftPanel/Control/StatsContainer/HBoxContainer/Control2/LevelCircle
+
+
+@onready var portrait_circle: TextureRect = $MainContainer/LeftPanel/Control/PortraitCircle
+@onready var lvl_label: Label = $MainContainer/LeftPanel/Control/PanelContainer/Control/LvlLabel
+
 
 # Delay Bars (weiße Nachzieh-Balken)
 var hp_delay_bar: ProgressBar = null
@@ -48,6 +52,7 @@ var _resonance_delay_tween: Tween = null
 var _hotbar_icons: Array[TextureRect] = []
 
 var _interact_icon: Texture2D = null
+var _action_icon: Texture2D = null
 var _cached_slot_0_texture: Texture2D = null
 
 
@@ -79,6 +84,11 @@ func _update_resonance_display() -> void:
 		update_resonance(new_resonance, pd.max_resonance)
 
 
+func _setup_portrait() -> void:
+	var path := "res://assets/characters/portraits/daryn.png"
+	if ResourceLoader.exists(path) and portrait_circle:
+		portrait_circle.texture = load(path)
+
 func _update_slot_w_interaction_state() -> void:
 	if action_slots.is_empty() or _hotbar_icons.is_empty():
 		return
@@ -97,13 +107,21 @@ func _update_slot_w_interaction_state() -> void:
 	var can_interact: bool = false
 	if player.has_method("can_interact_with_npc"):
 		can_interact = player.can_interact_with_npc()
+		
+	var can_interact_chest: bool = false
+	if player.has_method("can_interact_with_chest"):
+		can_interact_chest = player.can_interact_with_chest()
 	
 	if can_interact:
 		if _cached_slot_0_texture == null and icon.texture != _interact_icon:
-			_cached_slot_0_texture = icon.texture
-		
+			_cached_slot_0_texture = icon.texture		
 		if _interact_icon:
 			icon.texture = _interact_icon
+	elif can_interact_chest:
+		if _cached_slot_0_texture == null and icon.texture != _action_icon:
+			_cached_slot_0_texture = icon.texture
+		if _action_icon:
+			icon.texture = _action_icon
 	else:
 		if _cached_slot_0_texture != null:
 			icon.texture = _cached_slot_0_texture
@@ -114,12 +132,13 @@ func _update_slot_w_interaction_state() -> void:
 func _ready() -> void:
 	add_to_group("hud")
 	
-	var icon_path: String = "res://assets/icons/talk_icon.png"
-	if ResourceLoader.exists(icon_path):
-		_interact_icon = load(icon_path)
-		print("Interact icon loaded: ", icon_path)
-	else:
-		print("Interact icon NOT found at: ", icon_path)
+	var interact_path: String = "res://assets/icons/talk_icon.png"
+	if ResourceLoader.exists(interact_path):
+		_interact_icon = load(interact_path)
+
+	var action_path: String = "res://assets/icons/action_icon.png"
+	if ResourceLoader.exists(action_path):
+		_action_icon = load(action_path)
 	
 	# Delay Bars erstellen
 	call_deferred("_setup_delay_bars")
@@ -130,8 +149,11 @@ func _ready() -> void:
 	call_deferred("_connect_to_player_data")
 	call_deferred("_connect_to_inventory")
 	
+	call_deferred("_setup_portrait")
+	
 	if LoadingScreen:
 		LoadingScreen.loading_finished.connect(_on_loading_finished)
+		
 
 
 func _setup_delay_bars() -> void:
@@ -308,15 +330,6 @@ func _apply_panel_styles() -> void:
 		bottom_panel.add_theme_stylebox_override("panel", glass_style.duplicate())
 
 
-func _apply_bar_styles() -> void:
-	if hp_bar:
-		hp_bar.add_theme_stylebox_override("background", _create_hp_bar_bg_style())
-		hp_bar.add_theme_stylebox_override("fill", _create_hp_bar_fill_style())
-	
-	if exp_bar:
-		exp_bar.add_theme_stylebox_override("background", _create_exp_bar_bg_style())
-		exp_bar.add_theme_stylebox_override("fill", _create_exp_bar_fill_style())
-	
 
 func _apply_slot_styles() -> void:
 	var slot_style := _create_slot_style()
@@ -368,31 +381,6 @@ func _create_hp_bar_fill_style() -> StyleBoxFlat:
 	return style
 
 
-func _create_exp_bar_bg_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.08, 0.15, 0.9)
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_left = 4
-	style.corner_radius_bottom_right = 4
-	style.border_width_top = 1
-	style.border_width_bottom = 1
-	style.border_width_left = 1
-	style.border_width_right = 1
-	style.border_color = Color(0.3, 0.5, 0.9, 0.4)
-	return style
-
-
-func _create_exp_bar_fill_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.2, 0.45, 0.9, 1.0)
-	style.corner_radius_top_left = 3
-	style.corner_radius_top_right = 3
-	style.corner_radius_bottom_left = 3
-	style.corner_radius_bottom_right = 3
-	return style
-
-
 func _create_slot_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.01, 0.01, 0.01, 0.4)
@@ -436,12 +424,7 @@ func update_exp(current: int, maximum: int) -> void:
 	current_exp = current
 	max_exp = maximum
 
-	if exp_bar:
-		exp_bar.max_value = maximum
-		exp_bar.value = current
-	
-	if exp_label:
-		exp_label.text = "Lv.%d  %d / %d" % [level, current, maximum]
+	_update_exp_ring(current)
 
 
 func update_gold(amount: int) -> void:
@@ -501,17 +484,20 @@ func animate_resonance_change(new_resonance: int) -> void:
 
 
 func animate_exp_change(new_exp: int) -> void:
-	if not exp_bar:
-		return
-	
-	exp_bar.max_value = max_exp
-	
+
 	var tween := create_tween()
 	tween.tween_method(func(val: float):
-		exp_bar.value = val
-	, float(current_exp), float(new_exp), 0.5)
+		current_exp = int(val)
+		# Ring live updaten während der Animation
+		_update_exp_ring(int(val))
+		, float(current_exp), float(new_exp), 0.5)
+
 	current_exp = new_exp
 
+func _update_exp_ring(exp_value: int) -> void:
+	if portrait_circle and portrait_circle.material is ShaderMaterial and max_exp > 0:
+		var p : Variant= clamp(float(exp_value) / float(max_exp), 0.0, 1.0)
+		(portrait_circle.material as ShaderMaterial).set_shader_parameter("progress", p)
 
 func animate_gold_change(new_gold: int) -> void:
 	if not gold_label:
@@ -552,9 +538,6 @@ func _on_resonance_changed(current: int, maximum: int) -> void:
 
 func _on_exp_changed(current: int, needed: int) -> void:
 	max_exp = needed
-	
-	if exp_bar:
-		exp_bar.max_value = max_exp 
 	animate_exp_change(current)
 
 
@@ -646,3 +629,4 @@ func _on_hotbar_changed(slot_index: int, _item_id: String) -> void:
 				_cached_slot_0_texture = item_data.icon
 			else:
 				_cached_slot_0_texture = null
+				

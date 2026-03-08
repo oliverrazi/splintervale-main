@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://djjsjsl6vx3ie" path="res://assets/base_tiles/textures/wall1_specular.png" id="4_cbp6q"]
 [ext_resource type="PackedScene" uid="uid://cd3ww7pd3fcbo" path="res://character_body_3d.tscn" id="4_ioo17"]
 [ext_resource type="Texture2D" uid="uid://b5tn2d3f4o34f" path="res://assets/base_tiles/textures/dirtpixel.png" id="5_k83mh"]
-[ext_resource type="Shader" uid="uid://cr5caoegammj2" path="res://scenes/skyshader.gdshader" id="5_wse8f"]
 [ext_resource type="CameraAttributesPractical" uid="uid://p16ene1hmixs" path="res://assets/camera_attributes/new_camera_attributes_practical.tres" id="6_ic0uy"]
 [ext_resource type="Texture2D" uid="uid://r4yk0pdb8ndm" path="res://assets/base_tiles/textures/dirtpixel_normal.png" id="6_qktwf"]
 [ext_resource type="Script" uid="uid://d2s3eygfy4w3d" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="7_26xuy"]
@@ -684,33 +683,33 @@ detiling_shift = 0.43
 mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_w44yn")])
 texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_k83mh"), SubResource("Terrain3DTextureAsset_qktwf"), SubResource("Terrain3DTextureAsset_bh8nc")])
 
-[sub_resource type="Resource" id="Resource_gggvi"]
+[sub_resource type="Resource" id="Resource_jjr1n"]
 script = ExtResource("11_wjb0r")
 amount = 20000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_w44yn"]
+[sub_resource type="Resource" id="Resource_gggvi"]
 script = ExtResource("12_mc2jv")
 rotation = Vector3(0, 360, 0)
 scale = Vector3(0.1, 0.1, 0.1)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_6ah6f"]
+[sub_resource type="Resource" id="Resource_w44yn"]
 script = ExtResource("13_bo7i5")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_g1i3r"]
+[sub_resource type="Resource" id="Resource_6ah6f"]
 script = ExtResource("14_4h6ng")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_my276"]
+[sub_resource type="Resource" id="Resource_g1i3r"]
 script = ExtResource("7_26xuy")
-stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_gggvi"), SubResource("Resource_w44yn"), SubResource("Resource_6ah6f"), SubResource("Resource_g1i3r")])
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_jjr1n"), SubResource("Resource_gggvi"), SubResource("Resource_w44yn"), SubResource("Resource_6ah6f")])
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wukud"]
 
@@ -764,33 +763,33 @@ script = ExtResource("19_il2jm")
 curve = SubResource("Curve3D_k83mh")
 metadata/_custom_type_script = "uid://dirmtvl6hlx61"
 
-[sub_resource type="Resource" id="Resource_yx0jh"]
+[sub_resource type="Resource" id="Resource_my276"]
 script = ExtResource("11_wjb0r")
 amount = 20000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_ryup7"]
+[sub_resource type="Resource" id="Resource_yx0jh"]
 script = ExtResource("12_mc2jv")
 rotation = Vector3(0, 360, 0)
 scale = Vector3(0.1, 0.1, 0.1)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_ytpkv"]
+[sub_resource type="Resource" id="Resource_ryup7"]
 script = ExtResource("13_bo7i5")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_jas3d"]
+[sub_resource type="Resource" id="Resource_ytpkv"]
 script = ExtResource("14_4h6ng")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_7htu6"]
+[sub_resource type="Resource" id="Resource_jas3d"]
 script = ExtResource("7_26xuy")
-stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_yx0jh"), SubResource("Resource_ryup7"), SubResource("Resource_ytpkv"), SubResource("Resource_jas3d")])
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_my276"), SubResource("Resource_yx0jh"), SubResource("Resource_ryup7"), SubResource("Resource_ytpkv")])
 
 [sub_resource type="Resource" id="Resource_xpnt2"]
 script = ExtResource("16_bc84e")
@@ -808,33 +807,33 @@ script = ExtResource("19_il2jm")
 curve = SubResource("Curve3D_qktwf")
 metadata/_custom_type_script = "uid://dirmtvl6hlx61"
 
-[sub_resource type="Resource" id="Resource_7qk3m"]
+[sub_resource type="Resource" id="Resource_7htu6"]
 script = ExtResource("11_wjb0r")
 amount = 15000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_ruyqm"]
+[sub_resource type="Resource" id="Resource_7qk3m"]
 script = ExtResource("12_mc2jv")
 rotation = Vector3(0, 360, 0)
 scale = Vector3(0.1, 0.1, 0.1)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_fnoqa"]
+[sub_resource type="Resource" id="Resource_ruyqm"]
 script = ExtResource("13_bo7i5")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_nx736"]
+[sub_resource type="Resource" id="Resource_fnoqa"]
 script = ExtResource("14_4h6ng")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_55kwu"]
+[sub_resource type="Resource" id="Resource_nx736"]
 script = ExtResource("7_26xuy")
-stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_7qk3m"), SubResource("Resource_ruyqm"), SubResource("Resource_fnoqa"), SubResource("Resource_nx736")])
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_7htu6"), SubResource("Resource_7qk3m"), SubResource("Resource_ruyqm"), SubResource("Resource_fnoqa")])
 
 [sub_resource type="Resource" id="Resource_1ew0l"]
 script = ExtResource("16_bc84e")
@@ -852,65 +851,65 @@ script = ExtResource("19_il2jm")
 curve = SubResource("Curve3D_bh8nc")
 metadata/_custom_type_script = "uid://dirmtvl6hlx61"
 
-[sub_resource type="Resource" id="Resource_f3o6s"]
+[sub_resource type="Resource" id="Resource_55kwu"]
 script = ExtResource("11_wjb0r")
 amount = 15000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_k3lar"]
+[sub_resource type="Resource" id="Resource_f3o6s"]
 script = ExtResource("12_mc2jv")
 rotation = Vector3(0, 360, 0)
 scale = Vector3(0.1, 0.1, 0.1)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_olr1q"]
+[sub_resource type="Resource" id="Resource_k3lar"]
 script = ExtResource("13_bo7i5")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_q42o5"]
+[sub_resource type="Resource" id="Resource_olr1q"]
 script = ExtResource("14_4h6ng")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_b7btk"]
+[sub_resource type="Resource" id="Resource_q42o5"]
 script = ExtResource("7_26xuy")
-stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_f3o6s"), SubResource("Resource_k3lar"), SubResource("Resource_olr1q"), SubResource("Resource_q42o5")])
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_55kwu"), SubResource("Resource_f3o6s"), SubResource("Resource_k3lar"), SubResource("Resource_olr1q")])
 
 [sub_resource type="Resource" id="Resource_w4lh7"]
 script = ExtResource("16_bc84e")
 size = Vector3(150, 1, 150)
 
-[sub_resource type="Resource" id="Resource_kkgr2"]
+[sub_resource type="Resource" id="Resource_b7btk"]
 script = ExtResource("11_wjb0r")
 amount = 15000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_iett8"]
+[sub_resource type="Resource" id="Resource_kkgr2"]
 script = ExtResource("12_mc2jv")
 rotation = Vector3(0, 360, 0)
 scale = Vector3(0.1, 0.1, 0.1)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_r5m4j"]
+[sub_resource type="Resource" id="Resource_iett8"]
 script = ExtResource("13_bo7i5")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_e77ka"]
+[sub_resource type="Resource" id="Resource_r5m4j"]
 script = ExtResource("14_4h6ng")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_c0wax"]
+[sub_resource type="Resource" id="Resource_e77ka"]
 script = ExtResource("7_26xuy")
-stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_kkgr2"), SubResource("Resource_iett8"), SubResource("Resource_r5m4j"), SubResource("Resource_e77ka")])
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_b7btk"), SubResource("Resource_kkgr2"), SubResource("Resource_iett8"), SubResource("Resource_r5m4j")])
 
 [sub_resource type="Resource" id="Resource_75cpn"]
 script = ExtResource("16_bc84e")
@@ -927,33 +926,33 @@ point_count = 13
 script = ExtResource("19_il2jm")
 curve = SubResource("Curve3D_ct3wn")
 
-[sub_resource type="Resource" id="Resource_sedwk"]
+[sub_resource type="Resource" id="Resource_c0wax"]
 script = ExtResource("11_wjb0r")
 amount = 15000
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_37ykd"]
+[sub_resource type="Resource" id="Resource_sedwk"]
 script = ExtResource("12_mc2jv")
 rotation = Vector3(0, 360, 0)
 scale = Vector3(0.1, 0.1, 0.1)
 reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_1hvhf"]
+[sub_resource type="Resource" id="Resource_37ykd"]
 script = ExtResource("13_bo7i5")
 offset_step = 0.2
 consecutive_step_multiplier = 0.75
 restrict_height = true
 
-[sub_resource type="Resource" id="Resource_rakx2"]
+[sub_resource type="Resource" id="Resource_1hvhf"]
 script = ExtResource("14_4h6ng")
 ray_length = 5.0
 ray_offset = 5.0
 remove_points_on_miss = false
 
-[sub_resource type="Resource" id="Resource_3fh52"]
+[sub_resource type="Resource" id="Resource_rakx2"]
 script = ExtResource("7_26xuy")
-stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_sedwk"), SubResource("Resource_37ykd"), SubResource("Resource_1hvhf"), SubResource("Resource_rakx2")])
+stack = Array[ExtResource("8_bc84e")]([SubResource("Resource_c0wax"), SubResource("Resource_sedwk"), SubResource("Resource_37ykd"), SubResource("Resource_1hvhf")])
 
 [sub_resource type="Resource" id="Resource_tj74d"]
 script = ExtResource("16_bc84e")
@@ -1013,19 +1012,36 @@ shader_parameter/near = 1.0
 shader_parameter/far = 100.0
 shader_parameter/edge_color = Color(0, 0, 0, 1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_wjb0r"]
-shader = ExtResource("5_wse8f")
+[sub_resource type="SphereShape3D" id="SphereShape3D_3fh52"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_8f1f8"]
+
+[sub_resource type="Shader" id="Shader_ec7gk"]
+code = "shader_type sky;
+
+uniform vec3 skyColor : source_color;
+uniform vec3 horizonColor : source_color;
+
+void sky() {
+	float col = clamp(EYEDIR.y / 0.05, 0.0, 1.0);
+	vec3 finalColor = mix(horizonColor, skyColor, col);
+	COLOR = finalColor;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3fh52"]
+shader = SubResource("Shader_ec7gk")
 shader_parameter/skyColor = Color(0.52907544, 0.8069028, 1, 1)
-shader_parameter/horizonColor = Color(1.4439225e-06, 0.81353146, 0.6894747, 1)
+shader_parameter/horizonColor = Color(0.28533614, 0.44589186, 0.6039341, 1)
 
-[sub_resource type="Sky" id="Sky_4arys"]
-sky_material = SubResource("ShaderMaterial_wjb0r")
+[sub_resource type="Sky" id="Sky_cxfae"]
+sky_material = SubResource("ShaderMaterial_3fh52")
 
-[sub_resource type="Environment" id="Environment_mc2jv"]
+[sub_resource type="Environment" id="Environment_8f1f8"]
 background_mode = 2
 background_color = Color(0.06263664, 0.6265164, 0.46390855, 1)
 background_energy_multiplier = 0.46
-sky = SubResource("Sky_4arys")
+sky = SubResource("Sky_cxfae")
 sky_custom_fov = 77.8
 ambient_light_source = 3
 ambient_light_color = Color(0.574992, 0.8786219, 0.94494164, 1)
@@ -1035,24 +1051,20 @@ tonemap_mode = 3
 sdfgi_enabled = true
 glow_enabled = true
 glow_normalized = true
-glow_intensity = 0.5
+glow_intensity = 0.7
 glow_bloom = 0.1
 glow_blend_mode = 0
 glow_hdr_threshold = 0.8
 fog_enabled = true
-fog_light_color = Color(0, 0.40465555, 0.29033482, 1)
-fog_light_energy = 0.1
+fog_light_energy = 0.7
 fog_sky_affect = 0.153
 fog_height = -44.85
-volumetric_fog_density = 0.03
+volumetric_fog_density = 0.08
 volumetric_fog_albedo = Color(0.41960785, 0.49019608, 0.5411765, 1)
+volumetric_fog_emission = Color(0.20915431, 0.60057753, 0.4746408, 1)
 volumetric_fog_emission_energy = 0.0
 volumetric_fog_gi_inject = 0.0
 volumetric_fog_anisotropy = 0.5
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_3fh52"]
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_8f1f8"]
 
 [node name="World" type="Node3D"]
 
@@ -1667,7 +1679,7 @@ transform = Transform3D(0.02, 0, 0, 0, 1, 0, 0, 0, 0.039028227, 33.97058, -0.048
 script = ExtResource("12_bc84e")
 keep_static_colliders = true
 enable_updates_in_game = true
-modifier_stack = SubResource("Resource_my276")
+modifier_stack = SubResource("Resource_g1i3r")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(1, 1, 1)
 metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
@@ -1699,7 +1711,7 @@ visible = false
 script = ExtResource("12_bc84e")
 keep_static_colliders = true
 enable_updates_in_game = true
-modifier_stack = SubResource("Resource_7htu6")
+modifier_stack = SubResource("Resource_jas3d")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(1, 1, 1)
 metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
@@ -1729,7 +1741,7 @@ visible = false
 script = ExtResource("12_bc84e")
 keep_static_colliders = true
 enable_updates_in_game = true
-modifier_stack = SubResource("Resource_55kwu")
+modifier_stack = SubResource("Resource_nx736")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(1, 1, 1)
 metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
@@ -1759,7 +1771,7 @@ visible = false
 script = ExtResource("12_bc84e")
 keep_static_colliders = true
 enable_updates_in_game = true
-modifier_stack = SubResource("Resource_b7btk")
+modifier_stack = SubResource("Resource_q42o5")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(1, 1, 1)
 metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
@@ -1783,7 +1795,7 @@ visible = false
 script = ExtResource("12_bc84e")
 keep_static_colliders = true
 enable_updates_in_game = true
-modifier_stack = SubResource("Resource_c0wax")
+modifier_stack = SubResource("Resource_e77ka")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(1, 1, 1)
 metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
@@ -1814,7 +1826,7 @@ visible = false
 script = ExtResource("12_bc84e")
 keep_static_colliders = true
 enable_updates_in_game = true
-modifier_stack = SubResource("Resource_3fh52")
+modifier_stack = SubResource("Resource_rakx2")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(1, 1, 1)
 metadata/_custom_type_script = "uid://dxbe6as3mgyrj"
@@ -1853,10 +1865,6 @@ transform = Transform3D(31.085226, 0, 0, 0, 15.433481, 0, 0, 0, 30.338621, 20.16
 mesh = SubResource("QuadMesh_bh8nc")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_6ah6f")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_mc2jv")
-camera_attributes = ExtResource("6_ic0uy")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.06383562, 0.99796045, 0, -0.99796045, -0.06383562, -0.18538141, 44.057716, 0.0012370544)
@@ -1911,8 +1919,6 @@ directional_shadow_max_distance = 31.9
 
 [node name="Player" parent="." instance=ExtResource("4_ioo17")]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 21.85123, 0.383178, 106.49542)
-floor_stop_on_slope = false
-SPEED = 3.0
 
 [node name="EnemyGroup" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.58206, 0, 99.92702)
@@ -2031,6 +2037,10 @@ thrust_scale = Vector3(1, 1, 1)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 17, -8, 108)
 shape = SubResource("CylinderShape3D_8f1f8")
+
+[node name="WorldEnvironment2" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_8f1f8")
+camera_attributes = ExtResource("6_ic0uy")
 
 [connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Trees" method="_on_lod_timer_timeout"]
 [connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Grass" method="_on_lod_timer_timeout"]

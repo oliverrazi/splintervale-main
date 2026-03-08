@@ -42,7 +42,7 @@ var font_color: Color = Color(255, 234, 213)
 
 var _is_item_pickup_mode: bool = false
 var _pickup_player: Node3D = null
-var _pickup_player_sprite: Sprite3D = null
+var _pickup_player_sprite: SmoothPixelSprite3D  = null
 var _pickup_original_frame: int = 0
 var _pickup_original_flip: bool = false
 var _pickup_effect: Node3D = null
@@ -769,7 +769,7 @@ func _start_item_pickup_internal(player: Node3D, item_data: ItemData, custom_tex
 	_pickup_player = player
 	
 	# Player Sprite auf Hold-Frame setzen
-	_pickup_player_sprite = player.get_node_or_null("charactersprite") as Sprite3D
+	_pickup_player_sprite = player.get_node_or_null("charactersprite") as SmoothPixelSprite3D
 	if _pickup_player_sprite:
 		_pickup_original_frame = _pickup_player_sprite.frame
 		_pickup_original_flip = _pickup_player_sprite.flip_h

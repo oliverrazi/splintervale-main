@@ -2,7 +2,7 @@ extends Node
 class_name DodgeComponent
 
 ## Dodge Component - Als Child-Node zum Player hinzufügen
-## Benötigt: Player muss CharacterBody3D sein mit "charactersprite" (Sprite3D)
+## Benötigt: Player muss CharacterBody3D sein mit "charactersprite" (SmoothPixelSprite3D)
 
 signal dodge_started
 signal dodge_ended
@@ -78,19 +78,36 @@ var _move_dir_mode: int = DirMode.DOWN    # Bewegungsrichtung
 
 # === CACHED REFERENCES ===
 var _player: CharacterBody3D = null
-var _sprite: Sprite3D = null
+var _sprite: SmoothPixelSprite3D = null  # CHANGED: war Sprite3D
 var _spring_arm: Node3D = null
 
 
 func _ready() -> void:
 	_player = get_node_or_null(player_path) as CharacterBody3D
-	_sprite = get_node_or_null(sprite_path) as Sprite3D
+	_sprite = _find_sprite()  # CHANGED: eigene Suche statt as Sprite3D
 	_spring_arm = get_node_or_null(spring_arm_path) as Node3D
 	
 	if _player == null:
 		push_error("DodgeComponent: Player not found at path: ", player_path)
 	if _sprite == null:
-		push_error("DodgeComponent: Sprite not found at path: ", sprite_path)
+		push_error("DodgeComponent: SmoothPixelSprite3D not found at path: ", sprite_path)
+
+
+func _find_sprite() -> SmoothPixelSprite3D:
+	# Erst den konfigurierten Pfad versuchen
+	var found := get_node_or_null(sprite_path)
+	if found is SmoothPixelSprite3D:
+		return found
+	
+	# Fallback: Im Parent nach SmoothPixelSprite3D suchen
+	var parent := get_node_or_null(player_path)
+	if parent:
+		for child in parent.get_children():
+			if child is SmoothPixelSprite3D:
+				return child
+	
+	push_warning("DodgeComponent: No SmoothPixelSprite3D found!")
+	return null
 
 
 func _physics_process(delta: float) -> void:
@@ -469,57 +486,53 @@ func _show_dodge_frame() -> void:
 
 
 # ============================================
-# VISUALS - AFTERIMAGES (FIXED)
+# VISUALS - AFTERIMAGES (FIXED für SmoothPixelSprite3D)
 # ============================================
 
 func _spawn_afterimage() -> void:
 	if _sprite == null:
 		return
 	
-	# Neues Sprite3D als Geisterbild
+	# Sprite3D als Geisterbild (leichtgewichtig, braucht keinen Smooth-Shader)
 	var ghost := Sprite3D.new()
 	
-	# Basis-Einstellungen vom Original kopieren
+	# Properties von SmoothPixelSprite3D lesen
 	ghost.texture = _sprite.texture
 	ghost.hframes = _sprite.hframes
 	ghost.vframes = _sprite.vframes
 	ghost.frame = _sprite.frame
 	ghost.flip_h = _sprite.flip_h
 	ghost.pixel_size = _sprite.pixel_size
-	ghost.centered = _sprite.centered
-	ghost.offset = _sprite.offset
-	ghost.billboard = _sprite.billboard
+	ghost.centered = true
 	ghost.transparent = true
 	ghost.no_depth_test = false
-	ghost.render_priority = -1  # Hinter dem Spieler rendern
+	ghost.render_priority = -1
+	
+	# Billboard manuell setzen (SmoothPixelSprite3D hat kein .billboard Property)
+	ghost.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	
 	# Position exakt kopieren
 	ghost.global_transform = _sprite.global_transform
 	
-	# Farbe über modulate setzen (KEIN material_override!)
-	# Das bewahrt die Textur und färbt sie ein
+	# Farbe über modulate
 	ghost.modulate = afterimage_color
 	
 	# Zur Szene hinzufügen
 	get_tree().current_scene.add_child(ghost)
 	
-	# Leicht nach hinten versetzen damit es hinter dem Spieler ist
+	# Leicht nach hinten versetzen
 	ghost.global_position -= _dodge_direction * 0.02 * (_afterimages_spawned + 1)
-	ghost.global_position.y = _sprite.global_position.y  # Y-Position beibehalten
+	ghost.global_position.y = _sprite.global_position.y
 	
 	# Fade Animation
 	var tween := create_tween()
 	tween.set_parallel(true)
-	
-	# Alpha und Scale fade
 	tween.tween_property(ghost, "modulate:a", 0.0, afterimage_fade_time).set_ease(Tween.EASE_IN)
 	tween.tween_property(ghost, "scale", ghost.scale * 0.8, afterimage_fade_time).set_ease(Tween.EASE_IN)
 	
-	# Leicht nach oben driften
 	var end_pos: Vector3 = ghost.global_position + Vector3(0, 0.1, 0)
 	tween.tween_property(ghost, "global_position", end_pos, afterimage_fade_time).set_ease(Tween.EASE_OUT)
 	
-	# Aufräumen
 	tween.chain().tween_callback(ghost.queue_free)
 
 
@@ -548,11 +561,10 @@ func _start_shimmer_trail() -> void:
 	proc_mat.spread = 30.0
 	proc_mat.initial_velocity_min = 0.5
 	proc_mat.initial_velocity_max = 1.5
-	proc_mat.gravity = Vector3(0, 1.5, 0)  # Nach oben schweben
+	proc_mat.gravity = Vector3(0, 1.5, 0)
 	proc_mat.damping_min = 1.0
 	proc_mat.damping_max = 2.0
 	
-	# Scale über Zeit
 	proc_mat.scale_min = 0.8
 	proc_mat.scale_max = 1.5
 	var scale_curve := Curve.new()
@@ -563,7 +575,6 @@ func _start_shimmer_trail() -> void:
 	scale_curve_tex.curve = scale_curve
 	proc_mat.scale_curve = scale_curve_tex
 	
-	# Farb-Gradient
 	var gradient := Gradient.new()
 	gradient.set_color(0, shimmer_color)
 	gradient.add_point(0.3, Color(shimmer_color.r * 0.8, shimmer_color.g * 0.9, shimmer_color.b, 0.7))
@@ -575,11 +586,9 @@ func _start_shimmer_trail() -> void:
 	
 	_shimmer_particles.process_material = proc_mat
 	
-	# Quad Mesh für bessere Sichtbarkeit
 	var mesh := QuadMesh.new()
 	mesh.size = Vector2(0.06, 0.06)
 	
-	# Unshaded Material mit Emission
 	var mesh_mat := StandardMaterial3D.new()
 	mesh_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mesh_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -593,16 +602,13 @@ func _start_shimmer_trail() -> void:
 	
 	_shimmer_particles.draw_pass_1 = mesh
 	
-	# An Player anhängen
 	_player.add_child(_shimmer_particles)
 	_shimmer_particles.position = Vector3(0, 0.3, 0)
 
 
 func _cleanup_shimmer() -> void:
-	"""Räumt alte Shimmer-Partikel auf"""
 	if _shimmer_particles != null and is_instance_valid(_shimmer_particles):
 		_shimmer_particles.emitting = false
-		# Sofort entfernen wenn neuer Dodge startet
 		_shimmer_particles.queue_free()
 		_shimmer_particles = null
 

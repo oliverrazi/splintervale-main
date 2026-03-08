@@ -31,7 +31,7 @@ signal skill_points_changed(points: int)
 @export var base_attunement: int = 3      # Beeinflusst max_resonance
 @export var base_attack_speed: int = 3   # Beeinflusst Angriffsgeschwindigkeit
 
-@export var resonance_regen_rate: float = 5.0      # Resonance pro Sekunde
+@export var resonance_regen_rate: float = 20.0      # Resonance pro Sekunde
 @export var resonance_regen_delay: float = 1.5  
 
 # === GOLD ===

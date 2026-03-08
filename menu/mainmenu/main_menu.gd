@@ -5,9 +5,10 @@ extends Control
 # Pfade zu deinen Szenen anpassen
 @export var game_scene_path: String = "res://demo.tscn"
 @export var options_scene_path: String = "res://scenes/ui/options/options.tscn"
-@export var select_sound_path: String = "res://menu/assets/sounds/select.wav"
-@export var confirm_sound_path: String = "res://menu/assets/sounds/confirm.wav"
-
+@export var select_sound: AudioStream
+@export var confirm_sound: AudioStream
+var _select_player: AudioStreamPlayer
+var _confirm_player: AudioStreamPlayer
 # Kamera-Bewegung
 @export var camera_sway_speed: float = 0.3
 @export var camera_sway_amount: float = 2.0  # Grad
@@ -36,8 +37,7 @@ const BUTTON_CORNER_RADIUS = 8
 var time_elapsed: float = 0.0
 var base_font: Font
 var menu_buttons: Array[Button] = []
-var select_sound: AudioStreamPlayer
-var confirm_sound: AudioStreamPlayer
+
 var _initial_focus_done: bool = false
 var _last_focused_button: Button = null
 var _block_select_sound: bool = false
@@ -68,40 +68,32 @@ func _process(delta: float) -> void:
 
 
 func _setup_sounds() -> void:
-	# Select Sound
-	select_sound = AudioStreamPlayer.new()
-	select_sound.bus = "UI"
-	if ResourceLoader.exists(select_sound_path):
-		select_sound.stream = load(select_sound_path)
-	add_child(select_sound)
+	_select_player = AudioStreamPlayer.new()
+	_select_player.bus = "UI"
+	_select_player.stream = select_sound
+	add_child(_select_player)
 	
-	# Confirm Sound
-	confirm_sound = AudioStreamPlayer.new()
-	confirm_sound.bus = "UI"
-	if ResourceLoader.exists(confirm_sound_path):
-		confirm_sound.stream = load(confirm_sound_path)
-	add_child(confirm_sound)
+	_confirm_player = AudioStreamPlayer.new()
+	_confirm_player.bus = "UI"
+	_confirm_player.stream = confirm_sound
+	add_child(_confirm_player)
+
 
 
 func _on_button_focused(button: Button) -> void:
-	if not _initial_focus_done:
+	if not _initial_focus_done or _block_select_sound:
 		_last_focused_button = button
 		return
-	
-	if _block_select_sound:
-		_last_focused_button = button
-		return
-	
 	if button != _last_focused_button:
-		if select_sound and select_sound.stream:
-			select_sound.play()
+		if _select_player and _select_player.stream:
+			_select_player.play()
 		_last_focused_button = button
 
 
 func _play_confirm_sound() -> void:
-	if confirm_sound and confirm_sound.stream:
+	if _confirm_player and _confirm_player.stream:
 		_block_select_sound = true
-		confirm_sound.play()
+		_confirm_player.play()
 		get_tree().create_timer(0.15).timeout.connect(func(): _block_select_sound = false)
 
 
