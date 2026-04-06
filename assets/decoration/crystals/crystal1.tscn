@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1ubitjowdipm"]
+
+[ext_resource type="PackedScene" uid="uid://c35j35do7rdqh" path="res://assets/decoration/crystals/crystal.glb" id="1_22a5j"]
+[ext_resource type="ArrayMesh" uid="uid://djb7nall6as3x" path="res://assets/decoration/crystal.tres" id="2_1257e"]
+
+[node name="crystal" instance=ExtResource("1_22a5j")]
+
+[node name="Solid" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9266608, 0)
+mesh = ExtResource("2_1257e")

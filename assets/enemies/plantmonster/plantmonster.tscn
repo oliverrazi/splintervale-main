@@ -1,0 +1,147 @@
+[gd_scene load_steps=20 format=3 uid="uid://cxqa4v5qlnyh4"]
+
+[ext_resource type="Script" uid="uid://b37jeoiiomrmo" path="res://assets/enemies/plantmonster/plantmonster.gd" id="1_lm0ro"]
+[ext_resource type="Texture2D" uid="uid://esswjg0yadaw" path="res://assets/enemies/plantmonster/tongue_segment.png" id="2_cu0nj"]
+[ext_resource type="Texture2D" uid="uid://muli8xohl5q1" path="res://assets/enemies/plantmonster/plantmonster1.png" id="2_iuk7j"]
+[ext_resource type="Texture2D" uid="uid://iiacxsaudquf" path="res://assets/enemies/plantmonster/tongue_tip.png" id="3_ssafx"]
+[ext_resource type="PackedScene" uid="uid://cntp80ppy8jmc" path="res://assets/enemies/assets/EnemyHPBar.tscn" id="4_3rqgm"]
+[ext_resource type="PackedScene" uid="uid://d1tptoi87nwir" path="res://assets/vfx/notifications/reward_popup.tscn" id="4_5wc2q"]
+[ext_resource type="PackedScene" uid="uid://3oh2e5elry5q" path="res://assets/enemies/assets/AlertPopup.tscn" id="4_ruuy8"]
+[ext_resource type="PackedScene" uid="uid://jrf05g6oulvw" path="res://assets/vfx/deaths/DeathVFX1.tscn" id="5_3rqgm"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="8_ipi2m"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="10_3rxnc"]
+[ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="11_3rxnc"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_55a57"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3rxnc"]
+render_priority = 0
+shader = ExtResource("8_ipi2m")
+shader_parameter/sprite_texture = ExtResource("2_iuk7j")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(0.1, 0.1)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.15
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_aiv63"]
+size = Vector2(1.28, 1.28)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_stram"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jny38"]
+
+[sub_resource type="Shader" id="Shader_tih0f"]
+code = "
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
+
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.05, 1.0);
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.35;
+uniform float softness : hint_range(0.0, 1.0) = 0.4;
+
+void fragment() {
+	vec2 uv = UV * 2.0 - 1.0;
+	float dist = length(uv);
+	float inner = 1.0 - softness;
+	float alpha = 1.0 - smoothstep(inner, 1.0, dist);
+	alpha *= alpha;
+
+	ALBEDO = shadow_color.rgb;
+	ALPHA = alpha * shadow_opacity;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aiv63"]
+render_priority = 0
+shader = SubResource("Shader_tih0f")
+shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
+shader_parameter/shadow_opacity = 0.6
+shader_parameter/softness = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_8gmbo"]
+size = Vector2(0.5, 0.3)
+orientation = 1
+
+[node name="Plantmonster" type="CharacterBody3D"]
+process_mode = 1
+collision_layer = 17
+collision_mask = 37
+script = ExtResource("1_lm0ro")
+tongue_segment_texture = ExtResource("2_cu0nj")
+tongue_tip_texture = ExtResource("3_ssafx")
+tongue_pixel_size = 0.02
+segment_spacing = 0.08
+tongue_sprite_offset_up = Vector2(2, -16)
+tongue_sprite_offset_up_right = Vector2(10, -10)
+tongue_sprite_offset_down_right = Vector2(4, 4)
+tongue_sprite_offset_down = Vector2(0, 30)
+vfx_bubble_color = Color(0.54509807, 0.78039217, 1, 0.29411766)
+vfx_bubble_highlight = Color(0.76862746, 0.68235296, 1, 0.58431375)
+vfx_glow_color = Color(0.62352943, 0.88235295, 1, 0.58431375)
+max_health = 60
+knockback_strength = 1.0
+exp_reward = 12
+gold_reward_min = 0
+gold_reward_max = 1
+reward_popup_scene = ExtResource("4_5wc2q")
+hp_bar_scene = ExtResource("4_3rqgm")
+alert_popup_scene = ExtResource("4_ruuy8")
+death_fps = 4.0
+death_vfx_scene = ExtResource("5_3rqgm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.06611407, 0)
+shape = SubResource("CapsuleShape3D_55a57")
+
+[node name="Sprite3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_3rxnc")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_aiv63")
+script = ExtResource("10_3rxnc")
+texture = ExtResource("2_iuk7j")
+hframes = 10
+vframes = 10
+aa_sharpness = 1.7
+
+[node name="Sprite3D_old" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+visible = false
+billboard = 1
+alpha_cut = 3
+alpha_scissor_threshold = 1.0
+alpha_hash_scale = 0.0
+alpha_antialiasing_mode = 1
+alpha_antialiasing_edge = 0.3
+texture_filter = 1
+texture = ExtResource("2_iuk7j")
+hframes = 10
+vframes = 10
+
+[node name="DetectionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14831954, 0)
+shape = SubResource("SphereShape3D_stram")
+
+[node name="AttackArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_jny38")
+
+[node name="BlobShadow" type="MeshInstance3D" parent="."]
+top_level = true
+material_override = SubResource("ShaderMaterial_aiv63")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_8gmbo")
+script = ExtResource("11_3rxnc")
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.1
+ground_offset = 0.02

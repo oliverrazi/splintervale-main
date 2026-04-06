@@ -1293,7 +1293,7 @@ radius = 1.0283203
 size = Vector3(2.9047241, 0.7988281, 2.1459885)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_2pq6c"]
-size = Vector3(37.70337, 1, 34.91877)
+size = Vector3(46.01465, 1, 40.94669)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_psbg5"]
 height = 3.354004
@@ -1313,21 +1313,12 @@ script = ExtResource("31_d0xdr")
 
 [node name="Goblin" parent="Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.27941906, -0.009475708)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.27941906, 0.59646606)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin3" parent="Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71196556, 0.27941906, 0.5413971)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="Enemies/EnemyGroup3"]
 
@@ -1342,21 +1333,12 @@ lose_interest_range = 12.0
 
 [node name="Goblin" parent="Enemies/EnemyGroup4" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.27941906, -0.009475708)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="Enemies/EnemyGroup4" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.27941906, 0.59646606)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin3" parent="Enemies/EnemyGroup4" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71196556, 0.27941906, 0.5413971)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="Enemies/EnemyGroup4"]
 
@@ -1365,9 +1347,6 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="Goblin4" parent="Enemies/EnemyGroup4" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28803444, 0.27941906, 1.4688797)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="EnemyGroup5" type="Node3D" parent="Enemies"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.41794, 0, 90.92702)
@@ -1375,15 +1354,9 @@ script = ExtResource("31_d0xdr")
 
 [node name="Goblin" parent="Enemies/EnemyGroup5" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.27941906, -0.009475708)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="Enemies/EnemyGroup5" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.27941906, 0.59646606)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="Enemies/EnemyGroup5"]
 
@@ -1396,21 +1369,12 @@ script = ExtResource("31_d0xdr")
 
 [node name="Goblin" parent="Enemies/EnemyGroup" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.1, -0.009475708)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="Enemies/EnemyGroup" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.1, 0.59646606)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin3" parent="Enemies/EnemyGroup" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71196556, 0.1, 0.5413971)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="Enemies/EnemyGroup"]
 
@@ -1551,7 +1515,8 @@ shape = SubResource("BoxShape3D_mlmk1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.733543, 17.687141, -145.86607)
 priority = 6
 fog_density = 0.01
-fog_color = Color(0.20784314, 0.3529412, 0.7294118, 1)
+fog_color = Color(0.65853184, 0.6259798, 0.9320226, 1)
+fog_emission = Color(0.67139417, 0.67336106, 1, 1)
 fog_emission_energy = 0.1
 transition_distance = 10.0
 
@@ -1612,11 +1577,11 @@ skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_6ah6f")
 
 [node name="watermill" parent="village" instance=ExtResource("41_050qs")]
-transform = Transform3D(0.6999999, 0, 0, 0, 0.7, 0, 0, 0, 0.6999999, -5.7807083, 1.2460372, 10.305046)
+transform = Transform3D(0.6999999, 0, 0, 0, 0.7, 0, 0, 0, 0.6999999, -5.427887, 1.2460372, 10.305046)
 script = ExtResource("42_bjnx1")
 
 [node name="well" parent="village" instance=ExtResource("38_hsrf8")]
-transform = Transform3D(-0.6146219, 0, 1.3682982, 0, 1.5, 0, -1.3682982, 0, -0.6146219, 9.123581, 0.44385338, 17.785439)
+transform = Transform3D(-0.49169752, 0, 1.0946386, 0, 1.2, 0, -1.0946386, 0, -0.49169752, 9.123581, 0.44385338, 17.785439)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/well"]
 
@@ -1627,7 +1592,7 @@ shape = SubResource("CylinderShape3D_7vilt")
 [node name="Houses" type="Node3D" parent="village"]
 
 [node name="house2-middle" parent="village/Houses" instance=ExtResource("46_sg3tj")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -14.323273, 2.4, 33.89894)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -14.323273, 2.4, 33.89894)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house2-middle"]
 
@@ -1636,7 +1601,7 @@ transform = Transform3D(1, 0, 5.9604645e-08, 0, 1, 0, -5.9604645e-08, 0, 1, 0, 2
 shape = SubResource("BoxShape3D_cxfae")
 
 [node name="house2-big" parent="village/Houses" instance=ExtResource("40_1lqxh")]
-transform = Transform3D(0.6999999, 0, 0, 0, 0.70000005, 0, 0, 0, 0.6999999, -4.075859, 0.50116634, 12.292305)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -4.075859, 0.50116634, 12.292305)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house2-big"]
 
@@ -1649,7 +1614,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4730072, 1.2894073, -1.471
 shape = SubResource("BoxShape3D_am7hm")
 
 [node name="house" parent="village/Houses" instance=ExtResource("49_35fml")]
-transform = Transform3D(0.7, 0, 0, 0, 0.70000005, 0, 0, 0, 0.7, 15.257347, 2.4, 34.58811)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 15.257, 1.5, 34.588)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house"]
 
@@ -1658,7 +1623,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5106435, -0.0074157715)
 shape = SubResource("BoxShape3D_7vilt")
 
 [node name="house7" parent="village/Houses" instance=ExtResource("48_ec7gk")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 10.980614, 2.462024, 9.741661)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 10.980614, 2.462024, 9.741661)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house7"]
 
@@ -1667,7 +1632,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5776367e-05, 1.5106434, -0.
 shape = SubResource("BoxShape3D_7vilt")
 
 [node name="house8" parent="village/Houses" instance=ExtResource("48_ec7gk")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 15.993813, 2.5098186, 10.277359)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 15.993813, 2.5098186, 10.277359)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house8"]
 
@@ -1676,7 +1641,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5776367e-05, 1.5106434, -0.
 shape = SubResource("BoxShape3D_7vilt")
 
 [node name="house9" parent="village/Houses" instance=ExtResource("48_ec7gk")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 10.052734, 2.4, 31.45456)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 10.053, 1.5, 31.455)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house9"]
 
@@ -1685,7 +1650,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5776367e-05, 1.5106434, -0.
 shape = SubResource("BoxShape3D_7vilt")
 
 [node name="house2" parent="village/Houses" instance=ExtResource("49_35fml")]
-transform = Transform3D(0.7, 0, 0, 0, 0.70000005, 0, 0, 0, 0.7, 19.115158, 0.5035331, 17.892662)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 19.115158, 0.5035331, 17.892662)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house2"]
 
@@ -1694,7 +1659,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5106435, -0.0074157715)
 shape = SubResource("BoxShape3D_7vilt")
 
 [node name="house10" parent="village/Houses" instance=ExtResource("48_ec7gk")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -5.4670944, 2.4, 33.844673)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -5.4670944, 2.4, 33.844673)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house10"]
 
@@ -1703,7 +1668,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5776367e-05, 1.5106434, -0.
 shape = SubResource("BoxShape3D_7vilt")
 
 [node name="house2-big2" parent="village/Houses" instance=ExtResource("40_1lqxh")]
-transform = Transform3D(0.6999999, 0, 0, 0, 0.70000005, 0, 0, 0, 0.6999999, -11.766907, 0.50116634, 19.928833)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -11.766907, 0.50116634, 19.928833)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house2-big2"]
 
@@ -1716,7 +1681,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4730072, 1.2894073, -1.471
 shape = SubResource("BoxShape3D_am7hm")
 
 [node name="house11" parent="village/Houses" instance=ExtResource("48_ec7gk")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -9.783707, 2.4, 38.880272)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -9.783707, 2.4, 38.880272)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="village/Houses/house11"]
 
@@ -1836,7 +1801,7 @@ shape = SubResource("BoxShape3D_d0xdr")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16.709)
 
 [node name="man3" parent="village/NPCs" instance=ExtResource("55_pnbeo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.69999695, 0.8978052, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8539581, 0.8978052, 4.9274597)
 sprite_texture = ExtResource("54_pnbeo")
 sprite_hframes = 9
 sprite_vframes = 11
@@ -1872,7 +1837,7 @@ move_speed = 1.0
 interaction_radius = 0.0
 
 [node name="man5" parent="village/NPCs" instance=ExtResource("55_pnbeo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4702377, 0.5461718, 10.904793)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.61670685, 0.5461718, 10.904793)
 sprite_texture = ExtResource("54_pnbeo")
 sprite_hframes = 9
 sprite_vframes = 11
@@ -1881,7 +1846,7 @@ move_speed = 1.0
 interaction_radius = 0.0
 
 [node name="woman5" parent="village/NPCs" instance=ExtResource("55_pnbeo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.0798798, 0.5461718, 5.5772247)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.875473, 0.5461718, 7.877083)
 sprite_texture = ExtResource("53_7grw0")
 sprite_hframes = 9
 sprite_vframes = 11
@@ -1982,7 +1947,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7932205, 0, -1.4478226)
 shape = SubResource("CylinderShape3D_am7hm")
 
 [node name="Lyscenne" parent="village/Important NPCs" node_paths=PackedStringArray("patrol_points") instance=ExtResource("55_pnbeo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.042099, 2.9567451, 35.590874)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.505386, 2.9567451, 11.570511)
 npc_name = "Lyscenne"
 npc_id = "npc_011"
 sprite_texture = ExtResource("47_7vilt")
@@ -2014,9 +1979,6 @@ shape = SubResource("CylinderShape3D_am7hm")
 [node name="SmallChest" parent="village/Important NPCs" instance=ExtResource("50_g11e2")]
 transform = Transform3D(0.00916566, 0, -0.39989498, 0, 0.4, 0, 0.39989498, 0, 0.00916566, 33.543953, 0.41502404, 36.55729)
 loot_entries = Array[ExtResource("50_8aiiw")]([SubResource("Resource_hixtp")])
-
-[node name="GrassChunk" parent="village" instance=ExtResource("49_y4vt1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.315712, 0.4104377, 13.783829)
 
 [node name="Stalls" type="Node3D" parent="village"]
 
@@ -2314,7 +2276,39 @@ shape = SubResource("BoxShape3D_wy0lu")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.453308, 2.378754, 34.0476)
 
 [node name="stone4" parent="village" instance=ExtResource("59_8ba6h")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3113327, 0.44385338, 11.965279)
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -0.9277115, 0.44385338, 15.057732)
+
+[node name="BillboardGrass4" type="Node3D" parent="village"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.089, 2.5, 10.132)
+script = ExtResource("73_6n42i")
+grass_texture = ExtResource("74_hat0t")
+density = 200.0
+grass_scale = Vector2(0.02, 0.1)
+shape_points = PackedVector2Array(-6.4040833, -4.03701, -3.1161346, -4.9665985, 0.8232956, -5.3657913, 4.326866, -4.3549423, 5.5652237, -1.5227814, 5.8137054, 1.2970963, 4.71476, 3.6681442, 1.3542175, 5.5586014, 2.1186066, 3.0511856, 0.84941864, 2.1450272, -1.0790405, 1.6668549, -2.1782532, 2.4354782, -1.9024582, 4.2125473, -2.5774002, 5.148117, -5.2339554, 2.6175537, -5.541008, 0.87361145, -6.987465, -1.0762634)
+wind_scale = 1.0
+wind_direction = Vector2(1, 1)
+noise_color_strength = 5.0
+noise_frequency = 0.1
+noise_seed = 2
+edge_falloff_distance = 0.385
+edge_min_height = 0.0
+edge_falloff_curve = 1.0
+
+[node name="BillboardGrass5" type="Node3D" parent="village"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.258, 0.5, 18.562)
+script = ExtResource("73_6n42i")
+grass_texture = ExtResource("74_hat0t")
+density = 200.0
+grass_scale = Vector2(0.02, 0.1)
+shape_points = PackedVector2Array(-6.4514084, -4.7895355, -3.1605606, -5.3064117, 1.1244125, -6.602371, 1.8968124, -6.970604, 4.5332413, -6.397438, 5.5652237, -1.5227814, 5.8137054, 1.2970963, 4.71476, 3.6681442, 1.3490906, 5.5295258, 0.49736023, 4.7823334, -0.3739853, 3.1361237, -1.5183411, 3.1462097, -1.9024582, 4.2125473, -2.5774002, 5.148117, -5.2339554, 2.6175537, -6.7940445, 0.3218689, -6.987465, -1.0762634)
+wind_scale = 1.0
+wind_direction = Vector2(1, 1)
+noise_color_strength = 5.0
+noise_frequency = 0.1
+noise_seed = 2
+edge_falloff_distance = 0.385
+edge_min_height = 0.0
+edge_falloff_curve = 1.0
 
 [node name="mountains" type="Node3D" parent="."]
 
@@ -2330,6 +2324,7 @@ tree_scene = ExtResource("8_1lqxh")
 tree_mesh = ExtResource("59_y4vt1")
 
 [node name="Fences" type="Node3D" parent="mountains"]
+visible = false
 
 [node name="fence1" parent="mountains/Fences" instance=ExtResource("46_vauke")]
 transform = Transform3D(0.98376, 0, 0.17948905, 0, 1, 0, -0.17948905, 0, 0.98376, -0.82362705, 12, 6.865021)
@@ -2492,6 +2487,25 @@ transform = Transform3D(0.9999888, 0, 0.004712347, 0, 1, 0, -0.004712347, 0, 0.9
 [node name="CollisionShape3D" type="CollisionShape3D" parent="mountains/Fences/fence18/Area3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38075256, 0.17469418, 0)
 shape = SubResource("BoxShape3D_oiboj")
+
+[node name="BillboardGrass4" type="Node3D" parent="mountains"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.442, 12, 12.598)
+script = ExtResource("73_6n42i")
+grass_texture = ExtResource("74_hat0t")
+density = 200.0
+grass_scale = Vector2(0.02, 0.15)
+shape_points = PackedVector2Array(-26.88274, -4.391964, -20.584259, -5.2736893, -10.37058, -6.267017, -1.4735928, -7.599934, 19.013344, -8.757116, 25.579369, -9.262411, 33.844437, -8.925833, 39.31782, -7.94195, 40.97241, -6.366291, 41.490776, -4.385515, 41.45249, -2.135869, 40.065887, -0.5015526, 39.516277, 2.396803, 35.90314, 5.4715137, 32.746967, 7.2585144, 29.793762, 7.9102345, 27.195938, 8.174923, 24.283028, 12.405287, 20.219048, 14.776556, 16.572151, 15.481735, 9.673382, 15.887789, 3.8507338, 16.446537, -2.6663923, 15.987856, -13.091675, 13.554558, -12.337239, 8.991196, -17.078644, 9.288836, -18.401512, 12.411314, -23.147892, 11.361082, -26.804998, 9.875492, -30.139357, 7.735918, -31.814121, 6.3173428, -32.530685, 3.5248375, -32.14025, 0.74086, -30.926926, -2.1458797, -29.376263, -3.5197878)
+wind_strength = 0.4
+wind_speed = 1.8
+wind_scale = 1.0
+wind_direction = Vector2(1.5, 1)
+noise_color_strength = 5.0
+noise_frequency = 0.1
+noise_color_warm = Color(0.7013743, 0.996365, 0.9695266, 1)
+noise_seed = 2
+edge_falloff_distance = 0.385
+edge_min_height = 0.0
+edge_falloff_curve = 1.0
 
 [node name="MusicZones" type="Node3D" parent="."]
 
@@ -2739,6 +2753,10 @@ metadata/is_fence = true
 transform = Transform3D(-0.2900577, 0, 0.95700914, 0, 1, 0, -0.95700914, 0, -0.2900577, -108.58879, 0, 78.30902)
 metadata/is_fence = true
 
+[node name="_Node3D_128503" parent="FenceManager/Node3D2" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.2900577, 0, 0.95700914, 0, 1, 0, -0.95700914, 0, -0.2900577, -109.40106, 0, 78.57828)
+metadata/is_fence = true
+
 [node name="_Node3D_128504" parent="FenceManager/Node3D2" instance=ExtResource("62_5busl")]
 transform = Transform3D(-0.1355309, 0, 0.99077314, 0, 1, 0, -0.99077314, 0, -0.1355309, -107.92413, 0, 78.09613)
 
@@ -2856,6 +2874,10 @@ transform = Transform3D(0.18582886, 0, 0.98258215, 0, 1, 0, -0.98258215, 0, 0.18
 
 [node name="@Node3D@133178" parent="FenceManager/Node3D2" instance=ExtResource("64_5arp0")]
 transform = Transform3D(0.27155548, 0, 0.9624228, 0, 1, 0, -0.9624228, 0, 0.27155548, -110.23867, 2.0000076, 99.65304)
+metadata/is_fence = true
+
+[node name="_Node3D_127671" parent="FenceManager/Node3D2" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.037238732, 0, -0.9993064, 0, 1, 0, 0.9993064, 0, -0.037238732, -113.11017, 0, 78.83301)
 metadata/is_fence = true
 
 [node name="fence1" parent="FenceManager" instance=ExtResource("62_5busl")]
@@ -3649,6 +3671,482 @@ metadata/is_fence = true
 transform = Transform3D(0.34011218, 0, 0.94038486, 0, 1, 0, -0.94038486, 0, 0.34011218, 48.09526, 4.0000076, 171.48308)
 metadata/is_fence = true
 
+[node name="@Node3D@67293" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.088280246, 0, 0.99609566, 0, 1, 0, -0.99609566, 0, 0.088280246, -1.7523646, 12.000007, 7.0574064)
+metadata/is_fence = true
+
+[node name="@Node3D@67294" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.22338787, 0, 0.97472966, 0, 1, 0, -0.97472966, 0, -0.22338787, -1.1552941, 12.000007, 6.9981894)
+metadata/is_fence = true
+
+[node name="@Node3D@67295" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.24680114, 0, 0.96906614, 0, 1, 0, -0.96906614, 0, -0.24680114, -0.5582235, 11.999994, 6.938972)
+metadata/is_fence = true
+
+[node name="@Node3D@67296" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.031652365, 0, 0.99949896, 0, 1, 0, -0.99949896, 0, 0.031652365, 0.038847208, 11.999994, 6.879755)
+metadata/is_fence = true
+
+[node name="@Node3D@67297" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.06824652, 0, 0.9976685, 0, 1, 0, -0.9976685, 0, 0.06824652, 0.63591766, 12.000002, 6.8205376)
+metadata/is_fence = true
+
+[node name="@Node3D@67298" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.10424243, 0, 0.9945519, 0, 1, 0, -0.9945519, 0, -0.10424243, 1.6310353, 11.999992, 6.7218423)
+metadata/is_fence = true
+
+[node name="@Node3D@67299" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.08669169, 0, 0.9962352, 0, 1, 0, -0.9962352, 0, 0.08669169, 2.4271297, 12, 6.6428857)
+metadata/is_fence = true
+
+[node name="@Node3D@67300" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.22051102, 0, 0.9753845, 0, 1, 0, -0.9753845, 0, -0.22051102, 3.0242, 12.000002, 6.5836687)
+metadata/is_fence = true
+
+[node name="@Node3D@67301" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.21811324, 0, 0.9759235, 0, 1, 0, -0.9759235, 0, -0.21811324, 3.6212707, 12.000002, 6.5244513)
+metadata/is_fence = true
+
+[node name="@Node3D@67302" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.036400665, 0, 0.99933726, 0, 1, 0, -0.99933726, 0, -0.036400665, 4.4173646, 11.999943, 6.445495)
+metadata/is_fence = true
+
+[node name="@Node3D@67303" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.2648341, 0, 0.964294, 0, 1, 0, -0.964294, 0, -0.2648341, 5.213459, 11.9999485, 6.3665385)
+metadata/is_fence = true
+
+[node name="@Node3D@67304" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.09698519, 0, 0.9952858, 0, 1, 0, -0.9952858, 0, 0.09698519, 5.8105297, 11.999995, 6.3073215)
+metadata/is_fence = true
+
+[node name="@Node3D@67305" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.29937756, 0, 0.9541347, 0, 1, 0, -0.9541347, 0, -0.29937756, 6.407601, 12.000005, 6.248104)
+metadata/is_fence = true
+
+[node name="@Node3D@67306" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.14225347, 0, 0.98983026, 0, 1, 0, -0.98983026, 0, -0.14225347, 7.0046706, 12.000007, 6.188887)
+metadata/is_fence = true
+
+[node name="@Node3D@67307" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.11638637, 0, 0.993204, 0, 1, 0, -0.993204, 0, -0.11638637, 7.6017413, 12.000008, 6.1296697)
+metadata/is_fence = true
+
+[node name="@Node3D@67308" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.067994736, 0, 0.9976857, 0, 1, 0, -0.9976857, 0, 0.067994736, 8.397835, 12.000008, 6.0507135)
+metadata/is_fence = true
+
+[node name="@Node3D@67309" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.15313482, 0, 0.9882053, 0, 1, 0, -0.9882053, 0, -0.15313482, 8.994905, 12.000008, 5.991496)
+metadata/is_fence = true
+
+[node name="@Node3D@67310" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.09885182, 0, 0.99510217, 0, 1, 0, -0.99510217, 0, 0.09885182, 9.791, 12.000008, 5.91254)
+metadata/is_fence = true
+
+[node name="@Node3D@67311" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.11374306, 0, 0.9935102, 0, 1, 0, -0.9935102, 0, -0.11374306, 10.587093, 12.000008, 5.833584)
+metadata/is_fence = true
+
+[node name="@Node3D@67312" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.10838352, 0, 0.99410915, 0, 1, 0, -0.99410915, 0, -0.10838352, 11.383188, 12.000008, 5.754627)
+metadata/is_fence = true
+
+[node name="@Node3D@67313" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.0044426015, 0, 0.9999901, 0, 1, 0, -0.9999901, 0, -0.0044426015, 12.179283, 12.000008, 5.6756706)
+metadata/is_fence = true
+
+[node name="@Node3D@67314" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.050385546, 0, 0.9987298, 0, 1, 0, -0.9987298, 0, 0.050385546, 12.776354, 12.000008, 5.6164536)
+metadata/is_fence = true
+
+[node name="@Node3D@67315" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.25491956, 0, 0.9669623, 0, 1, 0, -0.9669623, 0, -0.25491956, 13.572447, 12.000008, 5.5374975)
+metadata/is_fence = true
+
+[node name="@Node3D@67316" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.23647311, 0, 0.971638, 0, 1, 0, -0.971638, 0, -0.23647311, 14.1695175, 12.000008, 5.47828)
+metadata/is_fence = true
+
+[node name="@Node3D@67317" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.19686343, 0, 0.9804309, 0, 1, 0, -0.9804309, 0, -0.19686343, 14.965612, 12.000007, 5.399324)
+metadata/is_fence = true
+
+[node name="@Node3D@67318" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.012492375, 0, 0.999922, 0, 1, 0, -0.999922, 0, -0.012492375, 15.562683, 12.000007, 5.3401065)
+metadata/is_fence = true
+
+[node name="@Node3D@67319" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.2764717, 0, 0.9610221, 0, 1, 0, -0.9610221, 0, -0.2764717, 16.5578, 12.000005, 5.241411)
+metadata/is_fence = true
+
+[node name="@Node3D@67320" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.27468005, 0, 0.9615357, 0, 1, 0, -0.9615357, 0, -0.27468005, 17.154871, 11.999992, 5.1821938)
+metadata/is_fence = true
+
+[node name="@Node3D@69216" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.25263444, 0, -0.9675618, 0, 1, 0, 0.9675618, 0, 0.25263444, -2.4968474, 12.000006, 7.128355)
+metadata/is_fence = true
+
+[node name="@Node3D@69217" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.21570835, 0, -0.97645783, 0, 1, 0, 0.97645783, 0, 0.21570835, -3.093801, 12.000007, 7.1887393)
+metadata/is_fence = true
+
+[node name="@Node3D@69218" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.15046923, 0, -0.9886147, 0, 1, 0, 0.9886147, 0, 0.15046923, -3.690755, 12.000008, 7.2491236)
+metadata/is_fence = true
+
+[node name="@Node3D@69219" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.097397126, 0, -0.9952456, 0, 1, 0, 0.9952456, 0, 0.097397126, -4.4866934, 12.000008, 7.3296356)
+metadata/is_fence = true
+
+[node name="@Node3D@69220" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.10736125, 0, -0.9942201, 0, 1, 0, 0.9942201, 0, 0.10736125, -5.2826314, 12.000006, 7.4101477)
+metadata/is_fence = true
+
+[node name="@Node3D@69221" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.13573468, 0, -0.99074525, 0, 1, 0, 0.99074525, 0, 0.13573468, -5.8795853, 12.000005, 7.470532)
+metadata/is_fence = true
+
+[node name="@Node3D@69222" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.06831895, 0, -0.99766356, 0, 1, 0, 0.99766356, 0, 0.06831895, -6.476539, 12.000007, 7.530916)
+metadata/is_fence = true
+
+[node name="@Node3D@69223" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.1014899, 0, -0.99483657, 0, 1, 0, 0.99483657, 0, -0.1014899, -7.272477, 12, 7.6114283)
+metadata/is_fence = true
+
+[node name="@Node3D@69224" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.003873263, 0, -0.9999925, 0, 1, 0, 0.9999925, 0, -0.003873263, -7.869431, 11.9999895, 7.6718125)
+metadata/is_fence = true
+
+[node name="@Node3D@71738" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.24983056, 0, -0.96828955, 0, 1, 0, 0.96828955, 0, 0.24983056, -6.9719267, 12.000007, 7.637371)
+metadata/is_fence = true
+
+[node name="@Node3D@71739" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.29642755, 0, -0.95505536, 0, 1, 0, 0.95505536, 0, 0.29642755, -7.74589, 12.000008, 7.8398075)
+metadata/is_fence = true
+
+[node name="@Node3D@71740" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.17100132, 0, -0.9852708, 0, 1, 0, 0.9852708, 0, 0.17100132, -8.326363, 12.000009, 7.9916344)
+metadata/is_fence = true
+
+[node name="@Node3D@71741" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.07541471, 0, -0.99715227, 0, 1, 0, 0.99715227, 0, 0.07541471, -8.906836, 12.000008, 8.143462)
+metadata/is_fence = true
+
+[node name="@Node3D@71742" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.08217661, 0, -0.9966178, 0, 1, 0, 0.9966178, 0, 0.08217661, -9.8742895, 12.000008, 8.396507)
+metadata/is_fence = true
+
+[node name="@Node3D@71743" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.40727377, 0, -0.9133061, 0, 1, 0, 0.9133061, 0, 0.40727377, -10.648253, 12.000008, 8.598944)
+metadata/is_fence = true
+
+[node name="@Node3D@71744" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.05650616, 0, -0.99840224, 0, 1, 0, 0.99840224, 0, 0.05650616, -11.228725, 12.000008, 8.7507715)
+metadata/is_fence = true
+
+[node name="@Node3D@71745" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.21641415, 0, -0.97630167, 0, 1, 0, 0.97630167, 0, 0.21641415, -12.19618, 12.000008, 9.003817)
+metadata/is_fence = true
+
+[node name="@Node3D@71746" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.07274748, 0, -0.9973504, 0, 1, 0, 0.9973504, 0, 0.07274748, -12.776653, 12.000008, 9.155644)
+metadata/is_fence = true
+
+[node name="@Node3D@71747" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.06597737, 0, -0.9978211, 0, 1, 0, 0.9978211, 0, 0.06597737, -13.357126, 12.000007, 9.307471)
+metadata/is_fence = true
+
+[node name="@Node3D@71748" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.2541564, 0, -0.96716315, 0, 1, 0, 0.96716315, 0, 0.2541564, -14.324579, 12.000009, 9.560517)
+metadata/is_fence = true
+
+[node name="@Node3D@71749" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.41089368, 0, -0.91168326, 0, 1, 0, 0.91168326, 0, 0.41089368, -15.098543, 12.000008, 9.762954)
+metadata/is_fence = true
+
+[node name="@Node3D@71750" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.3960597, 0, -0.91822475, 0, 1, 0, 0.91822475, 0, 0.3960597, -15.872507, 12.000008, 9.96539)
+metadata/is_fence = true
+
+[node name="@Node3D@71751" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.32034677, 0, -0.9473003, 0, 1, 0, 0.9473003, 0, 0.32034677, -16.45298, 12.000008, 10.117217)
+metadata/is_fence = true
+
+[node name="@Node3D@73021" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.13820854, 0, 0.9904032, 0, 1, 0, -0.9904032, 0, -0.13820854, 18.068998, 11.999957, 5.1211386)
+metadata/is_fence = true
+
+[node name="@Node3D@73022" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.04269129, 0, 0.9990883, 0, 1, 0, -0.9990883, 0, -0.04269129, 18.868298, 11.999898, 5.0876765)
+metadata/is_fence = true
+
+[node name="@Node3D@73023" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.0058369744, 0, 0.99998295, 0, 1, 0, -0.99998295, 0, -0.0058369744, 19.467772, 11.999885, 5.06258)
+metadata/is_fence = true
+
+[node name="@Node3D@73024" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.13679613, 0, 0.9905992, 0, 1, 0, -0.9905992, 0, 0.13679613, 20.267073, 11.999952, 5.029118)
+metadata/is_fence = true
+
+[node name="@Node3D@73025" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.10312948, 0, 0.99466795, 0, 1, 0, -0.99466795, 0, 0.10312948, 21.066372, 11.99999, 4.995656)
+metadata/is_fence = true
+
+[node name="@Node3D@73026" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.123393476, 0, 0.99235785, 0, 1, 0, -0.99235785, 0, -0.123393476, 21.865671, 12.000002, 4.962194)
+metadata/is_fence = true
+
+[node name="@Node3D@73027" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.04584739, 0, 0.99894845, 0, 1, 0, -0.99894845, 0, 0.04584739, 22.465147, 12.000008, 4.937097)
+metadata/is_fence = true
+
+[node name="@Node3D@73028" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.078035615, 0, 0.99695057, 0, 1, 0, -0.99695057, 0, -0.078035615, 23.064621, 12.000008, 4.9120007)
+metadata/is_fence = true
+
+[node name="@Node3D@73029" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.10294411, 0, 0.99468714, 0, 1, 0, -0.99468714, 0, -0.10294411, 23.863922, 12.000008, 4.8785386)
+metadata/is_fence = true
+
+[node name="@Node3D@73030" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.17396444, 0, 0.98475194, 0, 1, 0, -0.98475194, 0, -0.17396444, 24.463396, 12.000008, 4.853442)
+metadata/is_fence = true
+
+[node name="@Node3D@73031" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.13497286, 0, 0.9908493, 0, 1, 0, -0.9908493, 0, 0.13497286, 25.262695, 12.000009, 4.81998)
+metadata/is_fence = true
+
+[node name="@Node3D@73032" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.07938922, 0, 0.9968437, 0, 1, 0, -0.9968437, 0, 0.07938922, 25.862171, 12.000008, 4.7948837)
+metadata/is_fence = true
+
+[node name="@Node3D@73033" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.04097594, 0, 0.9991601, 0, 1, 0, -0.9991601, 0, -0.04097594, 26.461647, 12.000008, 4.7697873)
+metadata/is_fence = true
+
+[node name="@Node3D@73034" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.04835146, 0, 0.9988304, 0, 1, 0, -0.9988304, 0, 0.04835146, 27.260944, 12.000009, 4.7363253)
+metadata/is_fence = true
+
+[node name="@Node3D@73035" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.1538826, 0, 0.98808914, 0, 1, 0, -0.98808914, 0, -0.1538826, 27.86042, 12.000008, 4.711229)
+metadata/is_fence = true
+
+[node name="@Node3D@73036" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.1557567, 0, 0.9877955, 0, 1, 0, -0.9877955, 0, -0.1557567, 28.459896, 12.000008, 4.686132)
+metadata/is_fence = true
+
+[node name="@Node3D@73037" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.15467247, 0, 0.9879658, 0, 1, 0, -0.9879658, 0, 0.15467247, 29.05937, 12.000008, 4.6610355)
+metadata/is_fence = true
+
+[node name="@Node3D@73038" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.08766359, 0, 0.99615014, 0, 1, 0, -0.99615014, 0, 0.08766359, 29.85867, 12.000008, 4.6275735)
+metadata/is_fence = true
+
+[node name="@Node3D@73039" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.09833801, 0, 0.99515307, 0, 1, 0, -0.99515307, 0, -0.09833801, 30.458145, 12.000008, 4.602477)
+metadata/is_fence = true
+
+[node name="@Node3D@73040" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.21943872, 0, 0.9756263, 0, 1, 0, -0.9756263, 0, -0.21943872, 31.257446, 12.000008, 4.569015)
+metadata/is_fence = true
+
+[node name="@Node3D@73041" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.24391063, 0, 0.96979773, 0, 1, 0, -0.96979773, 0, -0.24391063, 32.25657, 12.000008, 4.5271873)
+metadata/is_fence = true
+
+[node name="@Node3D@73042" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.045032807, 0, 0.9989855, 0, 1, 0, -0.9989855, 0, -0.045032807, 32.856045, 12.000009, 4.502091)
+metadata/is_fence = true
+
+[node name="@Node3D@73043" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.116447344, 0, 0.99319685, 0, 1, 0, -0.99319685, 0, -0.116447344, 33.45552, 12.000009, 4.4769945)
+metadata/is_fence = true
+
+[node name="@Node3D@73044" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.09972712, 0, 0.99501485, 0, 1, 0, -0.99501485, 0, 0.09972712, 34.054993, 12.000008, 4.451898)
+metadata/is_fence = true
+
+[node name="@Node3D@83375" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.3823296, 0, -0.924026, 0, 1, 0, 0.924026, 0, -0.3823296, -88.0336, 1.9971489, 73.42895)
+metadata/is_fence = true
+
+[node name="@Node3D@83376" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.20801516, 0, -0.9781256, 0, 1, 0, 0.9781256, 0, -0.20801516, -88.794525, 1.9999198, 73.18199)
+metadata/is_fence = true
+
+[node name="@Node3D@83377" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.41112447, 0, -0.9115792, 0, 1, 0, 0.9115792, 0, -0.41112447, -89.36523, 1.9999899, 72.99677)
+metadata/is_fence = true
+
+[node name="@Node3D@83378" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.42907178, 0, -0.90327036, 0, 1, 0, 0.90327036, 0, -0.42907178, -90.31638, 1.9999081, 72.68807)
+metadata/is_fence = true
+
+[node name="@Node3D@83379" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.39975315, 0, -0.9166228, 0, 1, 0, 0.9166228, 0, -0.39975315, -90.88708, 1.9998668, 72.50285)
+metadata/is_fence = true
+
+[node name="@Node3D@83380" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.16809757, 0, -0.98577034, 0, 1, 0, 0.98577034, 0, -0.16809757, -91.45777, 1.9981958, 72.31763)
+metadata/is_fence = true
+
+[node name="@Node3D@83875" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.17107719, 0, -0.9852576, 0, 1, 0, 0.9852576, 0, 0.17107719, -91.76834, 1.9993732, 72.42035)
+metadata/is_fence = true
+
+[node name="@Node3D@83876" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.010543791, 0, -0.9999444, 0, 1, 0, 0.9999444, 0, -0.010543791, -92.56645, 1.9999086, 72.47526)
+metadata/is_fence = true
+
+[node name="@Node3D@83877" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.13503617, 0, -0.9908407, 0, 1, 0, 0.9908407, 0, 0.13503617, -93.36457, 1.9999851, 72.53017)
+metadata/is_fence = true
+
+[node name="@Node3D@83878" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.13273759, 0, -0.9911512, 0, 1, 0, 0.9911512, 0, 0.13273759, -94.16268, 1.9999604, 72.585075)
+metadata/is_fence = true
+
+[node name="@Node3D@83879" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.2564505, 0, -0.9665574, 0, 1, 0, 0.9665574, 0, 0.2564505, -94.76127, 1.9998124, 72.62626)
+metadata/is_fence = true
+
+[node name="@Node3D@83880" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.01567149, 0, -0.9998772, 0, 1, 0, 0.9998772, 0, -0.01567149, -95.55938, 1.9994873, 72.68117)
+metadata/is_fence = true
+
+[node name="@Node3D@83881" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.033535555, 0, -0.9994375, 0, 1, 0, 0.9994375, 0, -0.033535555, -96.35749, 1.9980981, 72.73608)
+metadata/is_fence = true
+
+[node name="@Node3D@84134" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.41047955, 0, -0.9118698, 0, 1, 0, 0.9118698, 0, 0.41047955, -96.9299, 1.9985005, 72.97927)
+metadata/is_fence = true
+
+[node name="@Node3D@84135" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.5525207, 0, -0.8334992, 0, 1, 0, 0.8334992, 0, 0.5525207, -97.47465, 1.9992727, 73.23077)
+metadata/is_fence = true
+
+[node name="@Node3D@84136" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.27953947, 0, -0.9601342, 0, 1, 0, 0.9601342, 0, 0.27953947, -98.019394, 1.9993823, 73.482254)
+metadata/is_fence = true
+
+[node name="@Node3D@84137" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.40762106, 0, -0.9131512, 0, 1, 0, 0.9131512, 0, 0.40762106, -98.56415, 1.9981089, 73.73375)
+metadata/is_fence = true
+
+[node name="@Node3D@84335" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.9725167, 0, -0.23283312, 0, 1, 0, 0.23283312, 0, 0.9725167, -98.8893, 1.9991477, 74.35452)
+metadata/is_fence = true
+
+[node name="@Node3D@84336" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.9947882, 0, -0.1019625, 0, 1, 0, 0.1019625, 0, 0.9947882, -99.05179, 1.9993513, 74.9321)
+metadata/is_fence = true
+
+[node name="@Node3D@84337" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.984586, 0, -0.1749011, 0, 1, 0, 0.1749011, 0, 0.984586, -99.21428, 1.9991779, 75.50968)
+metadata/is_fence = true
+
+[node name="@Node3D@84338" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.9968633, 0, -0.079142235, 0, 1, 0, 0.079142235, 0, 0.9968633, -99.37677, 1.9938931, 76.08726)
+metadata/is_fence = true
+
+[node name="@Node3D@84569" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.5822604, 0, 0.8130024, 0, 1, 0, -0.8130024, 0, 0.5822604, -99.10721, 1.9902061, 77.11913)
+metadata/is_fence = true
+
+[node name="@Node3D@84570" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.5064973, 0, 0.8622415, 0, 1, 0, -0.8622415, 0, 0.5064973, -98.626656, 1.9969654, 77.47839)
+metadata/is_fence = true
+
+[node name="@Node3D@84571" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.62514764, 0, 0.78050655, 0, 1, 0, -0.78050655, 0, 0.62514764, -98.1461, 1.9993473, 77.837654)
+metadata/is_fence = true
+
+[node name="@Node3D@84919" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(0.98757046, 0, 0.1571768, 0, 1, 0, -0.1571768, 0, 0.98757046, -97.76698, 1.9999931, 79.362015)
+metadata/is_fence = true
+
+[node name="@Node3D@84920" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.99441683, 0, 0.10552349, 0, 1, 0, -0.10552349, 0, 0.99441683, -97.79258, 2.0000072, 79.961464)
+metadata/is_fence = true
+
+[node name="@Node3D@85239" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.65891397, 0, 0.7522183, 0, 1, 0, -0.7522183, 0, 0.65891397, -97.24666, 2.0000074, 80.29491)
+metadata/is_fence = true
+
+[node name="@Node3D@85240" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.6185842, 0, 0.7857185, 0, 1, 0, -0.7857185, 0, 0.6185842, -96.53736, 2.0000074, 80.99982)
+metadata/is_fence = true
+
+[node name="@Node3D@85241" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.6541359, 0, 0.75637704, 0, 1, 0, -0.75637704, 0, 0.6541359, -96.111786, 2.0000072, 81.42277)
+metadata/is_fence = true
+
+[node name="@Node3D@85242" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.6493913, 0, 0.7604544, 0, 1, 0, -0.7604544, 0, 0.6493913, -95.54435, 2.0000074, 81.986694)
+metadata/is_fence = true
+
+[node name="@Node3D@85243" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.6182508, 0, 0.7859809, 0, 1, 0, -0.7859809, 0, 0.6182508, -95.118774, 2.0000062, 82.409645)
+metadata/is_fence = true
+
+[node name="@Node3D@85614" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.7068586, 0, -0.7073549, 0, 1, 0, 0.7073549, 0, 0.7068586, -87.45259, 2.0000072, 80.11849)
+metadata/is_fence = true
+
+[node name="@Node3D@85615" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.5398481, 0, -0.8417624, 0, 1, 0, 0.8417624, 0, 0.5398481, -88.098114, 2.0000074, 80.59105)
+metadata/is_fence = true
+
+[node name="@Node3D@85616" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.47074598, 0, -0.8822688, 0, 1, 0, 0.8822688, 0, 0.47074598, -88.74363, 2.0000074, 81.06361)
+metadata/is_fence = true
+
+[node name="@Node3D@85617" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.5591435, 0, -0.8290709, 0, 1, 0, 0.8290709, 0, 0.5591435, -89.389145, 2.0000076, 81.536156)
+metadata/is_fence = true
+
+[node name="@Node3D@85618" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(0.51419777, 0, -0.8576716, 0, 1, 0, 0.8576716, 0, 0.51419777, -90.03466, 2.000004, 82.00871)
+metadata/is_fence = true
+
+[node name="@Node3D@90884" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.22396497, 0, 0.9745972, 0, 1, 0, -0.9745972, 0, -0.22396497, -106.37593, 0, 77.66858)
+metadata/is_fence = true
+
+[node name="@Node3D@90885" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.20128274, 0, 0.9795332, 0, 1, 0, -0.9795332, 0, -0.20128274, -105.78246, 0, 77.58026)
+metadata/is_fence = true
+
+[node name="@Node3D@90886" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.062166438, 0, 0.99806577, 0, 1, 0, -0.99806577, 0, -0.062166438, -105.189, 0, 77.49194)
+metadata/is_fence = true
+
+[node name="@Node3D@90887" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.22948042, 0, 0.9733133, 0, 1, 0, -0.9733133, 0, -0.22948042, -104.595535, 0, 77.40363)
+metadata/is_fence = true
+
+[node name="@Node3D@90888" parent="FenceManager" instance=ExtResource("63_5el1k")]
+transform = Transform3D(-0.23996149, 0, 0.9707824, 0, 1, 0, -0.9707824, 0, -0.23996149, -103.804245, 0, 77.28587)
+metadata/is_fence = true
+
+[node name="@Node3D@90889" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(-0.094311096, 0, 0.99554276, 0, 1, 0, -0.99554276, 0, -0.094311096, -103.210785, 0, 77.197556)
+metadata/is_fence = true
+
+[node name="@Node3D@90890" parent="FenceManager" instance=ExtResource("62_5busl")]
+transform = Transform3D(-0.10102311, 0, 0.9948841, 0, 1, 0, -0.9948841, 0, -0.10102311, -102.22168, 0, 77.05036)
+metadata/is_fence = true
+
+[node name="@Node3D@90891" parent="FenceManager" instance=ExtResource("64_5arp0")]
+transform = Transform3D(0.06003649, 0, 0.9981962, 0, 1, 0, -0.9981962, 0, 0.06003649, -101.62821, 0, 76.96205)
+metadata/is_fence = true
+
 [node name="TerrainMapExporter" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("65_5el1k")
 terrain = NodePath("../Terrain3D")
@@ -3809,44 +4307,26 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="Goblin" parent="Hills/Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6111755, 1.2537552, -1.3945923)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin2" parent="Hills/Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2271118, 1.2537552, -2.6549835)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin3" parent="Hills/Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9176178, 1.2537552, -2.2600555)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6111755, 1.2537552, -6.238388)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin2" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.033485, 1.2537552, -5.6324463)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin3" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9176178, 1.2537552, -2.2600555)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="EnemyGroup4" type="Node3D" parent="Hills/Enemies"]
@@ -3860,51 +4340,30 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="Goblin" parent="Hills/Enemies/EnemyGroup4" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6111755, 1.2537552, -1.3945923)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin2" parent="Hills/Enemies/EnemyGroup4" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2271118, 1.2537552, -2.6549835)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin4" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2029457, 1.2537552, -4.0099335)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin5" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.491608, 1.2537552, -6.238388)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin6" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.590462, 1.2537552, -6.5334244)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin7" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.765396, 1.2537552, -2.260292)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin8" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.468136, 1.2537552, 8.183205)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="EnemyGroup5" type="Node3D" parent="Hills/Enemies"]
@@ -3918,51 +4377,30 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="Goblin" parent="Hills/Enemies/EnemyGroup5" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6111755, 1.2537552, -1.3945923)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin2" parent="Hills/Enemies/EnemyGroup5" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7726593, 1.2537552, -2.6549835)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin9" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2029457, 1.2537552, 22.675148)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin10" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.491608, 1.2537552, 20.446693)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin11" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.709118, 1.2537552, 21.05262)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin12" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.765396, 1.2537552, 25.553413)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin13" parent="Hills/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.087753, 1.2537552, 30.801903)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="EnemyGroup6" type="Node3D" parent="Hills/Enemies"]
@@ -3976,23 +4414,14 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="Goblin" parent="Hills/Enemies/EnemyGroup6" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6111755, 1.2537552, -1.3945923)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin2" parent="Hills/Enemies/EnemyGroup6" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2271118, 1.2537552, -2.6549835)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin3" parent="Hills/Enemies/EnemyGroup6" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9176178, 1.2537552, -2.2600555)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Water" type="MeshInstance3D" parent="Hills"]
@@ -4159,7 +4588,7 @@ edge_min_height = 0.5
 edge_falloff_curve = 1.0
 
 [node name="appletree1" parent="Hills" instance=ExtResource("82_0dyva")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -38.436028, 0.01879406, -44.379036)
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -44.97489, 0.01879406, -55.75817)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Hills/appletree1"]
 
@@ -4359,16 +4788,10 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="Goblin" parent="Forest/Enemies/EnemyGroup5" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6111755, 1.2537552, -1.3945923)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="Goblin2" parent="Forest/Enemies/EnemyGroup5" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2271118, 1.2537552, -2.6549835)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 4.0
 
 [node name="ForestOrb3" parent="Forest/Enemies" instance=ExtResource("75_hat0t")]
@@ -4387,30 +4810,18 @@ segment_spacing = 0.6
 
 [node name="Goblin" parent="Forest/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.996254, -1.3873752, 35.30356)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 2.0
 
 [node name="Goblin2" parent="Forest/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.996254, -3.2464457, 39.83052)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 2.0
 
 [node name="Goblin3" parent="Forest/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.91819, -3.1593094, 39.294174)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 2.0
 
 [node name="Goblin4" parent="Forest/Enemies" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45.84565, -5.1885614, 44.482742)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 detection_range = 2.0
 
 [node name="EnemyGroup3" type="Node3D" parent="Forest/Enemies"]
@@ -4419,21 +4830,12 @@ script = ExtResource("31_d0xdr")
 
 [node name="Goblin" parent="Forest/Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.27941906, -0.009475708)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="Forest/Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.27941906, 0.59646606)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin3" parent="Forest/Enemies/EnemyGroup3" instance=ExtResource("32_5busl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71196556, 0.27941906, 0.5413971)
-CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="Forest/Enemies/EnemyGroup3"]
 
@@ -4466,7 +4868,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8345623, -1.8926306, 0)
 transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 54.126644, 10.181993, 6.1168823)
 script = ExtResource("85_0dyva")
 beam_height = 9.01
-beam_width = 3.035
+beam_width = 4.16
 intensity = 0.081
 edge_softness = 0.276
 bottom_fade = 0.376
@@ -4475,16 +4877,52 @@ bottom_fade = 0.376
 transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 58.742954, 8.466031, 8.312927)
 script = ExtResource("85_0dyva")
 beam_height = 9.01
-beam_width = 3.035
+beam_width = 3.645
 intensity = 0.081
 edge_softness = 0.276
 bottom_fade = 0.376
 
 [node name="Node3D3" type="Node3D" parent="Forest/GodRays"]
-transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 48.96179, 8.466031, 8.312927)
+transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 50.931374, 8.466031, 7.8433228)
 script = ExtResource("85_0dyva")
 beam_height = 9.01
-beam_width = 3.035
+beam_width = 1.515
+intensity = 0.081
+edge_softness = 0.276
+bottom_fade = 0.376
+
+[node name="Node3D4" type="Node3D" parent="Forest/GodRays"]
+transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 54.33449, 8.466031, 8.25708)
+script = ExtResource("85_0dyva")
+beam_height = 9.01
+beam_width = 1.9
+intensity = 0.081
+edge_softness = 0.276
+bottom_fade = 0.376
+
+[node name="Node3D5" type="Node3D" parent="Forest/GodRays"]
+transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 55.10058, 10.181993, 10.041992)
+script = ExtResource("85_0dyva")
+beam_height = 9.01
+beam_width = 6.76
+intensity = 0.081
+edge_softness = 0.276
+bottom_fade = 0.376
+
+[node name="Node3D6" type="Node3D" parent="Forest/GodRays"]
+transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 49.927204, 10.181993, 4.681671)
+script = ExtResource("85_0dyva")
+beam_height = 9.01
+beam_width = 4.16
+intensity = 0.081
+edge_softness = 0.276
+bottom_fade = 0.376
+
+[node name="Node3D7" type="Node3D" parent="Forest/GodRays"]
+transform = Transform3D(0.9363057, 0.2949309, 0.19065051, -0.3085544, 0.9501159, 0.045542434, -0.16770817, -0.10146771, 0.9806011, 50.90114, 10.181993, 8.606781)
+script = ExtResource("85_0dyva")
+beam_height = 9.01
+beam_width = 6.76
 intensity = 0.081
 edge_softness = 0.276
 bottom_fade = 0.376
@@ -4542,7 +4980,7 @@ fog_emission = Color(0.99531513, 0.9687709, 0.9460018, 1)
 fog_emission_energy = 0.1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="VistaZones/TownVista"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2441864, 0, 10.107117)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08854675, 0, 7.093155)
 shape = SubResource("BoxShape3D_2pq6c")
 
 [node name="cauldron" parent="." instance=ExtResource("89_wadgy")]

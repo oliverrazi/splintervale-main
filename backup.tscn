@@ -1,0 +1,83 @@
+[gd_scene load_steps=10 format=3 uid="uid://dl0k4ou4j638p"]
+
+[ext_resource type="Script" uid="uid://bgfqtt4sacb77" path="res://scripts/lighting/hd2d_player_light_rig.gd" id="1_brhy3"]
+[ext_resource type="Script" uid="uid://b5yq4u7heohqc" path="res://scripts/lighting/hd2d_world_environment.gd" id="2_0e4jh"]
+[ext_resource type="Script" uid="uid://dil7kum55r45e" path="res://scripts/lighting/hd2d_sun_light.gd" id="3_heigt"]
+[ext_resource type="Script" uid="uid://c4bh4lflbqsax" path="res://scripts/lighting/hd2d_post_process.gd" id="4_y6pfx"]
+[ext_resource type="CameraAttributesPractical" uid="uid://p16ene1hmixs" path="res://assets/camera_attributes/new_camera_attributes_practical.tres" id="5_0e4jh"]
+
+[sub_resource type="Shader" id="Shader_0e4jh"]
+code = "shader_type sky;
+
+uniform vec3 skyColor : source_color;
+uniform vec3 horizonColor : source_color;
+
+void sky() {
+	float col = clamp(EYEDIR.y / 0.05, 0.0, 1.0);
+	vec3 finalColor = mix(horizonColor, skyColor, col);
+	COLOR = finalColor;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_heigt"]
+shader = SubResource("Shader_0e4jh")
+shader_parameter/skyColor = Color(0.52907544, 0.8069028, 1, 1)
+shader_parameter/horizonColor = Color(0.28533614, 0.44589186, 0.6039341, 1)
+
+[sub_resource type="Sky" id="Sky_heigt"]
+sky_material = SubResource("ShaderMaterial_heigt")
+
+[sub_resource type="Environment" id="Environment_y6pfx"]
+background_mode = 2
+background_color = Color(0.06263664, 0.6265164, 0.46390855, 1)
+background_energy_multiplier = 0.46
+sky = SubResource("Sky_heigt")
+sky_custom_fov = 77.8
+ambient_light_source = 3
+ambient_light_color = Color(0.574992, 0.8786219, 0.94494164, 1)
+ambient_light_sky_contribution = 0.21
+reflected_light_source = 2
+tonemap_mode = 3
+sdfgi_enabled = true
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.7
+glow_bloom = 0.1
+glow_blend_mode = 0
+glow_hdr_threshold = 0.8
+fog_enabled = true
+fog_light_energy = 0.7
+fog_sky_affect = 0.153
+fog_height = -44.85
+volumetric_fog_density = 0.08
+volumetric_fog_albedo = Color(0.41960785, 0.49019608, 0.5411765, 1)
+volumetric_fog_emission = Color(0.20915431, 0.60057753, 0.4746408, 1)
+volumetric_fog_emission_energy = 0.0
+volumetric_fog_gi_inject = 0.0
+volumetric_fog_anisotropy = 0.5
+
+[node name="Node3D" type="Node3D"]
+
+[node name="PlayerLightRig" type="Node3D" parent="."]
+script = ExtResource("1_brhy3")
+
+[node name="25DWorldEnvironment" type="Node3D" parent="."]
+script = ExtResource("2_0e4jh")
+
+[node name="Sunlight" type="DirectionalLight3D" parent="."]
+script = ExtResource("3_heigt")
+sun_color_day = Color(0.8862487, 0.9437625, 0.98997205, 1)
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+layer = 100
+script = ExtResource("4_y6pfx")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_y6pfx")
+camera_attributes = ExtResource("5_0e4jh")
+
+[node name="PlayerLightRig2" type="Node3D" parent="."]
+script = ExtResource("1_brhy3")
+key_light_color = Color(0.939852, 0.9220927, 0.939863, 1)
+key_light_energy = 10.0
+key_light_shadow_enabled = false

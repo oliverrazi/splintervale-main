@@ -1,0 +1,167 @@
+[gd_scene load_steps=26 format=3 uid="uid://bcb37pdkba5jw"]
+
+[ext_resource type="Script" uid="uid://cogcyngbobesm" path="res://interior/cave_system/cave_system.gd" id="1_q2eaj"]
+[ext_resource type="Script" uid="uid://dbku3uanxl34n" path="res://interior/cave_system/cave_lighting_rig.gd" id="2_q2eaj"]
+[ext_resource type="Script" uid="uid://b1sxpf0p2hbrj" path="res://interior/cave_system/cave_room_builder.gd" id="4_1m0s6"]
+[ext_resource type="Texture2D" uid="uid://c31qfr01k1gkm" path="res://assets/base_tiles/cave_texture/cave_floor2.png" id="4_hht0y"]
+[ext_resource type="Texture2D" uid="uid://122p5magv5cu" path="res://assets/base_tiles/cave_texture/cave_floor.png" id="4_vuykk"]
+[ext_resource type="Script" uid="uid://5qgdw1dluqel" path="res://interior/cave_system/cave_rock_geometry.gd" id="5_barfw"]
+[ext_resource type="Texture2D" uid="uid://bypntmvtdn380" path="res://assets/base_tiles/cave_texture/cave_floor_specular(1).png" id="5_vuykk"]
+[ext_resource type="Script" uid="uid://bkklidrnpapki" path="res://interior/cave_system/cave_auto_rock_placer.gd" id="6_peupg"]
+[ext_resource type="Script" uid="uid://bk323q5bvj4ml" path="res://interior/cave_system/cave_corridor_builder.gd" id="6_v85dq"]
+[ext_resource type="ArrayMesh" uid="uid://djb7nall6as3x" path="res://assets/decoration/crystal.tres" id="6_vuykk"]
+[ext_resource type="Script" uid="uid://b61lhc3eunq14" path="res://interior/cave_system/components/cave_stream.gd" id="7_yqkqc"]
+[ext_resource type="Script" uid="uid://cqbnplt0du8la" path="res://interior/cave_system/components/cave_atmosphere.gd" id="8_74nu6"]
+[ext_resource type="Shader" uid="uid://cgmqb18te50vc" path="res://interior/cave_system/shaders/cave_rock.gdshader" id="8_jhalv"]
+[ext_resource type="Script" uid="uid://c5rle5q68ftpx" path="res://interior/cave_system/components/cave_lighting_manager.gd" id="9_jhalv"]
+[ext_resource type="Script" uid="uid://bytmf83dhyu3v" path="res://interior/cave_system/cave_foreground.gd" id="10_yevj7"]
+[ext_resource type="Shader" uid="uid://brvo4l5ljo0ju" path="res://scenes/Water.gdshader" id="11_yqkqc"]
+[ext_resource type="Script" uid="uid://bgfqtt4sacb77" path="res://scripts/lighting/hd2d_player_light_rig.gd" id="15_vuykk"]
+[ext_resource type="Script" uid="uid://dil7kum55r45e" path="res://scripts/lighting/hd2d_sun_light.gd" id="16_v85dq"]
+[ext_resource type="Script" uid="uid://c4bh4lflbqsax" path="res://scripts/lighting/hd2d_post_process.gd" id="17_qphhi"]
+[ext_resource type="Script" uid="uid://b5yq4u7heohqc" path="res://scripts/lighting/hd2d_world_environment.gd" id="18_2ppto"]
+[ext_resource type="Script" uid="uid://btm782cokean2" path="res://assets/vfx/environment/VistaZone/vista_zone.gd" id="20_qphhi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ppto"]
+albedo_texture = ExtResource("4_hht0y")
+albedo_texture_force_srgb = true
+normal_enabled = true
+normal_scale = 3.0
+normal_texture = ExtResource("5_vuykk")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qphhi"]
+albedo_texture = ExtResource("4_vuykk")
+normal_enabled = true
+normal_texture = ExtResource("5_vuykk")
+
+[sub_resource type="Curve3D" id="Curve3D_yevj7"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -1.0364075, 0, 1.0276245, 0, 0, 0, 0, 0, 0, -0.97315884, 0, 5.809161),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2ppto"]
+size = Vector3(16.654388, 0.7988281, 13.335567)
+
+[node name="Cave01" type="Node3D"]
+script = ExtResource("1_q2eaj")
+ambient_color = Color(0.4100556, 0.43788382, 0.4796307, 1)
+
+[node name="CaveLightingRig" type="Node3D" parent="."]
+script = ExtResource("2_q2eaj")
+fill_enabled = false
+follow_player = true
+
+[node name="CaveRooms" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0796425, 0)
+
+[node name="CaveRoomBuilder" type="Node3D" parent="CaveRooms"]
+script = ExtResource("4_1m0s6")
+room_polygon = PackedVector2Array(-4, -3, 4, -3, 5, -1, 4, 3, -4, 3, -5, -1)
+floor_material = SubResource("StandardMaterial3D_2ppto")
+floor_uv_scale = 4.0
+generate_navigation = true
+generate_edge_markers = true
+metadata/_custom_type_script = "uid://b1sxpf0p2hbrj"
+
+[node name="CaveCorridors" type="Node3D" parent="."]
+
+[node name="CorridorEntrance" type="Node3D" parent="CaveCorridors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5126988, 3.1021996)
+script = ExtResource("6_v85dq")
+width_variation = 0.259
+floor_material = SubResource("StandardMaterial3D_qphhi")
+generate_navigation = true
+metadata/_custom_type_script = "uid://bk323q5bvj4ml"
+
+[node name="Path3D" type="Path3D" parent="CaveCorridors/CorridorEntrance"]
+curve = SubResource("Curve3D_yevj7")
+
+[node name="CaveRockGeometry" type="Node3D" parent="."]
+script = ExtResource("5_barfw")
+rock_meshes = Array[Mesh]([ExtResource("6_vuykk")])
+rock_shader = ExtResource("8_jhalv")
+color_variation = 0.4
+
+[node name="CaveAutoRockPlacer" type="Node3D" parent="." node_paths=PackedStringArray("rock_geometry")]
+visible = false
+script = ExtResource("6_peupg")
+rock_geometry = NodePath("../CaveRockGeometry")
+rocks_per_meter = 0.5
+wall_depth = 0.5
+wall_height_range = Vector2(-0.3, 0.5)
+rock_scale_range = Vector2(0.2, 0.5)
+enable_ceiling_rocks = false
+
+[node name="CaveWater" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6.447572)
+
+[node name="Stream_01" type="Node3D" parent="CaveWater"]
+script = ExtResource("7_yqkqc")
+water_shader = ExtResource("11_yqkqc")
+
+[node name="CaveDecorations" type="Node3D" parent="."]
+
+[node name="CaveAtmosphere" type="Node3D" parent="."]
+script = ExtResource("8_74nu6")
+dust_enabled = false
+dust_amount = 1
+mist_enabled = false
+
+[node name="CaveLighting" type="Node3D" parent="."]
+script = ExtResource("9_jhalv")
+
+[node name="CaveForeground" type="Node3D" parent="."]
+script = ExtResource("10_yevj7")
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="entrance_main" type="Marker3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2247567, 0)
+
+[node name="CaveExits" type="Node3D" parent="."]
+
+[node name="Lighting" type="Node3D" parent="."]
+
+[node name="PlayerLightRig" type="Node3D" parent="Lighting"]
+script = ExtResource("15_vuykk")
+key_light_color = Color(0.939852, 0.9220927, 0.939863, 1)
+key_light_energy = 10.0
+key_light_shadow_enabled = false
+
+[node name="Sunlight" type="DirectionalLight3D" parent="Lighting"]
+script = ExtResource("16_v85dq")
+sun_color_day = Color(1, 1, 1, 1)
+sun_energy_day = 1.0
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="Lighting"]
+layer = 100
+script = ExtResource("17_qphhi")
+vignette_intensity = 0.8
+warmth = -0.02
+highlight_warmth = 0.4
+
+[node name="25DWorldEnvironment" type="Node3D" parent="Lighting"]
+script = ExtResource("18_2ppto")
+dof_focus_distance = 10.0
+dof_far_transition = 5.0
+dof_near_distance = 10.0
+dof_near_transition = 0.8
+
+[node name="VistaZones" type="Node3D" parent="."]
+
+[node name="CaveVista" type="Node3D" parent="VistaZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.498825, 5.458913, -4.352585)
+script = ExtResource("20_qphhi")
+fov = 50.0
+camera_distance = 6.0
+override_pitch = true
+fog_density = 0.05
+fog_color = Color(0.22229761, 0.4736799, 0.5221706, 1)
+fog_emission = Color(0.2931926, 0.6780159, 0.7606226, 1)
+fog_emission_energy = 0.1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VistaZones/CaveVista"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8244476, -1.0677061, 4.695818)
+shape = SubResource("BoxShape3D_2ppto")

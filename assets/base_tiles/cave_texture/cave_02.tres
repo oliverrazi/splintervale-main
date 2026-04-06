@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://c8dbg6876bi6q"]
+
+[ext_resource type="Texture2D" uid="uid://c31qfr01k1gkm" path="res://assets/base_tiles/cave_texture/cave_floor2.png" id="1_yeo3r"]
+[ext_resource type="Texture2D" uid="uid://dmcnpd3yxgpyk" path="res://assets/base_tiles/cave_texture/cave_floor2_normal.png" id="2_vu6ph"]
+
+[resource]
+albedo_texture = ExtResource("1_yeo3r")
+normal_enabled = true
+normal_scale = 4.11
+normal_texture = ExtResource("2_vu6ph")

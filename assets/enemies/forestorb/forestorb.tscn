@@ -1,0 +1,138 @@
+[gd_scene load_steps=18 format=3 uid="uid://charrldd6l4v"]
+
+[ext_resource type="Script" uid="uid://8fnmybk1chb0" path="res://assets/enemies/forestorb/forestorb.gd" id="1_fy4s6"]
+[ext_resource type="PackedScene" uid="uid://cntp80ppy8jmc" path="res://assets/enemies/assets/EnemyHPBar.tscn" id="4_3rqgm"]
+[ext_resource type="PackedScene" uid="uid://d1tptoi87nwir" path="res://assets/vfx/notifications/reward_popup.tscn" id="4_5wc2q"]
+[ext_resource type="PackedScene" uid="uid://3oh2e5elry5q" path="res://assets/enemies/assets/AlertPopup.tscn" id="4_ruuy8"]
+[ext_resource type="PackedScene" uid="uid://jrf05g6oulvw" path="res://assets/vfx/deaths/DeathVFX1.tscn" id="5_3rqgm"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="6_svpj1"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="8_lygsu"]
+[ext_resource type="Texture2D" uid="uid://bgb2u4a6nbiva" path="res://assets/enemies/forestorb/forestorb.png" id="8_svpj1"]
+[ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="9_lygsu"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_55a57"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lygsu"]
+render_priority = 0
+shader = ExtResource("6_svpj1")
+shader_parameter/sprite_texture = ExtResource("8_svpj1")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(0.1, 0.1)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.15
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_wglbc"]
+size = Vector2(1.28, 1.28)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_stram"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jny38"]
+
+[sub_resource type="Shader" id="Shader_11367"]
+code = "
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
+
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.05, 1.0);
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.35;
+uniform float softness : hint_range(0.0, 1.0) = 0.4;
+
+void fragment() {
+	vec2 uv = UV * 2.0 - 1.0;
+	float dist = length(uv);
+	float inner = 1.0 - softness;
+	float alpha = 1.0 - smoothstep(inner, 1.0, dist);
+	alpha *= alpha;
+
+	ALBEDO = shadow_color.rgb;
+	ALPHA = alpha * shadow_opacity;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wglbc"]
+render_priority = 0
+shader = SubResource("Shader_11367")
+shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
+shader_parameter/shadow_opacity = 0.6
+shader_parameter/softness = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_ahvi5"]
+size = Vector2(0.5, 0.3)
+orientation = 1
+
+[node name="ForestOrb" type="CharacterBody3D"]
+process_mode = 1
+collision_layer = 17
+collision_mask = 37
+script = ExtResource("1_fy4s6")
+damage = 20
+attack_cooldown = 3.0
+glow_color = Color(0.68634456, 0.99776834, 0.8434526, 1)
+glow_swoop_color = Color(0.5891047, 0.99329036, 0.91167706, 1)
+max_health = 60
+knockback_strength = 1.0
+exp_reward = 12
+gold_reward_min = 0
+gold_reward_max = 1
+reward_popup_scene = ExtResource("4_5wc2q")
+hp_bar_scene = ExtResource("4_3rqgm")
+alert_popup_scene = ExtResource("4_ruuy8")
+death_fps = 4.0
+death_vfx_scene = ExtResource("5_3rqgm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.06611407, 0)
+shape = SubResource("CapsuleShape3D_55a57")
+
+[node name="Sprite3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_lygsu")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_wglbc")
+script = ExtResource("8_lygsu")
+texture = ExtResource("8_svpj1")
+hframes = 10
+vframes = 10
+aa_sharpness = 1.7
+
+[node name="Sprite3D_old" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+visible = false
+billboard = 1
+alpha_cut = 3
+alpha_scissor_threshold = 1.0
+alpha_hash_scale = 0.0
+alpha_antialiasing_mode = 1
+alpha_antialiasing_edge = 0.3
+texture_filter = 1
+texture = ExtResource("8_svpj1")
+hframes = 10
+vframes = 10
+
+[node name="DetectionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14831954, 0)
+shape = SubResource("SphereShape3D_stram")
+
+[node name="AttackArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_jny38")
+
+[node name="BlobShadow" type="MeshInstance3D" parent="."]
+top_level = true
+material_override = SubResource("ShaderMaterial_wglbc")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ahvi5")
+script = ExtResource("9_lygsu")
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.1
+ground_offset = 0.02

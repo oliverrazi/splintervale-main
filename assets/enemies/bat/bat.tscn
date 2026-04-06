@@ -1,0 +1,113 @@
+[gd_scene load_steps=15 format=3 uid="uid://dslcaisc4uti1"]
+
+[ext_resource type="Script" uid="uid://cxfddas1df4k2" path="res://assets/enemies/bat/cave_bat.gd" id="1_0sa7p"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="1_gv0o2"]
+[ext_resource type="PackedScene" uid="uid://cntp80ppy8jmc" path="res://assets/enemies/assets/EnemyHPBar.tscn" id="2_kw36n"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="3_0sa7p"]
+[ext_resource type="Texture2D" uid="uid://c4jgxjsb875vp" path="res://assets/enemies/bat/bat1.png" id="3_kw36n"]
+[ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="4_kw36n"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_obrfh"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3gss7"]
+render_priority = 0
+shader = ExtResource("1_gv0o2")
+shader_parameter/sprite_texture = ExtResource("3_kw36n")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(0.1, 0.1)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.15
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_ahmp4"]
+size = Vector2(1.28, 1.28)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ahmp4"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uoyor"]
+radius = 0.2890625
+height = 0.7661133
+
+[sub_resource type="Shader" id="Shader_eohh7"]
+code = "
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
+
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.05, 1.0);
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.35;
+uniform float softness : hint_range(0.0, 1.0) = 0.4;
+
+void fragment() {
+	vec2 uv = UV * 2.0 - 1.0;
+	float dist = length(uv);
+	float inner = 1.0 - softness;
+	float alpha = 1.0 - smoothstep(inner, 1.0, dist);
+	alpha *= alpha;
+
+	ALBEDO = shadow_color.rgb;
+	ALPHA = alpha * shadow_opacity;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xamc0"]
+render_priority = 0
+shader = SubResource("Shader_eohh7")
+shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
+shader_parameter/shadow_opacity = 0.6
+shader_parameter/softness = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_5syy1"]
+size = Vector2(0.5, 0.3)
+orientation = 1
+
+[node name="Bat" type="CharacterBody3D"]
+collision_layer = 17
+collision_mask = 37
+script = ExtResource("1_0sa7p")
+FLY_HEIGHT = 0.4
+max_health = 20
+lose_interest_range = 7.0
+exp_reward = 10
+hp_bar_scene = ExtResource("2_kw36n")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.06611407, 0)
+shape = SubResource("CapsuleShape3D_obrfh")
+
+[node name="Sprite3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_3gss7")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ahmp4")
+script = ExtResource("3_0sa7p")
+texture = ExtResource("3_kw36n")
+hframes = 10
+vframes = 10
+aa_sharpness = 1.7
+
+[node name="DetectionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14831954, 0)
+shape = SubResource("SphereShape3D_ahmp4")
+
+[node name="AttackArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -0.0028076172, 0)
+shape = SubResource("CapsuleShape3D_uoyor")
+
+[node name="BlobShadow" type="MeshInstance3D" parent="."]
+top_level = true
+material_override = SubResource("ShaderMaterial_xamc0")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_5syy1")
+script = ExtResource("4_kw36n")
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.1
+ground_offset = 0.02

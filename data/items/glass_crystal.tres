@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://gx5b6poaiod4"]
+
+[ext_resource type="Texture2D" uid="uid://vg10jtje55so" path="res://assets/icons/crystal-icon.png" id="1_4wbv8"]
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_5po14"]
+
+[resource]
+script = ExtResource("1_5po14")
+item_id = "glass_crystal"
+item_name = "Glass Crystal"
+description = "This is a glass crystal. Collect four of them and bring them to the glass smith to gather a new bottle."
+icon = ExtResource("1_4wbv8")
+item_type = 3
+pickup_text = "You found a glass crystal. Collect four of them and bring them to the glass smith to gather a new bottle."
+usable = false
+consumable = false
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"

@@ -50,6 +50,12 @@ class_name Enemy
 @export var alert_duration: float = 0.8
 @export var alert_sound: AudioStream
 
+# === CONFUSION ===
+@export_group("Confusion")
+@export var can_be_confused: bool = true
+@export var confusion_popup_scene: PackedScene
+@export var confusion_popup_offset: Vector3 = Vector3(0, 0.4, 0)
+
 # === DEATH ===
 @export_group("Death")
 @export var death_frames: Array[int] = []
@@ -81,6 +87,11 @@ var _is_frozen: bool = false
 var _is_dead: bool = false
 var _is_invincible: bool = false
 var _invincibility_timer: float = 0.0
+
+# === CONFUSION STATE ===
+var _is_confused: bool = false
+var _confusion_timer: float = 0.0
+var _confusion_popup: Node3D = null
 
 # Knockback
 var _knockback_velocity: Vector3 = Vector3.ZERO
@@ -125,6 +136,12 @@ func _on_death() -> void:
 func _on_death_finished() -> void:
 	pass
 
+func _on_confusion_started() -> void:
+	pass
+
+func _on_confusion_ended() -> void:
+	pass
+
 func _get_hurt_frame() -> Dictionary:
 	return {frame = 0, flip = false}
 
@@ -134,8 +151,6 @@ func _get_death_frames() -> Array[int]:
 func _get_death_fps() -> float:
 	return death_fps
 
-## Custom Death-Animation - überschreiben für eigene Animation
-## Return true = Animation läuft noch, false = fertig (dann wird _finish_death aufgerufen)
 func _process_death_custom(_delta: float) -> bool:
 	return false
 
@@ -148,7 +163,7 @@ func _ready() -> void:
 	
 	_player_ref = get_tree().get_first_node_in_group("player")
 	
-	sprite =  _find_sprite()
+	sprite = _find_sprite()
 	if sprite:
 		sprite.hframes = HFRAMES
 		sprite.vframes = VFRAMES
@@ -160,24 +175,23 @@ func _ready() -> void:
 	
 	_await_terrain_ready()
 
+
 func _find_sprite() -> SmoothPixelSprite3D:
-	# Direkt nach Name suchen
 	var found := get_node_or_null("MeshInstance3D")
 	if found is SmoothPixelSprite3D:
 		return found
 	
-	# Fallback: Erstes SmoothPixelSprite3D-Kind finden
 	for child in get_children():
 		if child is SmoothPixelSprite3D:
 			return child
 	
-	# Letzter Fallback: Erstes MeshInstance3D mit dem Script
 	for child in get_children():
 		if child is MeshInstance3D and child.has_method("_set_frame"):
 			return child as SmoothPixelSprite3D
 	
 	push_warning("%s: Kein SmoothPixelSprite3D gefunden!" % name)
 	return null
+
 
 func _setup_audio_player() -> void:
 	_audio_player = AudioStreamPlayer3D.new()
@@ -199,6 +213,7 @@ func _await_terrain_ready() -> void:
 func _process(delta: float) -> void:
 	_check_freeze_state()
 	_update_hp_bar_timer(delta)
+	_update_confusion(delta)
 
 
 func _update_hp_bar_timer(delta: float) -> void:
@@ -211,12 +226,10 @@ func _update_hp_bar_timer(delta: float) -> void:
 			_hp_bar.visible = false
 
 
-
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	
-	# get_world_3d() Guard gegen null beim Laden
 	if not is_inside_tree() or get_world_3d() == null:
 		return
 	
@@ -234,8 +247,84 @@ func _physics_process(delta: float) -> void:
 		if _invincibility_timer <= 0.0:
 			_is_invincible = false
 	
+	if _is_confused:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		return
+	
 	_process_ai(delta)
 	move_and_slide()
+
+
+# === CONFUSION SYSTEM ===
+
+func apply_confusion(duration: float) -> void:
+	if not can_be_confused or _is_dead:
+		return
+	
+	_is_confused = true
+	_confusion_timer = duration
+	
+	_spawn_confusion_popup()
+	_on_confusion_started()
+
+
+func _update_confusion(delta: float) -> void:
+	if not _is_confused:
+		return
+	
+	_confusion_timer -= delta
+	
+	if _confusion_timer <= 0.0:
+		_end_confusion()
+
+
+func _end_confusion() -> void:
+	_is_confused = false
+	_confusion_timer = 0.0
+	_remove_confusion_popup()
+	_on_confusion_ended()
+
+
+func _spawn_confusion_popup() -> void:
+	_remove_confusion_popup()
+	
+	if confusion_popup_scene != null:
+		_confusion_popup = confusion_popup_scene.instantiate() as Node3D
+		add_child(_confusion_popup)
+		_confusion_popup.position = confusion_popup_offset
+	else:
+		# Default: Einfaches Fragezeichen
+		_confusion_popup = Node3D.new()
+		_confusion_popup.name = "ConfusionPopup"
+		
+		var label := Label3D.new()
+		label.text = "?"
+		label.font_size = 48
+		label.modulate = Color(1.0, 1.0, 0.3, 1.0)
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.no_depth_test = true
+		label.render_priority = 10
+		
+		_confusion_popup.add_child(label)
+		add_child(_confusion_popup)
+		_confusion_popup.position = confusion_popup_offset
+		
+		var tween := create_tween()
+		tween.set_loops(0)
+		tween.tween_property(_confusion_popup, "position:y", confusion_popup_offset.y + 0.1, 0.3)
+		tween.tween_property(_confusion_popup, "position:y", confusion_popup_offset.y, 0.3)
+
+
+func _remove_confusion_popup() -> void:
+	if _confusion_popup and is_instance_valid(_confusion_popup):
+		_confusion_popup.queue_free()
+		_confusion_popup = null
+
+
+func is_confused() -> bool:
+	return _is_confused
 
 
 # === FREEZE SYSTEM ===
@@ -255,7 +344,6 @@ func _check_freeze_state() -> void:
 			_freeze()
 
 
-
 func _freeze() -> void:
 	if _is_frozen:
 		return
@@ -269,7 +357,6 @@ func _unfreeze() -> void:
 		return
 	_is_frozen = false
 	velocity = Vector3.ZERO
-	# Terrain3D hat hier garantiert Collision -> einfach fallen lassen
 	set_physics_process(true)
 
 
@@ -278,6 +365,9 @@ func _unfreeze() -> void:
 func take_damage(amount: int, from_position: Vector3) -> void:
 	if _is_dead or _is_invincible:
 		return
+	
+	if _is_confused:
+		_end_confusion()
 	
 	_health -= amount
 	_anim_time = 0.0
@@ -308,6 +398,9 @@ func _die() -> void:
 	if _is_dead:
 		return
 	
+	if _is_confused:
+		_end_confusion()
+	
 	_is_dead = true
 	velocity = Vector3.ZERO
 	_anim_time = 0.0
@@ -323,20 +416,18 @@ func _die() -> void:
 
 
 func _process_death(delta: float) -> void:
-	# Custom animation hat Priorität
 	if _process_death_custom(delta):
 		return
 	
 	var frames := _get_death_frames()
 	var fps := _get_death_fps()
 	
-	# Keine Death-Frames? Direkt zum Ende
 	if frames.is_empty():
 		_finish_death()
 		return
 	
 	match _death_phase:
-		0:  # Animation
+		0:
 			_anim_time += delta
 			var frame_duration := 1.0 / fps
 			var frame_idx := int(_anim_time / frame_duration)
@@ -352,7 +443,7 @@ func _process_death(delta: float) -> void:
 			sprite.flip_h = data.flip
 			sprite.modulate = Color.WHITE
 		
-		1:  # Hold
+		1:
 			_death_timer -= delta
 			if _death_timer <= 0.0:
 				_give_rewards()
@@ -360,7 +451,7 @@ func _process_death(delta: float) -> void:
 				_death_phase = 2
 				_death_timer = death_dissolve_time
 		
-		2:  # Dissolve
+		2:
 			_death_timer -= delta
 			var progress := 1.0 - (_death_timer / maxf(death_dissolve_time, 0.01))
 			progress = clampf(progress, 0.0, 1.0)
@@ -370,7 +461,6 @@ func _process_death(delta: float) -> void:
 				_finish_death()
 
 
-## Wird am Ende der Death-Animation aufgerufen
 func _finish_death() -> void:
 	if not _rewards_given:
 		_give_rewards()

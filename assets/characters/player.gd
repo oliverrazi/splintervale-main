@@ -176,10 +176,12 @@ const CONSUMABLE_COOLDOWN_TIME: float = 0.5
 var _equipped_weapon_id: String = "sword1"
 
 
+var _hotbar_held: Array[bool] = [false, false, false, false]
+var _vector_anchor_slot: int = -1  # Welcher Slot hält Vector Anchor
+
 @onready var character: SmoothPixelSprite3D = $charactersprite
 @onready var dodge_component: DodgeComponent = $DodgeComponent
-
-
+@onready var vector_anchor: VectorAnchorComponent = $VectorAnchorComponent
 
 
 func _ready() -> void:
@@ -298,11 +300,16 @@ func _physics_process(delta: float) -> void:
 	if GameManager and GameManager.player_data:
 		GameManager.player_data.process_regeneration(delta)
 	
-	# === NEU: Dodge Check - VOR allem anderen! ===
 	if dodge_component and dodge_component.is_dodging():
-		# Während Dodge: Nur move_and_slide, nichts anderes
 		move_and_slide()
 		return
+		
+	if vector_anchor and vector_anchor.is_active():
+		if vector_anchor.is_launching():
+			return
+		else:
+			_check_vector_anchor_release()
+			return
 		
 	if _is_frozen:
 		return
@@ -370,6 +377,36 @@ func _physics_process(delta: float) -> void:
 		_update_attack(delta)
 	else:
 		_update_animation(input_dir, delta)
+		
+func _check_vector_anchor_release() -> void:
+	"""Prüft ob Vector Anchor losgelassen wurde während Charging"""
+	# Prüfe alle Hotbar-Slots auf Release
+	if Input.is_action_just_released("hotbar_w"):
+		_try_release_vector_anchor(0)
+	elif Input.is_action_just_released("hotbar_a"):
+		_try_release_vector_anchor(1)
+	elif Input.is_action_just_released("hotbar_s"):
+		_try_release_vector_anchor(2)
+	elif Input.is_action_just_released("hotbar_d"):
+		_try_release_vector_anchor(3)
+		
+func _try_release_vector_anchor(slot_index: int) -> void:
+	"""Versucht Vector Anchor zu releasen wenn der richtige Slot losgelassen wurde"""
+	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
+	if inv_manager == null:
+		return
+	
+	var item_id: String = inv_manager.get_hotbar_item(slot_index)
+	if item_id == "":
+		return
+	
+	var item_data: ItemData = inv_manager.get_item_data(item_id)
+	if item_data == null:
+		return
+	
+	if item_data.item_type == ItemData.ItemType.EQUIPMENT and item_data.effect_action == "vector_anchor":
+		if vector_anchor and vector_anchor.is_charging():
+			vector_anchor.stop_charging()
 
 func _set_nearby_chest(chest: TreasureChest) -> void:
 	_nearby_chest = chest
@@ -401,15 +438,25 @@ func reset_death_state() -> void:
 	if dodge_component:
 		dodge_component._is_dodging = false
 		dodge_component._dodge_cooldown_timer = 0.0
+		
+	if vector_anchor:
+		vector_anchor.cancel()
+		
 	_show_idle()
 
 
 func take_damage(amount: int, from_position: Vector3) -> void:
 	if dodge_component and dodge_component.is_dodging():
 		return
+		
+	if vector_anchor and vector_anchor.is_launching():
+		return
 	
 	if _invincibility_timer > 0.0:
 		return
+		
+	if vector_anchor and vector_anchor.is_charging():
+		vector_anchor.cancel()
 	
 	# Schaden über PlayerData berechnen (mit Defense)
 	GameManager.player_data.take_damage(amount)
@@ -448,7 +495,10 @@ func _die() -> void:
 	_is_knocked_back = false
 	_is_hurt_flashing = false
 	
-	# Game Over Screen nach Delay anzeigen
+	if vector_anchor:
+		vector_anchor.cancel()
+	
+
 	GameOverScreen.show_game_over(DEATH_GAME_OVER_DELAY)
 
 func _process_death(delta: float) -> void:
@@ -1166,12 +1216,16 @@ func can_interact_with_chest() -> bool:
 	return _nearby_chest != null and _nearby_chest.can_interact()
 
 func _use_equipment(item_id: String, item_data: ItemData) -> void:
-	"""Benutzt ein Equipment-Item (wie Shift-Boots)"""
-	if item_data.effect_action == "dodge":
-		if dodge_component:
-			dodge_component.try_dodge()
-	else:
-		print("Equipment used: ", item_data.item_name)
+	"""Benutzt ein Equipment-Item (wie Shift-Boots oder Vector Anchor)"""
+	match item_data.effect_action:
+		"dodge":
+			if dodge_component:
+				dodge_component.try_dodge()
+		"vector_anchor":
+			if vector_anchor and not vector_anchor.is_active():
+				vector_anchor.start_charging()
+		_:
+			print("Equipment used: ", item_data.item_name)
 
 func _use_consumable(item_id: String, item_data: ItemData, inv_manager: Node) -> void:
 	# Cooldown Check nur für Consumables

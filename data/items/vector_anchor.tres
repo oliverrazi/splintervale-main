@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://b26modsg420pd"]
+
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_qqmlq"]
+[ext_resource type="Texture2D" uid="uid://bydtbl0lve837" path="res://assets/icons/vector-anchor.png" id="1_ykg5s"]
+
+[resource]
+script = ExtResource("1_qqmlq")
+item_id = "vector_anchor"
+item_name = "Vector Anchor"
+icon = ExtResource("1_ykg5s")
+item_type = 4
+rarity = 3
+stackable = false
+consumable = false
+effect_action = "vector_anchor"
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"

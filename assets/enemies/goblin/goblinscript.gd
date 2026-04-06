@@ -20,7 +20,7 @@ class_name Goblin
 @export var circle_steps_max: int = 2
 @export var circle_pause_min: float = 0.3
 @export var circle_pause_max: float = 0.8
-@export var attack_chance_per_pause: float = 0.3
+@export var attack_chance_per_pause: float = 0.7
 @export var charge_duration: float = 0.4
 @export var attack_recovery: float = 0.8
 @export var preferred_distance: float = 1.0
@@ -42,17 +42,17 @@ class_name Goblin
 @export var thrust_scene: PackedScene
 @export var thrust_offset: float = 0.4
 @export var thrust_height: float = 0.15
-@export var thrust_scale: Vector3 = Vector3(0.4, 0.4, 0.4)
+@export var thrust_scale: Vector3 = Vector3(1.0, 1.0, 1.0)
 
 @export_subgroup("Offsets per Direction")
-@export var thrust_offset_up: Vector3 = Vector3(0.0, 0.0, -0.4)
-@export var thrust_offset_up_right: Vector3 = Vector3(0.28, 0.0, -0.28)
-@export var thrust_offset_right: Vector3 = Vector3(0.4, 0.0, 0.0)
-@export var thrust_offset_down_right: Vector3 = Vector3(0.28, 0.0, 0.28)
+@export var thrust_offset_up: Vector3 = Vector3(0.0, 0.0, -0.2)
+@export var thrust_offset_up_right: Vector3 = Vector3(0.1, 0.0, 0.3)
+@export var thrust_offset_right: Vector3 = Vector3(0.2, 0.0, 0.5)
+@export var thrust_offset_down_right: Vector3 = Vector3(0.05, 0.0, 0.7)
 @export var thrust_offset_down: Vector3 = Vector3(0.0, 0.0, 0.4)
-@export var thrust_offset_down_left: Vector3 = Vector3(-0.28, 0.0, 0.28)
-@export var thrust_offset_left: Vector3 = Vector3(-0.4, 0.0, 0.0)
-@export var thrust_offset_up_left: Vector3 = Vector3(-0.28, 0.0, -0.28)
+@export var thrust_offset_down_left: Vector3 = Vector3(-0.05, 0.0, 0.7)
+@export var thrust_offset_left: Vector3 = Vector3(-0.2, 0.0, 0.5)
+@export var thrust_offset_up_left: Vector3 = Vector3(-0.1, 0.0, 0.3)
 
 
 # === FRAME DEFINITIONS ===
@@ -65,8 +65,8 @@ const IDLE_TOP: Array[int] = [8, 8]
 const WALK_DOWN: Array[int] = [11, 15, 12, 15]
 const WALK_UP: Array[int] = [21, 25, 22, 25]
 
-const WALK_TOP: Array[int] = [71, 75, 72, 75]       # UP
-const WALK_BOTTOM: Array[int] = [61, 65, 62, 65]    # DOWN
+const WALK_TOP: Array[int] = [71, 75, 72, 75]
+const WALK_BOTTOM: Array[int] = [61, 65, 62, 65]
 
 const RUN_DOWN_START: int = 10
 const RUN_DOWN_END: int = 16
@@ -107,7 +107,8 @@ enum State {
 	ALERT, CHASE,
 	CIRCLE_IDLE, CIRCLE_STRAFE,
 	ATTACK_WINDUP, ATTACK_CHARGE, ATTACK_RECOVERY,
-	HIT, DEAD
+	HIT, DEAD,
+	CONFUSED
 }
 var _state: State = State.PATROL_IDLE
 var _state_timer: float = 0.0
@@ -160,7 +161,12 @@ func _on_ready_after_terrain() -> void:
 
 
 func _process_ai(delta: float) -> void:
-	if _state not in [State.DEAD, State.HIT, State.ATTACK_CHARGE, State.ATTACK_WINDUP, State.ALERT]:
+	# Während Verwirrung: Nur Idle-Animation
+	if is_confused():
+		_animate_idle()
+		return
+	
+	if _state not in [State.DEAD, State.HIT, State.ATTACK_CHARGE, State.ATTACK_WINDUP, State.ALERT, State.CONFUSED]:
 		_check_player_detection()
 
 	match _state:
@@ -184,6 +190,8 @@ func _process_ai(delta: float) -> void:
 			_process_attack_recovery(delta)
 		State.HIT:
 			_process_hit(delta)
+		State.CONFUSED:
+			_process_confused(delta)
 
 	_update_thrust_vfx_position()
 
@@ -214,6 +222,21 @@ func _on_death() -> void:
 func _on_death_finished() -> void:
 	if _group and _group.has_method("remove_goblin"):
 		_group.remove_goblin(self)
+
+
+func _on_confusion_started() -> void:
+	_enter_state(State.CONFUSED)
+
+
+func _on_confusion_ended() -> void:
+	if _target and is_instance_valid(_target):
+		var dist := global_position.distance_to(_target.global_position)
+		if dist <= lose_interest_range:
+			_enter_state(State.ALERT)
+		else:
+			_enter_state(State.PATROL_IDLE)
+	else:
+		_enter_state(State.PATROL_IDLE)
 
 
 func _get_hurt_frame() -> Dictionary:
@@ -370,6 +393,12 @@ func _enter_state(new_state: State) -> void:
 
 		State.HIT:
 			_hit_timer = 0.3
+			_reset_stuck_detection()
+			_cleanup_thrust_vfx_immediate()
+
+		State.CONFUSED:
+			velocity.x = 0.0
+			velocity.z = 0.0
 			_reset_stuck_detection()
 			_cleanup_thrust_vfx_immediate()
 
@@ -661,6 +690,11 @@ func _process_hit(delta: float) -> void:
 			_enter_state(State.PATROL_IDLE)
 
 
+func _process_confused(_delta: float) -> void:
+	# Während Verwirrung: Nur Idle-Animation, keine Bewegung, keine Richtungsänderung
+	_animate_idle()
+
+
 # === ATTACK HIT DETECTION ===
 
 func _check_charge_hit() -> void:
@@ -798,48 +832,36 @@ func _get_flip_and_attack_frames() -> Dictionary:
 
 func _get_flip_and_walk_frames() -> Dictionary:
 	match _facing_dir:
-		# --- echte UP / DOWN ---
 		DirMode.UP:
 			return {flip = false, frames = WALK_TOP}
 		DirMode.DOWN:
 			return {flip = false, frames = WALK_BOTTOM}
-
-		# --- schräg oben ---
 		DirMode.UP_LEFT:
 			return {flip = true, frames = WALK_UP}
 		DirMode.UP_RIGHT:
 			return {flip = false, frames = WALK_UP}
-
-		# --- links-basiertes Set ---
 		DirMode.LEFT, DirMode.DOWN_LEFT:
 			return {flip = true, frames = WALK_DOWN}
 		DirMode.RIGHT, DirMode.DOWN_RIGHT:
 			return {flip = false, frames = WALK_DOWN}
-
 		_:
 			return {flip = false, frames = WALK_BOTTOM}
 
 
 func _get_flip_and_run_range() -> Dictionary:
 	match _facing_dir:
-		# --- echte UP / DOWN ---
 		DirMode.UP:
 			return {flip = false, start = RUN_TOP_START, end = RUN_TOP_END}
 		DirMode.DOWN:
 			return {flip = false, start = RUN_BOTTOM_START, end = RUN_BOTTOM_END}
-
-		# --- schräg oben ---
 		DirMode.UP_LEFT:
 			return {flip = true, start = RUN_UP_START, end = RUN_UP_END}
 		DirMode.UP_RIGHT:
 			return {flip = false, start = RUN_UP_START, end = RUN_UP_END}
-
-		# --- links-basiertes Set ---
 		DirMode.LEFT, DirMode.DOWN_LEFT:
 			return {flip = true, start = RUN_DOWN_START, end = RUN_DOWN_END}
 		DirMode.RIGHT, DirMode.DOWN_RIGHT:
 			return {flip = false, start = RUN_DOWN_START, end = RUN_DOWN_END}
-
 		_:
 			return {flip = false, start = RUN_BOTTOM_START, end = RUN_BOTTOM_END}
 
@@ -1023,5 +1045,5 @@ func clear_target() -> void:
 		return
 
 	_target = null
-	if _state not in [State.HIT, State.DEAD]:
+	if _state not in [State.HIT, State.DEAD, State.CONFUSED]:
 		_enter_state(State.PATROL_IDLE)

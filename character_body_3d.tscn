@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://cd3ww7pd3fcbo"]
+[gd_scene load_steps=28 format=3 uid="uid://cd3ww7pd3fcbo"]
 
 [ext_resource type="Script" uid="uid://tjnqn1ifgw2e" path="res://assets/characters/player.gd" id="1_obynr"]
 [ext_resource type="PackedScene" uid="uid://dpg3a6ire7hml" path="res://assets/characters/slashVFX.tscn" id="2_obynr"]
@@ -17,12 +17,13 @@
 [ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="13_4wng8"]
 [ext_resource type="Script" uid="uid://c6c5eudbjsxaf" path="res://assets/characters/abilities/dodge_component.gd" id="14_ltcqi"]
 [ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="17_klace"]
+[ext_resource type="Script" uid="uid://cfoq8f3ptj3ui" path="res://assets/characters/abilities/vector_anchor_component.gd" id="18_pqkp8"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nl27k"]
 radius = 0.119140625
 height = 0.48550415
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_klace"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pqkp8"]
 render_priority = 0
 shader = ExtResource("12_m1lp5")
 shader_parameter/sprite_texture = ExtResource("2_vd578")
@@ -84,7 +85,7 @@ _data = {
 &"walk": SubResource("Animation_c7tqt")
 }
 
-[sub_resource type="Shader" id="Shader_pqkp8"]
+[sub_resource type="Shader" id="Shader_w6sjo"]
 code = "
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
@@ -105,14 +106,14 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_w6sjo"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_v8d2g"]
 render_priority = 0
-shader = SubResource("Shader_pqkp8")
+shader = SubResource("Shader_w6sjo")
 shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
 shader_parameter/shadow_opacity = 0.6
 shader_parameter/softness = 0.6
 
-[sub_resource type="QuadMesh" id="QuadMesh_v8d2g"]
+[sub_resource type="QuadMesh" id="QuadMesh_wwds4"]
 size = Vector2(0.5, 0.5)
 orientation = 1
 
@@ -142,7 +143,7 @@ shape = SubResource("CapsuleShape3D_nl27k")
 
 [node name="charactersprite" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.0031206608, 0.15754342, 0)
-material_override = SubResource("ShaderMaterial_klace")
+material_override = SubResource("ShaderMaterial_pqkp8")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_pqkp8")
 skeleton = NodePath("../charactersprite2")
@@ -219,6 +220,18 @@ omni_attenuation = 0.548
 [node name="HeadAnchor" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4350574, 0)
 
+[node name="BlobShadow" type="MeshInstance3D" parent="."]
+top_level = true
+material_override = SubResource("ShaderMaterial_v8d2g")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_wwds4")
+script = ExtResource("17_klace")
+shadow_depth = 0.5
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.05
+ground_offset = 0.02
+
 [node name="DodgeComponent" type="Node" parent="."]
 script = ExtResource("14_ltcqi")
 sprite_path = NodePath("../charactersprite2")
@@ -229,14 +242,21 @@ afterimage_color = Color(0.44313726, 0.8, 1, 0.93333334)
 afterimage_emission_strength = 3.0
 shimmer_color = Color(0.5151882, 0.8464151, 0.99999946, 1)
 
-[node name="BlobShadow" type="MeshInstance3D" parent="."]
-top_level = true
-material_override = SubResource("ShaderMaterial_w6sjo")
-cast_shadow = 0
-mesh = SubResource("QuadMesh_v8d2g")
-script = ExtResource("17_klace")
-shadow_depth = 0.5
-shadow_opacity = 0.6
-softness = 0.6
-z_offset = 0.05
-ground_offset = 0.02
+[node name="VectorAnchorComponent" type="Node" parent="."]
+script = ExtResource("18_pqkp8")
+radius_growth_rate = 2.5
+projectile_speed = 20.0
+launch_duration = 0.7
+launch_arc_height = 1.0
+use_custom_charge_frames = true
+CHARGE_DOWN_FRAME = 46
+CHARGE_UP_FRAME = 46
+CHARGE_SIDE_FRAME = 46
+CHARGE_DOWN_LEFT_FRAME = 46
+CHARGE_UP_RIGHT_FRAME = 46
+use_custom_air_frames = true
+AIR_DOWN_FRAME = 4
+AIR_UP_FRAME = 13
+AIR_SIDE_FRAME = 22
+AIR_DOWN_LEFT_FRAME = 58
+AIR_UP_RIGHT_FRAME = 67

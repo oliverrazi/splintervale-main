@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxtqnrpeg2tqi"]
+
+[ext_resource type="Script" uid="uid://bis57gtwg8fqs" path="res://assets/enemies/plantmonster/assets/tongue_vfx.gd" id="1_gya34"]
+
+[node name="TongueVfx" type="Node3D"]
+script = ExtResource("1_gya34")
+bubble_amount = 7
+bubble_lifetime_min = 0.2
+bubble_lifetime_max = 0.4
+bubble_wobble_strength = 2.8
+bubble_wobble_speed = 5.0
+impact_bubble_amount = 10
+glow_enabled = false

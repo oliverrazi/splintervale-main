@@ -1,0 +1,73 @@
+[gd_scene load_steps=13 format=3 uid="uid://bcb37pdkba5jw"]
+
+[ext_resource type="Script" uid="uid://cogcyngbobesm" path="res://interior/cave_system/cave_system.gd" id="1_q2eaj"]
+[ext_resource type="Script" uid="uid://dbku3uanxl34n" path="res://interior/cave_system/cave_lighting_rig.gd" id="2_q2eaj"]
+[ext_resource type="Script" path="res://interior/cave/builder/cave_room_builder.gd" id="3_ev2xr"]
+[ext_resource type="Script" uid="uid://b1sxpf0p2hbrj" path="res://interior/cave_system/cave_room_builder.gd" id="4_1m0s6"]
+[ext_resource type="Script" uid="uid://5qgdw1dluqel" path="res://interior/cave_system/cave_rock_geometry.gd" id="5_barfw"]
+[ext_resource type="Script" uid="uid://bkklidrnpapki" path="res://interior/cave_system/cave_auto_rock_placer.gd" id="6_peupg"]
+[ext_resource type="Script" uid="uid://b61lhc3eunq14" path="res://interior/cave_system/components/cave_stream.gd" id="7_yqkqc"]
+[ext_resource type="Script" uid="uid://cqbnplt0du8la" path="res://interior/cave_system/components/cave_atmosphere.gd" id="8_74nu6"]
+[ext_resource type="Script" uid="uid://c5rle5q68ftpx" path="res://interior/cave_system/components/cave_lighting_manager.gd" id="9_jhalv"]
+[ext_resource type="Script" uid="uid://bytmf83dhyu3v" path="res://interior/cave_system/cave_foreground.gd" id="10_yevj7"]
+
+[sub_resource type="Environment" id="Environment_y1ef6"]
+
+[sub_resource type="Curve3D" id="Curve3D_yevj7"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 10, 0, 0, 5, 0, 0, 15, 0, 0, 20, 0, 0, 10, 0, 0, 20, 0, 0, 0, 0, 0, 25, 0, 0),
+"tilts": PackedFloat32Array(0, 0, 0)
+}
+point_count = 3
+
+[node name="Cave01" type="Node3D"]
+script = ExtResource("1_q2eaj")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_y1ef6")
+
+[node name="CaveLightingRig" type="Node3D" parent="."]
+script = ExtResource("2_q2eaj")
+
+[node name="CaveRooms" type="Node3D" parent="."]
+
+[node name="MainHall" type="Node3D" parent="CaveRooms"]
+script = ExtResource("3_ev2xr")
+room_polygon = PackedVector2Array(-4, -5, 4, -3, 5, -1, 4, 3, -4, 3, -5, -1)
+
+[node name="CaveCorridors" type="Node3D" parent="."]
+
+[node name="CorridorEntrance" type="Node3D" parent="CaveCorridors"]
+script = ExtResource("4_1m0s6")
+room_polygon = PackedVector2Array(-4, -3, 4, -3, 5, -1, 4, 3, -4, 3, -5, -1)
+
+[node name="Path3D" type="Path3D" parent="CaveCorridors/CorridorEntrance"]
+curve = SubResource("Curve3D_yevj7")
+
+[node name="CaveRockGeometry" type="Node3D" parent="."]
+script = ExtResource("5_barfw")
+
+[node name="CaveAutoRockPlacer" type="Node3D" parent="."]
+script = ExtResource("6_peupg")
+
+[node name="CaveWater" type="Node3D" parent="."]
+
+[node name="Stream_01" type="Node3D" parent="CaveWater"]
+script = ExtResource("7_yqkqc")
+
+[node name="CaveDecorations" type="Node3D" parent="."]
+
+[node name="CaveAtmosphere" type="Node3D" parent="."]
+script = ExtResource("8_74nu6")
+
+[node name="CaveLighting" type="Node3D" parent="."]
+script = ExtResource("9_jhalv")
+
+[node name="CaveForeground" type="Node3D" parent="."]
+script = ExtResource("10_yevj7")
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="entrance_main" type="Marker3D" parent="SpawnPoints"]
+
+[node name="CaveExits" type="Node3D" parent="."]

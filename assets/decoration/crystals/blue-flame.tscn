@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://ctexc5fbvqjjc"]
+
+[ext_resource type="Shader" uid="uid://dbhk8wxv2qwcg" path="res://assets/decoration/blueflame.gdshader" id="1_m14u3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_umyte"]
+render_priority = 0
+shader = ExtResource("1_m14u3")
+shader_parameter/flame_speed = 0.8270000155325
+shader_parameter/flame_intensity = 1.3270000392825
+shader_parameter/flame_height = 1.922000067545
+shader_parameter/flame_width = 0.41000001621512
+shader_parameter/distortion_strength = 0.1750000083125
+shader_parameter/color_core = Color(1, 1, 1, 1)
+shader_parameter/color_mid = Color(0.6, 0.8, 1, 1)
+shader_parameter/color_outer = Color(0.1, 0.3, 0.9, 1)
+shader_parameter/color_tip = Color(0.05, 0.1, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mtop8"]
+render_priority = 0
+shader = ExtResource("1_m14u3")
+shader_parameter/flame_speed = 1.5
+shader_parameter/flame_intensity = 2.0
+shader_parameter/flame_height = 1.20000005048023
+shader_parameter/flame_width = 0.70800003037012
+shader_parameter/distortion_strength = 0.35
+shader_parameter/color_core = Color(1, 1, 1, 1)
+shader_parameter/color_mid = Color(0.6, 0.8, 1, 1)
+shader_parameter/color_outer = Color(0.1, 0.3, 0.9, 1)
+shader_parameter/color_tip = Color(0.05, 0.1, 0.4, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_kjrp6"]
+material = SubResource("ShaderMaterial_mtop8")
+
+[node name="BlueFlame" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.019284679, 0.99981403, 0, -0.99981403, 0.019284679, 0, 0.99550986, 0)
+material_override = SubResource("ShaderMaterial_umyte")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_kjrp6")
