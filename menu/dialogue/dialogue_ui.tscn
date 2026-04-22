@@ -1,6 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://dv6tnbbp2d1ad"]
+[gd_scene load_steps=5 format=3 uid="uid://dv6tnbbp2d1ad"]
 
 [ext_resource type="Script" uid="uid://h1ov7yabphuk" path="res://menu/dialogue/dialogue_ui.gd" id="1_ba8ae"]
+[ext_resource type="Shader" uid="uid://br44cyh6le7rn" path="res://menu/shaders/dialogue_bg.gdshader" id="2_2v3gw"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ba8ae"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_db52b"]
+shader = ExtResource("2_2v3gw")
+shader_parameter/bg_color = Color(0.05, 0.05, 0.1, 0.9)
+shader_parameter/fade_left = 0.15
+shader_parameter/fade_right = 0.15
+shader_parameter/fade_top = 0.2
+shader_parameter/fade_bottom = 0.05
+shader_parameter/fade_power = 1.5
 
 [node name="DialogueUi" type="CanvasLayer"]
 script = ExtResource("1_ba8ae")
@@ -8,6 +20,12 @@ script = ExtResource("1_ba8ae")
 [node name="PanelContainer" type="PanelContainer" parent="."]
 offset_right = 40.0
 offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ba8ae")
+
+[node name="Background" type="ColorRect" parent="PanelContainer"]
+material = SubResource("ShaderMaterial_db52b")
+layout_mode = 2
+mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2

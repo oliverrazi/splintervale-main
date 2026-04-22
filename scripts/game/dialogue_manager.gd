@@ -10,7 +10,7 @@ signal quest_added(quest_id: String)
 @export var end_cooldown: float = 0.5  # Cooldown nach Dialog-Ende
 
 var _canvas: CanvasLayer = null
-var _panel: PanelContainer = null
+var _panel: Control = null
 var _speaker_label: Label = null
 var _text_label: RichTextLabel = null
 var _choices_container: VBoxContainer = null
@@ -42,7 +42,7 @@ var font_color: Color = Color(255, 234, 213)
 
 var _is_item_pickup_mode: bool = false
 var _pickup_player: Node3D = null
-var _pickup_player_sprite: SmoothPixelSprite3D  = null
+var _pickup_player_sprite: LayeredPixelSprite3D  = null
 var _pickup_original_frame: int = 0
 var _pickup_original_flip: bool = false
 var _pickup_effect: Node3D = null
@@ -70,53 +70,108 @@ func _create_dialogue_ui() -> void:
 	_canvas = CanvasLayer.new()
 	_canvas.layer = 50
 	add_child(_canvas)
-	
-	_panel = PanelContainer.new()
+
+	_panel = Control.new()        # NICHT PanelContainer.new()
 	_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	_panel.offset_top = -150
-	_panel.offset_left = 50
-	_panel.offset_right = -50
-	_panel.offset_bottom = -20
+	_panel.offset_top = -200
+	_panel.offset_left = 0      # <- war 50, jetzt schmaler
+	_panel.offset_right = 0    # <- war -50, jetzt schmaler
+	_panel.offset_bottom = 0
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(_panel)
-	
+
+	# --- NEU: Panel-Style leeren, damit nichts den Shader überzeichnet ---
+	var empty_style := StyleBoxEmpty.new()
+	_panel.add_theme_stylebox_override("panel", empty_style)
+
+	# --- NEU: ColorRect mit Shader als Background ---
+	# Muss VOR dem MarginContainer child werden, damit es hinter dem Text liegt.
+	# Wichtig: show_behind_parent, damit der PanelContainer es nicht ins Layout zwingt / überdeckt.
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.show_behind_parent = true
+
+	var shader: Shader = load("res://menu/shaders/dialogue_bg.gdshader")
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	# Optional: Uniforms hier setzen, falls du nicht die Shader-Defaults willst
+	# mat.set_shader_parameter("bg_color", Color(0.05, 0.05, 0.1, 0.92))
+	# mat.set_shader_parameter("fade_left", 0.12)
+	bg.material = mat
+	_panel.add_child(bg)
+
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_top", 15)
-	margin.add_theme_constant_override("margin_bottom", 15)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override("margin_left", 60)
+	margin.add_theme_constant_override("margin_right", 60)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_bottom", 30)
 	_panel.add_child(margin)
 	
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	margin.add_child(vbox)
-	
+
+	_text_label = RichTextLabel.new()
+	_text_label.bbcode_enabled = true
+	_text_label.fit_content = true
+	_text_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_text_label.add_theme_font_override("normal_font", _font)
+	_text_label.add_theme_font_size_override("normal_font_size", 18)
+	vbox.add_child(_text_label)
+
 	_speaker_label = Label.new()
 	_speaker_label.add_theme_font_override("font", _font)
 	_speaker_label.add_theme_font_size_override("font_size", 22)
 	_speaker_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
-	vbox.add_child(_speaker_label)
-	
-	_text_label = RichTextLabel.new()
-	_text_label.bbcode_enabled = true
-	_text_label.fit_content = true
-	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_text_label.add_theme_font_override("normal_font", _font)
-	_text_label.add_theme_font_size_override("normal_font_size", 18)
-	vbox.add_child(_text_label)
+	_speaker_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_speaker_label.anchor_left = 0.0
+	_speaker_label.anchor_top = 0.0
+	_speaker_label.anchor_right = 0.0
+	_speaker_label.anchor_bottom = 0.0
+	_speaker_label.offset_left = 60
+	_speaker_label.offset_top = 20
+	_speaker_label.offset_right = 400
+	_speaker_label.offset_bottom = 18
+	_panel.add_child(_speaker_label)
 	
 	_choices_container = VBoxContainer.new()
-	_choices_container.add_theme_constant_override("separation", 5)
-	vbox.add_child(_choices_container)
+	_choices_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_choices_container.add_theme_constant_override("separation", 8)
+	_choices_container.alignment = BoxContainer.ALIGNMENT_END
+	# Oberhalb des Panels, rechtsbündig
+	_choices_container.anchor_left = 1.0
+	_choices_container.anchor_top = 0.0
+	_choices_container.anchor_right = 1.0
+	_choices_container.anchor_bottom = 0.0
+	_choices_container.offset_left = -400   # Breite des Choice-Bereichs
+	_choices_container.offset_top = -250    # wie weit über der Box
+	_choices_container.offset_right = -20
+	_choices_container.offset_bottom = 0  # knapp über der Dialogbox-Oberkante
+	_choices_container.grow_vertical = Control.GROW_DIRECTION_BEGIN  # wächst nach oben
+	_panel.add_child(_choices_container)
 	
 	_hint_label = Label.new()
 	_hint_label.text = "[Continue]"
-	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_hint_label.add_theme_font_override("font", _font)
 	_hint_label.add_theme_font_size_override("font_size", 14)
 	_hint_label.modulate = Color(0.7, 0.7, 0.7)
+	_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint_label.visible = false
-	vbox.add_child(_hint_label)
+	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_hint_label.anchor_left = 1.0
+	_hint_label.anchor_top = 1.0
+	_hint_label.anchor_right = 1.0
+	_hint_label.anchor_bottom = 1.0
+	_hint_label.offset_left = -200
+	_hint_label.offset_top = -50
+	_hint_label.offset_right = -60
+	_hint_label.offset_bottom = -30
+	_panel.add_child(_hint_label)
 	
 	_panel.visible = false
 	print("DialogueManager UI created!")
@@ -229,7 +284,7 @@ func _spawn_pickup_effect(player: Node3D, item_data: ItemData) -> void:
 	var item_sprite := Sprite3D.new()
 	item_sprite.name = "ItemSprite"
 	item_sprite.texture = item_data.icon
-	item_sprite.pixel_size = 0.01
+	item_sprite.pixel_size = 0.015
 	item_sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	item_sprite.transparent = true
 	item_sprite.render_priority = 6
@@ -369,6 +424,11 @@ func _end_item_pickup() -> void:
 		if _pickup_player_sprite:
 			_pickup_player_sprite.frame = _pickup_original_frame
 			_pickup_player_sprite.flip_h = _pickup_original_flip
+			
+			if _pickup_player_sprite.has_layer("weapon"):
+				_pickup_player_sprite.set_layer_visible("weapon", true)
+			if _pickup_player_sprite.has_layer("vector_anchor"):
+				_pickup_player_sprite.set_layer_visible("vector_anchor", true)
 	
 	_pickup_player = null
 	_pickup_player_sprite = null
@@ -431,7 +491,6 @@ func _show_choices_if_any() -> void:
 		return
 	
 	_choice_buttons.clear()
-	var visible_choice_count: int = 0
 	
 	for i in range(line.choices.size()):
 		var choice: DialogueChoice = line.choices[i]
@@ -443,9 +502,9 @@ func _show_choices_if_any() -> void:
 			if quest_manager and not quest_manager.check_condition(choice.condition):
 				continue
 		
-		visible_choice_count += 1
 		var button := Button.new()
-		button.text = "%d. %s" % [visible_choice_count, choice.text]
+		button.text = "%s" % [choice.text]
+		button.add_theme_font_override("font", _font)
 		button.pressed.connect(_on_choice_selected.bind(i))
 		button.disabled = true  # Erstmal deaktiviert
 		
@@ -769,12 +828,17 @@ func _start_item_pickup_internal(player: Node3D, item_data: ItemData, custom_tex
 	_pickup_player = player
 	
 	# Player Sprite auf Hold-Frame setzen
-	_pickup_player_sprite = player.get_node_or_null("charactersprite") as SmoothPixelSprite3D
+	_pickup_player_sprite = player.get_node_or_null("charactersprite") as LayeredPixelSprite3D
 	if _pickup_player_sprite:
 		_pickup_original_frame = _pickup_player_sprite.frame
 		_pickup_original_flip = _pickup_player_sprite.flip_h
 		_pickup_player_sprite.frame = hold_frame
 		_pickup_player_sprite.flip_h = false
+		
+		if _pickup_player_sprite.has_layer("weapon"):
+			_pickup_player_sprite.set_layer_visible("weapon", false)
+		if _pickup_player_sprite.has_layer("vector_anchor"):
+			_pickup_player_sprite.set_layer_visible("vector_anchor", false)
 	
 	# Player einfrieren
 	if player.has_method("set_frozen"):

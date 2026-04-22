@@ -78,7 +78,7 @@ var _move_dir_mode: int = DirMode.DOWN    # Bewegungsrichtung
 
 # === CACHED REFERENCES ===
 var _player: CharacterBody3D = null
-var _sprite: SmoothPixelSprite3D = null  # CHANGED: war Sprite3D
+var _sprite: LayeredPixelSprite3D = null  # CHANGED: war Sprite3D
 var _spring_arm: Node3D = null
 
 
@@ -93,20 +93,20 @@ func _ready() -> void:
 		push_error("DodgeComponent: SmoothPixelSprite3D not found at path: ", sprite_path)
 
 
-func _find_sprite() -> SmoothPixelSprite3D:
+func _find_sprite() -> LayeredPixelSprite3D:
 	# Erst den konfigurierten Pfad versuchen
 	var found := get_node_or_null(sprite_path)
-	if found is SmoothPixelSprite3D:
+	if found is LayeredPixelSprite3D:
 		return found
 	
 	# Fallback: Im Parent nach SmoothPixelSprite3D suchen
 	var parent := get_node_or_null(player_path)
 	if parent:
 		for child in parent.get_children():
-			if child is SmoothPixelSprite3D:
+			if child is LayeredPixelSprite3D:
 				return child
 	
-	push_warning("DodgeComponent: No SmoothPixelSprite3D found!")
+	push_warning("DodgeComponent: No LayeredPixelSprite3D found!")
 	return null
 
 
@@ -493,47 +493,48 @@ func _spawn_afterimage() -> void:
 	if _sprite == null:
 		return
 	
-	# Sprite3D als Geisterbild (leichtgewichtig, braucht keinen Smooth-Shader)
-	var ghost := Sprite3D.new()
-	
-	# Properties von SmoothPixelSprite3D lesen
-	ghost.texture = _sprite.texture
-	ghost.hframes = _sprite.hframes
-	ghost.vframes = _sprite.vframes
-	ghost.frame = _sprite.frame
-	ghost.flip_h = _sprite.flip_h
-	ghost.pixel_size = _sprite.pixel_size
-	ghost.centered = true
-	ghost.transparent = true
-	ghost.no_depth_test = false
-	ghost.render_priority = -1
-	
-	# Billboard manuell setzen (SmoothPixelSprite3D hat kein .billboard Property)
-	ghost.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	
-	# Position exakt kopieren
-	ghost.global_transform = _sprite.global_transform
-	
-	# Farbe über modulate
-	ghost.modulate = afterimage_color
-	
-	# Zur Szene hinzufügen
-	get_tree().current_scene.add_child(ghost)
-	
-	# Leicht nach hinten versetzen
-	ghost.global_position -= _dodge_direction * 0.02 * (_afterimages_spawned + 1)
-	ghost.global_position.y = _sprite.global_position.y
-	
-	# Fade Animation
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(ghost, "modulate:a", 0.0, afterimage_fade_time).set_ease(Tween.EASE_IN)
-	tween.tween_property(ghost, "scale", ghost.scale * 0.8, afterimage_fade_time).set_ease(Tween.EASE_IN)
-	
-	var end_pos: Vector3 = ghost.global_position + Vector3(0, 0.1, 0)
-	tween.tween_property(ghost, "global_position", end_pos, afterimage_fade_time).set_ease(Tween.EASE_OUT)
-	
-	tween.chain().tween_callback(ghost.queue_free)
+	# Für jeden sichtbaren Layer ein eigenes Ghost-Sprite3D erstellen
+	for layer_key in _sprite.get_all_layer_keys():
+		var layer_sprite: SmoothPixelSprite3D = _sprite.get_layer(layer_key)
+		if layer_sprite == null or not layer_sprite.visible:
+			continue
+		if layer_sprite.texture == null:
+			continue
+		
+		var ghost := Sprite3D.new()
+		ghost.texture = layer_sprite.texture
+		ghost.hframes = layer_sprite.hframes
+		ghost.vframes = layer_sprite.vframes
+		ghost.frame = layer_sprite.frame
+		ghost.flip_h = layer_sprite.flip_h
+		ghost.pixel_size = layer_sprite.pixel_size
+		ghost.centered = true
+		ghost.transparent = true
+		ghost.no_depth_test = false
+		ghost.render_priority = -1
+		ghost.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		ghost.modulate = afterimage_color
+		
+		# Zur Szene hinzufügen (nicht in Container)
+		get_tree().current_scene.add_child(ghost)
+		
+		# Position exakt vom Layer-Sprite übernehmen
+		ghost.global_transform = layer_sprite.global_transform
+		
+		# Leicht nach hinten versetzen
+		ghost.global_position -= _dodge_direction * 0.02 * (_afterimages_spawned + 1)
+		ghost.global_position.y = layer_sprite.global_position.y
+		
+		# Fade-Animation pro Ghost
+		var tween := create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(ghost, "modulate:a", 0.0, afterimage_fade_time).set_ease(Tween.EASE_IN)
+		tween.tween_property(ghost, "scale", ghost.scale * 0.8, afterimage_fade_time).set_ease(Tween.EASE_IN)
+		
+		var end_pos: Vector3 = ghost.global_position + Vector3(0, 0.1, 0)
+		tween.tween_property(ghost, "global_position", end_pos, afterimage_fade_time).set_ease(Tween.EASE_OUT)
+		
+		tween.chain().tween_callback(ghost.queue_free)
 
 
 # ============================================

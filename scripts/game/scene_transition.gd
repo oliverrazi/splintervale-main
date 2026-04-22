@@ -138,3 +138,85 @@ func set_clear() -> void:
 ## Prüft ob gerade ein Übergang läuft
 func is_transitioning() -> bool:
 	return _is_transitioning
+	
+	
+func transition_to_with_spawn(scene_path: String, spawn_point_id: String, play_sound: bool = false) -> void:
+	if _is_transitioning:
+		return
+	_is_transitioning = true
+
+	if play_sound and start_sound and start_sound.stream:
+		start_sound.play()
+
+	await fade_out()
+
+	# Spawn-ID an GlobalCaveData übergeben — PlayerManager liest das
+	if has_node("/root/GlobalCaveData"):
+		get_node("/root/GlobalCaveData").pending_spawn_id = spawn_point_id
+
+	get_tree().change_scene_to_file(scene_path)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	fade_in()
+	_is_transitioning = false
+
+
+func _position_player_at_spawn(spawn_id: String) -> void:
+	if spawn_id.is_empty():
+		return
+
+	# Player über PlayerManager holen
+	var player: Node3D = null
+	if has_node("/root/PlayerManager"):
+		player = get_node("/root/PlayerManager").player_instance
+
+	# Player SOFORT verstecken bevor er sichtbar wird
+	if player:
+		player.visible = false
+		# Physics deaktivieren damit er nicht kurz mit dem Boden kollidiert
+		if player is CharacterBody3D:
+			player.set_physics_process(false)
+
+	# Warten bis PlayerManager den Player in die neue Szene eingefügt hat
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	var scene := get_tree().current_scene
+	if not scene:
+		return
+
+	var spawn := scene.find_child(spawn_id, true, false)
+	if not spawn or not spawn is Node3D:
+		push_warning("SceneTransition: Spawn-Point '%s' nicht gefunden" % spawn_id)
+		if player:
+			player.visible = true
+			if player is CharacterBody3D:
+				player.set_physics_process(true)
+		return
+
+	# Fallback falls PlayerManager nicht da ist
+	if not player:
+		player = scene.find_child("Player", true, false)
+		if player:
+			player.visible = false
+			if player is CharacterBody3D:
+				player.set_physics_process(false)
+
+	if player:
+		# Position + optional Rotation übernehmen
+		player.global_position = (spawn as Node3D).global_position
+		if spawn is Node3D:
+			player.global_rotation.y = (spawn as Node3D).global_rotation.y
+
+		# Velocity auf null (falls CharacterBody3D)
+		if player is CharacterBody3D:
+			(player as CharacterBody3D).velocity = Vector3.ZERO
+
+		# Ein Frame warten damit der Transform "settled" ist
+		await get_tree().process_frame
+
+		# Wieder sichtbar machen + Physik an
+		player.visible = true
+		if player is CharacterBody3D:
+			player.set_physics_process(true)

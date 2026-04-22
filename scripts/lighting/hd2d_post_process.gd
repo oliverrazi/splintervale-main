@@ -76,7 +76,7 @@ void fragment() {
 
 
 func _ready() -> void:
-	layer = 100
+	layer = 10
 	_setup_overlay()
 
 

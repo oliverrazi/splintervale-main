@@ -48,6 +48,8 @@ enum FilterAlgorithm {
 @export_range(0.3, 3.0, 0.1) var aa_sharpness: float = 1.2 : set = _set_aa_sharpness
 @export_range(0.0, 1.0, 0.1) var frame_bleed_guard: float = 0.5 : set = _set_frame_bleed_guard
 
+@export_range(0.0, 0.1, 0.001) var depth_bias: float = 0.0 : set = _set_depth_bias
+
 # --- Internes ---
 var _material: ShaderMaterial
 var _shader_path: String = "res://assets/characters/shaders/pixel_art_smooth_v4.gdshader"
@@ -119,6 +121,7 @@ func _update_shader_params() -> void:
 	_material.set_shader_parameter("aa_sharpness", aa_sharpness)
 	_material.set_shader_parameter("frame_bleed_guard", frame_bleed_guard)
 
+	_material.set_shader_parameter("depth_bias", depth_bias)
 
 # --- Setter ---
 func _set_texture(value: Texture2D) -> void:
@@ -182,3 +185,8 @@ func _set_frame_bleed_guard(value: float) -> void:
 	frame_bleed_guard = value
 	if _material:
 		_material.set_shader_parameter("frame_bleed_guard", frame_bleed_guard)
+
+func _set_depth_bias(value: float) -> void:
+	depth_bias = value
+	if _material:
+		_material.set_shader_parameter("depth_bias", depth_bias)

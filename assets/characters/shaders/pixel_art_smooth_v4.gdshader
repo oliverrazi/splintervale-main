@@ -35,6 +35,8 @@ uniform int filter_mode : hint_range(0, 2) = 0;
 // --- Spritesheet Bleed-Schutz ---
 uniform float frame_bleed_guard : hint_range(0.0, 1.0) = 0.5;
 
+uniform float depth_bias : hint_range(0.0, 0.1) = 0.0;
+
 void vertex() {
 	// Scale aus dem Transform erhalten (z.B. 1.5)
 	float scale_x = length(MODEL_MATRIX[0].xyz);
@@ -86,6 +88,17 @@ void vertex() {
 		);
 	}
 	// billboard_mode == 3: nichts tun, Transform wird normal angewendet
+	if (depth_bias > 0.0) {
+		vec4 view_vertex = MODELVIEW_MATRIX * vec4(VERTEX, 1.0);
+		view_vertex.z += depth_bias;
+		VERTEX = view_vertex.xyz;
+		MODELVIEW_MATRIX = mat4(
+			vec4(1.0, 0.0, 0.0, 0.0),
+			vec4(0.0, 1.0, 0.0, 0.0),
+			vec4(0.0, 0.0, 1.0, 0.0),
+			vec4(0.0, 0.0, 0.0, 1.0)
+		);
+	}
 }
 
 // =============================================================================

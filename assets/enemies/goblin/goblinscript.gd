@@ -428,6 +428,10 @@ func _process_patrol_walk(delta: float) -> void:
 		_patrol_target = _spawn_position
 
 	dir = dir.normalized()
+	if avoid_cliffs and _is_cliff_ahead(dir):
+		_abort_patrol()
+		return
+	
 	_update_facing_direction(dir)
 
 	velocity.x = dir.x * WALK_SPEED
@@ -503,6 +507,26 @@ func _process_chase(delta: float) -> void:
 		separation = _group.get_separation_vector(self) * 0.5
 
 	var move_dir := (dir + separation).normalized()
+
+	# Cliff Check
+	if avoid_cliffs:
+		var safe_dir := _find_safe_direction(move_dir)
+		if safe_dir == Vector3.ZERO:
+			# Kein Weg zum Spieler — anhalten und aufgeben
+			velocity.x = 0.0
+			velocity.z = 0.0
+			_update_facing_direction(dir)
+			_animate_idle()
+			_reset_stuck_detection()
+			# Wenn nah genug: in Circle gehen, sonst Patrol
+			if dist <= preferred_distance + preferred_distance_tolerance * 2:
+				_enter_state(State.CIRCLE_IDLE)
+			else:
+				_target = null
+				_enter_state(State.PATROL_IDLE)
+			return
+		move_dir = safe_dir
+
 	_update_facing_direction(move_dir)
 
 	velocity.x = move_dir.x * RUN_SPEED
@@ -574,6 +598,17 @@ func _process_circle_strafe(delta: float) -> void:
 	_update_facing_direction(dir_to_target)
 
 	var strafe_dir := Vector3(-dir_to_target.z, 0, dir_to_target.x) * _strafe_direction
+
+	if avoid_cliffs and _is_cliff_ahead(strafe_dir):
+		_strafe_direction *= -1
+		strafe_dir = -strafe_dir
+		# Wenn auch die andere Seite ein Abgrund ist: nur stehen bleiben
+		if _is_cliff_ahead(strafe_dir):
+			velocity.x = 0.0
+			velocity.z = 0.0
+			_animate_idle()
+			_state_timer = 0.0  # sofort weiter zur Entscheidung
+			return
 
 	var distance_diff := dist - preferred_distance
 	var distance_correction := Vector3.ZERO
@@ -928,14 +963,10 @@ func _spawn_thrust_vfx() -> void:
 
 	_active_thrust_vfx = thrust_scene.instantiate() as Node3D
 	add_child(_active_thrust_vfx)
-
-	var offset := _get_thrust_offset()
-	_active_thrust_vfx.position = offset
-	_active_thrust_vfx.position.y = thrust_height
 	_active_thrust_vfx.scale = thrust_scale
 
-	var yaw: float = THRUST_YAW_DEG.get(_facing_dir, 180.0)
-	_active_thrust_vfx.rotation_degrees.y = yaw
+	# Position + Rotation gleich korrekt setzen
+	_update_thrust_vfx_position()
 
 	var mesh: MeshInstance3D = _active_thrust_vfx.get_node_or_null("MeshInstance3D")
 	if mesh == null:
@@ -993,9 +1024,24 @@ func _update_thrust_vfx_position() -> void:
 	if _active_thrust_vfx == null or not is_instance_valid(_active_thrust_vfx):
 		return
 
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		return
+
 	var offset := _get_thrust_offset()
-	_active_thrust_vfx.global_position = global_position + offset
-	_active_thrust_vfx.global_position.y = global_position.y + thrust_height
+	var cam_basis := camera.global_transform.basis
+
+	# Anker im Camera-Space: klebt am Sprite, egal wie die Kamera steht
+	var anchor := global_position
+	anchor += cam_basis.x * offset.x   # X = rechts auf dem Bildschirm
+	anchor += cam_basis.y * offset.y   # Y = hoch auf dem Bildschirm
+	anchor += -cam_basis.z * offset.z  # Z = von der Kamera weg (optional, meist 0)
+
+	_active_thrust_vfx.global_position = anchor
+
+	# Rotation in Welt-Space, damit der Zylinder in die echte Schwungrichtung zeigt
+	var yaw: float = THRUST_YAW_DEG.get(_facing_dir, 180.0)
+	_active_thrust_vfx.global_rotation = Vector3(0.0, deg_to_rad(yaw), 0.0)
 
 
 func _get_thrust_offset() -> Vector3:

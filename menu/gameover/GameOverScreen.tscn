@@ -1,45 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dyhu3qapskye3"]
+[gd_scene load_steps=2 format=3 uid="uid://dyhu3qapskye3"]
 
 [ext_resource type="Script" uid="uid://c30brki6lx1ph" path="res://menu/gameover/game_over_screen.gd" id="1_ly5do"]
-[ext_resource type="FontFile" uid="uid://bf8r2nx6mtj26" path="res://menu/assets/fonts/Merriweather-Regular.ttf" id="2_1tnha"]
 
 [node name="GameOverScreen" type="CanvasLayer"]
 script = ExtResource("1_ly5do")
-
-[node name="ColorRect" type="ColorRect" parent="."]
-texture_filter = 2
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 1)
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-alignment = 1
-
-[node name="GameOverLabel" type="Label" parent="ColorRect/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_1tnha")
-theme_override_font_sizes/font_size = 28
-text = "Game Over"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="ColorRect/VBoxContainer"]
-layout_mode = 2
-
-[node name="LoadButton" type="Button" parent="ColorRect/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_1tnha")
-text = "Load Game"
-
-[node name="QuitButton" type="Button" parent="ColorRect/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_1tnha")
-text = "Quit Game"

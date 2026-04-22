@@ -17,6 +17,8 @@ enum ItemRarity {
 	LEGENDARY
 }
 
+@export var overlay_texture: Texture2D
+
 @export_group("Basic Info")
 @export var item_id: String = ""
 @export var item_name: String = ""

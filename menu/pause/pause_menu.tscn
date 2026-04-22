@@ -1,12 +1,12 @@
-[gd_scene load_steps=16 format=3 uid="uid://dsennl7lwghh4"]
+[gd_scene load_steps=15 format=3 uid="uid://dsennl7lwghh4"]
 
 [ext_resource type="Script" uid="uid://be4qyrqmq8rfi" path="res://menu/pause/pause_menu.gd" id="1_qssgc"]
 [ext_resource type="FontFile" uid="uid://b3gyiro3elvvy" path="res://menu/assets/LeagueGothic-Italic.otf" id="2_tllbf"]
-[ext_resource type="Texture2D" uid="uid://c62rqe1ysw5lp" path="res://menu/assets/icons/stats-icon.png" id="3_f3dd2"]
-[ext_resource type="Texture2D" uid="uid://dxrrhe0a0yutp" path="res://menu/assets/icons/map-icon.png" id="3_sbl3r"]
-[ext_resource type="Texture2D" uid="uid://cpq02ael6bq0t" path="res://menu/assets/icons/inventory-icon.png" id="4_xm4lc"]
-[ext_resource type="Texture2D" uid="uid://btgky7euxrgn" path="res://menu/assets/icons/quests-icon.png" id="6_rwt5x"]
-[ext_resource type="Texture2D" uid="uid://dpbmt6coaxcpf" path="res://menu/assets/icons/settings-icon.png" id="7_h2e5x"]
+[ext_resource type="Texture2D" uid="uid://q02c86o82ots" path="res://menu/assets/icons/stats-icon-clr.png" id="3_rwt5x"]
+[ext_resource type="Texture2D" uid="uid://bwnjmdsc7v5g7" path="res://menu/assets/icons/inventory-icon-clr.png" id="4_rwt5x"]
+[ext_resource type="Texture2D" uid="uid://xofa7bxm4ck5" path="res://menu/assets/icons/map-icon-clr.png" id="5_h2e5x"]
+[ext_resource type="Texture2D" uid="uid://b3femjn5cvhvu" path="res://menu/assets/icons/quests-icon-clr.png" id="6_rwt5x"]
+[ext_resource type="Texture2D" uid="uid://bpd8b8b77if7g" path="res://menu/assets/icons/settings-icon-clr.png" id="7_rwt5x"]
 [ext_resource type="PackedScene" uid="uid://3j71sb2xfict" path="res://menu/pause/stats_content.tscn" id="8_rwt5x"]
 [ext_resource type="FontFile" uid="uid://bf8r2nx6mtj26" path="res://menu/assets/fonts/Merriweather-Regular.ttf" id="8_xm4lc"]
 
@@ -31,13 +31,10 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h2e5x"]
 bg_color = Color(0.33003333, 0.33003333, 0.33003333, 0.5)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xv2go"]
-bg_color = Color(0, 0, 0, 0.3)
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
 [node name="PauseMenu" type="CanvasLayer"]
 script = ExtResource("1_qssgc")
+select_sound_path = null
+confirm_sound_path = null
 
 [node name="Background" type="ColorRect" parent="."]
 texture_filter = 2
@@ -56,6 +53,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
 [node name="TabBarPanel" type="PanelContainer" parent="Background/MainContainer"]
 layout_mode = 2
@@ -76,7 +74,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
 theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
 text = "Character"
-icon = ExtResource("3_f3dd2")
+icon = ExtResource("3_rwt5x")
 icon_alignment = 1
 vertical_icon_alignment = 0
 
@@ -91,7 +89,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
 theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
 text = "Inventory"
-icon = ExtResource("4_xm4lc")
+icon = ExtResource("4_rwt5x")
 icon_alignment = 1
 vertical_icon_alignment = 0
 
@@ -105,7 +103,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
 theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
 text = "Map"
-icon = ExtResource("3_sbl3r")
+icon = ExtResource("5_h2e5x")
 icon_alignment = 1
 vertical_icon_alignment = 0
 
@@ -133,16 +131,15 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_rwt5x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_722e3")
 theme_override_styles/focus = SubResource("StyleBoxFlat_h2e5x")
 text = "Options"
-icon = ExtResource("7_h2e5x")
+icon = ExtResource("7_rwt5x")
 icon_alignment = 1
 vertical_icon_alignment = 0
 
 [node name="ContentPanel" type="PanelContainer" parent="Background/MainContainer"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_xv2go")
 
 [node name="ContentContainer" type="MarginContainer" parent="Background/MainContainer/ContentPanel"]
-custom_minimum_size = Vector2(0, 550)
+custom_minimum_size = Vector2(0, 480)
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20

@@ -12,7 +12,7 @@ signal projectile_fired(target: Node3D)
 signal launch_started
 signal launch_completed
 signal ability_cancelled(reason: String)
-signal target_confused(target: Node3D, duration: float)  # NEU: Für Gegner-Verwirrung
+signal target_confused(target: Node3D, duration: float)
 
 # === REFERENCES ===
 @export var player_path: NodePath = ".."
@@ -21,35 +21,48 @@ signal target_confused(target: Node3D, duration: float)  # NEU: Für Gegner-Verw
 
 # === CHARGING SETTINGS ===
 @export_group("Charging")
-@export var radius_start: float = 1.0           # Anfangsradius in Metern
-@export var radius_max: float = 5.0             # Maximaler Radius
-@export var radius_growth_rate: float = 1.5     # Meter pro Sekunde
-@export var radius_height: float = 0.3          # Höhe des Radius (für Targeting)
+@export var radius_start: float = 1.0
+@export var radius_max: float = 5.0
+@export var radius_growth_rate: float = 1.5
+@export var radius_height: float = 0.3
 @export var resonance_drain_per_second: float = 10.0
+
+@export_group("Charge Visual")
+@export var charge_fade_in_time: float = 0.12
+@export var charge_fade_out_time: float = 0.12
+@export var charge_fade_start_scale: float = 0.92
 
 # === PROJECTILE SETTINGS ===
 @export_group("Projectile")
-@export var projectile_speed: float = 25.0      # Meter pro Sekunde
+@export var projectile_speed: float = 25.0
 @export var projectile_color: Color = Color(0.7, 0.85, 1.0, 1.0)
+@export var flash_color: Color = Color(0.894, 0.596, 0.392, 1.0)
 
 # === LAUNCH/FLIGHT SETTINGS ===
 @export_group("Launch")
-@export var launch_duration: float = 0.8        # Flugzeit in Sekunden (länger = langsamer)
-@export var launch_arc_height: float = 2.5      # Bogenhöhe über dem Ziel
-@export var launch_invincible: bool = true      # Unverwundbar während Flug
-@export var use_idle_frame_on_land: bool = true # Zeigt Idle-Frame bei Landung
+@export var launch_duration: float = 0.8
+@export var launch_arc_height: float = 2.5
+@export var launch_invincible: bool = true
+@export var use_idle_frame_on_land: bool = true
+
+# === LAUNCH DAMAGE ===
+@export_group("Launch Damage")
+@export var launch_damage_base: int = 6
+@export var launch_damage_per_attunement: float = 1.2
+@export var launch_knockback_strength: float = 2.5
+@export var launch_pierce_enemies: bool = true
 
 # === ENEMY CONFUSION ===
 @export_group("Enemy Confusion")
-@export var confuse_enemy: bool = true          # Gegner verwirren
-@export var confusion_duration: float = 1.0     # Wie lange der Gegner verwirrt ist
-@export var confusion_trigger_point: float = 0.4  # Bei welchem Flug-% verwirren (0.5 = Mitte/über Gegner)
+@export var confuse_enemy: bool = true
+@export var confusion_duration: float = 1.0
+@export var confusion_trigger_point: float = 0.4
 
 # === COLLISION ===
 @export_group("Collision")
-@export var collision_delay: float = 0.15       # Sekunden bevor Kollision checkt (für Start an Wand)
+@export var collision_delay: float = 0.15
 
-# === AFTERIMAGE SETTINGS (während Flug) ===
+# === AFTERIMAGE SETTINGS ===
 @export_group("Afterimage")
 @export var afterimage_enabled: bool = true
 @export var afterimage_count: int = 8
@@ -58,7 +71,7 @@ signal target_confused(target: Node3D, duration: float)  # NEU: Für Gegner-Verw
 
 # === FRAME INDICES ===
 @export_group("Frames - Charging/Release")
-@export var use_custom_charge_frames: bool = false  # False = benutze Idle-Frames
+@export var use_custom_charge_frames: bool = false
 @export var CHARGE_DOWN_FRAME: int = 0
 @export var CHARGE_UP_FRAME: int = 9
 @export var CHARGE_SIDE_FRAME: int = 18
@@ -66,12 +79,32 @@ signal target_confused(target: Node3D, duration: float)  # NEU: Für Gegner-Verw
 @export var CHARGE_UP_RIGHT_FRAME: int = 63
 
 @export_group("Frames - In Air")
-@export var use_custom_air_frames: bool = false  # False = benutze Idle-Frames
+@export var use_custom_air_frames: bool = false
 @export var AIR_DOWN_FRAME: int = 0
 @export var AIR_UP_FRAME: int = 9
 @export var AIR_SIDE_FRAME: int = 18
 @export var AIR_DOWN_LEFT_FRAME: int = 54
 @export var AIR_UP_RIGHT_FRAME: int = 63
+
+# === TARGET INDICATOR ===
+@export_group("Target Indicator")
+@export var target_indicator_y_offset: float = 0.35
+@export var target_indicator_size: float = 0.55
+@export var target_indicator_fill_color: Color = Color(0.55, 0.82, 1.0, 1.0)
+@export var target_indicator_highlight_color: Color = Color(0.92, 0.98, 1.0, 1.0)
+@export var target_indicator_outline_color: Color = Color(0.03, 0.05, 0.11, 1.0)
+@export var target_indicator_outline_thickness: float = 0.055
+@export var target_indicator_bob_amplitude: float = 0.07
+@export var target_indicator_bob_speed: float = 3.2
+@export var target_indicator_pop_in_time: float = 0.18
+
+@export_group("Bounce")
+@export var bounce_enabled: bool = true
+@export var bounce_speed_multiplier: float = 0.35  # Wie viel der Restgeschwindigkeit erhalten bleibt
+@export var bounce_upward_kick: float = 2.0         # Vertikaler Impuls beim Abprallen
+@export var bounce_gravity: float = 18.0
+@export var bounce_max_duration: float = 1.6        # Sicherheits-Timeout
+@export var bounce_invincible: bool = false
 
 # === SOUND ===
 @export_group("Sound")
@@ -84,7 +117,9 @@ signal target_confused(target: Node3D, duration: float)  # NEU: Für Gegner-Verw
 const TARGETABLE_GROUPS: Array[String] = ["enemies", "enemy", "targetable", "projectile"]
 
 # === STATE ===
-enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, RECOVERY }
+enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, BOUNCING, RECOVERY }
+
+
 var _state: State = State.IDLE
 var _current_radius: float = 0.0
 var _charge_time: float = 0.0
@@ -96,17 +131,28 @@ var _launch_end_pos: Vector3
 var _launch_target_pos: Vector3
 var _afterimage_timer: float = 0.0
 var _afterimages_spawned: int = 0
-var _confusion_triggered: bool = false  # Ob Gegner schon verwirrt wurde
-var _launch_time: float = 0.0  # Vergangene Zeit seit Launch-Start
+var _confusion_triggered: bool = false
+var _launch_time: float = 0.0
+var _hit_enemies_this_launch: Dictionary = {}  
+var _bounce_velocity: Vector3 = Vector3.ZERO
+var _bounce_time: float = 0.0
+var _bounce_start_y: float = 0.0
 
 # === VISUALS ===
 var _radius_mesh: MeshInstance3D = null
-var _target_indicator: Node3D = null
 var _charge_audio: AudioStreamPlayer3D = null
+var _radius_tween: Tween = null
+
+# === TARGET INDICATOR RUNTIME ===
+var _target_indicator_root: Node3D = null
+var _target_indicator_mesh: MeshInstance3D = null
+var _target_indicator_material: ShaderMaterial = null
+var _target_indicator_time: float = 0.0
+var _target_indicator_shader: Shader = null
 
 # === CACHED REFERENCES ===
 var _player: CharacterBody3D = null
-var _sprite: Node3D = null  # Kann Sprite3D oder SmoothPixelSprite3D sein
+var _sprite: Node3D = null
 var _spring_arm: Node3D = null
 
 # === 8 Directions ===
@@ -117,7 +163,6 @@ func _ready() -> void:
 	_player = get_node_or_null(player_path) as CharacterBody3D
 	_spring_arm = get_node_or_null(spring_arm_path) as Node3D
 	
-	# Sprite kann Sprite3D oder SmoothPixelSprite3D oder andere sein
 	var sprite_node = get_node_or_null(sprite_path)
 	if sprite_node != null:
 		_sprite = sprite_node
@@ -136,6 +181,8 @@ func _physics_process(delta: float) -> void:
 			_process_projectile(delta)
 		State.LAUNCHING:
 			_process_launching(delta)
+		State.BOUNCING:
+			_process_bouncing(delta)
 		State.RECOVERY:
 			pass
 
@@ -145,14 +192,12 @@ func _physics_process(delta: float) -> void:
 # ============================================
 
 func start_charging() -> bool:
-	"""Startet das Charging. Gibt false zurück wenn nicht möglich."""
 	if _state != State.IDLE:
 		return false
 	
 	if _player == null:
 		return false
 	
-	# Prüfen ob genug Resonance für mindestens einen Frame
 	if not _has_resonance(resonance_drain_per_second * 0.016):
 		ability_cancelled.emit("not_enough_resonance")
 		return false
@@ -162,16 +207,11 @@ func start_charging() -> bool:
 	_charge_time = 0.0
 	_current_target = null
 	
-	# Spieler stoppen
 	_player.velocity = Vector3.ZERO
 	
-	# Radius-Visualisierung erstellen
 	_create_radius_visual()
-	
-	# Sound starten
 	_start_charge_sound()
 	
-	# Player-Attack abbrechen falls aktiv
 	if _player.has_method("_end_attack"):
 		_player._end_attack()
 	
@@ -180,25 +220,23 @@ func start_charging() -> bool:
 
 
 func stop_charging() -> void:
-	"""Beendet das Charging und feuert bei gültigem Ziel."""
 	if _state != State.CHARGING:
 		return
 	
+	charging_stopped.emit()
+	
 	if _current_target != null and is_instance_valid(_current_target):
-		# Gültiges Ziel -> Projektil feuern
 		_fire_projectile()
 	else:
-		# Kein Ziel -> Abbrechen
 		_cancel_ability("no_target")
 
 
 func cancel() -> void:
-	"""Bricht die Fähigkeit sofort ab."""
+	charging_stopped.emit()
 	_cancel_ability("cancelled")
 
 
 func is_active() -> bool:
-	"""Gibt true zurück wenn die Fähigkeit aktiv ist (nicht IDLE)."""
 	return _state != State.IDLE
 
 
@@ -219,7 +257,6 @@ func get_current_target() -> Node3D:
 # ============================================
 
 func _process_charging(delta: float) -> void:
-	# Resonance drainieren
 	var drain: float = resonance_drain_per_second * delta
 	if not _consume_resonance(drain):
 		_cancel_ability("not_enough_resonance")
@@ -227,14 +264,13 @@ func _process_charging(delta: float) -> void:
 	
 	_charge_time += delta
 	
-	# Radius wachsen lassen
 	_current_radius = min(radius_max, radius_start + radius_growth_rate * _charge_time)
 	_update_radius_visual()
-	
-	# Ziel suchen
 	_update_target()
 	
-	# Charging-Frame anzeigen
+	if _current_target != null and is_instance_valid(_current_target):
+		_sync_target_indicator()
+	
 	_show_charge_frame()
 
 
@@ -248,20 +284,19 @@ func _update_target() -> void:
 	for group in TARGETABLE_GROUPS:
 		for node in get_tree().get_nodes_in_group(group):
 			if node is Node3D:
-				var target_pos: Vector3 = node.global_position
+				var target_pos: Vector3 = _get_target_anchor_position(node)
+				if node.has_method("is_vector_anchor_targetable") and not node.is_vector_anchor_targetable():
+					continue
 				var to_target: Vector3 = target_pos - player_pos
 				var distance: float = to_target.length()
 				
-				# Distanz-Check
 				if distance > _current_radius or distance < 0.5:
 					continue
 				
-				# Höhen-Check
 				var height_diff: float = abs(target_pos.y - player_pos.y)
 				if height_diff > radius_height:
 					continue
 				
-				# Score berechnen (Vorne = besser, näher = besser)
 				var direction: Vector3 = to_target.normalized()
 				var dot: float = direction.dot(player_forward)
 				var score: float = dot * 2.0 - distance / _current_radius
@@ -270,7 +305,6 @@ func _update_target() -> void:
 					best_score = score
 					best_target = node
 	
-	# Target gewechselt?
 	if best_target != _current_target:
 		if _current_target != null:
 			_remove_target_indicator()
@@ -284,19 +318,26 @@ func _update_target() -> void:
 
 
 func _get_player_forward() -> Vector3:
-	"""Gibt die Blickrichtung des Spielers zurück."""
 	var dir_mode: int = _player._last_dir_mode
 	var dir2: Vector2 = Vector2.ZERO
 	
 	match dir_mode:
-		DirMode.DOWN: dir2 = Vector2(0, 1)
-		DirMode.UP: dir2 = Vector2(0, -1)
-		DirMode.LEFT: dir2 = Vector2(-1, 0)
-		DirMode.RIGHT: dir2 = Vector2(1, 0)
-		DirMode.DOWN_LEFT: dir2 = Vector2(-1, 1).normalized()
-		DirMode.DOWN_RIGHT: dir2 = Vector2(1, 1).normalized()
-		DirMode.UP_LEFT: dir2 = Vector2(-1, -1).normalized()
-		DirMode.UP_RIGHT: dir2 = Vector2(1, -1).normalized()
+		DirMode.DOWN:
+			dir2 = Vector2(0, 1)
+		DirMode.UP:
+			dir2 = Vector2(0, -1)
+		DirMode.LEFT:
+			dir2 = Vector2(-1, 0)
+		DirMode.RIGHT:
+			dir2 = Vector2(1, 0)
+		DirMode.DOWN_LEFT:
+			dir2 = Vector2(-1, 1).normalized()
+		DirMode.DOWN_RIGHT:
+			dir2 = Vector2(1, 1).normalized()
+		DirMode.UP_LEFT:
+			dir2 = Vector2(-1, -1).normalized()
+		DirMode.UP_RIGHT:
+			dir2 = Vector2(1, -1).normalized()
 	
 	if _spring_arm:
 		var yaw: float = _spring_arm.rotation.y
@@ -316,84 +357,135 @@ func _fire_projectile() -> void:
 		_cancel_ability("no_target")
 		return
 	
-	# Spieler zum Ziel drehen
 	_face_target(_current_target.global_position)
-	
-	# Release-Frame zeigen
 	_show_charge_frame()
 	
-	# Radius entfernen
 	_remove_radius_visual()
 	_stop_charge_sound()
 	
-	# Projektil erstellen
 	_create_projectile()
-	
 	_state = State.PROJECTILE
 	
-	# Sound
 	_play_sound(release_sound)
-	
 	projectile_fired.emit(_current_target)
 
 
 func _create_projectile() -> void:
 	_projectile_node = Node3D.new()
+	_projectile_node.name = "EnergyBeam"
 	get_tree().current_scene.add_child(_projectile_node)
-	_projectile_node.global_position = _player.global_position + Vector3(0, 0.5, 0)
 	
-	# Mesh für Projektil
-	var mesh_instance := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.08
-	sphere.height = 0.16
-	mesh_instance.mesh = sphere
+	# Zwei Layer: heller Kern + weicher äußerer Glow.
+	# Beide als Billboard-Cross (zwei gekreuzte Quads) — keine Caps, keine Nähte.
+	var core := MeshInstance3D.new()
+	core.name = "BeamCore"
+	core.mesh = _build_beam_cross_mesh(0.135)
+	core.material_override = _create_beam_material(1.25, 1.4)
+	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_projectile_node.add_child(core)
 	
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = projectile_color
-	mat.emission_enabled = true
-	mat.emission = projectile_color
-	mat.emission_energy_multiplier = 3.0
-	mesh_instance.material_override = mat
+	var glow := MeshInstance3D.new()
+	glow.name = "BeamGlow"
+	glow.mesh = _build_beam_cross_mesh(0.16)
+	glow.material_override = _create_beam_material(0.55, 2.2)
+	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_projectile_node.add_child(glow)
+
+
+func _build_beam_cross_mesh(thickness: float) -> ArrayMesh:
+	# Zwei gekreuzte Quads in + Form. Unit-Length entlang Z,
+	# die tatsächliche Länge kommt über scale.z auf der MeshInstance.
+	var arr_mesh := ArrayMesh.new()
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
 	
-	_projectile_node.add_child(mesh_instance)
+	var verts := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var indices := PackedInt32Array()
 	
-	# Trail-Partikel
-	var particles := GPUParticles3D.new()
-	particles.amount = 20
-	particles.lifetime = 0.2
-	particles.emitting = true
+	var h: float = 0.5
+	var t: float = thickness
 	
-	var proc_mat := ParticleProcessMaterial.new()
-	proc_mat.direction = Vector3(0, 0, 0)
-	proc_mat.spread = 180.0
-	proc_mat.initial_velocity_min = 0.1
-	proc_mat.initial_velocity_max = 0.3
-	proc_mat.gravity = Vector3.ZERO
-	proc_mat.scale_min = 0.5
-	proc_mat.scale_max = 1.0
+	# Horizontales Quad (liegt in XZ, Normal +Y)
+	verts.append_array([
+		Vector3(-t, 0.0, -h), Vector3( t, 0.0, -h),
+		Vector3( t, 0.0,  h), Vector3(-t, 0.0,  h),
+	])
+	uvs.append_array([
+		Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1),
+	])
+	indices.append_array([0, 1, 2, 0, 2, 3])
 	
-	var gradient := Gradient.new()
-	gradient.set_color(0, projectile_color)
-	gradient.set_color(1, Color(projectile_color.r, projectile_color.g, projectile_color.b, 0.0))
-	var gradient_tex := GradientTexture1D.new()
-	gradient_tex.gradient = gradient
-	proc_mat.color_ramp = gradient_tex
+	# Vertikales Quad (liegt in YZ, Normal +X)
+	verts.append_array([
+		Vector3(0.0, -t, -h), Vector3(0.0,  t, -h),
+		Vector3(0.0,  t,  h), Vector3(0.0, -t,  h),
+	])
+	uvs.append_array([
+		Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1),
+	])
+	indices.append_array([4, 5, 6, 4, 6, 7])
 	
-	particles.process_material = proc_mat
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_INDEX] = indices
 	
-	var quad := QuadMesh.new()
-	quad.size = Vector2(0.04, 0.04)
-	var quad_mat := StandardMaterial3D.new()
-	quad_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	quad_mat.vertex_color_use_as_albedo = true
-	quad_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	quad_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	quad.material = quad_mat
-	particles.draw_pass_1 = quad
+	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return arr_mesh
+
+
+func _create_beam_material(brightness: float, softness: float) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = _get_beam_shader()
+	mat.set_shader_parameter("beam_color", projectile_color)
+	mat.set_shader_parameter("brightness", brightness)
+	mat.set_shader_parameter("softness", softness)
+	mat.set_shader_parameter("time", 0.0)
+	return mat
+
+var _beam_shader_cache: Shader = null
+
+func _get_beam_shader() -> Shader:
+	if _beam_shader_cache != null:
+		return _beam_shader_cache
+	_beam_shader_cache = Shader.new()
+	_beam_shader_cache.code = """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, blend_add, depth_draw_never;
+
+uniform vec4 beam_color : source_color = vec4(0.7, 0.9, 1.0, 1.0);
+uniform float brightness = 1.0;
+uniform float softness = 1.5;
+uniform float time = 0.0;
+
+void fragment() {
+	float width_dist = abs(UV.x - 0.5) * 2.0;
+	float width_falloff = pow(max(0.0, 1.0 - width_dist), softness);
 	
-	_projectile_node.add_child(particles)
+	// Weicher Taper an beiden Enden — kein hartes Abschneiden
+	float length_mask = smoothstep(0.0, 0.05, UV.y) * smoothstep(1.0, 0.94, UV.y);
+	
+	// Energiefluss entlang der Länge
+	float flow = fract(UV.y * 3.5 - time * 7.0);
+	float striation = 0.80 + smoothstep(0.25, 0.0, abs(flow - 0.5)) * 0.4;
+	
+	// Hochfrequentes Flackern für Plasma-Gefühl
+	float flicker = 0.92 + sin(time * 28.0) * 0.06 + sin(time * 41.0) * 0.03;
+	
+	// Heißer weißer Kern, kalte Farbe nach außen
+	vec3 hot = mix(beam_color.rgb, vec3(1.0), pow(width_falloff, 3.0));
+	vec3 col = mix(beam_color.rgb, hot, width_falloff);
+	
+	float intensity = width_falloff * length_mask * striation * flicker * brightness;
+	
+	// blend_add addiert ALBEDO direkt zum Framebuffer — Intensität modulieren wir über die Farbe
+	ALBEDO = col * intensity;
+	ALPHA = 1.0;
+	EMISSION = col * intensity * 1.8;
+}
+"""
+	return _beam_shader_cache
+
 
 
 func _process_projectile(delta: float) -> void:
@@ -405,49 +497,64 @@ func _process_projectile(delta: float) -> void:
 		_cancel_ability("target_invalid")
 		return
 	
-	var target_pos: Vector3 = _current_target.global_position + Vector3(0, 0.3, 0)
-	var current_pos: Vector3 = _projectile_node.global_position
-	var direction: Vector3 = (target_pos - current_pos).normalized()
-	var distance: float = current_pos.distance_to(target_pos)
+	var player_pos: Vector3 = _player.global_position + Vector3(0, 0.5, 0)
+	var target_pos: Vector3 = _get_target_anchor_position(_current_target) + Vector3(0, 0.3, 0)
+	var total_distance: float = player_pos.distance_to(target_pos)
+	var direction: Vector3 = (target_pos - player_pos).normalized()
 	
-	# Projektil bewegen
-	var move_dist: float = projectile_speed * delta
+	var current_time: float = Time.get_ticks_msec() / 1000.0
 	
-	if move_dist >= distance:
-		# Ziel erreicht -> Launch starten
+	if not _projectile_node.has_meta("start_time"):
+		_projectile_node.set_meta("start_time", current_time)
+	
+	var start_time: float = _projectile_node.get_meta("start_time")
+	var elapsed: float = current_time - start_time
+	var beam_head_dist: float = elapsed * projectile_speed
+	
+	if beam_head_dist >= total_distance:
 		_on_projectile_hit()
-	else:
-		_projectile_node.global_position += direction * move_dist
+		return
+	
+	var beam_length: float = beam_head_dist
+	var beam_center: Vector3 = player_pos + direction * (beam_length * 0.5)
+	
+	_projectile_node.global_position = beam_center
+	_projectile_node.look_at(target_pos, Vector3.UP)
+	
+	var core := _projectile_node.get_node_or_null("BeamCore") as MeshInstance3D
+	if core:
+		core.scale = Vector3(1.0, 1.0, beam_length)
+		if core.material_override is ShaderMaterial:
+			core.material_override.set_shader_parameter("time", current_time)
+	
+	var glow := _projectile_node.get_node_or_null("BeamGlow") as MeshInstance3D
+	if glow:
+		glow.scale = Vector3(1.0, 1.0, beam_length)
+		if glow.material_override is ShaderMaterial:
+			glow.material_override.set_shader_parameter("time", current_time)
 
 
 func _on_projectile_hit() -> void:
-	# Projektil entfernen
 	if _projectile_node:
-		# Impact-Effekt
 		_spawn_impact_effect(_projectile_node.global_position)
 		_projectile_node.queue_free()
 		_projectile_node = null
 	
-	# Ziel-Indikator entfernen
 	_remove_target_indicator()
 	
-	# Projektil-Reflektion bei Projektil-Zielen
 	if _current_target.is_in_group("projectile"):
 		_reflect_projectile(_current_target)
 		_cancel_ability("projectile_reflected")
 		return
 	
-	# Launch starten
 	_start_launch()
 
 
 func _reflect_projectile(projectile: Node3D) -> void:
-	"""Reflektiert ein Projektil zurück."""
 	if projectile.has_method("reflect"):
 		projectile.reflect()
 	elif projectile.get("velocity") != null:
 		projectile.velocity = -projectile.velocity
-	# Keine weitere Aktion - Spieler bleibt stehen
 
 
 # ============================================
@@ -455,48 +562,56 @@ func _reflect_projectile(projectile: Node3D) -> void:
 # ============================================
 
 func _start_launch() -> void:
+	_hit_enemies_this_launch.clear()
+	
 	if _current_target == null or not is_instance_valid(_current_target):
+		print("[VectorAnchor] _start_launch ABORT: target invalid")
 		_cancel_ability("target_invalid")
 		return
 	
-	# Positionen berechnen
 	var start_pos: Vector3 = _player.global_position
-	var target_pos: Vector3 = _current_target.global_position
+	var target_pos: Vector3 = _get_target_anchor_position(_current_target)
 	
-	# Gespiegelte Position berechnen
 	var end_pos: Vector3 = target_pos * 2.0 - start_pos
-	end_pos.y = start_pos.y  # Gleiche Höhe
+	end_pos.y = start_pos.y
 	
-	# VORAB Kollisions-Check für Endposition
+	print("[VectorAnchor] Launch attempt:")
+	print("  start_pos=", start_pos)
+	print("  target_pos=", target_pos)
+	print("  end_pos=", end_pos)
+	print("  distance=", start_pos.distance_to(end_pos))
+	
 	var space_state := _player.get_world_3d().direct_space_state
+	var exclude_rids: Array = [_player.get_rid()]
+	# Feinere Fallbacks, inklusive sehr kurzer Distanzen hinter dem Target
+	var test_positions: Array[Vector3] = [end_pos]
+	var dir_to_end: Vector3 = (end_pos - target_pos).normalized()
+	for dist in [2.0, 1.5, 1.2, 0.9, 0.7, 0.5, 0.3]:
+		var alt: Vector3 = target_pos + dir_to_end * dist
+		alt.y = start_pos.y
+		test_positions.append(alt)
 	
-	# Prüfe ob Endposition frei ist (Sphere-Check)
-	var shape_query := PhysicsShapeQueryParameters3D.new()
-	var sphere := SphereShape3D.new()
-	sphere.radius = 0.4
-	shape_query.shape = sphere
-	shape_query.transform = Transform3D(Basis(), end_pos + Vector3(0, 0.5, 0))
-	shape_query.collision_mask = _player.collision_mask
-	shape_query.exclude = [_player.get_rid()]
+	var resolved_end_pos: Vector3 = Vector3.ZERO
+	var found_valid: bool = false
 	
-	var results := space_state.intersect_shape(shape_query, 1)
-	if results.size() > 0:
-		# Endposition blockiert - finde eine sichere Position
-		# Versuche näher am Ziel zu landen
-		var dir_to_end: Vector3 = (end_pos - target_pos).normalized()
-		for dist in [0.8, 1.2, 1.6, 2.0]:
-			var test_pos: Vector3 = target_pos + dir_to_end * dist
-			test_pos.y = start_pos.y
-			shape_query.transform = Transform3D(Basis(), test_pos + Vector3(0, 0.5, 0))
-			results = space_state.intersect_shape(shape_query, 1)
-			if results.size() == 0:
-				end_pos = test_pos
-				break
-		
-		# Wenn immer noch blockiert, abbrechen
-		if results.size() > 0:
-			_cancel_ability("destination_blocked")
-			return
+	for candidate in test_positions:
+		var result := _check_launch_destination(candidate, exclude_rids)
+		if result.valid:
+			resolved_end_pos = result.position
+			found_valid = true
+			print("  Ziel OK bei ", candidate, " → Landepunkt=", resolved_end_pos)
+			break
+		else:
+			print("  Ziel blockiert bei ", candidate, ": ", result.reason)
+	
+	# Letzter Ausweg: In-Place-Launch. Der Spieler bleibt fast stehen,
+	# aber alle Gameplay-Effekte (Enemy-Confusion, Hit-Damage, VFX) laufen normal ab.
+	if not found_valid:
+		print("[VectorAnchor] Alle Positionen blockiert — In-Place-Launch")
+		resolved_end_pos = start_pos
+	
+	end_pos = resolved_end_pos
+	print("[VectorAnchor] Launch START → end_pos=", end_pos)
 	
 	_state = State.LAUNCHING
 	_launch_progress = 0.0
@@ -509,15 +624,55 @@ func _start_launch() -> void:
 	_launch_target_pos = target_pos
 	_launch_end_pos = end_pos
 	
-	# Invincibility
 	if launch_invincible:
 		_player._invincibility_timer = max(_player._invincibility_timer, launch_duration + 0.1)
 	
-	# Sound
 	_play_sound(launch_sound)
-	
 	launch_started.emit()
 
+func _check_launch_destination(candidate: Vector3, exclude_rids: Array) -> Dictionary:
+	# Schritt 1: Raycast nach unten um echten Boden zu finden.
+	# Wir starten etwas über dem Kandidaten und strahlen weit nach unten.
+	var space_state := _player.get_world_3d().direct_space_state
+	var ray_start: Vector3 = candidate + Vector3(0, 1.0, 0)
+	var ray_end: Vector3 = candidate + Vector3(0, -3.0, 0)
+	
+	var ray_query := PhysicsRayQueryParameters3D.create(ray_start, ray_end)
+	ray_query.collision_mask = _player.collision_mask
+	ray_query.exclude = exclude_rids
+	ray_query.hit_back_faces = false
+	
+	var hit := space_state.intersect_ray(ray_query)
+	if hit.is_empty():
+		return {"valid": false, "reason": "kein Boden gefunden", "position": candidate}
+	
+	var ground_y: float = hit.position.y
+	
+	# Zu weit unterhalb oder oberhalb der Ausgangshöhe → Klippe oder Wand über uns
+	var y_diff: float = ground_y - candidate.y
+	if y_diff > 0.8:
+		return {"valid": false, "reason": "Boden zu hoch (+%.2fm)" % y_diff, "position": candidate}
+	if y_diff < -2.0:
+		return {"valid": false, "reason": "Boden zu tief (%.2fm)" % y_diff, "position": candidate}
+	
+	# Schritt 2: Prüfe, ob auf Kopfhöhe des Players Freiraum ist.
+	# Kleine Sphere 0.9m über dem tatsächlichen Boden.
+	var head_check_pos: Vector3 = Vector3(candidate.x, ground_y + 0.9, candidate.z)
+	var shape_query := PhysicsShapeQueryParameters3D.new()
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.25
+	shape_query.shape = sphere
+	shape_query.transform = Transform3D(Basis(), head_check_pos)
+	shape_query.collision_mask = _player.collision_mask
+	shape_query.exclude = exclude_rids
+	
+	var head_results := space_state.intersect_shape(shape_query, 1)
+	if head_results.size() > 0:
+		return {"valid": false, "reason": "Kopfhöhe blockiert", "position": candidate}
+	
+	# Landepunkt leicht über dem Boden, damit Player nicht reinclippt
+	var landing: Vector3 = Vector3(candidate.x, ground_y + 0.02, candidate.z)
+	return {"valid": true, "reason": "Bodenkontakt", "position": landing}
 
 func _process_launching(delta: float) -> void:
 	_launch_progress += delta / launch_duration
@@ -527,25 +682,18 @@ func _process_launching(delta: float) -> void:
 		_complete_launch()
 		return
 	
-	# Gegner verwirren wenn Spieler über ihm ist (bei confusion_trigger_point)
 	if confuse_enemy and not _confusion_triggered and _launch_progress >= confusion_trigger_point:
 		if _current_target != null and is_instance_valid(_current_target):
 			_confuse_target(_current_target)
 		_confusion_triggered = true
 	
-	# Bogen-Position berechnen
 	var t: float = _launch_progress
-	
-	# Horizontale Interpolation
 	var horizontal_pos: Vector3 = _launch_start_pos.lerp(_launch_end_pos, t)
-	
-	# Vertikale Parabel (Bogen)
 	var arc: float = 4.0 * launch_arc_height * t * (1.0 - t)
 	
 	var new_pos: Vector3 = horizontal_pos
 	new_pos.y = _launch_start_pos.y + arc
 	
-	# Kollisions-Check NUR nach collision_delay (damit man von Wand wegkommt)
 	if _launch_time >= collision_delay:
 		var space_state := _player.get_world_3d().direct_space_state
 		var shape_query := PhysicsShapeQueryParameters3D.new()
@@ -556,31 +704,45 @@ func _process_launching(delta: float) -> void:
 		shape_query.collision_mask = _player.collision_mask
 		shape_query.exclude = [_player.get_rid()]
 		
-		var results := space_state.intersect_shape(shape_query, 1)
+		# Bis zu 8 Kollisionen pro Frame einsammeln, sodass Wand + Enemy gleichzeitig erkannt werden
+		var results := space_state.intersect_shape(shape_query, 8)
 		
-		if results.size() > 0:
-			# Kollision! Bleibe an aktueller Position und beende
+		var blocking_hit := false
+		for result in results:
+			var collider = result.get("collider")
+			if collider == null or not is_instance_valid(collider):
+				continue
 			
-			# Zum Ziel drehen
-			_face_target(_launch_target_pos)
-			if _player.has_method("_show_idle"):
-				_player._show_idle()
+			var is_enemy: bool = collider is Enemy \
+				or collider.is_in_group("enemies") \
+				or collider.is_in_group("enemy")
 			
-			# Attack-Cooldown zurücksetzen
-			if "_attack_cooldown_timer" in _player:
-				_player._attack_cooldown_timer = 0.0
-			
-			# State zurücksetzen
-			_state = State.IDLE
-			_current_target = null
-			
-			ability_cancelled.emit("collision")
+			if is_enemy:
+				_try_hit_launch_enemy(collider)
+				if not launch_pierce_enemies:
+					blocking_hit = true
+			else:
+				blocking_hit = true
+		
+		if blocking_hit:
+			if bounce_enabled:
+				_start_bounce(new_pos)
+			else:
+				_face_target(_launch_target_pos)
+				if _player.has_method("_show_idle"):
+					_player._show_idle()
+				
+				if "_attack_cooldown_timer" in _player:
+					_player._attack_cooldown_timer = 0.0
+				
+				_state = State.IDLE
+				_current_target = null
+				
+				ability_cancelled.emit("collision")
 			return
 	
-	# Keine Kollision - Position setzen
 	_player.global_position = new_pos
 	
-	# Afterimages spawnen
 	if afterimage_enabled and _sprite != null:
 		var afterimage_interval: float = launch_duration / float(afterimage_count)
 		_afterimage_timer += delta
@@ -589,46 +751,146 @@ func _process_launching(delta: float) -> void:
 			_afterimage_timer = 0.0
 			_afterimages_spawned += 1
 	
-	# Air-Frame anzeigen (Richtung zum Ziel)
 	_show_air_frame()
 
 
 func _complete_launch() -> void:
-	# Endposition setzen
 	_player.global_position = _launch_end_pos
 	
-	# Falls Verwirrung noch nicht ausgelöst wurde (z.B. sehr kurzer Flug), jetzt machen
 	if confuse_enemy and not _confusion_triggered:
 		if _current_target != null and is_instance_valid(_current_target):
 			_confuse_target(_current_target)
 	
-	# Zum Ziel drehen (VON der Endposition AUS zum Ziel schauen)
 	_face_target(_launch_target_pos)
 	
-	# Idle-Frame anzeigen
 	if use_idle_frame_on_land and _player.has_method("_show_idle"):
 		_player._show_idle()
 	
-	# Attack-Cooldown zurücksetzen für sofortigen Angriff!
 	if "_attack_cooldown_timer" in _player:
 		_player._attack_cooldown_timer = 0.0
 	
-	# Sound
 	_play_sound(land_sound)
 	
-	# State zurücksetzen
 	_state = State.IDLE
 	_current_target = null
 	
 	launch_completed.emit()
 
+func _start_bounce(collision_pos: Vector3) -> void:
+	# Aktuelle Flugrichtung schätzen aus dem Launch-Vektor
+	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
+	flight_dir.y = 0.0
+	
+	if flight_dir.length_squared() < 0.0001:
+		# Edge case: kein klarer Vektor — fallback auf Richtung weg vom Target
+		flight_dir = _player.global_position - _launch_target_pos
+		flight_dir.y = 0.0
+	
+	if flight_dir.length_squared() < 0.0001:
+		# Immer noch nichts — gib auf, normaler Stop
+		_face_target(_launch_target_pos)
+		if _player.has_method("_show_idle"):
+			_player._show_idle()
+		_state = State.IDLE
+		_current_target = null
+		ability_cancelled.emit("collision")
+		return
+	
+	flight_dir = flight_dir.normalized()
+	
+	# Restgeschwindigkeit aus Launch-Parametern abschätzen
+	var launch_distance: float = _launch_start_pos.distance_to(_launch_end_pos)
+	var launch_speed: float = launch_distance / launch_duration
+	
+	# Bounce: in entgegengesetzte horizontale Richtung + hoch
+	_bounce_velocity = -flight_dir * launch_speed * bounce_speed_multiplier
+	_bounce_velocity.y = bounce_upward_kick
+	
+	_bounce_time = 0.0
+	_bounce_start_y = _launch_start_pos.y
+	
+	# Player leicht zurücksetzen damit er nicht direkt wieder kollidiert
+	_player.global_position -= flight_dir * 0.05
+	
+	# Invincibility verlängern falls aktiv
+	if bounce_invincible and "_invincibility_timer" in _player:
+		_player._invincibility_timer = max(_player._invincibility_timer, bounce_max_duration + 0.1)
+	
+	_face_target(_launch_target_pos)
+	if _player.has_method("_show_idle"):
+		_player._show_idle()
+	
+	_state = State.BOUNCING
+
+
+func _process_bouncing(delta: float) -> void:
+	_bounce_time += delta
+	
+	# Schwerkraft anwenden
+	_bounce_velocity.y -= bounce_gravity * delta
+	
+	# Bewegung berechnen
+	var movement: Vector3 = _bounce_velocity * delta
+	var new_pos: Vector3 = _player.global_position + movement
+	
+	# Horizontaler Wand-Check (verhindert Reinclippen wenn Bounce Richtung doch ungünstig ist)
+	var space_state := _player.get_world_3d().direct_space_state
+	var shape_query := PhysicsShapeQueryParameters3D.new()
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.3
+	shape_query.shape = sphere
+	shape_query.transform = Transform3D(Basis(), new_pos + Vector3(0, 0.3, 0))
+	shape_query.collision_mask = _player.collision_mask
+	shape_query.exclude = [_player.get_rid()]
+	
+	var results := space_state.intersect_shape(shape_query, 4)
+	var hit_wall: bool = false
+	for r in results:
+		var collider = r.get("collider")
+		if collider == null or not is_instance_valid(collider):
+			continue
+		# Enemies ignorieren beim Bounce — nicht doppelt schaden
+		var is_enemy: bool = collider is Enemy \
+			or collider.is_in_group("enemies") \
+			or collider.is_in_group("enemy")
+		if not is_enemy:
+			hit_wall = true
+			break
+	
+	if hit_wall:
+		# Horizontale Geschwindigkeit auf null, vertikale behalten — der Player rutscht runter
+		_bounce_velocity.x = 0.0
+		_bounce_velocity.z = 0.0
+		new_pos.x = _player.global_position.x
+		new_pos.z = _player.global_position.z
+	
+	_player.global_position = new_pos
+	
+	# Bounce endet wenn: zurück auf Start-Höhe gefallen, Timeout, oder fast keine vertikale Bewegung mehr
+	var falling: bool = _bounce_velocity.y < 0.0
+	var below_floor: bool = _player.global_position.y <= _bounce_start_y
+	var landed: bool = falling and below_floor
+	var timeout: bool = _bounce_time >= bounce_max_duration
+	
+	if landed or timeout:
+		_player.global_position.y = _bounce_start_y
+		_end_bounce()
+
+
+func _end_bounce() -> void:
+	_bounce_velocity = Vector3.ZERO
+	
+	if "_attack_cooldown_timer" in _player:
+		_player._attack_cooldown_timer = 0.0
+	
+	_state = State.IDLE
+	_current_target = null
+	
+	ability_cancelled.emit("bounce_complete")
 
 func _confuse_target(target: Node3D) -> void:
-	"""Verwirrt den Gegner für eine kurze Zeit."""
-	# Signal emittieren (für externe Listener)
 	target_confused.emit(target, confusion_duration)
 	
-	# Direkt auf dem Gegner die Methode aufrufen falls vorhanden
 	if target.has_method("apply_confusion"):
 		target.apply_confusion(confusion_duration)
 	elif target.has_method("stun"):
@@ -636,15 +898,49 @@ func _confuse_target(target: Node3D) -> void:
 	elif target.has_method("set_confused"):
 		target.set_confused(true, confusion_duration)
 	else:
-		# Fallback: Versuche _is_confused oder ähnliche Properties zu setzen
 		if "_is_confused" in target:
 			target._is_confused = true
-			# Timer zum Zurücksetzen
 			get_tree().create_timer(confusion_duration).timeout.connect(func():
 				if is_instance_valid(target) and "_is_confused" in target:
 					target._is_confused = false
 			)
 
+func _try_hit_launch_enemy(enemy: Node) -> void:
+	if enemy == null or not is_instance_valid(enemy):
+		return
+	
+	var eid: int = enemy.get_instance_id()
+	if _hit_enemies_this_launch.has(eid):
+		return
+	_hit_enemies_this_launch[eid] = true
+	
+	if not enemy.has_method("take_damage"):
+		return
+	
+	# Tote oder verschwindende Enemies ignorieren
+	if "_is_dead" in enemy and enemy._is_dead:
+		return
+	
+	var damage: int = _calculate_launch_damage()
+	
+	# take_damage setzt selbst einen kleinen Knockback basierend auf from_position.
+	# Wir nutzen die Spielerposition als from_position → Knockback zeigt natürlich weg.
+	enemy.take_damage(damage, _player.global_position)
+	
+	# Zusätzlicher Knockback in Flugrichtung für den "durchgeschleudert"-Effekt
+	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
+	flight_dir.y = 0.0
+	if flight_dir.length_squared() > 0.0001:
+		flight_dir = flight_dir.normalized()
+		if "_knockback_velocity" in enemy:
+			enemy._knockback_velocity += flight_dir * launch_knockback_strength
+
+
+func _calculate_launch_damage() -> int:
+	var attunement: int = 3
+	if GameManager != null and GameManager.player_data != null:
+		attunement = GameManager.player_data.base_attunement
+	return launch_damage_base + int(round(attunement * launch_damage_per_attunement))
 
 # ============================================
 # VISUALS - RADIUS
@@ -653,90 +949,141 @@ func _confuse_target(target: Node3D) -> void:
 func _create_radius_visual() -> void:
 	_radius_mesh = MeshInstance3D.new()
 	
-	# Flaches Quad das den ganzen Radius abdeckt
 	var quad := QuadMesh.new()
 	quad.size = Vector2(_current_radius * 2.2, _current_radius * 2.2)
 	_radius_mesh.mesh = quad
 	
-	# Shader-Material für Gradient-Ring
 	var shader_mat := ShaderMaterial.new()
 	shader_mat.shader = _create_radius_shader()
-	shader_mat.set_shader_parameter("ring_radius", _current_radius)
-	shader_mat.set_shader_parameter("ring_color", Color(0.7, 0.9, 1.0, 1.0))
-	shader_mat.set_shader_parameter("inner_fade", 0.3)  # Langer Verlauf nach innen
-	shader_mat.set_shader_parameter("outer_fade", 0.08) # Kurzer Verlauf nach außen
-	shader_mat.set_shader_parameter("ring_width", 0.12)
-	shader_mat.set_shader_parameter("pulse_speed", 3.0)
+	shader_mat.set_shader_parameter("inner_color", Color(0.4, 0.75, 1.0, 0.25))
+	shader_mat.set_shader_parameter("mid_color", Color(0.5, 0.85, 1.0, 0.4))
+	shader_mat.set_shader_parameter("edge_color", Color(0.7, 0.95, 1.0, 0.7))
 	shader_mat.set_shader_parameter("time", 0.0)
+	shader_mat.set_shader_parameter("opacity", 0.0)
+	shader_mat.render_priority = -5
 	_radius_mesh.material_override = shader_mat
 	
-	# Rotation (flach auf dem Boden)
 	_radius_mesh.rotation_degrees.x = -90
-	
-	# Cast shadows aus
 	_radius_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_radius_mesh.scale = Vector3.ONE * charge_fade_start_scale
+	_radius_mesh.sorting_offset = 10.0
 	
 	_player.add_child(_radius_mesh)
-	_radius_mesh.position = Vector3(0, 0.03, 0)
+	_radius_mesh.position = Vector3(0, 0.02, 0)
+	
+	if _radius_tween:
+		_radius_tween.kill()
+	
+	_radius_tween = create_tween()
+	_radius_tween.set_parallel(true)
+	_radius_tween.tween_property(
+		_radius_mesh,
+		"scale",
+		Vector3.ONE,
+		charge_fade_in_time
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	_radius_tween.tween_method(func(v: float):
+		if is_instance_valid(_radius_mesh):
+			var mat := _radius_mesh.material_override as ShaderMaterial
+			if mat:
+				mat.set_shader_parameter("opacity", v)
+	, 0.0, 1.0, charge_fade_in_time).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _create_radius_shader() -> Shader:
 	var shader := Shader.new()
 	shader.code = """
 shader_type spatial;
-render_mode unshaded, cull_disabled, depth_draw_opaque;
+render_mode unshaded, cull_disabled, depth_draw_never, shadows_disabled, blend_add;
 
-uniform float ring_radius = 1.0;
-uniform vec4 ring_color : source_color = vec4(0.7, 0.9, 1.0, 1.0);
-uniform float inner_fade = 0.3;   // Wie weit der innere Gradient reicht
-uniform float outer_fade = 0.08;  // Wie weit der äußere Gradient reicht
-uniform float ring_width = 0.12;  // Kernbreite des Rings
-uniform float pulse_speed = 3.0;
+uniform vec4 inner_color : source_color = vec4(0.4, 0.75, 1.0, 0.25);
+uniform vec4 mid_color : source_color = vec4(0.5, 0.85, 1.0, 0.4);
+uniform vec4 edge_color : source_color = vec4(0.7, 0.95, 1.0, 0.7);
 uniform float time = 0.0;
+uniform float opacity = 1.0;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	float a = hash(i);
+	float b = hash(i + vec2(1.0, 0.0));
+	float c = hash(i + vec2(0.0, 1.0));
+	float d = hash(i + vec2(1.0, 1.0));
+	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(vec2 p) {
+	float value = 0.0;
+	float amplitude = 0.5;
+	for (int i = 0; i < 4; i++) {
+		value += amplitude * noise(p);
+		p *= 2.0;
+		amplitude *= 0.5;
+	}
+	return value;
+}
+
 
 void fragment() {
-	// Distanz vom Zentrum (UV geht von 0-1, wir brauchen -0.5 bis 0.5)
 	vec2 centered_uv = UV - vec2(0.5);
-	float dist = length(centered_uv) * 2.0;  // 0 im Zentrum, 1 am Rand des Quads
+	float dist = length(centered_uv) * 2.0;
+	float angle = atan(centered_uv.y, centered_uv.x);
 	
-	// Normalisiere auf Ring-Radius (relativ zur Quad-Größe)
-	float normalized_dist = dist;
+	float wave1 = sin(angle * 6.0 + time * 2.5) * 0.025;
+	float wave2 = sin(angle * 10.0 - time * 3.2) * 0.015;
+	float wave3 = sin(angle * 15.0 + time * 4.0) * 0.01;
+	float wave4 = fbm(vec2(angle * 2.0, time * 0.5)) * 0.03;
+	float total_wave = wave1 + wave2 + wave3 + wave4;
 	
-	// Ring-Position (bei 0.9 = 90% des Quad-Radius = der eigentliche Ring)
-	float ring_pos = 0.9;
+	float circle_edge = 0.88 + total_wave;
 	
-	// Distanz zum Ring
-	float dist_to_ring = abs(normalized_dist - ring_pos);
-	
-	// Alpha berechnen mit asymmetrischem Falloff
-	float alpha = 0.0;
-	
-	if (normalized_dist < ring_pos) {
-		// Innen: Langer Verlauf
-		float inner_dist = ring_pos - normalized_dist;
-		float inner_alpha = 1.0 - smoothstep(0.0, inner_fade, inner_dist);
-		alpha = inner_alpha;
-	} else {
-		// Außen: Kurzer Verlauf
-		float outer_dist = normalized_dist - ring_pos;
-		float outer_alpha = 1.0 - smoothstep(0.0, outer_fade, outer_dist);
-		alpha = outer_alpha;
+	if (dist > circle_edge + 0.08) {
+		discard;
 	}
 	
-	// Kern des Rings (volle Helligkeit)
-	float core_alpha = 1.0 - smoothstep(0.0, ring_width, dist_to_ring);
-	alpha = max(alpha * 0.6, core_alpha);
+	float energy_pattern = fbm(centered_uv * 8.0 + vec2(time * 0.3, time * 0.2));
+	float energy_pattern2 = fbm(centered_uv * 12.0 - vec2(time * 0.4, time * 0.15));
+	float combined_energy = (energy_pattern + energy_pattern2) * 0.5;
 	
-	// Pulsieren
-	float pulse = 1.0 + sin(time * pulse_speed) * 0.15;
-	alpha *= pulse;
+	float pulse1 = sin((dist * 8.0 - time * 3.0)) * 0.5 + 0.5;
+	float pulse2 = sin((dist * 12.0 - time * 4.5 + 1.5)) * 0.5 + 0.5;
+	float pulses = (pulse1 + pulse2) * 0.15;
 	
-	// Emission für Glow-Effekt
-	float emission_strength = core_alpha * 2.0 + alpha * 0.5;
+	vec4 color;
+	if (dist < 0.4) {
+		color = mix(inner_color, mid_color, dist / 0.4);
+	} else {
+		color = mix(mid_color, edge_color, (dist - 0.4) / 0.5);
+	}
 	
-	ALBEDO = ring_color.rgb;
-	ALPHA = alpha * ring_color.a;
-	EMISSION = ring_color.rgb * emission_strength;
+	color.rgb += combined_energy * 0.15 * color.rgb;
+	color.rgb += pulses * edge_color.rgb;
+	
+	float edge_fade = 1.0 - smoothstep(circle_edge - 0.1, circle_edge + 0.05, dist);
+	
+	float rim = smoothstep(circle_edge - 0.06, circle_edge - 0.02, dist) *
+				(1.0 - smoothstep(circle_edge - 0.02, circle_edge + 0.02, dist));
+	rim *= 1.5;
+	
+	float alpha = color.a * edge_fade;
+	alpha = clamp(alpha, 0.0, 0.5);
+	
+	float breathe = 1.0 + sin(time * 1.8) * 0.08;
+	
+	vec3 final_color = color.rgb + rim * edge_color.rgb;
+	float intensity = alpha * breathe * opacity;
+	
+	float inner_fade = smoothstep(0.12, 0.28, dist);
+	
+	ALBEDO = final_color * intensity;
+	ALPHA = alpha * breathe * opacity * inner_fade;
+	EMISSION = (color.rgb * 0.8 + rim * edge_color.rgb * 2.0) * breathe * opacity * inner_fade;
 }
 """
 	return shader
@@ -746,22 +1093,53 @@ func _update_radius_visual() -> void:
 	if _radius_mesh == null:
 		return
 	
-	# Quad-Größe updaten
 	var quad: QuadMesh = _radius_mesh.mesh as QuadMesh
 	if quad:
 		quad.size = Vector2(_current_radius * 2.2, _current_radius * 2.2)
 	
-	# Shader-Parameter updaten
 	var mat: ShaderMaterial = _radius_mesh.material_override as ShaderMaterial
 	if mat:
-		mat.set_shader_parameter("ring_radius", _current_radius)
 		mat.set_shader_parameter("time", _charge_time)
 
 
 func _remove_radius_visual() -> void:
-	if _radius_mesh:
-		_radius_mesh.queue_free()
-		_radius_mesh = null
+	if _radius_mesh == null:
+		return
+	
+	var fading_mesh := _radius_mesh
+	_radius_mesh = null
+	
+	if _radius_tween:
+		_radius_tween.kill()
+		_radius_tween = null
+	
+	var global_xform := fading_mesh.global_transform
+	var parent := fading_mesh.get_parent()
+	if parent:
+		parent.remove_child(fading_mesh)
+		get_tree().current_scene.add_child(fading_mesh)
+		fading_mesh.global_transform = global_xform
+	
+	var fade_tween := create_tween()
+	fade_tween.set_parallel(true)
+	fade_tween.tween_property(
+		fading_mesh,
+		"scale",
+		Vector3.ONE * 0.96,
+		charge_fade_out_time
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	fade_tween.tween_method(func(v: float):
+		if is_instance_valid(fading_mesh):
+			var mat := fading_mesh.material_override as ShaderMaterial
+			if mat:
+				mat.set_shader_parameter("opacity", v)
+	, 1.0, 0.0, charge_fade_out_time).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	fade_tween.chain().tween_callback(func():
+		if is_instance_valid(fading_mesh):
+			fading_mesh.queue_free()
+	)
 
 
 # ============================================
@@ -769,117 +1147,504 @@ func _remove_radius_visual() -> void:
 # ============================================
 
 func _create_target_indicator() -> void:
-	if _current_target == null:
+	if _current_target == null or not is_instance_valid(_current_target):
 		return
 	
-	_target_indicator = Node3D.new()
+	_remove_target_indicator()
 	
-	# Ring um das Ziel
-	var mesh := MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.3
-	torus.outer_radius = 0.35
-	torus.rings = 16
-	torus.ring_segments = 16
-	mesh.mesh = torus
+	_target_indicator_root = Node3D.new()
+	_target_indicator_root.name = "VectorAnchorArrow"
+	get_tree().current_scene.add_child(_target_indicator_root)
 	
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color = Color(1.0, 0.9, 0.5, 0.8)
-	mat.emission_enabled = true
-	mat.emission = Color(1.0, 0.8, 0.3)
-	mat.emission_energy_multiplier = 2.0
-	mesh.material_override = mat
-	mesh.rotation_degrees.x = 90
+	_target_indicator_mesh = MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(target_indicator_size, target_indicator_size)
+	_target_indicator_mesh.mesh = quad
+	_target_indicator_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_target_indicator_mesh.sorting_offset = 1.0  # leicht bevorzugt sortiert
 	
-	_target_indicator.add_child(mesh)
+	_target_indicator_material = ShaderMaterial.new()
+	_target_indicator_material.shader = _get_target_arrow_shader()
+	_target_indicator_material.set_shader_parameter("fill_color", target_indicator_fill_color)
+	_target_indicator_material.set_shader_parameter("highlight_color", target_indicator_highlight_color)
+	_target_indicator_material.set_shader_parameter("outline_color", target_indicator_outline_color)
+	_target_indicator_material.set_shader_parameter("outline_thickness", target_indicator_outline_thickness)
+	_target_indicator_material.set_shader_parameter("time", 0.0)
+	_target_indicator_mesh.material_override = _target_indicator_material
 	
-	_current_target.add_child(_target_indicator)
-	_target_indicator.position = Vector3(0, 0.1, 0)
+	_target_indicator_root.add_child(_target_indicator_mesh)
+	_target_indicator_time = 0.0
+	
+	# Scale pop-in
+	_target_indicator_root.scale = Vector3(0.001, 0.001, 0.001)
+	var pop_tween := create_tween()
+	pop_tween.tween_property(
+		_target_indicator_root,
+		"scale",
+		Vector3.ONE,
+		target_indicator_pop_in_time
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	_sync_target_indicator()
+
+
+func _sync_target_indicator() -> void:
+	if _target_indicator_root == null or not is_instance_valid(_target_indicator_root):
+		return
+	if _current_target == null or not is_instance_valid(_current_target):
+		_remove_target_indicator()
+		return
+	
+	_target_indicator_time += get_physics_process_delta_time()
+	
+	# Position: schwebend über dem Ziel + Bob
+	var bob: float = sin(_target_indicator_time * target_indicator_bob_speed) * target_indicator_bob_amplitude
+	var target_pos: Vector3 = _get_target_indicator_position(_current_target)
+	_target_indicator_root.global_position = target_pos + Vector3(0.0, target_indicator_y_offset + bob, 0.0)
+	
+	# Y-Achsen-Billboard (Arrow zeigt immer nach unten, dreht sich aber zur Kamera)
+	var cam := get_viewport().get_camera_3d()
+	if cam:
+		var to_cam: Vector3 = cam.global_position - _target_indicator_root.global_position
+		to_cam.y = 0.0
+		if to_cam.length_squared() > 0.0001:
+			var yaw: float = atan2(to_cam.x, to_cam.z)
+			_target_indicator_root.rotation = Vector3(0.0, yaw, 0.0)
+	
+	if _target_indicator_material:
+		_target_indicator_material.set_shader_parameter("time", _target_indicator_time)
 
 
 func _remove_target_indicator() -> void:
-	if _target_indicator and is_instance_valid(_target_indicator):
-		_target_indicator.queue_free()
-		_target_indicator = null
+	if _target_indicator_root != null and is_instance_valid(_target_indicator_root):
+		_target_indicator_root.queue_free()
+	_target_indicator_root = null
+	_target_indicator_mesh = null
+	_target_indicator_material = null
 
+
+func _get_target_arrow_shader() -> Shader:
+	if _target_indicator_shader == null:
+		_target_indicator_shader = _create_target_arrow_shader()
+	return _target_indicator_shader
+
+
+func _create_target_arrow_shader() -> Shader:
+	var shader := Shader.new()
+	shader.code = """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, depth_test_disabled, blend_mix;
+
+uniform vec4 fill_color : source_color = vec4(0.55, 0.82, 1.0, 1.0);
+uniform vec4 highlight_color : source_color = vec4(0.92, 0.98, 1.0, 1.0);
+uniform vec4 outline_color : source_color = vec4(0.03, 0.05, 0.11, 1.0);
+uniform float outline_thickness = 0.055;
+uniform float time = 0.0;
+
+// iq's triangle SDF
+float sd_triangle(vec2 p, vec2 p0, vec2 p1, vec2 p2) {
+	vec2 e0 = p1 - p0; vec2 e1 = p2 - p1; vec2 e2 = p0 - p2;
+	vec2 v0 = p - p0;  vec2 v1 = p - p1;  vec2 v2 = p - p2;
+	vec2 pq0 = v0 - e0 * clamp(dot(v0, e0) / dot(e0, e0), 0.0, 1.0);
+	vec2 pq1 = v1 - e1 * clamp(dot(v1, e1) / dot(e1, e1), 0.0, 1.0);
+	vec2 pq2 = v2 - e2 * clamp(dot(v2, e2) / dot(e2, e2), 0.0, 1.0);
+	float s = sign(e0.x * e2.y - e0.y * e2.x);
+	vec2 d = min(min(vec2(dot(pq0, pq0), s * (v0.x * e0.y - v0.y * e0.x)),
+					 vec2(dot(pq1, pq1), s * (v1.x * e1.y - v1.y * e1.x))),
+					 vec2(dot(pq2, pq2), s * (v2.x * e2.y - v2.y * e2.x)));
+	return -sqrt(d.x) * sign(d.y);
+}
+
+void fragment() {
+	// UV [0,1] -> p [-1, 1]. In QuadMesh UV.y = 1 entspricht dem unteren Rand in Weltkoordinaten.
+	vec2 p = (UV - vec2(0.5)) * 2.0;
+	
+	// Arrow-Dreieck: Spitze zeigt nach unten (positives p.y = unten im world)
+	vec2 tip = vec2(0.0, 0.72);
+	vec2 base_l = vec2(-0.62, -0.22);
+	vec2 base_r = vec2(0.62, -0.22);
+	
+	float d = sd_triangle(p, tip, base_l, base_r);
+	float aa = max(fwidth(d) * 1.1, 0.002);
+	
+	// Inner + Outline Masken
+	float inside_mask = smoothstep(aa, -aa, d);
+	float outer_edge = smoothstep(outline_thickness + aa, outline_thickness - aa, d);
+	float outline_mask = clamp(outer_edge - inside_mask, 0.0, 1.0);
+	
+	// Subtiler Gradient auf der Füllung (oben heller, Spitze voller Ton)
+	float fill_grad = smoothstep(-0.25, 0.72, p.y);
+	vec3 fill_rgb = mix(highlight_color.rgb, fill_color.rgb, fill_grad);
+	
+	// Rim highlight nahe der Innenkante (glänzender Look)
+	float rim = smoothstep(0.0, -0.09, d) - smoothstep(-0.09, -0.18, d);
+	rim = clamp(rim, 0.0, 1.0);
+	fill_rgb = mix(fill_rgb, highlight_color.rgb, rim * 0.45);
+	
+	// Sanftes Pulsieren
+	float pulse = 0.88 + sin(time * 3.6) * 0.12;
+	
+	// Finaler Composite
+	vec3 col = fill_rgb * pulse;
+	float alpha = inside_mask;
+	
+	if (outline_mask > 0.001) {
+		col = mix(col, outline_color.rgb, outline_mask);
+		alpha = max(alpha, outline_mask * outline_color.a);
+	}
+	
+	if (alpha < 0.01) {
+		discard;
+	}
+	
+	ALBEDO = col;
+	ALPHA = alpha;
+	EMISSION = fill_rgb * inside_mask * 0.55 * pulse;
+}
+"""
+	return shader
 
 # ============================================
 # VISUALS - EFFECTS
 # ============================================
 
 func _spawn_impact_effect(pos: Vector3) -> void:
+	var impact := Node3D.new()
+	impact.name = "ImpactEffect"
+	get_tree().current_scene.add_child(impact)
+	
+	#var bob: float = sin(_target_indicator_time * target_indicator_bob_speed) * target_indicator_bob_amplitude
+	var target_pos: Vector3 = _current_target.global_position
+	#_target_indicator_root.global_position = target_pos + Vector3(0.0, target_indicator_y_offset + bob, 0.0)
+	
+	
+	impact.global_position = target_pos
+	
+	var light := OmniLight3D.new()
+	light.light_color = projectile_color
+	light.light_energy = 6.0
+	light.omni_range = 2.0
+	light.omni_attenuation = 2.0
+	#impact.add_child(light)
+	
+	var flash_sphere := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.2
+	flash_sphere.mesh = sphere
+	
+	var flash_mat := ShaderMaterial.new()
+	flash_mat.shader = _create_impact_flash_shader()
+	flash_mat.set_shader_parameter("flash_color", projectile_color)
+	flash_mat.set_shader_parameter("time", 0.0)
+	flash_sphere.material_override = flash_mat
+	flash_sphere.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	#impact.add_child(flash_sphere)
+	
+	var ring := MeshInstance3D.new()
+	ring.name = "RingWave"
+	var ring_quad := QuadMesh.new()
+	ring_quad.size = Vector2(0.6, 0.6)
+	ring.mesh = ring_quad
+	ring.rotation.x = -PI / 2.0
+	
+	var ring_mat := ShaderMaterial.new()
+	ring_mat.shader = _create_impact_ring_shader()
+	ring_mat.set_shader_parameter("ring_color", flash_color) 
+	ring_mat.set_shader_parameter("progress", 0.0)
+	ring_mat.set_shader_parameter("noise_seed", randf() * 100.0)
+	ring.material_override = ring_mat
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	impact.add_child(ring)
+	
+	var ring2 := MeshInstance3D.new()
+	ring2.name = "RingWave2"
+	var ring_quad2 := QuadMesh.new()
+	ring_quad2.size = Vector2(0.5, 0.5)
+	ring2.mesh = ring_quad2
+	ring2.rotation.x = -PI / 2.0
+	
+	var ring_mat2 := ShaderMaterial.new()
+	ring_mat2.shader = _create_impact_ring_shader()
+	ring_mat2.set_shader_parameter("ring_color", Color(projectile_color.r * 1.3, projectile_color.g * 1.1, projectile_color.b, 1.0))
+	ring_mat2.set_shader_parameter("progress", 0.0)
+	ring_mat2.set_shader_parameter("noise_seed", randf() * 100.0 + 50.0)
+	ring2.material_override = ring_mat2
+	ring2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	impact.add_child(ring2)
+	
 	var particles := GPUParticles3D.new()
 	particles.emitting = true
 	particles.one_shot = true
-	particles.amount = 16
-	particles.lifetime = 0.3
-	particles.explosiveness = 1.0
+	particles.amount = 24
+	particles.lifetime = 0.5
+	particles.explosiveness = 0.95
 	
 	var proc_mat := ParticleProcessMaterial.new()
-	proc_mat.direction = Vector3(0, 0, 0)
+	proc_mat.direction = Vector3(0, 0.5, 0)
 	proc_mat.spread = 180.0
 	proc_mat.initial_velocity_min = 2.0
 	proc_mat.initial_velocity_max = 4.0
-	proc_mat.gravity = Vector3(0, -2, 0)
-	proc_mat.scale_min = 0.5
-	proc_mat.scale_max = 1.5
-	proc_mat.color = projectile_color
+	proc_mat.gravity = Vector3(0, -4, 0)
+	proc_mat.damping_min = 2.0
+	proc_mat.damping_max = 4.0
+	proc_mat.scale_min = 0.4
+	proc_mat.scale_max = 1.0
+	
+	var gradient := Gradient.new()
+	gradient.add_point(0.0, Color(1.0, 1.0, 1.0, 1.0))
+	gradient.add_point(0.2, projectile_color)
+	gradient.add_point(1.0, Color(projectile_color.r, projectile_color.g, projectile_color.b, 0.0))
+	var gradient_tex := GradientTexture1D.new()
+	gradient_tex.gradient = gradient
+	proc_mat.color_ramp = gradient_tex
 	
 	particles.process_material = proc_mat
 	
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.03
-	sphere.height = 0.06
-	var sphere_mat := StandardMaterial3D.new()
-	sphere_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	sphere_mat.albedo_color = projectile_color
-	sphere_mat.emission_enabled = true
-	sphere_mat.emission = projectile_color
-	sphere_mat.emission_energy_multiplier = 2.0
-	sphere.material = sphere_mat
-	particles.draw_pass_1 = sphere
+	var spark := SphereMesh.new()
+	spark.radius = 0.03
+	spark.height = 0.06
+	var spark_mat := StandardMaterial3D.new()
+	spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	spark_mat.vertex_color_use_as_albedo = true
+	spark_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	spark_mat.emission_enabled = true
+	spark_mat.emission = projectile_color
+	spark_mat.emission_energy_multiplier = 2.0
+	spark.material = spark_mat
+	particles.draw_pass_1 = spark
+	impact.add_child(particles)
 	
-	get_tree().current_scene.add_child(particles)
-	particles.global_position = pos
+	# Kugelförmige Schockwelle (expandierender Hohlkörper — kein Oval-Problem)
+	var shock := MeshInstance3D.new()
+	shock.name = "Shockwave"
+	var shock_sphere := SphereMesh.new()
+	shock_sphere.radius = 0.25
+	shock_sphere.height = 0.5
+	shock_sphere.radial_segments = 24
+	shock_sphere.rings = 12
+	shock.mesh = shock_sphere
 	
-	get_tree().create_timer(1.0).timeout.connect(particles.queue_free)
+	var shock_mat := StandardMaterial3D.new()
+	shock_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	shock_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	shock_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	shock_mat.albedo_color = Color(projectile_color.r, projectile_color.g, projectile_color.b, 0.35)
+	shock_mat.emission_enabled = true
+	shock_mat.emission = projectile_color
+	shock_mat.emission_energy_multiplier = 2.5
+	shock_mat.cull_mode = BaseMaterial3D.CULL_FRONT  # nur Rückseiten = Hohlkörper-Effekt
+	shock.material_override = shock_mat
+	shock.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	#impact.add_child(shock)
+	
+	var tween := get_tree().create_tween()
+	tween.set_parallel(true)
+	
+	tween.tween_property(light, "light_energy", 0.0, 0.3).set_ease(Tween.EASE_OUT)
+	tween.tween_property(flash_sphere, "scale", Vector3(2.0, 2.0, 2.0), 0.2).set_ease(Tween.EASE_OUT)
+	tween.tween_method(func(t: float):
+		if is_instance_valid(flash_mat):
+			flash_mat.set_shader_parameter("time", t)
+	, 0.0, 1.0, 0.25)
+	
+	tween.tween_property(ring, "scale", Vector3(6.0, 6.0, 6.0), 0.4).set_ease(Tween.EASE_OUT)
+	tween.tween_method(func(p: float):
+		if is_instance_valid(ring_mat):
+			ring_mat.set_shader_parameter("progress", p)
+	, 0.0, 1.0, 0.4)
+	
+	tween.tween_property(ring2, "scale", Vector3(5.0, 5.0, 5.0), 0.35).set_ease(Tween.EASE_OUT).set_delay(0.06)
+	tween.tween_method(func(p: float):
+		if is_instance_valid(ring_mat2):
+			ring_mat2.set_shader_parameter("progress", p)
+	, 0.0, 1.0, 0.35).set_delay(0.06)
+	
+	tween.chain().tween_callback(impact.queue_free)
+	
+	tween.tween_property(shock, "scale", Vector3(3.5, 3.5, 3.5), 0.35).set_ease(Tween.EASE_OUT)
+	tween.tween_property(shock_mat, "albedo_color:a", 0.0, 0.35).set_ease(Tween.EASE_OUT)
+
+
+func _create_impact_ring_shader() -> Shader:
+	var shader := Shader.new()
+	shader.code = """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, depth_draw_opaque;
+
+uniform vec4 ring_color : source_color = vec4(0.7, 0.9, 1.0, 1.0);
+uniform float progress = 0.0;
+uniform float noise_seed = 0.0;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p + noise_seed, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(
+		mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+		f.y
+	);
+}
+
+float fbm(vec2 p) {
+	float v = 0.0;
+	float a = 0.5;
+	for (int i = 0; i < 4; i++) {
+		v += a * noise(p);
+		p *= 2.0;
+		a *= 0.5;
+	}
+	return v;
+}
+
+void fragment() {
+	vec2 centered = UV - vec2(0.5);
+	float dist = length(centered) * 2.0;
+	float angle = atan(centered.y, centered.x);
+	
+	float ring_pos = progress * 0.85;
+	float ring_width = 0.12 * (1.0 - progress * 0.6);
+	
+	float n1 = fbm(vec2(angle * 1.5, noise_seed)) * 0.12;
+	float n2 = noise(vec2(angle * 3.0 + noise_seed * 0.3, progress * 2.0)) * 0.08;
+	float n3 = noise(vec2(angle * 6.0 - noise_seed * 0.7, progress * 3.0)) * 0.04;
+	
+	float thickness_var = noise(vec2(angle * 2.0 + noise_seed, 0.0)) * 0.04;
+	ring_width += thickness_var;
+	
+	float distorted_dist = dist + n1 + n2 + n3;
+	float dist_to_ring = abs(distorted_dist - ring_pos);
+	
+	float inner_edge = smoothstep(ring_width, ring_width * 0.3, dist_to_ring);
+	float outer_edge = 1.0 - smoothstep(0.0, ring_width * 0.5, dist_to_ring);
+	float ring_alpha = inner_edge * outer_edge;
+	
+	float energy = noise(vec2(angle * 8.0 + progress * 10.0, noise_seed)) * 0.3 + 0.7;
+	float inner_glow = smoothstep(ring_pos, ring_pos - ring_width * 0.5, distorted_dist) * 0.5;
+	float fade = 1.0 - smoothstep(0.6, 1.0, progress);
+	
+	vec3 color = ring_color.rgb * energy + vec3(inner_glow);
+	float alpha = ring_alpha * fade * ring_color.a;
+	
+	if (alpha < 0.01) {
+		discard;
+	}
+	
+	ALBEDO = color;
+	ALPHA = alpha;
+	EMISSION = color * (1.5 + inner_glow * 2.0);
+}
+"""
+	return shader
+
+
+func _create_impact_flash_shader() -> Shader:
+	var shader := Shader.new()
+	shader.code = """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled;
+
+uniform vec4 flash_color : source_color = vec4(0.7, 0.9, 1.0, 1.0);
+uniform float time = 0.0;
+
+void fragment() {
+	float fresnel = pow(1.0 - abs(dot(NORMAL, VIEW)), 2.0);
+	float fade = 1.0 - smoothstep(0.0, 1.0, time);
+	float core = 1.0 - fresnel * 0.5;
+	
+	vec3 color = flash_color.rgb * core;
+	float alpha = fade * (0.8 + fresnel * 0.2);
+	
+	ALBEDO = color;
+	ALPHA = alpha * flash_color.a;
+	EMISSION = color * (3.0 + fresnel * 2.0) * fade;
+}
+"""
+	return shader
 
 
 func _spawn_afterimage() -> void:
 	if _sprite == null:
-		print("VectorAnchor: Cannot spawn afterimage - sprite is null")
 		return
 	
-	# Prüfen ob sprite die nötigen Properties hat
-	if not ("texture" in _sprite and "frame" in _sprite):
-		print("VectorAnchor: Sprite missing texture/frame properties")
+	var flight_dir: Vector3 = (_launch_end_pos - _launch_start_pos)
+	flight_dir.y = 0.0
+	if flight_dir.length_squared() > 0.0001:
+		flight_dir = flight_dir.normalized()
+	else:
+		flight_dir = Vector3.ZERO
+	
+	if _sprite.has_method("get_all_layer_keys") and _sprite.has_method("get_layer"):
+		for layer_key in _sprite.get_all_layer_keys():
+			var layer_sprite = _sprite.get_layer(layer_key)
+			if layer_sprite == null or not layer_sprite.visible:
+				continue
+			if layer_sprite.texture == null:
+				continue
+			
+			var ghost := Sprite3D.new()
+			ghost.texture = layer_sprite.texture
+			ghost.hframes = layer_sprite.hframes
+			ghost.vframes = layer_sprite.vframes
+			ghost.frame = layer_sprite.frame
+			ghost.flip_h = layer_sprite.flip_h
+			ghost.pixel_size = layer_sprite.pixel_size
+			ghost.centered = true
+			ghost.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			ghost.render_priority = -1
+			ghost.modulate = afterimage_color
+			
+			get_tree().current_scene.add_child(ghost)
+			ghost.global_transform = layer_sprite.global_transform
+			
+			ghost.global_position -= flight_dir * 0.02 * float(_afterimages_spawned + 1)
+			ghost.global_position.y = layer_sprite.global_position.y
+			
+			var tween := create_tween()
+			tween.set_parallel(true)
+			tween.tween_property(ghost, "modulate:a", 0.0, afterimage_fade_time).set_ease(Tween.EASE_IN)
+			tween.tween_property(ghost, "scale", ghost.scale * 0.8, afterimage_fade_time).set_ease(Tween.EASE_IN)
+			
+			var end_pos: Vector3 = ghost.global_position + Vector3(0, 0.1, 0)
+			tween.tween_property(ghost, "global_position", end_pos, afterimage_fade_time).set_ease(Tween.EASE_OUT)
+			tween.chain().tween_callback(ghost.queue_free)
+		
 		return
 	
-	var ghost := Sprite3D.new()
-	ghost.texture = _sprite.texture
-	ghost.hframes = _sprite.hframes if "hframes" in _sprite else 1
-	ghost.vframes = _sprite.vframes if "vframes" in _sprite else 1
-	ghost.frame = _sprite.frame
-	ghost.flip_h = _sprite.flip_h if "flip_h" in _sprite else false
-	ghost.pixel_size = _sprite.pixel_size if "pixel_size" in _sprite else 0.01
-	ghost.centered = _sprite.centered if "centered" in _sprite else true
-	ghost.offset = _sprite.offset if "offset" in _sprite else Vector2.ZERO
-	ghost.billboard = _sprite.billboard if "billboard" in _sprite else BaseMaterial3D.BILLBOARD_DISABLED
-	ghost.transparent = true
-	ghost.render_priority = -1
-	
-	ghost.global_transform = _sprite.global_transform
-	ghost.modulate = afterimage_color
-	
-	get_tree().current_scene.add_child(ghost)
-	
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(ghost, "modulate:a", 0.0, afterimage_fade_time).set_ease(Tween.EASE_IN)
-	tween.tween_property(ghost, "scale", ghost.scale * 0.8, afterimage_fade_time)
-	tween.chain().tween_callback(ghost.queue_free)
+	if _sprite is Sprite3D:
+		var source := _sprite as Sprite3D
+		if source.texture == null:
+			return
+		
+		var ghost := Sprite3D.new()
+		ghost.texture = source.texture
+		ghost.hframes = source.hframes
+		ghost.vframes = source.vframes
+		ghost.frame = source.frame
+		ghost.flip_h = source.flip_h
+		ghost.flip_v = source.flip_v
+		ghost.pixel_size = source.pixel_size
+		ghost.centered = source.centered
+		ghost.billboard = source.billboard
+		ghost.render_priority = source.render_priority - 1
+		ghost.modulate = afterimage_color
+		
+		get_tree().current_scene.add_child(ghost)
+		ghost.global_transform = source.global_transform
+		ghost.global_position -= flight_dir * 0.02 * float(_afterimages_spawned + 1)
+		
+		var tween := create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(ghost, "modulate:a", 0.0, afterimage_fade_time).set_ease(Tween.EASE_IN)
+		tween.tween_property(ghost, "scale", ghost.scale * 0.8, afterimage_fade_time).set_ease(Tween.EASE_IN)
+		
+		var end_pos: Vector3 = ghost.global_position + Vector3(0, 0.1, 0)
+		tween.tween_property(ghost, "global_position", end_pos, afterimage_fade_time).set_ease(Tween.EASE_OUT)
+		tween.chain().tween_callback(ghost.queue_free)
 
 
 # ============================================
@@ -890,7 +1655,6 @@ func _show_charge_frame() -> void:
 	if _sprite == null or _player == null:
 		return
 	
-	# Wenn keine custom Frames, benutze Player's Idle-Frames
 	if not use_custom_charge_frames:
 		if _player.has_method("_show_idle"):
 			_player._show_idle()
@@ -931,12 +1695,10 @@ func _show_air_frame() -> void:
 	if _sprite == null or _player == null:
 		return
 	
-	# Richtung ZUM ZIEL berechnen (nicht Flugrichtung!)
 	var to_target: Vector3 = _launch_target_pos - _player.global_position
 	to_target.y = 0
 	var dir_mode: int = _direction_from_vector(to_target)
 	
-	# Spieler-Richtung updaten
 	_player._last_dir_mode = dir_mode
 	match dir_mode:
 		DirMode.RIGHT, DirMode.DOWN_RIGHT, DirMode.UP_RIGHT:
@@ -944,7 +1706,6 @@ func _show_air_frame() -> void:
 		DirMode.LEFT, DirMode.DOWN_LEFT, DirMode.UP_LEFT:
 			_player._facing_right = false
 	
-	# Wenn keine custom Frames, benutze Player's Idle-Frames
 	if not use_custom_air_frames:
 		if _player.has_method("_show_idle"):
 			_player._show_idle()
@@ -981,37 +1742,31 @@ func _show_air_frame() -> void:
 
 
 func _face_target(target_pos: Vector3) -> void:
-	"""Dreht den Spieler zum Ziel (von der aktuellen Position aus)."""
 	var direction: Vector3 = target_pos - _player.global_position
 	direction.y = 0
 	
 	if direction.length_squared() < 0.001:
-		return  # Zu nah, keine Drehung nötig
+		return
 	
 	var dir_mode: int = _direction_from_vector(direction)
 	_player._last_dir_mode = dir_mode
 	
-	# _facing_right setzen - INVERTIERT da wir ZUM Ziel schauen wollen
 	match dir_mode:
 		DirMode.RIGHT, DirMode.DOWN_RIGHT, DirMode.UP_RIGHT:
 			_player._facing_right = true
 		DirMode.LEFT, DirMode.DOWN_LEFT, DirMode.UP_LEFT:
 			_player._facing_right = false
-		# DOWN und UP: facing_right bleibt wie es war
 
 
 func _direction_from_vector(vec: Vector3) -> int:
-	"""Konvertiert einen Richtungsvektor zu DirMode - angepasst an Player's Logik."""
 	if vec.length_squared() < 0.001:
 		return DirMode.DOWN
 	
-	# In Kamera-Raum konvertieren falls SpringArm vorhanden (wie im Player)
 	var dir2: Vector2
 	if _spring_arm:
 		var yaw: float = _spring_arm.rotation.y
 		var forward := Vector3(sin(yaw), 0, cos(yaw))
 		var right := Vector3(cos(yaw), 0, -sin(yaw))
-		# Projiziere vec auf die Kamera-Achsen
 		dir2 = Vector2(vec.dot(right), vec.dot(forward)).normalized()
 	else:
 		dir2 = Vector2(vec.x, vec.z).normalized()
@@ -1020,7 +1775,6 @@ func _direction_from_vector(vec: Vector3) -> int:
 	if deg < 0:
 		deg += 360.0
 	
-	# Winkel zu Richtung (angepasst an Player's _get_direction_from_input)
 	if deg >= 337.5 or deg < 22.5:
 		return DirMode.RIGHT
 	elif deg >= 22.5 and deg < 67.5:
@@ -1058,13 +1812,12 @@ func _consume_resonance(amount: float) -> bool:
 	if pd.current_resonance >= amount:
 		pd.current_resonance -= amount
 		
-		# Regen-Timer zurücksetzen (falls vorhanden)
 		if "resonance_regen_delay" in pd and "_resonance_regen_timer" in pd:
 			pd._resonance_regen_timer = pd.resonance_regen_delay
 		
-		# Signal feuern
 		pd.resonance_changed.emit(int(pd.current_resonance), pd.max_resonance)
 		return true
+	
 	return false
 
 
@@ -1081,7 +1834,22 @@ func _cancel_ability(reason: String) -> void:
 	_current_target = null
 	
 	ability_cancelled.emit(reason)
+	
 
+func _get_target_anchor_position(target: Node3D) -> Vector3:
+	if target == null:
+		return Vector3.ZERO
+	if target.has_method("get_vector_anchor_anchor_position"):
+		return target.get_vector_anchor_anchor_position()
+	return target.global_position
+
+
+func _get_target_indicator_position(target: Node3D) -> Vector3:
+	if target == null:
+		return Vector3.ZERO
+	if target.has_method("get_vector_anchor_indicator_position"):
+		return target.get_vector_anchor_indicator_position()
+	return target.global_position
 
 # ============================================
 # SOUND

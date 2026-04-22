@@ -1,15 +1,20 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://b26modsg420pd"]
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://b26modsg420pd"]
 
 [ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="1_qqmlq"]
 [ext_resource type="Texture2D" uid="uid://bydtbl0lve837" path="res://assets/icons/vector-anchor.png" id="1_ykg5s"]
+[ext_resource type="Texture2D" uid="uid://co77gld165tea" path="res://assets/characters/player-items/vector-anchor1.png" id="2_khm4f"]
 
 [resource]
 script = ExtResource("1_qqmlq")
+overlay_texture = ExtResource("2_khm4f")
 item_id = "vector_anchor"
 item_name = "Vector Anchor"
 icon = ExtResource("1_ykg5s")
 item_type = 4
 rarity = 3
+pickup_text = "You got the Vector Anchor!
+Bind yourself to a target and mirror your position around it. 
+Turn defense into offense and outmaneuver your foes."
 stackable = false
 consumable = false
 effect_action = "vector_anchor"

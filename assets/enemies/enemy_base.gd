@@ -28,6 +28,13 @@ class_name Enemy
 @export var stuck_detection_time: float = 0.4
 @export var stuck_min_movement: float = 0.05
 
+# === CLIFF AVOIDANCE ===
+@export_group("Cliff Avoidance")
+@export var avoid_cliffs: bool = false
+@export var cliff_check_distance: float = 0.4   # wie weit vor den Füßen geprüft wird
+@export var cliff_max_drop: float = 1.0         # maximal akzeptable Fallhöhe
+@export var cliff_check_height: float = 0.3     # Ray-Start über den Füßen
+
 # === REWARDS ===
 @export_group("Rewards")
 @export var exp_reward: int = 25
@@ -602,6 +609,50 @@ func _get_random_patrol_point() -> Vector3:
 	var offset := Vector3(cos(angle) * dist, 0, sin(angle) * dist)
 	return _spawn_position + offset
 
+
+# === CLIFF DETECTION ===
+
+## Prüft, ob in der gegebenen Richtung ein Abgrund ist.
+## Gibt false zurück wenn avoid_cliffs deaktiviert ist.
+func _is_cliff_ahead(direction: Vector3, distance: float = -1.0) -> bool:
+	if not avoid_cliffs:
+		return false
+	if direction.length_squared() < 0.0001:
+		return false
+
+	var check_dist: float = distance if distance > 0.0 else cliff_check_distance
+	var dir_flat := Vector3(direction.x, 0, direction.z).normalized()
+
+	var space_state := get_world_3d().direct_space_state
+	var origin := global_position + dir_flat * check_dist + Vector3.UP * cliff_check_height
+	var end := origin + Vector3.DOWN * (cliff_check_height + cliff_max_drop)
+
+	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	query.exclude = [self]
+
+	var result: Dictionary = space_state.intersect_ray(query)
+	return result.is_empty()  # kein Boden = Abgrund
+
+
+## Sucht eine sichere Richtung in der Nähe der gewünschten.
+## Gibt Vector3.ZERO zurück, wenn keine sichere Richtung gefunden wurde.
+func _find_safe_direction(intended_dir: Vector3) -> Vector3:
+	if not avoid_cliffs:
+		return intended_dir
+
+	var dir_flat := Vector3(intended_dir.x, 0, intended_dir.z).normalized()
+
+	if not _is_cliff_ahead(dir_flat):
+		return dir_flat
+
+	# Probier zunehmend stärkere Abweichungen, jeweils nach links und rechts
+	var angles: Array[float] = [25.0, -25.0, 50.0, -50.0, 80.0, -80.0]
+	for angle_deg in angles:
+		var rotated := dir_flat.rotated(Vector3.UP, deg_to_rad(angle_deg))
+		if not _is_cliff_ahead(rotated):
+			return rotated
+
+	return Vector3.ZERO  # umzingelt von Abgründen
 
 # === AUDIO ===
 

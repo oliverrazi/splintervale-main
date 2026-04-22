@@ -1,14 +1,20 @@
 extends Node
+## Hält die persistente Player-Instanz und platziert sie beim Szenenwechsel
+## am richtigen Spawn-Marker.
 
 var player_scene: PackedScene = preload("res://character_body_3d.tscn")
 var player_instance: Node3D
 
+## Spawn-ID für den nächsten Szenenwechsel. Wird vom CaveEntrance-Trigger
+## oder anderen Transitions vorher gesetzt.
+var pending_spawn_id: String = ""
+
+var _check_pending: bool = false
+
 
 func _ready() -> void:
 	_create_player()
-	await get_tree().process_frame
-	_add_player_to_scene()
-	get_tree().tree_changed.connect(_check_scene)
+	get_tree().tree_changed.connect(_on_tree_changed)
 
 
 func _create_player() -> void:
@@ -16,58 +22,96 @@ func _create_player() -> void:
 	player_instance.add_to_group("player")
 
 
+func _on_tree_changed() -> void:
+	if _check_pending:
+		return
+	_check_pending = true
+	call_deferred("_do_check")
+
+
+func _do_check() -> void:
+	_check_pending = false
+	_check_scene()
+
+
 func _check_scene() -> void:
-	# Player wurde gefreed (z.B. durch Szenen-Laden)
+	var tree := get_tree()
+	if not tree or not tree.current_scene:
+		return
+	var scene := tree.current_scene
+
 	if not is_instance_valid(player_instance):
 		_create_player()
 
-	if not player_instance.is_inside_tree():
-		call_deferred("_add_player_to_scene")
-
-
-func _add_player_to_scene() -> void:
-	if not get_tree() or not get_tree().current_scene:
+	# Player ist schon in dieser Szene → nichts tun
+	if player_instance.get_parent() == scene:
 		return
 
-	# Prüfe ob die Szene schon einen Player hat (z.B. Overworld)
-	var existing: Node3D = get_tree().get_first_node_in_group("player") as Node3D
-	if existing:
-		player_instance = existing
-		_move_to_spawn_point()
-		return
+	_install_player_in_scene(scene)
 
-	# Kein Player in der Szene → wir fügen unseren ein (Caves etc.)
-	if not is_instance_valid(player_instance):
-		_create_player()
+
+func _install_player_in_scene(scene: Node) -> void:
+	# Aus alter Szene entkoppeln
 	if player_instance.get_parent():
 		player_instance.get_parent().remove_child(player_instance)
-	get_tree().current_scene.add_child(player_instance)
-	_move_to_spawn_point()
+
+	# Spawn-Position bestimmen (GameManager Save-Load hat Vorrang)
+	var spawn_pos := Vector3.ZERO
+	var spawn_rot := 0.0
+	var found_spawn := false
+
+	if not _gm_has_pending_position():
+		var marker := _find_spawn_marker(scene)
+		if marker:
+			spawn_pos = marker.global_position
+			spawn_rot = marker.global_rotation.y
+			found_spawn = true
+			pending_spawn_id = ""
+
+	# Velocity nullen
+	if player_instance is CharacterBody3D:
+		(player_instance as CharacterBody3D).velocity = Vector3.ZERO
+
+	# Einfügen
+	scene.add_child(player_instance)
+
+	# Position anwenden
+	if found_spawn:
+		player_instance.global_position = spawn_pos
+		player_instance.global_rotation.y = spawn_rot
 
 
+func _gm_has_pending_position() -> bool:
+	if not has_node("/root/GameManager"):
+		return false
+	var gm := get_node("/root/GameManager")
+	return "_has_pending_position" in gm and gm._has_pending_position
 
-func _move_to_spawn_point() -> void:
-	# Suche SpawnPoints-Container in der aktuellen Szene
-	var spawn_container: Node = get_tree().current_scene.find_child("SpawnPoints")
-	if not spawn_container:
-		return
 
-	# Prüfe ob GlobalCaveData einen bestimmten Spawn vorgibt
-	var cave_data: Node = get_node_or_null("/root/GlobalCaveData")
-	var target_id: String = ""
-	if cave_data:
-		target_id = cave_data.pending_spawn_id
+func _find_spawn_marker(scene: Node) -> Marker3D:
+	# Gezielter Spawn per ID
+	if not pending_spawn_id.is_empty():
+		var found := scene.find_child(pending_spawn_id, true, false)
+		if found is Marker3D:
+			return found as Marker3D
+		return null
 
-	var marker: Marker3D = null
+	# Fallback: erster Marker im SpawnPoints-Container
+	var container := scene.find_child("SpawnPoints", true, false)
+	if container:
+		for child in container.get_children():
+			if child is Marker3D:
+				return child as Marker3D
+	return null
 
-	# Bestimmten Spawn suchen
-	if not target_id.is_empty():
-		marker = spawn_container.get_node_or_null(target_id) as Marker3D
 
-	# Fallback: ersten Marker nehmen
-	if not marker and spawn_container.get_child_count() > 0:
-		marker = spawn_container.get_child(0) as Marker3D
+func ensure_player() -> Node3D:
+	if not is_instance_valid(player_instance):
+		_create_player()
+	return player_instance
 
-	if marker:
-		player_instance.global_position = marker.global_position
-		player_instance.global_rotation.y = marker.global_rotation.y
+
+func detach() -> void:
+	ensure_player()
+	if player_instance.get_parent():
+		player_instance.get_parent().remove_child(player_instance)

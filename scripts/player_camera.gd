@@ -32,9 +32,14 @@ func _ready():
 	if camera_path != NodePath():
 		_camera = get_node_or_null(camera_path) as Camera3D
 	if _camera == null:
-		_camera = find_child("", true, false) as Camera3D
-		if _camera == null:
-			_camera = get_viewport().get_camera_3d()
+		# Suche nach dem ersten Camera3D-Child — find_child("") findet NICHTS
+		_camera = _find_first_camera(self)
+	if _camera == null:
+		_camera = get_viewport().get_camera_3d()
+
+	# WICHTIG: Camera explizit als current markieren
+	if _camera:
+		_camera.make_current()
 
 	# Basiswerte aus aktuellem Setup speichern
 	_base_spring_length = spring_length
@@ -53,6 +58,15 @@ func _ready():
 		VistaManager.current_camera_pitch = _base_pitch
 		VistaManager.current_fov = _base_fov
 		VistaManager.current_camera_offset = _base_offset
+
+func _find_first_camera(node: Node) -> Camera3D:
+	if node is Camera3D:
+		return node as Camera3D
+	for child in node.get_children():
+		var found := _find_first_camera(child)
+		if found:
+			return found
+	return null
 
 
 func _process(delta: float) -> void:

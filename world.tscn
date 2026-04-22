@@ -1918,7 +1918,7 @@ directional_shadow_fade_start = 0.74
 directional_shadow_max_distance = 31.9
 
 [node name="Player" parent="." instance=ExtResource("4_ioo17")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 21.85123, 0.383178, 106.49542)
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 21.85123, 2.383178, 106.49542)
 
 [node name="EnemyGroup" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.58206, 0, 99.92702)
@@ -1927,20 +1927,14 @@ script = ExtResource("31_jjr1n")
 [node name="Goblin" parent="EnemyGroup" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.27941906, -0.009475708)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="EnemyGroup" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.27941906, 0.59646606)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin3" parent="EnemyGroup" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71196556, 0.27941906, 0.5413971)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="EnemyGroup"]
 
@@ -1954,20 +1948,14 @@ script = ExtResource("31_jjr1n")
 [node name="Goblin" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11446953, 0.27941906, -0.009475708)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin2" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44740295, 0.27941906, 0.59646606)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin3" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71196556, 0.27941906, 0.5413971)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="DetectionArea" type="Area3D" parent="EnemyGroup2"]
 
@@ -1977,56 +1965,38 @@ shape = SubResource("SphereShape3D_3fh52")
 [node name="Goblin4" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4701653, 0.27941906, -1.2268448)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin5" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.90829086, 0.27941906, -0.620903)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin6" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0676613, 0.27941906, -0.675972)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin7" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5985298, 0.27941906, 0.6748276)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin8" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0366554, 0.27941906, 1.2807693)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin9" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1960258, 0.27941906, 1.2257004)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin10" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3407631, 0.27941906, 1.4674683)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin11" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9026375, 0.27941906, 2.07341)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Goblin12" parent="EnemyGroup2" instance=ExtResource("25_bh8nc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25673294, 0.27941906, 2.018341)
 CHARGE_SPEED = 12.0
-attack_chance_per_pause = 0.7
-thrust_scale = Vector3(1, 1, 1)
 
 [node name="Environment" type="Node3D" parent="."]
 
@@ -2041,6 +2011,15 @@ shape = SubResource("CylinderShape3D_8f1f8")
 [node name="WorldEnvironment2" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_8f1f8")
 camera_attributes = ExtResource("6_ic0uy")
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -95.1038, 5.9415207, 78.40215)
+
+[node name="BootstrapCamera" type="Camera3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.9901505, -3.4799404, 1.746666)
+
+[node name="DefaultSpawn" type="Marker3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.90626, -3.4887693, 29.778328)
 
 [connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Trees" method="_on_lod_timer_timeout"]
 [connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Grass" method="_on_lod_timer_timeout"]

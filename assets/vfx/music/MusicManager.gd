@@ -47,7 +47,7 @@ func _crossfade_to(track: AudioStream, fade_time: float) -> void:
 	
 	_tween = create_tween().set_parallel()
 	_tween.tween_property(_current_player, "volume_db", -80.0, fade_time)
-	_tween.tween_property(_next_player, "volume_db", 0.0, fade_time)
+	_tween.tween_property(_next_player, "volume_db", 0.0, 0.0)
 	_tween.chain().tween_callback(_swap_players)
 
 func _fade_out(fade_time: float = 2.0) -> void:

@@ -1,47 +1,77 @@
 extends Control
 
 ## Hauptmenü mit 3D-Hintergrund und sanfter Kamera-Bewegung
+## Im Amber/Braun-Stil. Options werden als Overlay über SettingsUI angezeigt.
 
-# Pfade zu deinen Szenen anpassen
+# ══════════════════════════════════════════════════════════════
+#  EXPORTS
+# ══════════════════════════════════════════════════════════════
+
 @export var game_scene_path: String = "res://demo.tscn"
-@export var options_scene_path: String = "res://scenes/ui/options/options.tscn"
 @export var select_sound: AudioStream
 @export var confirm_sound: AudioStream
-var _select_player: AudioStreamPlayer
-var _confirm_player: AudioStreamPlayer
-# Kamera-Bewegung
+
 @export var camera_sway_speed: float = 0.3
-@export var camera_sway_amount: float = 2.0  # Grad
+@export var camera_sway_amount: float = 2.0
 
-# Font-Einstellungen
-const FONT_PATH = "res://menu/assets/fonts/Merriweather-Regular.ttf"
-const FONT_COLOR = Color("ffead5")
-const OUTLINE_COLOR = Color("4e2700")
-const OUTLINE_SIZE = 4
 
-# Button-Styling
-const BUTTON_BG_COLOR = Color(1.0, 1.0, 1.0, 0.15)
-const BUTTON_HOVER_COLOR = Color(1.0, 1.0, 1.0, 0.25)
-const BUTTON_PRESSED_COLOR = Color(1.0, 1.0, 1.0, 0.35)
-const BUTTON_FOCUS_COLOR = Color(1.0, 1.0, 1.0, 0.3)
-const BUTTON_CORNER_RADIUS = 8
+# ══════════════════════════════════════════════════════════════
+#  FARBEN
+# ══════════════════════════════════════════════════════════════
 
-# Referenzen
-@onready var camera_pivot: Node3D = $SubViewportContainer/SubViewport/MenuScene3D/CameraPivot
-@onready var sub_viewport: SubViewport = $SubViewportContainer/SubViewport
-@onready var button_start: Button = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonStart
-@onready var button_load: Button = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonLoad
-@onready var button_options: Button = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonOptions
-@onready var button_quit: Button = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonQuit
+const C_BG_DEEP     := Color("14100a")
+const C_BORDER_OUT  := Color("5c3d1e")
+const C_AMBER       := Color("c4923a")
+const C_TEXT_LIGHT  := Color("d4b880")
+const C_TEXT_MID    := Color("8a7050")
+const C_TEXT_MUTED  := Color("6b5030")
+const C_DANGER      := Color("c46a3a")
 
-var time_elapsed: float = 0.0
-var base_font: Font
+
+# ══════════════════════════════════════════════════════════════
+#  FONT
+# ══════════════════════════════════════════════════════════════
+
+const FONT_PATH := "res://menu/assets/fonts/Merriweather-Regular.ttf"
+
+
+# ══════════════════════════════════════════════════════════════
+#  STATE
+# ══════════════════════════════════════════════════════════════
+
+var _select_player: AudioStreamPlayer  = null
+var _confirm_player: AudioStreamPlayer = null
+
+var time_elapsed: float     = 0.0
+var base_font: Font         = null
 var menu_buttons: Array[Button] = []
 
-var _initial_focus_done: bool = false
+var _initial_focus_done: bool    = false
 var _last_focused_button: Button = null
-var _block_select_sound: bool = false
+var _block_select_sound: bool    = false
 
+# Options-Overlay
+var _options_overlay: Control   = null
+var _options_dim: ColorRect     = null
+var _options_ui: SettingsUI     = null
+var _options_open: bool         = false
+
+
+# ══════════════════════════════════════════════════════════════
+#  NODE REFERENZEN
+# ══════════════════════════════════════════════════════════════
+
+@onready var camera_pivot: Node3D          = $SubViewportContainer/SubViewport/MenuScene3D/CameraPivot
+@onready var sub_viewport: SubViewport     = $SubViewportContainer/SubViewport
+@onready var button_start: Button          = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonStart
+@onready var button_load: Button           = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonLoad
+@onready var button_options: Button        = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonOptions
+@onready var button_quit: Button           = $Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer/ButtonQuit
+
+
+# ══════════════════════════════════════════════════════════════
+#  LIFECYCLE
+# ══════════════════════════════════════════════════════════════
 
 func _ready() -> void:
 	if has_node("/root/Hud"):
@@ -56,10 +86,13 @@ func _ready() -> void:
 	
 	get_tree().root.size_changed.connect(_update_viewport_size)
 	
-	# Ersten Button fokussieren nach kurzer Verzögerung
+	if not GameManager.has_save_file():
+		_set_button_disabled(button_load, true)
+	
+	# Zwei Frames warten bis Layout vollständig steht, dann Focus setzen
+	await get_tree().process_frame
 	await get_tree().process_frame
 	button_start.grab_focus()
-	await get_tree().process_frame
 	_initial_focus_done = true
 
 
@@ -67,17 +100,35 @@ func _process(delta: float) -> void:
 	_update_camera_sway(delta)
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	# ESC schließt das Options-Overlay
+	if _options_open and event.is_action_pressed("ui_cancel", false):
+		_close_options_overlay()
+		get_viewport().set_input_as_handled()
+
+
+func _load_font() -> void:
+	if ResourceLoader.exists(FONT_PATH):
+		base_font = load(FONT_PATH)
+	else:
+		push_warning("Font nicht gefunden: %s" % FONT_PATH)
+		base_font = ThemeDB.fallback_font
+
+
+# ══════════════════════════════════════════════════════════════
+#  SOUNDS
+# ══════════════════════════════════════════════════════════════
+
 func _setup_sounds() -> void:
 	_select_player = AudioStreamPlayer.new()
-	_select_player.bus = "UI"
+	_select_player.bus    = "UI"
 	_select_player.stream = select_sound
 	add_child(_select_player)
 	
 	_confirm_player = AudioStreamPlayer.new()
-	_confirm_player.bus = "UI"
+	_confirm_player.bus    = "UI"
 	_confirm_player.stream = confirm_sound
 	add_child(_confirm_player)
-
 
 
 func _on_button_focused(button: Button) -> void:
@@ -97,87 +148,95 @@ func _play_confirm_sound() -> void:
 		get_tree().create_timer(0.15).timeout.connect(func(): _block_select_sound = false)
 
 
-func _load_font() -> void:
-	if ResourceLoader.exists(FONT_PATH):
-		base_font = load(FONT_PATH)
-	else:
-		push_warning("Font nicht gefunden: %s - Verwende Standard-Font" % FONT_PATH)
-		base_font = ThemeDB.fallback_font
-
+# ══════════════════════════════════════════════════════════════
+#  BUTTONS
+# ══════════════════════════════════════════════════════════════
 
 func _setup_buttons() -> void:
 	menu_buttons = [button_start, button_load, button_options, button_quit]
 	
+	_style_menu_button(button_start,   C_AMBER)
+	_style_menu_button(button_load,    C_AMBER)
+	_style_menu_button(button_options, C_AMBER)
+	_style_menu_button(button_quit,    C_DANGER)
+	
 	for button in menu_buttons:
-		_style_button(button)
 		button.focus_entered.connect(_on_button_focused.bind(button))
 		button.pressed.connect(_play_confirm_sound)
 
 
+func _style_menu_button(btn: Button, accent_color: Color) -> void:
+	btn.custom_minimum_size = Vector2(260, 52)
+	btn.focus_mode = Control.FOCUS_ALL
+	
+	var normal := StyleBoxFlat.new()
+	normal.bg_color              = Color(C_BG_DEEP.r, C_BG_DEEP.g, C_BG_DEEP.b, 0.85)
+	normal.border_color          = C_BORDER_OUT
+	normal.border_width_left     = 2
+	normal.border_width_top      = 1
+	normal.border_width_right    = 1
+	normal.border_width_bottom   = 1
+	normal.content_margin_left   = 22
+	normal.content_margin_right  = 22
+	normal.content_margin_top    = 12
+	normal.content_margin_bottom = 12
+	
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color            = Color(accent_color.r, accent_color.g, accent_color.b, 0.15)
+	hover.border_color        = accent_color
+	hover.border_width_left   = 3
+	hover.content_margin_left = 21
+	
+	var pressed := hover.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(accent_color.r, accent_color.g, accent_color.b, 0.28)
+	
+	var focus := hover.duplicate() as StyleBoxFlat
+	
+	var disabled := normal.duplicate() as StyleBoxFlat
+	disabled.bg_color     = Color(C_BG_DEEP.r, C_BG_DEEP.g, C_BG_DEEP.b, 0.4)
+	disabled.border_color = Color(C_BORDER_OUT, 0.4)
+	
+	btn.add_theme_stylebox_override("normal",   normal)
+	btn.add_theme_stylebox_override("hover",    hover)
+	btn.add_theme_stylebox_override("pressed",  pressed)
+	btn.add_theme_stylebox_override("focus",    focus)
+	btn.add_theme_stylebox_override("disabled", disabled)
+	
+	if base_font:
+		btn.add_theme_font_override("font", base_font)
+	btn.add_theme_font_size_override("font_size", 18)
+	btn.add_theme_color_override("font_color",          C_TEXT_MID)
+	btn.add_theme_color_override("font_hover_color",    accent_color)
+	btn.add_theme_color_override("font_pressed_color",  C_TEXT_LIGHT)
+	btn.add_theme_color_override("font_focus_color",    accent_color)
+	btn.add_theme_color_override("font_disabled_color", Color(C_TEXT_MUTED, 0.4))
+	
+	btn.remove_theme_color_override("font_outline_color")
+	btn.remove_theme_constant_override("outline_size")
+
+
+func _set_button_disabled(btn: Button, disabled: bool) -> void:
+	btn.disabled = disabled
+	# focus_mode bleibt FOCUS_ALL — Godot skippt disabled Buttons
+	# automatisch bei Navigation; Tastatur/Gamepad funktionieren weiter.
+
+
 func _setup_navigation() -> void:
-	# Vertikale Navigation zwischen Buttons einrichten
+	# Alle Buttons in die Navigations-Kette. Godot skippt disabled Buttons
+	# beim Navigieren automatisch — keine manuelle Filterung nötig.
 	for i in range(menu_buttons.size()):
-		var button = menu_buttons[i]
-		
-		# Vorheriger Button (nach oben)
-		var prev_index = i - 1 if i > 0 else menu_buttons.size() - 1
-		button.focus_neighbor_top = menu_buttons[prev_index].get_path()
-		
-		# Nächster Button (nach unten)
-		var next_index = i + 1 if i < menu_buttons.size() - 1 else 0
+		var button := menu_buttons[i]
+		var prev_index: int = i - 1 if i > 0 else menu_buttons.size() - 1
+		var next_index: int = i + 1 if i < menu_buttons.size() - 1 else 0
+		button.focus_neighbor_top    = menu_buttons[prev_index].get_path()
 		button.focus_neighbor_bottom = menu_buttons[next_index].get_path()
-		
-		# Links/Rechts auf sich selbst (verhindert ungewollte Navigation)
-		button.focus_neighbor_left = button.get_path()
-		button.focus_neighbor_right = button.get_path()
+		button.focus_neighbor_left   = button.get_path()
+		button.focus_neighbor_right  = button.get_path()
 
 
-func _style_button(button: Button) -> void:
-	# Font-Einstellungen
-	button.add_theme_font_override("font", base_font)
-	button.add_theme_font_size_override("font_size", 24)
-	button.add_theme_color_override("font_color", FONT_COLOR)
-	button.add_theme_color_override("font_hover_color", FONT_COLOR)
-	button.add_theme_color_override("font_pressed_color", FONT_COLOR)
-	button.add_theme_color_override("font_focus_color", FONT_COLOR)
-	button.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
-	button.add_theme_constant_override("outline_size", OUTLINE_SIZE)
-	
-	# Normal StyleBox
-	var style_normal = StyleBoxFlat.new()
-	style_normal.bg_color = BUTTON_BG_COLOR
-	style_normal.corner_radius_top_left = BUTTON_CORNER_RADIUS
-	style_normal.corner_radius_top_right = BUTTON_CORNER_RADIUS
-	style_normal.corner_radius_bottom_left = BUTTON_CORNER_RADIUS
-	style_normal.corner_radius_bottom_right = BUTTON_CORNER_RADIUS
-	style_normal.content_margin_left = 20
-	style_normal.content_margin_right = 20
-	style_normal.content_margin_top = 12
-	style_normal.content_margin_bottom = 12
-	
-	# Hover StyleBox
-	var style_hover = style_normal.duplicate()
-	style_hover.bg_color = BUTTON_HOVER_COLOR
-	
-	# Pressed StyleBox
-	var style_pressed = style_normal.duplicate()
-	style_pressed.bg_color = BUTTON_PRESSED_COLOR
-	
-	# Focus StyleBox - deutlich sichtbar für Gamepad/Tastatur
-	var style_focus = style_normal.duplicate()
-	style_focus.bg_color = BUTTON_FOCUS_COLOR
-	style_focus.border_width_left = 3
-	style_focus.border_width_right = 3
-	style_focus.border_width_top = 3
-	style_focus.border_width_bottom = 3
-	style_focus.border_color = FONT_COLOR
-	
-	# Styles anwenden
-	button.add_theme_stylebox_override("normal", style_normal)
-	button.add_theme_stylebox_override("hover", style_hover)
-	button.add_theme_stylebox_override("pressed", style_pressed)
-	button.add_theme_stylebox_override("focus", style_focus)
-
+# ══════════════════════════════════════════════════════════════
+#  SIGNALS + VIEWPORT
+# ══════════════════════════════════════════════════════════════
 
 func _connect_signals() -> void:
 	button_start.pressed.connect(_on_start_pressed)
@@ -187,21 +246,108 @@ func _connect_signals() -> void:
 
 
 func _update_viewport_size() -> void:
-	var window_size = get_viewport().get_visible_rect().size
+	var window_size := get_viewport().get_visible_rect().size
 	sub_viewport.size = Vector2i(window_size)
 
 
 func _update_camera_sway(delta: float) -> void:
 	time_elapsed += delta
-	
-	var sway_x = sin(time_elapsed * camera_sway_speed) * camera_sway_amount
-	var sway_y = sin(time_elapsed * camera_sway_speed * 0.7) * camera_sway_amount * 0.5
-	
+	var sway_x: float = sin(time_elapsed * camera_sway_speed)       * camera_sway_amount
+	var sway_y: float = sin(time_elapsed * camera_sway_speed * 0.7) * camera_sway_amount * 0.5
 	camera_pivot.rotation_degrees.y = sway_x
 	camera_pivot.rotation_degrees.x = sway_y
 
 
-# === Button Callbacks ===
+# ══════════════════════════════════════════════════════════════
+#  OPTIONS OVERLAY
+# ══════════════════════════════════════════════════════════════
+
+func _open_options_overlay() -> void:
+	if _options_open:
+		return
+	_options_open = true
+	
+	if _options_overlay == null:
+		_build_options_overlay()
+	
+	_options_overlay.visible = true
+	_options_overlay.modulate.a = 0.0
+	
+	var tween := create_tween()
+	tween.tween_property(_options_overlay, "modulate:a", 1.0, 0.2)
+	tween.tween_callback(func():
+		if _options_ui:
+			_options_ui.focus_first()
+	)
+
+
+func _close_options_overlay() -> void:
+	if not _options_open:
+		return
+	_options_open = false
+	
+	var tween := create_tween()
+	tween.tween_property(_options_overlay, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(func():
+		_options_overlay.visible = false
+		button_options.grab_focus()
+	)
+
+
+func _build_options_overlay() -> void:
+	# CanvasLayer garantiert dass wir über ALLEM anderen liegen,
+	# unabhängig vom Parent-Tree. z_index auf Controls reicht nicht
+	# wenn die Buttons in einem anderen Sub-Tree liegen.
+	var canvas := CanvasLayer.new()
+	canvas.layer = 100
+	add_child(canvas)
+	
+	_options_overlay = Control.new()
+	_options_overlay.name = "OptionsOverlay"
+	_options_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_options_overlay.visible = false
+	_options_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	canvas.add_child(_options_overlay)
+	
+	# Dim-Layer
+	_options_dim = ColorRect.new()
+	_options_dim.color = Color(0, 0, 0, 0.6)
+	_options_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_options_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_options_overlay.add_child(_options_dim)
+	
+	# Zentriertes Panel
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_options_overlay.add_child(center)
+	
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(520, 560)
+	
+	var sb := StyleBoxFlat.new()
+	sb.bg_color              = C_BG_DEEP
+	sb.border_color          = C_BORDER_OUT
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(2)
+	sb.content_margin_left   = 24
+	sb.content_margin_right  = 24
+	sb.content_margin_top    = 20
+	sb.content_margin_bottom = 20
+	panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(panel)
+	
+	# SettingsUI im Standalone-Modus
+	_options_ui = SettingsUI.new()
+	_options_ui.name = "OptionsUI"
+	_options_ui.show_save_load = false
+	_options_ui.standalone_mode = true
+	_options_ui.close_requested.connect(_close_options_overlay)
+	panel.add_child(_options_ui)
+
+
+# ══════════════════════════════════════════════════════════════
+#  BUTTON HANDLERS
+# ══════════════════════════════════════════════════════════════
 
 func _on_start_pressed() -> void:
 	if has_node("/root/SceneTransition"):
@@ -228,7 +374,7 @@ func _simple_transition(scene_path: String) -> void:
 
 
 func _on_options_pressed() -> void:
-	print("Öffne Optionen...")
+	_open_options_overlay()
 
 
 func _on_quit_pressed() -> void:

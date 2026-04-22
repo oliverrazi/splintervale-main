@@ -108,109 +108,118 @@ horizontal_alignment = 2
 [node name="HSeparator4" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
 layout_mode = 2
 
-[node name="StatsTitle" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-text = "— Attributes —"
-horizontal_alignment = 1
-
-[node name="PointsRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-
-[node name="PointsLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/PointsRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Available Points:"
-
-[node name="StatPointsValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/PointsRow"]
-layout_mode = 2
-text = "0"
-horizontal_alignment = 2
-
-[node name="HSeparator5" type="HSeparator" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-
-[node name="VitalityRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-
-[node name="VitalityLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/VitalityRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Vitality"
-
-[node name="VitalityValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/VitalityRow"]
-custom_minimum_size = Vector2(30, 0)
-layout_mode = 2
-text = "6"
-horizontal_alignment = 2
-
-[node name="VitalityAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/VitalityRow"]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-text = "+"
-
-[node name="StrengthRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-
-[node name="StrengthLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/StrengthRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Strength"
-
-[node name="StrengthValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/StrengthRow"]
-custom_minimum_size = Vector2(30, 0)
-layout_mode = 2
-text = "3"
-horizontal_alignment = 2
-
-[node name="StrengthAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/StrengthRow"]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-text = "+"
-
-[node name="AttunementRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-
-[node name="AttunementLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttunementRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Attunement"
-
-[node name="AttunementValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttunementRow"]
-custom_minimum_size = Vector2(30, 0)
-layout_mode = 2
-text = "3"
-horizontal_alignment = 2
-
-[node name="AttunementAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/AttunementRow"]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-text = "+"
-
-[node name="AttackSpeedRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/LeftColumn"]
-layout_mode = 2
-
-[node name="AttackSpeedLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttackSpeedRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Attack Speed"
-
-[node name="AttackSpeedValue" type="Label" parent="MarginContainer/HBoxContainer/LeftColumn/AttackSpeedRow"]
-custom_minimum_size = Vector2(30, 0)
-layout_mode = 2
-text = "3"
-horizontal_alignment = 2
-
-[node name="AttackSpeedAdd" type="Button" parent="MarginContainer/HBoxContainer/LeftColumn/AttackSpeedRow"]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-text = "+"
-
 [node name="Spacer" type="Control" parent="MarginContainer/HBoxContainer/LeftColumn"]
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="VSeparator" type="VSeparator" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
+
+[node name="MiddleColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="StatsTitle" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+text = "— Attributes —"
+horizontal_alignment = 1
+
+[node name="PointsRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+
+[node name="PointsLabel" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/PointsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Available Points:"
+
+[node name="StatPointsValue" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/PointsRow"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="HSeparator5" type="HSeparator" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+
+[node name="VitalityRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+
+[node name="VitalityLabel" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/VitalityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Vitality"
+
+[node name="VitalityValue" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/VitalityRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "6"
+horizontal_alignment = 2
+
+[node name="VitalityAdd" type="Button" parent="MarginContainer/HBoxContainer/MiddleColumn/VitalityRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="StrengthRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+
+[node name="StrengthLabel" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/StrengthRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Strength"
+
+[node name="StrengthValue" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/StrengthRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "3"
+horizontal_alignment = 2
+
+[node name="StrengthAdd" type="Button" parent="MarginContainer/HBoxContainer/MiddleColumn/StrengthRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="AttunementRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+
+[node name="AttunementLabel" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/AttunementRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attunement"
+
+[node name="AttunementValue" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/AttunementRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "3"
+horizontal_alignment = 2
+
+[node name="AttunementAdd" type="Button" parent="MarginContainer/HBoxContainer/MiddleColumn/AttunementRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="AttackSpeedRow" type="HBoxContainer" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+
+[node name="AttackSpeedLabel" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/AttackSpeedRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attack Speed"
+
+[node name="AttackSpeedValue" type="Label" parent="MarginContainer/HBoxContainer/MiddleColumn/AttackSpeedRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "3"
+horizontal_alignment = 2
+
+[node name="AttackSpeedAdd" type="Button" parent="MarginContainer/HBoxContainer/MiddleColumn/AttackSpeedRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "+"
+
+[node name="Spacer" type="Control" parent="MarginContainer/HBoxContainer/MiddleColumn"]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="VSeparator2" type="VSeparator" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2

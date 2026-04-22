@@ -3,529 +3,647 @@ class_name InventoryUI
 
 signal item_selected(item_id: String)
 
-const GRID_COLUMNS: int = 6
-const SLOT_SIZE: Vector2 = Vector2(64, 64)
-const SLOT_SPACING: int = 8
+# ── LAYOUT ─────────────────────────────────────────────────────
+const SLOTS_PER_ROW: int    = 8
+const SLOT_SIZE: Vector2    = Vector2(44, 44)
+const SLOT_SPACING: int     = 4
+const HOTBAR_SLOT_SIZE: Vector2 = Vector2(40, 40)
 
+# ── FARBEN (synchron mit pause_menu.gd) ────────────────────────
+const C_BG_TOME     := Color("1e1810", 0.9)
+const C_BG_DEEP     := Color("14100a")
+const C_BG_SLOT     := Color("231c13")
+const C_BORDER      := Color("2e1f0e")
+const C_BORDER_OUT  := Color("5c3d1e")
+const C_AMBER       := Color("c4923a")
+const C_AMBER_DIM   := Color("c4923a", 0.20)
+const C_AMBER_FAINT := Color("c4923a", 0.06)
+const C_TEXT_LIGHT  := Color("d4b880")
+const C_TEXT_MID    := Color("8a7050")
+const C_TEXT_MUTED  := Color("6b5030")
+
+# ── ZUSTAND ────────────────────────────────────────────────────
 var _item_slots: Array[Button] = []
-var _selected_item_id: String = ""
-var _selected_slot_index: int = -1
+var _selected_item_id: String  = ""
+var _selected_slot_index: int  = -1
+var _font: FontFile             = null
 
-# Node References
-var grid_container: GridContainer = null
-var detail_panel: PanelContainer = null
-var detail_icon: TextureRect = null
-var detail_name: Label = null
+# ── UI-REFERENZEN ──────────────────────────────────────────────
+var weapons_grid: GridContainer     = null
+var relics_grid: GridContainer      = null
+var collectables_grid: GridContainer = null
+var key_items_grid: GridContainer   = null 
+
+var detail_panel: PanelContainer    = null
+var detail_icon: TextureRect        = null
+var detail_name: Label              = null
 var detail_description: RichTextLabel = null
-var detail_type: Label = null
+var detail_type: Label              = null
 
-var hotbar_container: HBoxContainer = null
 var hotbar_slots: Array[PanelContainer] = []
-var hotbar_labels: Array[Label] = []
+var hotbar_labels: Array[Label]         = []
+var assign_hint: Label                  = null
 
-var assign_hint: Label = null
 
-var _font: FontFile
-var font_color: Color = Color8(255, 234, 213)
-
-func load_font() -> void:
-	var font_path := "res://menu/assets/fonts/Merriweather-Regular.ttf"
-	if ResourceLoader.exists(font_path):
-		_font = load(font_path) as FontFile
-
+# ═══════════════════════════════════════════════════════════════
+#  LIFECYCLE
+# ═══════════════════════════════════════════════════════════════
 
 func _ready() -> void:
-	load_font()
-
+	_load_font()
 	if _font:
 		var t := Theme.new()
-		t.default_font = _font
-		t.default_font_size = 14
-
-		# Optional, aber hilfreich (explizit je Control-Typ)
-		t.set_font("font", "Label", _font)
-		t.set_font("font", "Button", _font)
-		t.set_font("normal_font", "RichTextLabel", _font)
-
+		t.default_font      = _font
+		t.default_font_size = 13
 		theme = t
 	
 	_create_ui()
 	_connect_signals()
-	_update_inventory_grid()
-	_update_hotbar_display()
+	refresh()
 	
 	set_process_input(false)
-	
-func _notification(what: int) -> void:
-	match what:
-		NOTIFICATION_VISIBILITY_CHANGED:
-			# Input nur aktiv wenn sichtbar
-			set_process_input(is_visible_in_tree())
-			
-			# Auswahl zurücksetzen wenn versteckt
-			if not is_visible_in_tree():
-				_selected_item_id = ""
-				_selected_slot_index = -1
 
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		set_process_input(is_visible_in_tree())
+		if not is_visible_in_tree():
+			_selected_item_id    = ""
+			_selected_slot_index = -1
+
+
+func _load_font() -> void:
+	var path := "res://menu/assets/fonts/Merriweather-Regular.ttf"
+	if ResourceLoader.exists(path):
+		_font = load(path) as FontFile
+
+
+# ═══════════════════════════════════════════════════════════════
+#  UI-AUFBAU
+# ═══════════════════════════════════════════════════════════════
 
 func _create_ui() -> void:
-	# Haupt-Container
+	var root := MarginContainer.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_theme_constant_override("margin_left",   16)
+	root.add_theme_constant_override("margin_right",  16)
+	root.add_theme_constant_override("margin_top",    12)
+	root.add_theme_constant_override("margin_bottom", 12)
+	add_child(root)
+	
 	var main_hbox := HBoxContainer.new()
-	main_hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	main_hbox.add_theme_constant_override("separation", 15)
-	add_child(main_hbox)
+	main_hbox.add_theme_constant_override("separation", 16)
+	root.add_child(main_hbox)
 	
-	# === LINKE SEITE: Inventar Grid ===
-	var left_panel := PanelContainer.new()
-	left_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	main_hbox.add_child(left_panel)
-	
-	var left_margin := MarginContainer.new()
-	left_margin.add_theme_constant_override("margin_left", 10)
-	left_margin.add_theme_constant_override("margin_right", 10)
-	left_margin.add_theme_constant_override("margin_top", 10)
-	left_margin.add_theme_constant_override("margin_bottom", 10)
-	left_panel.add_child(left_margin)
-	
+	# === LINKS: 3 Kategorien-Reihen + Hotbar ===
 	var left_vbox := VBoxContainer.new()
-	left_vbox.add_theme_constant_override("separation", 10)
-	left_margin.add_child(left_vbox)
+	left_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_vbox.size_flags_vertical   = Control.SIZE_EXPAND_FILL
+	left_vbox.add_theme_constant_override("separation", 14)
+	main_hbox.add_child(left_vbox)
 	
-	# Titel
-	var title := Label.new()
-	title.text = "Inventory"
-	title.add_theme_font_size_override("font_size", 20)
-	left_vbox.add_child(title)
+	weapons_grid      = _build_category_section(left_vbox, "Weapons")
+	relics_grid       = _build_category_section(left_vbox, "Relics")
+	collectables_grid = _build_category_section(left_vbox, "Collectables")
+	key_items_grid    = _build_category_section(left_vbox, "Key Items") 
 	
-	# Grid ScrollContainer
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	left_vbox.add_child(scroll)
+	# Spacer: drückt die Hotbar nach unten
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left_vbox.add_child(spacer)
 	
-	var grid_margin := MarginContainer.new()
-	grid_margin.add_theme_constant_override("margin_left", 8)
-	grid_margin.add_theme_constant_override("margin_right", 8)
-	grid_margin.add_theme_constant_override("margin_top", 8)
-	grid_margin.add_theme_constant_override("margin_bottom", 8)
-	scroll.add_child(grid_margin)
+	_build_hotbar_section(left_vbox)
+	
+	# === RECHTS: Detail-Panel ===
+	_build_detail_panel(main_hbox)
 
-	grid_container = GridContainer.new()
-	grid_container.columns = GRID_COLUMNS
-	grid_container.add_theme_constant_override("h_separation", SLOT_SPACING)
-	grid_container.add_theme_constant_override("v_separation", SLOT_SPACING)
-	grid_margin.add_child(grid_container)
+
+func _build_category_section(parent: VBoxContainer, title: String) -> GridContainer:
+	var section := VBoxContainer.new()
+	section.add_theme_constant_override("separation", 6)
+	parent.add_child(section)
 	
-	# Hotbar Zuweisung
-	var hotbar_section := VBoxContainer.new()
-	hotbar_section.add_theme_constant_override("separation", 5)
-	left_vbox.add_child(hotbar_section)
+	section.add_child(_build_section_header(title))
 	
-	var hotbar_title := Label.new()
-	hotbar_title.text = "Quick Select"
-	hotbar_title.add_theme_font_size_override("font_size", 16)
-	hotbar_section.add_child(hotbar_title)
+	var grid := GridContainer.new()
+	grid.columns = SLOTS_PER_ROW
+	grid.add_theme_constant_override("h_separation", SLOT_SPACING)
+	grid.add_theme_constant_override("v_separation", SLOT_SPACING)
+	section.add_child(grid)
 	
-	hotbar_container = HBoxContainer.new()
-	hotbar_container.add_theme_constant_override("separation", 10)
-	hotbar_section.add_child(hotbar_container)
+	return grid
+
+
+func _build_section_header(title: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
 	
-	# 4 Hotbar Slots erstellen (W, A, S, D)
-	var slot_keys: Array[String] = ["W", "A", "S", "D"]
+	var line_l := ColorRect.new()
+	line_l.color                     = Color(C_BORDER_OUT, 0.7)
+	line_l.custom_minimum_size       = Vector2(8, 1)
+	line_l.size_flags_horizontal     = Control.SIZE_EXPAND_FILL
+	line_l.size_flags_vertical       = Control.SIZE_SHRINK_CENTER
+	
+	var diamond_l := Label.new()
+	diamond_l.text = "◆"
+	diamond_l.add_theme_font_size_override("font_size", 8)
+	diamond_l.add_theme_color_override("font_color", Color(C_AMBER, 0.55))
+	
+	var lbl := Label.new()
+	lbl.text = title.to_upper()
+	lbl.add_theme_font_size_override("font_size", 10)
+	lbl.add_theme_color_override("font_color", Color(C_AMBER, 0.75))
+	if _font:
+		lbl.add_theme_font_override("font", _font)
+	
+	var diamond_r := Label.new()
+	diamond_r.text = "◆"
+	diamond_r.add_theme_font_size_override("font_size", 8)
+	diamond_r.add_theme_color_override("font_color", Color(C_AMBER, 0.55))
+	
+	var line_r := ColorRect.new()
+	line_r.color                     = Color(C_BORDER_OUT, 0.7)
+	line_r.custom_minimum_size       = Vector2(8, 1)
+	line_r.size_flags_horizontal     = Control.SIZE_EXPAND_FILL
+	line_r.size_flags_vertical       = Control.SIZE_SHRINK_CENTER
+	
+	row.add_child(line_l)
+	row.add_child(diamond_l)
+	row.add_child(lbl)
+	row.add_child(diamond_r)
+	row.add_child(line_r)
+	return row
+
+
+func _build_hotbar_section(parent: VBoxContainer) -> void:
+	var section := VBoxContainer.new()
+	section.add_theme_constant_override("separation", 6)
+	parent.add_child(section)
+	
+	section.add_child(_build_section_header("Quick Select"))
+	
+	var hbox := HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 10)
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	section.add_child(hbox)
+	
+	var keys: Array[String] = ["W", "A", "S", "D"]
 	for i in range(4):
 		var slot_vbox := VBoxContainer.new()
-		slot_vbox.add_theme_constant_override("separation", 2)
-		hotbar_container.add_child(slot_vbox)
+		slot_vbox.add_theme_constant_override("separation", 3)
+		hbox.add_child(slot_vbox)
 		
-		var key_label := Label.new()
-		key_label.text = slot_keys[i]
-		key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		key_label.add_theme_font_size_override("font_size", 14)
-		slot_vbox.add_child(key_label)
+		# Key-Label über dem Slot
+		var key_lbl := Label.new()
+		key_lbl.text                 = keys[i]
+		key_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		key_lbl.add_theme_font_size_override("font_size", 11)
+		key_lbl.add_theme_color_override("font_color", Color(C_AMBER, 0.7))
+		if _font:
+			key_lbl.add_theme_font_override("font", _font)
+		slot_vbox.add_child(key_lbl)
+		hotbar_labels.append(key_lbl)
 		
+		# Slot
 		var slot := PanelContainer.new()
-		slot.custom_minimum_size = Vector2(48, 48)
+		slot.custom_minimum_size = HOTBAR_SLOT_SIZE
+		_apply_slot_style(slot, false)
 		slot_vbox.add_child(slot)
 		hotbar_slots.append(slot)
 		
-		# Icon Container
-		var icon_container := Control.new()
-		icon_container.set_anchors_preset(Control.PRESET_FULL_RECT)
-		slot.add_child(icon_container)
+		# Icon darin
+		var center := CenterContainer.new()
+		center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.add_child(center)
 		
 		var icon := TextureRect.new()
-		icon.name = "Icon"
-		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		icon_container.add_child(icon)
-		
-		hotbar_labels.append(key_label)
+		icon.name                 = "Icon"
+		icon.custom_minimum_size  = Vector2(28, 28)
+		icon.expand_mode          = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode         = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter       = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.mouse_filter         = Control.MOUSE_FILTER_IGNORE
+		center.add_child(icon)
 	
-	# Zuweisungs-Hinweis
+	# Hinweis-Label
 	assign_hint = Label.new()
-	assign_hint.text = "Select an item and press W/A/S/D to assign"
-	assign_hint.add_theme_font_size_override("font_size", 12)
-	assign_hint.modulate = Color(0.7, 0.7, 0.7)
-	hotbar_section.add_child(assign_hint)
-	
-	# === RECHTE SEITE: Item Details ===
+	assign_hint.text                 = "Select an item and press W/A/S/D to assign"
+	assign_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	assign_hint.add_theme_font_size_override("font_size", 11)
+	assign_hint.add_theme_color_override("font_color", C_TEXT_MID)
+	if _font:
+		assign_hint.add_theme_font_override("font", _font)
+	section.add_child(assign_hint)
+
+
+func _build_detail_panel(parent: HBoxContainer) -> void:
 	detail_panel = PanelContainer.new()
-	detail_panel.custom_minimum_size.x = 200
-	main_hbox.add_child(detail_panel)
+	detail_panel.custom_minimum_size.x = 240
+	detail_panel.size_flags_horizontal = Control.SIZE_SHRINK_END
 	
-	var right_margin := MarginContainer.new()
-	right_margin.add_theme_constant_override("margin_left", 15)
-	right_margin.add_theme_constant_override("margin_right", 15)
-	right_margin.add_theme_constant_override("margin_top", 15)
-	right_margin.add_theme_constant_override("margin_bottom", 15)
-	detail_panel.add_child(right_margin)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color              = C_BG_DEEP
+	sb.border_color          = Color(C_BORDER_OUT, 0.6)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(2)
+	sb.content_margin_left   = 16
+	sb.content_margin_right  = 16
+	sb.content_margin_top    = 16
+	sb.content_margin_bottom = 16
+	detail_panel.add_theme_stylebox_override("panel", sb)
+	parent.add_child(detail_panel)
 	
-	var right_vbox := VBoxContainer.new()
-	right_vbox.add_theme_constant_override("separation", 10)
-	right_margin.add_child(right_vbox)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	detail_panel.add_child(vbox)
 	
-	# Item Icon
+	# Icon zentriert
 	var icon_center := CenterContainer.new()
-	right_vbox.add_child(icon_center)
+	vbox.add_child(icon_center)
 	
 	detail_icon = TextureRect.new()
 	detail_icon.custom_minimum_size = Vector2(64, 64)
-	detail_icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-	detail_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED#
-	detail_icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-
+	detail_icon.expand_mode         = TextureRect.EXPAND_IGNORE_SIZE
+	detail_icon.stretch_mode        = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	detail_icon.texture_filter      = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon_center.add_child(detail_icon)
 	
-	# Item Name
+	# Name
 	detail_name = Label.new()
-	detail_name.text = "Select an item"
-	detail_name.add_theme_font_size_override("font_size", 18)
+	detail_name.text                 = "Select an item"
 	detail_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	right_vbox.add_child(detail_name)
+	detail_name.add_theme_font_size_override("font_size", 15)
+	detail_name.add_theme_color_override("font_color", C_TEXT_LIGHT)
+	if _font:
+		detail_name.add_theme_font_override("font", _font)
+	vbox.add_child(detail_name)
 	
-	# Item Type
+	# Typ
 	detail_type = Label.new()
-	detail_type.text = ""
-	detail_type.add_theme_font_size_override("font_size", 12)
+	detail_type.text                 = ""
 	detail_type.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	detail_type.modulate = Color(0.7, 0.7, 0.7)
-	right_vbox.add_child(detail_type)
+	detail_type.add_theme_font_size_override("font_size", 10)
+	detail_type.add_theme_color_override("font_color", Color(C_AMBER, 0.55))
+	if _font:
+		detail_type.add_theme_font_override("font", _font)
+	vbox.add_child(detail_type)
 	
-	# Separator
-	var sep := HSeparator.new()
-	right_vbox.add_child(sep)
+	# Trenner
+	var sep := ColorRect.new()
+	sep.color                     = Color(C_BORDER_OUT, 0.4)
+	sep.custom_minimum_size       = Vector2(0, 1)
+	vbox.add_child(sep)
 	
-	# Item Description
+	# Beschreibung
 	detail_description = RichTextLabel.new()
-	detail_description.bbcode_enabled = true
-	detail_description.fit_content = true
-	detail_description.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_description.add_theme_font_size_override("normal_font_size", 14)
-	right_vbox.add_child(detail_description)
+	detail_description.bbcode_enabled       = true
+	detail_description.fit_content          = true
+	detail_description.size_flags_vertical  = Control.SIZE_EXPAND_FILL
+	detail_description.add_theme_font_size_override("normal_font_size", 12)
+	detail_description.add_theme_color_override("default_color", C_TEXT_MID)
+	if _font:
+		detail_description.add_theme_font_override("normal_font", _font)
+	vbox.add_child(detail_description)
 
 
-func _connect_signals() -> void:
-	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
-	if inv_manager:
-		inv_manager.inventory_changed.connect(_on_inventory_changed)
-		inv_manager.hotbar_changed.connect(_on_hotbar_changed)
+# ═══════════════════════════════════════════════════════════════
+#  SLOT-STYLING
+# ═══════════════════════════════════════════════════════════════
 
-
-func _input(event: InputEvent) -> void:
-	if not visible:
-		return
+# state: 0 = normal, 1 = hover, 2 = focus/selected
+func _build_slot_stylebox(state: int, rarity_color: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.set_corner_radius_all(2)
+	sb.set_border_width_all(1)
 	
-	if _selected_item_id == "":
-		return
-	
-	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
-	if inv_manager == null:
-		return
-	
-	# Hotbar Zuweisung mit W/A/S/D - im Menü SOLL verschoben werden
-	if event is InputEventKey and event.pressed and not event.echo:
-		var assigned: bool = false
-		
-		match event.keycode:
-			KEY_W:
-				inv_manager.assign_to_hotbar(0, _selected_item_id, true)  # true = verschieben
-				assigned = true
-			KEY_A:
-				inv_manager.assign_to_hotbar(1, _selected_item_id, true)
-				assigned = true
-			KEY_S:
-				inv_manager.assign_to_hotbar(2, _selected_item_id, true)
-				assigned = true
-			KEY_D:
-				inv_manager.assign_to_hotbar(3, _selected_item_id, true)
-				assigned = true
-		
-		if assigned:
-			get_viewport().set_input_as_handled()
+	match state:
+		0:  # normal
+			sb.bg_color     = C_BG_SLOT
+			sb.border_color = C_BORDER_OUT
+		1:  # hover
+			sb.bg_color     = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.08)
+			sb.border_color = Color(rarity_color, 0.5)
+		2:  # focus / selected
+			sb.bg_color          = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.15)
+			sb.border_color      = rarity_color
+			sb.set_border_width_all(1)
+			# Rarität-Akzent unten
+			sb.border_width_bottom = 2
+	return sb
 
+
+func _apply_slot_style(panel: PanelContainer, has_item: bool, rarity_color: Color = C_BORDER_OUT) -> void:
+	var color: Color = rarity_color if has_item else C_BORDER_OUT
+	panel.add_theme_stylebox_override("panel", _build_slot_stylebox(0, color))
+
+
+# ═══════════════════════════════════════════════════════════════
+#  INVENTAR-GRID AUFBAU
+# ═══════════════════════════════════════════════════════════════
 
 func _update_inventory_grid() -> void:
-	# Alte Slots entfernen
-	for child in grid_container.get_children():
-		child.queue_free()
-	
+	# Alles sofort entfernen — synchron
+	for grid in [weapons_grid, relics_grid, collectables_grid, key_items_grid]:
+		if grid == null:
+			continue
+		while grid.get_child_count() > 0:
+			var child : Variant = grid.get_child(0)
+			grid.remove_child(child)
+			child.queue_free()
 	_item_slots.clear()
 	
-	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
+	var inv_manager := get_node_or_null("/root/InventoryManager")
 	if inv_manager == null:
 		return
 	
 	var items: Dictionary = inv_manager.get_all_items()
-	var index: int = 0
+	
+	var weapons: Array      = []
+	var relics: Array       = []
+	var collectables: Array = []
+	var key_items: Array    = []
 	
 	for item_id in items:
-		var amount: int = items[item_id]
-		var item_data: ItemData = inv_manager.get_item_data(item_id)
+		var data: ItemData = inv_manager.get_item_data(item_id)
+		var amount: int    = items[item_id]
+		var entry: Dictionary = {"id": item_id, "data": data, "amount": amount}
 		
-		var slot := _create_item_slot(item_id, item_data, amount, index)
-		grid_container.add_child(slot)
-		_item_slots.append(slot)
-		index += 1
+		if data == null:
+			collectables.append(entry)
+			continue
+		
+		match data.item_type:
+			ItemData.ItemType.WEAPON:
+				weapons.append(entry)
+			ItemData.ItemType.EQUIPMENT:
+				relics.append(entry)
+			ItemData.ItemType.KEY_ITEM:
+				key_items.append(entry)
+			_:
+				collectables.append(entry)
 	
-	# Leere Slots auffüllen (mindestens 24 Slots)
-	var min_slots: int = 24
-	while index < min_slots:
-		var empty_slot := _create_empty_slot(index)
-		grid_container.add_child(empty_slot)
-		_item_slots.append(empty_slot)
-		index += 1
+	_fill_category_grid(weapons_grid,      weapons)
+	_fill_category_grid(relics_grid,       relics)
+	_fill_category_grid(collectables_grid, collectables)
+	_fill_category_grid(key_items_grid,    key_items)
 	
-	# Navigation Setup
 	_setup_grid_navigation()
 
 
-func _create_item_slot(item_id: String, item_data: ItemData, amount: int, index: int) -> Button:
+func _fill_category_grid(grid: GridContainer, entries: Array) -> void:
+	if grid == null:
+		return
+	
+	if entries.is_empty():
+		# Ein leerer Platzhalter-Slot
+		var slot := _create_empty_slot()
+		grid.add_child(slot)
+		_item_slots.append(slot)
+		return
+	
+	for e in entries:
+		var slot := _create_item_slot(e["id"], e["data"], e["amount"])
+		grid.add_child(slot)
+		_item_slots.append(slot)
+
+
+func _create_item_slot(item_id: String, data: ItemData, amount: int) -> Button:
 	var slot := Button.new()
 	slot.custom_minimum_size = SLOT_SIZE
 	slot.set_meta("item_id", item_id)
-	slot.set_meta("slot_index", index)
 	
-	# Container für Icon und Anzahl
-	var container := MarginContainer.new()
-	container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	# Padding innerhalb der Kachel:
-	container.add_theme_constant_override("margin_left", 6)
-	container.add_theme_constant_override("margin_right", 6)
-	container.add_theme_constant_override("margin_top", 6)
-	container.add_theme_constant_override("margin_bottom", 6)
-
-	slot.add_child(container)
-
+	var rarity_color: Color = C_AMBER
+	if data != null:
+		rarity_color = data.get_rarity_color()
 	
-	# Icon
+	# Styleboxes für alle States
+	slot.add_theme_stylebox_override("normal",   _build_slot_stylebox(0, rarity_color))
+	slot.add_theme_stylebox_override("hover",    _build_slot_stylebox(1, rarity_color))
+	slot.add_theme_stylebox_override("pressed",  _build_slot_stylebox(2, rarity_color))
+	slot.add_theme_stylebox_override("focus",    _build_slot_stylebox(2, rarity_color))
+	
+	# Icon und Anzahl via MarginContainer
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override("margin_left",   4)
+	margin.add_theme_constant_override("margin_right",  4)
+	margin.add_theme_constant_override("margin_top",    4)
+	margin.add_theme_constant_override("margin_bottom", 4)
+	slot.add_child(margin)
+	
 	var icon := TextureRect.new()
 	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	icon.expand_mode    = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode   = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter   = Control.MOUSE_FILTER_IGNORE
+	if data and data.icon:
+		icon.texture = data.icon
+	margin.add_child(icon)
 	
-	if item_data and item_data.icon:
-		icon.texture = item_data.icon
-	
-	container.add_child(icon)
-	
-	# Anzahl Label
+	# Stapel-Anzahl unten rechts
 	if amount > 1:
-		var amount_label := Label.new()
-		amount_label.text = str(amount)
-		amount_label.add_theme_font_size_override("font_size", 12)
-		amount_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		amount_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-		amount_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-		amount_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		container.add_child(amount_label)
+		var amount_lbl := Label.new()
+		amount_lbl.text                 = str(amount)
+		amount_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		amount_lbl.vertical_alignment   = VERTICAL_ALIGNMENT_BOTTOM
+		amount_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+		amount_lbl.mouse_filter         = Control.MOUSE_FILTER_IGNORE
+		amount_lbl.add_theme_font_size_override("font_size", 10)
+		amount_lbl.add_theme_color_override("font_color", C_TEXT_LIGHT)
+		if _font:
+			amount_lbl.add_theme_font_override("font", _font)
+		margin.add_child(amount_lbl)
 	
-	# Rarität-Farbe am Rand
-	if item_data:
-		var color: Color = item_data.get_rarity_color()
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.15, 0.15, 0.15, 0.9)
-		style.border_width_bottom = 3
-		style.border_color = color
-		style.corner_radius_top_left = 4
-		style.corner_radius_top_right = 4
-		style.corner_radius_bottom_left = 4
-		style.corner_radius_bottom_right = 4
-		slot.add_theme_stylebox_override("normal", style)
-		
-		var hover_style := style.duplicate()
-		hover_style.bg_color = Color(0.25, 0.25, 0.25, 0.9)
-		slot.add_theme_stylebox_override("hover", hover_style)
-		
-		var focus_style := style.duplicate()
-		focus_style.bg_color = Color(0.3, 0.3, 0.35, 0.9)
-		focus_style.border_width_top = 2
-		focus_style.border_width_left = 2
-		focus_style.border_width_right = 2
-		slot.add_theme_stylebox_override("focus", focus_style)
-	
-	# Callbacks
-	slot.pressed.connect(_on_slot_pressed.bind(item_id, index))
-	slot.focus_entered.connect(_on_slot_focused.bind(item_id, index))
-	
+	slot.pressed.connect(_on_slot_pressed.bind(item_id))
+	slot.focus_entered.connect(_on_slot_focused.bind(item_id))
 	return slot
 
 
-func _create_empty_slot(index: int) -> Button:
+func _create_empty_slot() -> Button:
 	var slot := Button.new()
 	slot.custom_minimum_size = SLOT_SIZE
 	slot.set_meta("item_id", "")
-	slot.set_meta("slot_index", index)
 	slot.disabled = true
 	
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.1, 0.1, 0.5)
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_left = 4
-	style.corner_radius_bottom_right = 4
-	slot.add_theme_stylebox_override("normal", style)
-	slot.add_theme_stylebox_override("disabled", style)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color     = Color(C_BG_DEEP.r, C_BG_DEEP.g, C_BG_DEEP.b, 0.6)
+	sb.border_color = Color(C_BORDER, 0.8)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(2)
 	
+	slot.add_theme_stylebox_override("normal",   sb)
+	slot.add_theme_stylebox_override("disabled", sb)
 	return slot
 
 
+# ═══════════════════════════════════════════════════════════════
+#  NAVIGATION
+# ═══════════════════════════════════════════════════════════════
+
 func _setup_grid_navigation() -> void:
-	for i in range(_item_slots.size()):
-		var slot: Button = _item_slots[i]
-		if slot.disabled:
-			continue
-		
-		var row: int = i / GRID_COLUMNS
-		var col: int = i % GRID_COLUMNS
-		
-		# Oben
-		if row > 0:
-			var up_index: int = i - GRID_COLUMNS
-			if up_index >= 0 and up_index < _item_slots.size():
-				slot.focus_neighbor_top = _item_slots[up_index].get_path()
-		
-		# Unten
-		var down_index: int = i + GRID_COLUMNS
-		if down_index < _item_slots.size():
-			slot.focus_neighbor_bottom = _item_slots[down_index].get_path()
-		
+	# Alle aktiven Slots sammeln in visueller Reihenfolge
+	# (Weapons → Relics → Collectables)
+	var active: Array[Button] = []
+	for slot in _item_slots:
+		if not slot.disabled:
+			active.append(slot)
+	
+	if active.is_empty():
+		return
+	
+	# Einfache lineare Navigation über alle Kategorien hinweg
+	for i in range(active.size()):
+		var slot := active[i]
 		# Links
-		if col > 0:
-			slot.focus_neighbor_left = _item_slots[i - 1].get_path()
-		
+		if i > 0:
+			slot.focus_neighbor_left = active[i - 1].get_path()
 		# Rechts
-		if col < GRID_COLUMNS - 1 and i + 1 < _item_slots.size():
-			slot.focus_neighbor_right = _item_slots[i + 1].get_path()
+		if i < active.size() - 1:
+			slot.focus_neighbor_right = active[i + 1].get_path()
 
 
-func _on_slot_pressed(item_id: String, index: int) -> void:
-	_select_item(item_id, index)
+# ═══════════════════════════════════════════════════════════════
+#  SELECTION + DETAIL-UPDATE
+# ═══════════════════════════════════════════════════════════════
+
+func _on_slot_pressed(item_id: String) -> void:
+	_select_item(item_id)
 
 
-func _on_slot_focused(item_id: String, index: int) -> void:
-	_select_item(item_id, index)
+func _on_slot_focused(item_id: String) -> void:
+	_select_item(item_id)
 
 
-func _select_item(item_id: String, index: int) -> void:
+func _select_item(item_id: String) -> void:
 	_selected_item_id = item_id
-	_selected_slot_index = index
 	_update_item_details()
 	item_selected.emit(item_id)
 
 
 func _update_item_details() -> void:
 	if _selected_item_id == "":
-		detail_name.text = "Select an item"
-		detail_type.text = ""
-		detail_description.text = ""
-		detail_icon.texture = null
-		assign_hint.text = "Select an item and press W/A/S/D to assign"
+		detail_name.text         = "Select an item"
+		detail_type.text         = ""
+		detail_description.text  = ""
+		detail_icon.texture      = null
+		assign_hint.text         = "Select an item and press W/A/S/D to assign"
+		assign_hint.add_theme_color_override("font_color", C_TEXT_MID)
 		return
 	
-	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
-	if inv_manager == null:
+	var inv := get_node_or_null("/root/InventoryManager")
+	if inv == null:
 		return
 	
-	var item_data: ItemData = inv_manager.get_item_data(_selected_item_id)
-	
-	if item_data == null:
-		detail_name.text = _selected_item_id
-		detail_type.text = ""
+	var data: ItemData = inv.get_item_data(_selected_item_id)
+	if data == null:
+		detail_name.text        = _selected_item_id
+		detail_type.text        = ""
 		detail_description.text = "No details available."
-		detail_icon.texture = null
+		detail_icon.texture     = null
 		return
 	
-	detail_name.text = item_data.item_name
-	detail_name.modulate = item_data.get_rarity_color()
+	detail_name.text = data.item_name
+	detail_name.add_theme_color_override("font_color", data.get_rarity_color())
 	
-	# Type
-	var type_text: String = ""
-	match item_data.item_type:
-		ItemData.ItemType.WEAPON:
-			type_text = "Weapon"
-		ItemData.ItemType.CONSUMABLE:
-			type_text = "Consumable"
-		ItemData.ItemType.KEY_ITEM:
-			type_text = "Key item"
-		ItemData.ItemType.MATERIAL:
-			type_text = "Material"
-	detail_type.text = type_text
+	var type_text := ""
+	match data.item_type:
+		ItemData.ItemType.WEAPON:     type_text = "Weapon"
+		ItemData.ItemType.CONSUMABLE: type_text = "Consumable"
+		ItemData.ItemType.EQUIPMENT:   type_text = "Relic"
+		ItemData.ItemType.MATERIAL:   type_text = "Material"
+		ItemData.ItemType.KEY_ITEM:   type_text = "Key Item"
+	detail_type.text = type_text.to_upper()
 	
-	detail_description.text = item_data.description
-	detail_icon.texture = item_data.icon
+	detail_description.text = data.description
+	detail_icon.texture     = data.icon
 	
-	# Hinweis aktualisieren
-	if item_data.usable:
-		assign_hint.text = "Select W/A/S/D to assign"
-		assign_hint.modulate = Color(0.8, 0.9, 0.8)
+	if data.usable:
+		assign_hint.text = "Press W / A / S / D to assign"
+		assign_hint.add_theme_color_override("font_color", Color(C_AMBER, 0.75))
 	else:
 		assign_hint.text = "Cannot be assigned"
-		assign_hint.modulate = Color(0.7, 0.5, 0.5)
+		assign_hint.add_theme_color_override("font_color", C_TEXT_MUTED)
 
+
+# ═══════════════════════════════════════════════════════════════
+#  HOTBAR
+# ═══════════════════════════════════════════════════════════════
 
 func _update_hotbar_display() -> void:
-	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
-	if inv_manager == null:
+	var inv := get_node_or_null("/root/InventoryManager")
+	if inv == null:
 		return
 	
 	for i in range(hotbar_slots.size()):
-		var slot: PanelContainer = hotbar_slots[i]
-		var icon: TextureRect = slot.get_node_or_null("Control/Icon") as TextureRect
+		var slot := hotbar_slots[i]
+		var icon: TextureRect = null
+		# Finde das Icon (via CenterContainer)
+		for child in slot.get_children():
+			if child is CenterContainer:
+				for sub in child.get_children():
+					if sub is TextureRect:
+						icon = sub
+						break
 		
-		if icon == null:
-			# Fallback: Direkt suchen
-			for child in slot.get_children():
-				if child is Control:
-					for subchild in child.get_children():
-						if subchild is TextureRect:
-							icon = subchild
-							break
-		
-		var item_id: String = inv_manager.get_hotbar_item(i)
-		var item_data: ItemData = inv_manager.get_item_data(item_id) if item_id != "" else null
+		var item_id: String = inv.get_hotbar_item(i)
+		var data: ItemData  = inv.get_item_data(item_id) if item_id != "" else null
 		
 		if icon:
-			if item_data and item_data.icon:
-				icon.texture = item_data.icon
-			else:
-				icon.texture = null
+			icon.texture = data.icon if data else null
+		
+		# Slot-Styling basierend auf Belegung
+		var has_item := data != null
+		var rarity: Color = data.get_rarity_color() if has_item else C_BORDER_OUT
+		_apply_slot_style(slot, has_item, rarity)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  INPUT + SIGNALS
+# ═══════════════════════════════════════════════════════════════
+
+func _connect_signals() -> void:
+	var inv := get_node_or_null("/root/InventoryManager")
+	if inv:
+		inv.inventory_changed.connect(_on_inventory_changed)
+		inv.hotbar_changed.connect(_on_hotbar_changed)
+
+
+func _input(event: InputEvent) -> void:
+	if not visible or _selected_item_id == "":
+		return
+	
+	var inv := get_node_or_null("/root/InventoryManager")
+	if inv == null:
+		return
+	
+	if event is InputEventKey and event.pressed and not event.echo:
+		var assigned := false
+		match event.keycode:
+			KEY_W:
+				inv.assign_to_hotbar(0, _selected_item_id, true); assigned = true
+			KEY_A:
+				inv.assign_to_hotbar(1, _selected_item_id, true); assigned = true
+			KEY_S:
+				inv.assign_to_hotbar(2, _selected_item_id, true); assigned = true
+			KEY_D:
+				inv.assign_to_hotbar(3, _selected_item_id, true); assigned = true
+		if assigned:
+			get_viewport().set_input_as_handled()
 
 
 func _on_inventory_changed() -> void:
 	_update_inventory_grid()
 
 
-func _on_hotbar_changed(_slot_index: int, _item_id: String) -> void:
+func _on_hotbar_changed(_slot: int, _id: String) -> void:
 	_update_hotbar_display()
 
 
-# === Public Methods ===
+# ═══════════════════════════════════════════════════════════════
+#  PUBLIC API (für pause_menu.gd)
+# ═══════════════════════════════════════════════════════════════
 
 func refresh() -> void:
 	_update_inventory_grid()

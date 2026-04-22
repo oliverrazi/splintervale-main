@@ -13,7 +13,7 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_55a57"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_52e3q"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iyyv8"]
 render_priority = 0
 shader = ExtResource("7_lfxhq")
 shader_parameter/sprite_texture = ExtResource("1_55a57")
@@ -26,6 +26,7 @@ shader_parameter/tilt_amount = 0.15
 shader_parameter/aa_sharpness = 1.7
 shader_parameter/filter_mode = 0
 shader_parameter/frame_bleed_guard = 0.5
+shader_parameter/depth_bias = 0.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_52e3q"]
 size = Vector2(1.28, 1.28)
@@ -34,7 +35,7 @@ size = Vector2(1.28, 1.28)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jny38"]
 
-[sub_resource type="Shader" id="Shader_yc53m"]
+[sub_resource type="Shader" id="Shader_52e3q"]
 code = "
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
@@ -55,14 +56,14 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_qxemc"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yc53m"]
 render_priority = 0
-shader = SubResource("Shader_yc53m")
+shader = SubResource("Shader_52e3q")
 shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
 shader_parameter/shadow_opacity = 0.6
 shader_parameter/softness = 0.6
 
-[sub_resource type="QuadMesh" id="QuadMesh_v803b"]
+[sub_resource type="QuadMesh" id="QuadMesh_qxemc"]
 size = Vector2(0.5, 0.3)
 orientation = 1
 
@@ -72,10 +73,19 @@ collision_layer = 17
 collision_mask = 37
 script = ExtResource("1_jny38")
 thrust_scene = ExtResource("2_iyyv8")
+thrust_offset_up = Vector3(0, 0.18, -0.2)
+thrust_offset_up_right = Vector3(0.1, -0.05, -0.2)
+thrust_offset_right = Vector3(0.08, -0.18, 0)
+thrust_offset_down_right = Vector3(0.05, -0.1, 0)
+thrust_offset_down = Vector3(-0.02, -0.2, 0)
+thrust_offset_down_left = Vector3(-0.05, -0.1, 0)
+thrust_offset_left = Vector3(-0.08, -0.18, 0)
+thrust_offset_up_left = Vector3(-0.1, -0.05, -0.2)
 max_health = 50
 knockback_strength = 3.0
 detection_range = 1.0
 lose_interest_range = 10.0
+avoid_cliffs = true
 exp_reward = 5
 gold_reward_min = 1
 gold_reward_max = 3
@@ -92,7 +102,7 @@ shape = SubResource("CapsuleShape3D_55a57")
 
 [node name="Sprite3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
-material_override = SubResource("ShaderMaterial_52e3q")
+material_override = SubResource("ShaderMaterial_iyyv8")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_52e3q")
 script = ExtResource("7_a11jv")
@@ -100,20 +110,6 @@ texture = ExtResource("1_55a57")
 hframes = 10
 vframes = 10
 aa_sharpness = 1.7
-
-[node name="Sprite3D_old" type="Sprite3D" parent="."]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
-visible = false
-billboard = 1
-alpha_cut = 3
-alpha_scissor_threshold = 1.0
-alpha_hash_scale = 0.0
-alpha_antialiasing_mode = 1
-alpha_antialiasing_edge = 0.3
-texture_filter = 1
-texture = ExtResource("1_55a57")
-hframes = 10
-vframes = 10
 
 [node name="DetectionArea" type="Area3D" parent="."]
 
@@ -129,9 +125,9 @@ shape = SubResource("CapsuleShape3D_jny38")
 
 [node name="BlobShadow" type="MeshInstance3D" parent="."]
 top_level = true
-material_override = SubResource("ShaderMaterial_qxemc")
+material_override = SubResource("ShaderMaterial_yc53m")
 cast_shadow = 0
-mesh = SubResource("QuadMesh_v803b")
+mesh = SubResource("QuadMesh_qxemc")
 script = ExtResource("10_iyyv8")
 shadow_opacity = 0.6
 softness = 0.6
