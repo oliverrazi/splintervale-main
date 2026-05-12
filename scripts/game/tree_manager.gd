@@ -28,6 +28,9 @@ class_name TreeManager
 ## Bäume pro Frame spawnen/despawnen (um Lag-Spikes zu vermeiden)
 @export var trees_per_frame: int = 3
 
+var _pool: Array[Node3D] = []
+@export var pool_warmup: int = 30
+
 # Interne Daten
 var _tree_data: Array[TreeData] = []  # Alle Baumpositionen
 var _multimesh_instance: MultiMeshInstance3D
@@ -38,6 +41,8 @@ var _update_timer: float = 0.0
 # Queues für graduelles Spawnen/Despawnen
 var _spawn_queue: Array[int] = []
 var _despawn_queue: Array[int] = []
+
+const POOL_HIDDEN_POS := Vector3(0.0, -100000.0, 0.0)
 
 class TreeData:
 	var position: Vector3
@@ -53,9 +58,17 @@ class TreeData:
 
 func _ready() -> void:
 	_setup_multimesh()
-	
-	# Sowohl im Editor als auch im Spiel: Daten laden
 	auto_load()
+	
+	
+	if not Engine.is_editor_hint() and tree_scene != null:
+		for i in pool_warmup:
+			var t := tree_scene.instantiate() as Node3D
+			add_child(t)
+			t.position = POOL_HIDDEN_POS
+			t.visible = false
+			t.process_mode = Node.PROCESS_MODE_DISABLED
+			_pool.append(t)
 	
 	# Im Editor nicht nach Spieler suchen
 	if Engine.is_editor_hint():
@@ -64,8 +77,7 @@ func _ready() -> void:
 	# Spieler finden
 	await get_tree().process_frame
 	_player = get_tree().get_first_node_in_group("player")
-	if _player == null:
-		push_warning("TreeManager: Kein Spieler in Gruppe 'player' gefunden!")
+
 
 
 func _process(delta: float) -> void:
@@ -240,22 +252,29 @@ func _process_queues() -> void:
 func _spawn_real_tree(index: int) -> void:
 	if tree_scene == null:
 		return
-	
 	var data := _tree_data[index]
 	if data.is_real:
-		return  # Bereits gespawnt
-	
-	# Echte Szene erstellen
-	var tree_instance := tree_scene.instantiate() as Node3D
+		return
+
+	var tree_instance: Node3D
+	if _pool.size() > 0:
+		tree_instance = _pool.pop_back()
+	else:
+		tree_instance = tree_scene.instantiate() as Node3D
+		add_child(tree_instance)
+
+	# 1) Transform zuerst — der Baum sitzt bereits am Zielort,
+	#    bevor er für den Renderer auftaucht
 	tree_instance.position = data.position
 	tree_instance.rotation.y = data.rotation_y
 	tree_instance.scale = Vector3.ONE * data.scale
-	add_child(tree_instance)
-	
+
+	# 2) Dann erst Visibility + Process aktivieren
+	tree_instance.visible = true
+	tree_instance.process_mode = Node.PROCESS_MODE_INHERIT
+
 	_real_trees[index] = tree_instance
 	data.is_real = true
-	
-	# MultiMesh-Instanz verstecken
 	_update_multimesh_instance(index, data, false)
 
 
@@ -268,12 +287,13 @@ func _despawn_real_tree(index: int) -> void:
 	if _real_trees.has(index):
 		var tree_instance: Node3D = _real_trees[index]
 		if is_instance_valid(tree_instance):
-			tree_instance.queue_free()
+			tree_instance.visible = false
+			tree_instance.process_mode = Node.PROCESS_MODE_DISABLED
+			tree_instance.position = POOL_HIDDEN_POS
+			_pool.append(tree_instance)
 		_real_trees.erase(index)
 	
 	data.is_real = false
-	
-	# MultiMesh-Instanz wieder zeigen
 	_update_multimesh_instance(index, data, true)
 
 

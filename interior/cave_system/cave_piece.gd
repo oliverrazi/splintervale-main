@@ -42,6 +42,19 @@ extends Node3D
 @export var generate_bottom: bool = true: set = _set_generate_bottom
 @export var generate_collision: bool = true: set = _set_generate_collision
 
+@export_group("Boden-Variation")
+## Farbvariation über Noise (0 = keine, 1 = stark)
+@export_range(0.0, 1.0, 0.05) var color_variation: float = 0.5: set = _set_color_variation
+## Noise-Frequenz (kleiner = größere Flecken)
+@export_range(0.1, 5.0, 0.1) var color_noise_frequency: float = 0.8: set = _set_color_noise_frequency
+## Ab welcher Distanz zum Rand beginnt der Fade (Meter)
+## Innerhalb dieser Zone → Farbe fadet zu neutral (1,1,1)
+@export_range(0.0, 5.0, 0.1) var edge_fade_distance: float = 1.5: set = _set_edge_fade_distance
+## Feuchtigkeit in Senken (steuert Roughness im Shader)
+@export_range(0.0, 1.0, 0.05) var wetness_variation: float = 0.3: set = _set_wetness_variation
+## Noise-Seed
+@export var color_noise_seed: int = 123: set = _set_color_noise_seed
+
 var _mesh_instance: MeshInstance3D = null
 var _col_body: StaticBody3D = null
 var _noise: FastNoiseLite = null
@@ -236,12 +249,12 @@ func _add_cap(mesh: ArrayMesh, poly: PackedVector2Array, y: float,
 	if idx.is_empty():
 		return
 
-	# Basis-Vertices auf Y-Ebene
+	# Basis-Vertices
 	var verts: Array[Vector3] = []
 	for p in poly:
 		verts.append(Vector3(p.x, y, p.y))
 
-	# Subdivision für mehr Oberflächen-Detail
+	# Subdivision
 	var fv: Array[Vector3] = verts
 	var fi: PackedInt32Array = idx
 	if surface_subdivisions > 0:
@@ -249,30 +262,111 @@ func _add_cap(mesh: ArrayMesh, poly: PackedVector2Array, y: float,
 		fv = r.v
 		fi = r.i
 
-	# Surface Noise — leichte Höhenvariation
-	if surface_noise_strength > 0.0:
+	# Surface Noise (Höhenvariation)
+	if surface_noise_strength > 0.0 and _noise:
 		for i in range(fv.size()):
 			var v := fv[i]
 			var n := _noise.get_noise_2d(v.x * 2.5, v.z * 2.5)
 			v.y += n * surface_noise_strength
 			fv[i] = v
 
-	# Normalen + UVs
+# ── Vertex Colors berechnen ──
+	var colors := PackedColorArray()
+
+	var color_noise := FastNoiseLite.new()
+	color_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	color_noise.frequency = color_noise_frequency
+	color_noise.seed = color_noise_seed
+
+	# Zweiter Noise: größere Flecken für dunkle Zonen
+	var dark_noise := FastNoiseLite.new()
+	dark_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	dark_noise.frequency = color_noise_frequency * 0.4
+	dark_noise.seed = color_noise_seed + 333
+
+	# Dritter Noise: Farbtemperatur (warm/kalt)
+	var temp_noise := FastNoiseLite.new()
+	temp_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	temp_noise.frequency = color_noise_frequency * 0.3
+	temp_noise.seed = color_noise_seed + 555
+
+	# Feuchtigkeit
+	var wet_noise := FastNoiseLite.new()
+	wet_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	wet_noise.frequency = color_noise_frequency * 0.6
+	wet_noise.seed = color_noise_seed + 999
+
+	for i in range(fv.size()):
+		var v := fv[i]
+		var point_2d := Vector2(v.x, v.z)
+
+		# ── Edge-Fade: wie weit sind wir vom Rand entfernt? ──
+		var dist_to_edge := _distance_to_polygon_edge(point_2d, poly)
+		var interior_factor := 1.0
+		if edge_fade_distance > 0.0:
+			# 0 = am Rand (neutral), 1 = weit innen (volle Variation)
+			interior_factor = clampf(dist_to_edge / edge_fade_distance, 0.0, 1.0)
+			# Smoothstep für sanften Übergang
+			interior_factor = interior_factor * interior_factor * (3.0 - 2.0 * interior_factor)
+
+		# ── 1. Helligkeits-Noise (kleine Flecken) ──
+		var fine_noise := color_noise.get_noise_2d(v.x, v.z)
+		# Stärker: [-1,1] → [-variation, +variation*0.5]
+		# Dunkler ist stärker als heller (natürlicher)
+		var brightness := 1.0 + fine_noise * color_variation * 0.7
+
+		# ── 2. Dunkle Zonen (große Flecken) ──
+		var dark := dark_noise.get_noise_2d(v.x, v.z)
+		# Nur dunkle Flecken, keine hellen (einseitig)
+		if dark < 0.0:
+			brightness += dark * color_variation * 0.5
+
+		# ── 3. Höhenbasiert: Senken dunkler ──
+		if surface_noise_strength > 0.0:
+			var height_factor := (v.y - y) / maxf(surface_noise_strength, 0.01)
+			brightness += height_factor * color_variation * 0.3
+
+		# ── 4. Farbtemperatur-Shift ──
+		var temp := temp_noise.get_noise_2d(v.x, v.z)
+		var r_shift := temp * color_variation * 0.2
+		var b_shift := -temp * color_variation * 0.15
+
+		# ── 5. Alles mit Edge-Fade modulieren ──
+		# Am Rand → (1, 1, 1, 1) = neutral, kein Effekt
+		# Innen → volle Variation
+		var r_val := lerpf(1.0, clampf(brightness + r_shift, 0.15, 1.3), interior_factor)
+		var g_val := lerpf(1.0, clampf(brightness, 0.15, 1.2), interior_factor)
+		var b_val := lerpf(1.0, clampf(brightness + b_shift, 0.15, 1.3), interior_factor)
+
+		# ── 6. Feuchtigkeit (Alpha) — auch mit Edge-Fade ──
+		var wetness := wet_noise.get_noise_2d(v.x, v.z)
+		wetness = clampf((wetness + 1.0) * 0.5 * wetness_variation, 0.0, 1.0)
+		# Senken sind feuchter
+		if surface_noise_strength > 0.0:
+			var depth := clampf(-(v.y - y) / maxf(surface_noise_strength, 0.01), 0.0, 1.0)
+			wetness = clampf(wetness + depth * 0.3, 0.0, 1.0)
+		# Am Rand: keine Feuchtigkeit (neutral = trocken = alpha 1)
+		wetness *= interior_factor
+
+		colors.append(Color(r_val, g_val, b_val, 1.0 - wetness))
+
+	# ── Arrays zusammenbauen ──
 	var normal := Vector3.UP if facing_up else Vector3.DOWN
 	var out_verts := PackedVector3Array()
 	var out_norms := PackedVector3Array()
 	var out_uvs := PackedVector2Array()
 
-	for v in fv:
-		out_verts.append(v)
+	for i in range(fv.size()):
+		out_verts.append(fv[i])
 		out_norms.append(normal)
-		out_uvs.append(Vector2(v.x, v.z) * uv_sc)
+		out_uvs.append(Vector2(fv[i].x, fv[i].z) * uv_sc)
 
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = out_verts
 	arrays[Mesh.ARRAY_NORMAL] = out_norms
 	arrays[Mesh.ARRAY_TEX_UV] = out_uvs
+	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_INDEX] = fi
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
@@ -462,6 +556,26 @@ func _poly_center(poly: PackedVector2Array) -> Vector2:
 	return r / float(poly.size())
 
 
+
+func _distance_to_polygon_edge(point: Vector2, poly: PackedVector2Array) -> float:
+	## Kürzeste Distanz eines Punktes zum nächsten Polygonrand
+	var min_dist := INF
+	var pc := poly.size()
+	for i in range(pc):
+		var a := poly[i]
+		var b := poly[(i + 1) % pc]
+		var dist := _point_to_segment_distance(point, a, b)
+		min_dist = minf(min_dist, dist)
+	return min_dist
+
+
+func _point_to_segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab := b - a
+	var ap := p - a
+	var t := clampf(ap.dot(ab) / maxf(ab.dot(ab), 0.0001), 0.0, 1.0)
+	var closest := a + ab * t
+	return p.distance_to(closest)
+
 # ═════════════════════════════════════════════════════════════
 # SETTERS
 # ═════════════════════════════════════════════════════════════
@@ -486,3 +600,9 @@ func _set_side_material(v: Material) -> void: side_material = v; _dirty = true
 func _set_bottom_material(v: Material) -> void: bottom_material = v; _dirty = true
 func _set_generate_bottom(v: bool) -> void: generate_bottom = v; _dirty = true
 func _set_generate_collision(v: bool) -> void: generate_collision = v; _dirty = true
+
+func _set_color_variation(v: float) -> void: color_variation = v; _dirty = true
+func _set_color_noise_frequency(v: float) -> void: color_noise_frequency = v; _dirty = true
+func _set_edge_fade_distance(v: float) -> void: edge_fade_distance = v; _dirty = true
+func _set_wetness_variation(v: float) -> void: wetness_variation = v; _dirty = true
+func _set_color_noise_seed(v: int) -> void: color_noise_seed = v; _dirty = true

@@ -106,6 +106,14 @@ signal target_confused(target: Node3D, duration: float)
 @export var bounce_max_duration: float = 1.6        # Sicherheits-Timeout
 @export var bounce_invincible: bool = false
 
+
+@export_group("Launch Impact VFX")
+@export var launch_impact_scene: PackedScene
+@export var launch_impact_scale: float = 0.7
+@export var launch_impact_delay: float = 0.0
+@export var launch_impact_lifetime: float = 0.4
+@export var launch_impact_y_offset: float = 0.3
+
 # === SOUND ===
 @export_group("Sound")
 @export var charge_loop_sound: AudioStream
@@ -113,12 +121,13 @@ signal target_confused(target: Node3D, duration: float)
 @export var launch_sound: AudioStream
 @export var land_sound: AudioStream
 
+@export var dive_strike_path: NodePath = "../DiveStrikeComponent"
+
 # === TARGETING ===
 const TARGETABLE_GROUPS: Array[String] = ["enemies", "enemy", "targetable", "projectile"]
 
 # === STATE ===
-enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, BOUNCING, RECOVERY }
-
+enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, DIVE_DELEGATED, BOUNCING, RECOVERY }
 
 var _state: State = State.IDLE
 var _current_radius: float = 0.0
@@ -150,10 +159,23 @@ var _target_indicator_material: ShaderMaterial = null
 var _target_indicator_time: float = 0.0
 var _target_indicator_shader: Shader = null
 
+var _dive_hang_time: float = 0.0
+var _dive_strike_time: float = 0.0
+var _dive_hit_enemies: Dictionary = {}
+var _dive_start_pos: Vector3 = Vector3.ZERO
+var _dive_afterimage_timer: float = 0.0
+var _dive_afterimages_spawned: int = 0
+var _dive_player_base_y: float = 0.0
+var _dive_charge_particles: GPUParticles3D = null
+var _dive_resonance_used: float = 0.0
+
+
+
 # === CACHED REFERENCES ===
 var _player: CharacterBody3D = null
 var _sprite: Node3D = null
 var _spring_arm: Node3D = null
+var _dive_strike: DiveStrikeComponent = null
 
 # === 8 Directions ===
 enum DirMode { DOWN, UP, LEFT, RIGHT, DOWN_LEFT, DOWN_RIGHT, UP_LEFT, UP_RIGHT }
@@ -166,6 +188,11 @@ func _ready() -> void:
 	var sprite_node = get_node_or_null(sprite_path)
 	if sprite_node != null:
 		_sprite = sprite_node
+		
+	_dive_strike = get_node_or_null(dive_strike_path) as DiveStrikeComponent
+	if _dive_strike != null:
+		_dive_strike.dive_completed.connect(_on_dive_completed)
+		_dive_strike.dive_cancelled.connect(_on_dive_cancelled)
 	
 	if _player == null:
 		push_error("VectorAnchorComponent: Player not found at path: " + str(player_path))
@@ -181,6 +208,8 @@ func _physics_process(delta: float) -> void:
 			_process_projectile(delta)
 		State.LAUNCHING:
 			_process_launching(delta)
+		State.DIVE_DELEGATED:
+			pass
 		State.BOUNCING:
 			_process_bouncing(delta)
 		State.RECOVERY:
@@ -250,6 +279,25 @@ func is_launching() -> bool:
 
 func get_current_target() -> Node3D:
 	return _current_target
+	
+func is_hanging() -> bool:
+	return _dive_strike != null and _dive_strike.is_hanging()
+
+func is_diving() -> bool:
+	return _dive_strike != null and _dive_strike.is_diving()
+
+func try_dive_strike() -> bool:
+	if _state != State.LAUNCHING:
+		return false
+	if _dive_strike == null:
+		return false
+
+	if not _dive_strike.try_start_dive():
+		return false
+		
+	_state = State.DIVE_DELEGATED
+	
+	return true
 
 
 # ============================================
@@ -925,7 +973,7 @@ func _try_hit_launch_enemy(enemy: Node) -> void:
 	
 	# take_damage setzt selbst einen kleinen Knockback basierend auf from_position.
 	# Wir nutzen die Spielerposition als from_position → Knockback zeigt natürlich weg.
-	enemy.take_damage(damage, _player.global_position)
+	enemy.take_damage(damage, _player.global_position, true)
 	
 	# Zusätzlicher Knockback in Flugrichtung für den "durchgeschleudert"-Effekt
 	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
@@ -934,7 +982,10 @@ func _try_hit_launch_enemy(enemy: Node) -> void:
 		flight_dir = flight_dir.normalized()
 		if "_knockback_velocity" in enemy:
 			enemy._knockback_velocity += flight_dir * launch_knockback_strength
-
+			
+	var impact_pos: Vector3 = (_player.global_position + enemy.global_position) * 0.5
+	impact_pos.y += launch_impact_y_offset
+	CombatVFXUtils.spawn_impact(self, launch_impact_scene, impact_pos, launch_impact_scale, launch_impact_delay, launch_impact_lifetime)
 
 func _calculate_launch_damage() -> int:
 	var attunement: int = 3
@@ -1824,11 +1875,16 @@ func _consume_resonance(amount: float) -> bool:
 func _cancel_ability(reason: String) -> void:
 	_remove_radius_visual()
 	_remove_target_indicator()
+	# _remove_dive_charge_particles()  ← DIESE ZEILE LÖSCHEN
 	_stop_charge_sound()
 	
 	if _projectile_node:
 		_projectile_node.queue_free()
 		_projectile_node = null
+	
+	# Dive abbrechen falls aktiv
+	if _dive_strike != null and _dive_strike.is_active():
+		_dive_strike.cancel(reason)
 	
 	_state = State.IDLE
 	_current_target = null
@@ -1850,6 +1906,7 @@ func _get_target_indicator_position(target: Node3D) -> Vector3:
 	if target.has_method("get_vector_anchor_indicator_position"):
 		return target.get_vector_anchor_indicator_position()
 	return target.global_position
+
 
 # ============================================
 # SOUND
@@ -1883,3 +1940,20 @@ func _play_sound(sound: AudioStream) -> void:
 	_player.add_child(audio)
 	audio.play()
 	audio.finished.connect(audio.queue_free)
+	
+# ============================================
+# DIVE STRIKE CALLBACKS
+# ============================================
+
+func _on_dive_completed() -> void:
+	# Dive ist sauber durchgelaufen — VectorAnchor in IDLE überführen.
+	_state = State.IDLE
+	_current_target = null
+	launch_completed.emit()
+
+
+func _on_dive_cancelled(_reason: String) -> void:
+	# Dive wurde abgebrochen — auch zurück in IDLE.
+	_state = State.IDLE
+	_current_target = null
+	ability_cancelled.emit("dive_cancelled")

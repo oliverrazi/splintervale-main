@@ -9,7 +9,7 @@ const SLOT_SIZE: Vector2    = Vector2(44, 44)
 const SLOT_SPACING: int     = 4
 const HOTBAR_SLOT_SIZE: Vector2 = Vector2(40, 40)
 
-# ── FARBEN (synchron mit pause_menu.gd) ────────────────────────
+# ── FARBEN ─────────────────────────────────────────────────────
 const C_BG_TOME     := Color("1e1810", 0.9)
 const C_BG_DEEP     := Color("14100a")
 const C_BG_SLOT     := Color("231c13")
@@ -32,7 +32,7 @@ var _font: FontFile             = null
 var weapons_grid: GridContainer     = null
 var relics_grid: GridContainer      = null
 var collectables_grid: GridContainer = null
-var key_items_grid: GridContainer   = null 
+var key_items_grid: GridContainer   = null
 
 var detail_panel: PanelContainer    = null
 var detail_icon: TextureRect        = null
@@ -95,7 +95,7 @@ func _create_ui() -> void:
 	main_hbox.add_theme_constant_override("separation", 16)
 	root.add_child(main_hbox)
 	
-	# === LINKS: 3 Kategorien-Reihen + Hotbar ===
+	# === LINKS: 4 Kategorien-Reihen + Hotbar ===
 	var left_vbox := VBoxContainer.new()
 	left_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left_vbox.size_flags_vertical   = Control.SIZE_EXPAND_FILL
@@ -105,16 +105,13 @@ func _create_ui() -> void:
 	weapons_grid      = _build_category_section(left_vbox, "Weapons")
 	relics_grid       = _build_category_section(left_vbox, "Relics")
 	collectables_grid = _build_category_section(left_vbox, "Collectables")
-	key_items_grid    = _build_category_section(left_vbox, "Key Items") 
+	key_items_grid    = _build_category_section(left_vbox, "Key Items")
 	
-	# Spacer: drückt die Hotbar nach unten
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left_vbox.add_child(spacer)
 	
 	_build_hotbar_section(left_vbox)
-	
-	# === RECHTS: Detail-Panel ===
 	_build_detail_panel(main_hbox)
 
 
@@ -139,10 +136,10 @@ func _build_section_header(title: String) -> HBoxContainer:
 	row.add_theme_constant_override("separation", 6)
 	
 	var line_l := ColorRect.new()
-	line_l.color                     = Color(C_BORDER_OUT, 0.7)
-	line_l.custom_minimum_size       = Vector2(8, 1)
-	line_l.size_flags_horizontal     = Control.SIZE_EXPAND_FILL
-	line_l.size_flags_vertical       = Control.SIZE_SHRINK_CENTER
+	line_l.color                 = Color(C_BORDER_OUT, 0.7)
+	line_l.custom_minimum_size   = Vector2(8, 1)
+	line_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line_l.size_flags_vertical   = Control.SIZE_SHRINK_CENTER
 	
 	var diamond_l := Label.new()
 	diamond_l.text = "◆"
@@ -162,10 +159,10 @@ func _build_section_header(title: String) -> HBoxContainer:
 	diamond_r.add_theme_color_override("font_color", Color(C_AMBER, 0.55))
 	
 	var line_r := ColorRect.new()
-	line_r.color                     = Color(C_BORDER_OUT, 0.7)
-	line_r.custom_minimum_size       = Vector2(8, 1)
-	line_r.size_flags_horizontal     = Control.SIZE_EXPAND_FILL
-	line_r.size_flags_vertical       = Control.SIZE_SHRINK_CENTER
+	line_r.color                 = Color(C_BORDER_OUT, 0.7)
+	line_r.custom_minimum_size   = Vector2(8, 1)
+	line_r.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line_r.size_flags_vertical   = Control.SIZE_SHRINK_CENTER
 	
 	row.add_child(line_l)
 	row.add_child(diamond_l)
@@ -193,7 +190,6 @@ func _build_hotbar_section(parent: VBoxContainer) -> void:
 		slot_vbox.add_theme_constant_override("separation", 3)
 		hbox.add_child(slot_vbox)
 		
-		# Key-Label über dem Slot
 		var key_lbl := Label.new()
 		key_lbl.text                 = keys[i]
 		key_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -204,14 +200,12 @@ func _build_hotbar_section(parent: VBoxContainer) -> void:
 		slot_vbox.add_child(key_lbl)
 		hotbar_labels.append(key_lbl)
 		
-		# Slot
 		var slot := PanelContainer.new()
 		slot.custom_minimum_size = HOTBAR_SLOT_SIZE
 		_apply_slot_style(slot, false)
 		slot_vbox.add_child(slot)
 		hotbar_slots.append(slot)
 		
-		# Icon darin
 		var center := CenterContainer.new()
 		center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot.add_child(center)
@@ -225,7 +219,6 @@ func _build_hotbar_section(parent: VBoxContainer) -> void:
 		icon.mouse_filter         = Control.MOUSE_FILTER_IGNORE
 		center.add_child(icon)
 	
-	# Hinweis-Label
 	assign_hint = Label.new()
 	assign_hint.text                 = "Select an item and press W/A/S/D to assign"
 	assign_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -257,7 +250,6 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	vbox.add_theme_constant_override("separation", 10)
 	detail_panel.add_child(vbox)
 	
-	# Icon zentriert
 	var icon_center := CenterContainer.new()
 	vbox.add_child(icon_center)
 	
@@ -268,7 +260,6 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	detail_icon.texture_filter      = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon_center.add_child(detail_icon)
 	
-	# Name
 	detail_name = Label.new()
 	detail_name.text                 = "Select an item"
 	detail_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -278,7 +269,6 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 		detail_name.add_theme_font_override("font", _font)
 	vbox.add_child(detail_name)
 	
-	# Typ
 	detail_type = Label.new()
 	detail_type.text                 = ""
 	detail_type.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -288,13 +278,11 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 		detail_type.add_theme_font_override("font", _font)
 	vbox.add_child(detail_type)
 	
-	# Trenner
 	var sep := ColorRect.new()
 	sep.color                     = Color(C_BORDER_OUT, 0.4)
 	sep.custom_minimum_size       = Vector2(0, 1)
 	vbox.add_child(sep)
 	
-	# Beschreibung
 	detail_description = RichTextLabel.new()
 	detail_description.bbcode_enabled       = true
 	detail_description.fit_content          = true
@@ -310,24 +298,22 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 #  SLOT-STYLING
 # ═══════════════════════════════════════════════════════════════
 
-# state: 0 = normal, 1 = hover, 2 = focus/selected
 func _build_slot_stylebox(state: int, rarity_color: Color) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.set_corner_radius_all(2)
 	sb.set_border_width_all(1)
 	
 	match state:
-		0:  # normal
+		0:
 			sb.bg_color     = C_BG_SLOT
 			sb.border_color = C_BORDER_OUT
-		1:  # hover
+		1:
 			sb.bg_color     = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.08)
 			sb.border_color = Color(rarity_color, 0.5)
-		2:  # focus / selected
+		2:
 			sb.bg_color          = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.15)
 			sb.border_color      = rarity_color
 			sb.set_border_width_all(1)
-			# Rarität-Akzent unten
 			sb.border_width_bottom = 2
 	return sb
 
@@ -342,7 +328,6 @@ func _apply_slot_style(panel: PanelContainer, has_item: bool, rarity_color: Colo
 # ═══════════════════════════════════════════════════════════════
 
 func _update_inventory_grid() -> void:
-	# Alles sofort entfernen — synchron
 	for grid in [weapons_grid, relics_grid, collectables_grid, key_items_grid]:
 		if grid == null:
 			continue
@@ -395,7 +380,6 @@ func _fill_category_grid(grid: GridContainer, entries: Array) -> void:
 		return
 	
 	if entries.is_empty():
-		# Ein leerer Platzhalter-Slot
 		var slot := _create_empty_slot()
 		grid.add_child(slot)
 		_item_slots.append(slot)
@@ -416,13 +400,11 @@ func _create_item_slot(item_id: String, data: ItemData, amount: int) -> Button:
 	if data != null:
 		rarity_color = data.get_rarity_color()
 	
-	# Styleboxes für alle States
 	slot.add_theme_stylebox_override("normal",   _build_slot_stylebox(0, rarity_color))
 	slot.add_theme_stylebox_override("hover",    _build_slot_stylebox(1, rarity_color))
 	slot.add_theme_stylebox_override("pressed",  _build_slot_stylebox(2, rarity_color))
 	slot.add_theme_stylebox_override("focus",    _build_slot_stylebox(2, rarity_color))
 	
-	# Icon und Anzahl via MarginContainer
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -442,7 +424,6 @@ func _create_item_slot(item_id: String, data: ItemData, amount: int) -> Button:
 		icon.texture = data.icon
 	margin.add_child(icon)
 	
-	# Stapel-Anzahl unten rechts
 	if amount > 1:
 		var amount_lbl := Label.new()
 		amount_lbl.text                 = str(amount)
@@ -479,12 +460,12 @@ func _create_empty_slot() -> Button:
 
 
 # ═══════════════════════════════════════════════════════════════
-#  NAVIGATION
+#  NAVIGATION (Focus-Trap + Hoch/Runter zwischen Reihen)
 # ═══════════════════════════════════════════════════════════════
 
 func _setup_grid_navigation() -> void:
-	# Alle aktiven Slots sammeln in visueller Reihenfolge
-	# (Weapons → Relics → Collectables)
+	# Aktive Slots in visueller Reihenfolge sammeln
+	# (Weapons → Relics → Collectables → Key Items)
 	var active: Array[Button] = []
 	for slot in _item_slots:
 		if not slot.disabled:
@@ -493,15 +474,70 @@ func _setup_grid_navigation() -> void:
 	if active.is_empty():
 		return
 	
-	# Einfache lineare Navigation über alle Kategorien hinweg
-	for i in range(active.size()):
-		var slot := active[i]
-		# Links
-		if i > 0:
-			slot.focus_neighbor_left = active[i - 1].get_path()
-		# Rechts
-		if i < active.size() - 1:
-			slot.focus_neighbor_right = active[i + 1].get_path()
+	# Reihen-Aufbau: jede "Reihe" hat max. SLOTS_PER_ROW Items.
+	# Beim Wechsel auf ein neues Grid (Kategorie) beginnt eine neue Reihe.
+	var rows: Array = []
+	var current_row: Array[Button] = []
+	var col_count: int = 0
+	var prev_grid: GridContainer = null
+	
+	for slot in active:
+		var grid: GridContainer = _find_parent_grid(slot)
+		if grid != prev_grid or col_count >= SLOTS_PER_ROW:
+			if not current_row.is_empty():
+				rows.append(current_row)
+			current_row = []
+			col_count = 0
+			prev_grid = grid
+		current_row.append(slot)
+		col_count += 1
+	
+	if not current_row.is_empty():
+		rows.append(current_row)
+	
+	# Navigation pro Slot setzen: links/rechts innerhalb der Reihe,
+	# hoch/runter zwischen Reihen, Trap an allen Außenrändern
+	for r in range(rows.size()):
+		var row: Array = rows[r]
+		for c in range(row.size()):
+			var slot: Button = row[c]
+			
+			# LINKS
+			if c > 0:
+				slot.focus_neighbor_left = row[c - 1].get_path()
+			else:
+				slot.focus_neighbor_left = slot.get_path()
+			
+			# RECHTS
+			if c < row.size() - 1:
+				slot.focus_neighbor_right = row[c + 1].get_path()
+			else:
+				slot.focus_neighbor_right = slot.get_path()
+			
+			# HOCH: gleiche Spalte in vorheriger Reihe (oder letzter Slot davon)
+			if r > 0:
+				var prev_row: Array = rows[r - 1]
+				var target_idx: int = min(c, prev_row.size() - 1)
+				slot.focus_neighbor_top = prev_row[target_idx].get_path()
+			else:
+				slot.focus_neighbor_top = slot.get_path()
+			
+			# RUNTER: gleiche Spalte in nächster Reihe (oder letzter Slot davon)
+			if r < rows.size() - 1:
+				var next_row: Array = rows[r + 1]
+				var target_idx: int = min(c, next_row.size() - 1)
+				slot.focus_neighbor_bottom = next_row[target_idx].get_path()
+			else:
+				slot.focus_neighbor_bottom = slot.get_path()
+
+
+func _find_parent_grid(slot: Button) -> GridContainer:
+	var p: Node = slot.get_parent()
+	while p != null:
+		if p is GridContainer:
+			return p as GridContainer
+		p = p.get_parent()
+	return null
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -579,7 +615,6 @@ func _update_hotbar_display() -> void:
 	for i in range(hotbar_slots.size()):
 		var slot := hotbar_slots[i]
 		var icon: TextureRect = null
-		# Finde das Icon (via CenterContainer)
 		for child in slot.get_children():
 			if child is CenterContainer:
 				for sub in child.get_children():
@@ -593,7 +628,6 @@ func _update_hotbar_display() -> void:
 		if icon:
 			icon.texture = data.icon if data else null
 		
-		# Slot-Styling basierend auf Belegung
 		var has_item := data != null
 		var rarity: Color = data.get_rarity_color() if has_item else C_BORDER_OUT
 		_apply_slot_style(slot, has_item, rarity)
@@ -642,7 +676,7 @@ func _on_hotbar_changed(_slot: int, _id: String) -> void:
 
 
 # ═══════════════════════════════════════════════════════════════
-#  PUBLIC API (für pause_menu.gd)
+#  PUBLIC API
 # ═══════════════════════════════════════════════════════════════
 
 func refresh() -> void:

@@ -3,26 +3,25 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://v70f15ek0k0w"
-path.s3tc="res://.godot/imported/Flash001.png-7223bcc4f7a393ac50a2fcfef68bac07.s3tc.ctex"
+path="res://.godot/imported/Flash001.png-7223bcc4f7a393ac50a2fcfef68bac07.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/vfx/hits/Flash001.png"
-dest_files=["res://.godot/imported/Flash001.png-7223bcc4f7a393ac50a2fcfef68bac07.s3tc.ctex"]
+dest_files=["res://.godot/imported/Flash001.png-7223bcc4f7a393ac50a2fcfef68bac07.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

@@ -92,7 +92,7 @@ func get_attack_damage(base_damage: int) -> int:
 
 func get_attack_speed_multiplier() -> float:
 	# Basis 1.0, wird schneller mit mehr Punkten
-	return 1.0 + (base_attack_speed * ATTACK_SPEED_PER_POINT)
+	return 1.0 + (base_attack_speed * (ATTACK_SPEED_PER_POINT/2))
 
 func process_regeneration(delta: float) -> void:#
 	if _resonance_regen_timer > 0.0:

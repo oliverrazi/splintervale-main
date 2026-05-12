@@ -152,6 +152,24 @@ func can_dodge() -> bool:
 		return false
 	return true
 
+func force_end_for_spin() -> void:
+	_is_dodging = false
+	_is_fading_out = false
+	# Cooldown setzen, damit nach dem Spin kein sofortiger erneuter Dodge kommt
+	_dodge_cooldown_timer = dodge_cooldown
+	
+	if _shimmer_particles != null and is_instance_valid(_shimmer_particles):
+		_shimmer_particles.emitting = false
+		var p_ref := _shimmer_particles
+		get_tree().create_timer(shimmer_lifetime + 0.1).timeout.connect(func():
+			if is_instance_valid(p_ref):
+				p_ref.queue_free()
+		)
+		_shimmer_particles = null
+	
+	if _sprite:
+		_sprite.modulate.a = 1.0
+
 
 func has_enough_resonance() -> bool:
 	if GameManager == null or GameManager.player_data == null:

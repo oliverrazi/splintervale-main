@@ -1,0 +1,84 @@
+[gd_scene load_steps=11 format=3 uid="uid://bfvlkx0qdj5rf"]
+
+[ext_resource type="ArrayMesh" uid="uid://tbiyenfedl6u" path="res://assets/characters/spin-slash.obj" id="1_74kd7"]
+[ext_resource type="Shader" uid="uid://bxjh1ho7blw1d" path="res://assets/characters/slash.gdshader" id="2_amg36"]
+[ext_resource type="Texture2D" uid="uid://diqxx6utgjpje" path="res://assets/characters/textures/slash_tex_1_base_1.png" id="3_rxo31"]
+[ext_resource type="Texture2D" uid="uid://brc1o0s3mqpcf" path="res://scenes/mainworld/normal.png" id="4_amg36"]
+[ext_resource type="Texture2D" uid="uid://baggrujuhobr6" path="res://assets/characters/textures/slash_text_1_hl.png" id="4_sipld"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0h6ik"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7a3c3"]
+render_priority = 0
+shader = ExtResource("2_amg36")
+shader_parameter/BaseColor = Color(0.6810438, 0.82872635, 1.025, 1)
+shader_parameter/BaseTexture = ExtResource("3_rxo31")
+shader_parameter/HighlightColor = Color(0.33188903, 0, 2.791223, 1)
+shader_parameter/HighlightTexture = ExtResource("4_sipld")
+shader_parameter/progress = -0.473999975015
+shader_parameter/DissolveTexture = SubResource("NoiseTexture2D_0h6ik")
+shader_parameter/DissolveValue = 0.0
+shader_parameter/GlowIntensity = 7.0
+shader_parameter/GlowColor = Color(0.77623117, 0.81621516, 1, 1)
+shader_parameter/DistortionStrength = 0.15000000596046
+shader_parameter/DistortionTexture = ExtResource("4_amg36")
+
+[sub_resource type="Animation" id="Animation_7a3c3"]
+resource_name = "slash"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shader_parameter/progress")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(1.4901161e-08, 0.25, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-1.0, 4.7499999933364734e-08, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Node3D/MeshInstance3D:surface_material_override/0:shader_parameter/DissolveValue")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(1.4901161e-08, 0.25, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.50000002375, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_smphs"]
+_data = {
+&"slash": SubResource("Animation_7a3c3")
+}
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w5txv"]
+size = Vector3(1.1, 0.1, 1.1302124)
+
+[node name="SlashVFX" type="Node3D"]
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(0.35, 0, 0, 0, 0.011, 0, 0, 0, 0.35, 0, 0, 0)
+mesh = ExtResource("1_74kd7")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("ShaderMaterial_7a3c3")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Node3D"]
+root_node = NodePath("../..")
+libraries = {
+&"": SubResource("AnimationLibrary_smphs")
+}
+
+[node name="HitArea" type="Area3D" parent="Node3D"]
+collision_layer = 32
+collision_mask = 16
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D/HitArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.013799623)
+shape = SubResource("BoxShape3D_w5txv")

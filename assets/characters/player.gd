@@ -58,10 +58,28 @@ var _is_holding_item: bool = false
 @export var hurt_flash_duration: float = 0.15
 @export var hurt_blink_speed: float = 0.1
 
+@export_group("Fall Recovery")
+@export var fall_hp_loss_percent: float = 0.1  # 10%
+@export var safe_position_update_interval: float = 0.2
+@export var fall_respawn_invincibility: float = 1.5
+@export var drown_duration: float = 0.7
+@export var drown_flip_interval: float = 0.1
+@export var drown_frame: int = 92
+@export var splash_vfx_scene: PackedScene
+
+var _last_safe_position: Vector3
+var _safe_position_timer: float = 0.0
+
+var _is_drowning: bool = false
+var _drown_timer: float = 0.0
+var _drown_flip_timer: float = 0.0
+var _drown_flip_state: bool = false
+
 @export_group("LevelUpNotification")
 @export var levelup_popup_scene: PackedScene
 @onready var head_anchor: Marker3D = $HeadAnchor
 
+@onready var sword_spin: SwordSpinComponent = $SwordSpinComponent
 
 var _nearby_npc: NPC = null
 var _nearby_chest: TreasureChest = null
@@ -120,7 +138,9 @@ var _vector_anchor_slot: int = -1
 
 func _ready() -> void:
 	add_to_group("player")
-	
+	_last_safe_position = global_position
+	#GOD-MODE
+	#GameManager.player_data.add_exp(99999999)
 	safe_margin = 0.005
 	floor_snap_length = 0.2
 	max_slides = 6
@@ -218,6 +238,11 @@ func get_item_hold_frame() -> int:
 # ─── Main Loop ───
 
 func _physics_process(delta: float) -> void:
+	if _is_drowning:
+		_process_drowning(delta)
+		return
+	
+	
 	if _is_dead:
 		_process_death(delta)
 		return
@@ -227,12 +252,23 @@ func _physics_process(delta: float) -> void:
 		
 	_update_hand_visibility() 
 
+	if sword_spin and sword_spin.is_spinning():
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+		move_and_slide()
+		return
+	
 	if dodge_component and dodge_component.is_dodging():
+		# Während Dodge: Schwert-Taste prüfen → Spin-Combo
+		_check_sword_spin_input()
 		move_and_slide()
 		return
 
 	if vector_anchor and vector_anchor.is_active():
 		if vector_anchor.is_launching():
+			_check_dive_strike_input()
+			return
+		elif vector_anchor.is_hanging() or vector_anchor.is_diving():
 			return
 		else:
 			_check_vector_anchor_release()
@@ -287,6 +323,8 @@ func _physics_process(delta: float) -> void:
 	_recover_from_stuck()
 	
 	move_and_slide()
+	
+	_update_safe_position(delta)
 
 	# ─── Animation: Sword setzt Frames während Angriff ───
 	if sword and sword.is_attacking():
@@ -306,7 +344,57 @@ func _check_vector_anchor_release() -> void:
 		_try_release_vector_anchor(2)
 	elif Input.is_action_just_released("hotbar_d"):
 		_try_release_vector_anchor(3)
+		
+func _check_dive_strike_input() -> void:
+	var slot: int = -1
+	if Input.is_action_just_pressed("hotbar_w"): slot = 0
+	elif Input.is_action_just_pressed("hotbar_a"): slot = 1
+	elif Input.is_action_just_pressed("hotbar_s"): slot = 2
+	elif Input.is_action_just_pressed("hotbar_d"): slot = 3
+	
+	if slot < 0:
+		return
+	
+	var inv: Node = get_node_or_null("/root/InventoryManager")
+	if inv == null:
+		return
+	var item_id: String = inv.get_hotbar_item(slot)
+	if item_id == "":
+		return
+	var item_data: ItemData = inv.get_item_data(item_id)
+	if item_data == null or item_data.item_type != ItemData.ItemType.WEAPON:
+		return
+	
+	if vector_anchor:
+		if vector_anchor.try_dive_strike():
+			_update_hand_visibility() 
 
+
+func _check_sword_spin_input() -> void:
+	if sword_spin == null or sword_spin.is_spinning():
+		return
+	
+	var slot: int = -1
+	if Input.is_action_just_pressed("hotbar_w"): slot = 0
+	elif Input.is_action_just_pressed("hotbar_a"): slot = 1
+	elif Input.is_action_just_pressed("hotbar_s"): slot = 2
+	elif Input.is_action_just_pressed("hotbar_d"): slot = 3
+	
+	if slot < 0:
+		return
+	
+	# Nur bei Schwert-Slots reagieren
+	var inv: Node = get_node_or_null("/root/InventoryManager")
+	if inv == null:
+		return
+	var item_id: String = inv.get_hotbar_item(slot)
+	if item_id == "":
+		return
+	var item_data: ItemData = inv.get_item_data(item_id)
+	if item_data == null or item_data.item_type != ItemData.ItemType.WEAPON:
+		return
+	
+	sword_spin.try_start_spin()
 
 func _try_release_vector_anchor(slot_index: int) -> void:
 	var inv_manager: Node = get_node_or_null("/root/InventoryManager")
@@ -718,7 +806,7 @@ func _handle_weapon_input() -> void:
 	if Input.is_action_pressed("move_right"): dir.x += 1
 
 	if sword.is_attacking():
-		sword.buffer_combo()
+		sword.buffer_combo(_get_direction_from_input(dir))
 	else:
 		# Richtung für Angriff updaten
 		if dir != Vector2.ZERO:
@@ -745,9 +833,141 @@ func _use_equipment(item_id: String, item_data: ItemData) -> void:
 			if vector_anchor and not vector_anchor.is_active():
 				_update_equipment_overlay(item_id, item_data)
 				vector_anchor.start_charging()
+				_update_hand_visibility() 
 		_:
 			pass
 
+func _update_safe_position(delta: float) -> void:
+	if not is_on_floor():
+		return
+	if _is_knocked_back or _is_hurt_flashing:
+		return
+	if dodge_component and dodge_component.is_dodging():
+		return
+	if vector_anchor and vector_anchor.is_active():
+		return
+	if sword_spin and sword_spin.is_spinning():
+		return
+
+	_safe_position_timer -= delta
+	if _safe_position_timer <= 0.0:
+		_last_safe_position = global_position
+		_safe_position_timer = safe_position_update_interval
+
+
+func respawn_after_fall() -> void:
+	if _is_dead or _is_drowning:
+		return
+
+	_is_drowning = true
+	_drown_timer = drown_duration
+	_drown_flip_timer = 0.0
+	_drown_flip_state = false
+
+	velocity = Vector3.ZERO
+	_knockback_velocity = Vector3.ZERO
+	_is_knocked_back = false
+	_knockback_timer = 0.0
+	
+	# Aktive States abbrechen
+	if vector_anchor and vector_anchor.is_active():
+		vector_anchor.cancel()
+	if sword and sword.is_attacking():
+		sword.cancel()
+	if sword_spin and sword_spin.is_spinning():
+		sword_spin.cancel() if sword_spin.has_method("cancel") else null
+	
+	# Sprite auf Drown-Pose
+	character.frame = drown_frame
+	character.modulate = Color.WHITE
+	character.modulate.a = 1.0
+	
+	_spawn_splash_vfx()
+	
+func _process_drowning(delta: float) -> void:
+	_drown_timer -= delta
+	
+	# Flackernd gespiegeltes Flailing
+	_drown_flip_timer -= delta
+	if _drown_flip_timer <= 0.0:
+		_drown_flip_state = not _drown_flip_state
+		character.flip_h = _drown_flip_state
+		_drown_flip_timer = drown_flip_interval
+	
+	if _drown_timer <= 0.0:
+		_finish_drowning()
+	
+func _finish_drowning() -> void:
+	_is_drowning = false
+
+	var pd: PlayerData = GameManager.player_data
+	var damage_amount: int = maxi(1, int(pd.max_hp * fall_hp_loss_percent))
+	pd.take_damage(damage_amount)
+
+	if not pd.is_alive():
+		_die()
+		return
+
+	# Teleport an sichere Position
+	global_position = _last_safe_position
+	velocity = Vector3.ZERO
+
+	# Invincibility nach Respawn
+	_invincibility_timer = fall_respawn_invincibility
+	_is_hurt_flashing = true
+	_hurt_flash_timer = hurt_flash_duration
+
+	# Kurzer Fade-In
+	character.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(character, "modulate:a", 1.0, 0.3)
+
+	_show_idle()
+	
+func _spawn_splash_vfx() -> void:
+	if splash_vfx_scene != null:
+		var splash := splash_vfx_scene.instantiate() as Node3D
+		get_tree().current_scene.add_child(splash)
+		splash.global_position = global_position
+		for child in splash.get_children():
+			if child is GPUParticles3D:
+				child.emitting = true
+		get_tree().create_timer(2.0).timeout.connect(splash.queue_free)
+	else:
+		_spawn_inline_splash()
+
+func _spawn_inline_splash() -> void:
+	# Fallback ohne Scene — minimaler Splash aus Code
+	var particles := GPUParticles3D.new()
+	particles.emitting = true
+	particles.one_shot = true
+	particles.explosiveness = 1.0
+	particles.amount = 16
+	particles.lifetime = 0.6
+
+	var mat := ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 1, 0)
+	mat.spread = 60.0
+	mat.initial_velocity_min = 1.5
+	mat.initial_velocity_max = 3.5
+	mat.gravity = Vector3(0, -8, 0)
+	mat.scale_min = 0.08
+	mat.scale_max = 0.18
+	mat.color = Color(0.6, 0.85, 1.0, 0.9)
+	particles.process_material = mat
+
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.04
+	sphere.height = 0.08
+	particles.draw_pass_1 = sphere
+
+	get_tree().current_scene.add_child(particles)
+	particles.global_position = global_position
+
+	get_tree().create_timer(2.0).timeout.connect(func():
+		if is_instance_valid(particles):
+			particles.queue_free()
+	)
 
 func _use_consumable(item_id: String, item_data: ItemData, inv_manager: Node) -> void:
 	if _consumable_cooldown > 0.0:
@@ -899,10 +1119,11 @@ func _update_hand_visibility() -> void:
 	if _is_frozen:
 		return
 	
-	var va_active: bool = vector_anchor != null and vector_anchor.is_active()
+	var is_dive_phase: bool = vector_anchor != null and (vector_anchor.is_hanging() or vector_anchor.is_diving())
+	var show_vector_anchor: bool = vector_anchor != null and vector_anchor.is_active() and not is_dive_phase
 	
 	if character.has_layer("weapon"):
-		character.set_layer_visible("weapon", not va_active and not _is_holding_item)
+		character.set_layer_visible("weapon", not show_vector_anchor and not _is_holding_item)
 	
 	if character.has_layer("vector_anchor"):
-		character.set_layer_visible("vector_anchor", va_active and not _is_holding_item)
+		character.set_layer_visible("vector_anchor", show_vector_anchor and not _is_holding_item)

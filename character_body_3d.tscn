@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://cd3ww7pd3fcbo"]
+[gd_scene load_steps=34 format=3 uid="uid://cd3ww7pd3fcbo"]
 
 [ext_resource type="Script" uid="uid://tjnqn1ifgw2e" path="res://assets/characters/player.gd" id="1_obynr"]
 [ext_resource type="PackedScene" uid="uid://dpg3a6ire7hml" path="res://assets/characters/slashVFX.tscn" id="2_obynr"]
@@ -13,11 +13,19 @@
 [ext_resource type="AudioStream" uid="uid://5mo7s8yo71fj" path="res://assets/audio/sfx/hit2.wav" id="8_m1lp5"]
 [ext_resource type="AudioStream" uid="uid://diwujtqh85ilr" path="res://assets/audio/sfx/hit3.wav" id="9_klace"]
 [ext_resource type="PackedScene" uid="uid://d3ctwicr7f8nm" path="res://assets/vfx/notifications/LevelUpPopup.tscn" id="9_ltcqi"]
+[ext_resource type="PackedScene" uid="uid://bdqkbnjcs1otq" path="res://assets/vfx/hits/impact2.tscn" id="10_6cbrt"]
+[ext_resource type="AudioStream" uid="uid://bmpumm2ndkf1r" path="res://assets/audio/sfx/vector_anchor_charge.wav" id="11_v3yr4"]
+[ext_resource type="AudioStream" uid="uid://blw5wp2c5htyo" path="res://assets/audio/sfx/vector_anchor_release.wav" id="12_ufe0g"]
 [ext_resource type="Script" uid="uid://c6c5eudbjsxaf" path="res://assets/characters/abilities/dodge_component.gd" id="14_ltcqi"]
 [ext_resource type="Script" uid="uid://djnb3f1u1av71" path="res://assets/characters/shaders/layered_pixel_sprite_3d.gd" id="14_pqkp8"]
 [ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="17_klace"]
 [ext_resource type="Script" uid="uid://cfoq8f3ptj3ui" path="res://assets/characters/abilities/vector_anchor_component.gd" id="18_pqkp8"]
+[ext_resource type="Script" uid="uid://cp0rbc8185ut2" path="res://assets/characters/abilities/sword_spin_component.gd" id="19_v8d2g"]
 [ext_resource type="Script" uid="uid://dugdy10nmi3d6" path="res://assets/characters/abilities/sword_component.gd" id="19_w6sjo"]
+[ext_resource type="PackedScene" uid="uid://bfvlkx0qdj5rf" path="res://assets/characters/spin-slashVFX.tscn" id="20_v8d2g"]
+[ext_resource type="Script" uid="uid://c7q5sqryg1ckw" path="res://assets/characters/abilities/dive_strike_component.gd" id="21_wwds4"]
+[ext_resource type="Script" uid="uid://bgt58as4cpe0p" path="res://assets/characters/synergy/synergy_manager.gd" id="26_l3e1g"]
+[ext_resource type="PackedScene" uid="uid://tvv0pkxfema8" path="res://assets/characters/synergy/heat_bar_3d.tscn" id="27_7gdxi"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nl27k"]
 radius = 0.119140625
@@ -68,7 +76,7 @@ _data = {
 &"walk": SubResource("Animation_c7tqt")
 }
 
-[sub_resource type="Shader" id="Shader_pqkp8"]
+[sub_resource type="Shader" id="Shader_l3e1g"]
 code = "
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
@@ -89,14 +97,14 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_w6sjo"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7gdxi"]
 render_priority = 0
-shader = SubResource("Shader_pqkp8")
+shader = SubResource("Shader_l3e1g")
 shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
 shader_parameter/shadow_opacity = 0.6
 shader_parameter/softness = 0.6
 
-[sub_resource type="QuadMesh" id="QuadMesh_v8d2g"]
+[sub_resource type="QuadMesh" id="QuadMesh_n4ckg"]
 size = Vector2(0.5, 0.5)
 orientation = 1
 
@@ -192,9 +200,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4350574, 0)
 
 [node name="BlobShadow" type="MeshInstance3D" parent="."]
 top_level = true
-material_override = SubResource("ShaderMaterial_w6sjo")
+material_override = SubResource("ShaderMaterial_7gdxi")
 cast_shadow = 0
-mesh = SubResource("QuadMesh_v8d2g")
+mesh = SubResource("QuadMesh_n4ckg")
 script = ExtResource("17_klace")
 shadow_depth = 0.5
 shadow_opacity = 0.6
@@ -214,11 +222,14 @@ shimmer_color = Color(0.5151882, 0.8464151, 0.99999946, 1)
 
 [node name="VectorAnchorComponent" type="Node" parent="."]
 script = ExtResource("18_pqkp8")
-radius_growth_rate = 0.8
+radius_start = 1.5
+radius_max = 3.0
+radius_growth_rate = 1.2
 charge_fade_in_time = 0.4
 projectile_speed = 20.0
 launch_duration = 0.6
 launch_arc_height = 1.2
+launch_knockback_strength = 7.5
 use_custom_charge_frames = true
 CHARGE_DOWN_FRAME = 28
 CHARGE_UP_FRAME = 37
@@ -231,6 +242,9 @@ AIR_UP_FRAME = 13
 AIR_SIDE_FRAME = 22
 AIR_DOWN_LEFT_FRAME = 58
 AIR_UP_RIGHT_FRAME = 67
+launch_impact_scene = ExtResource("10_6cbrt")
+charge_loop_sound = ExtResource("11_v3yr4")
+release_sound = ExtResource("12_ufe0g")
 
 [node name="SwordComponent" type="Node" parent="."]
 script = ExtResource("19_w6sjo")
@@ -238,3 +252,55 @@ slash_scene = ExtResource("2_obynr")
 impact_scene = ExtResource("3_nvtkd")
 swoosh_sounds = Array[AudioStream]([ExtResource("3_ew7rt"), ExtResource("4_u3olo"), ExtResource("5_nvtkd")])
 hit_sounds = Array[AudioStream]([ExtResource("7_4wng8"), ExtResource("8_m1lp5"), ExtResource("9_klace")])
+
+[node name="SwordSpinComponent" type="Node" parent="."]
+script = ExtResource("19_v8d2g")
+regen_lockout_after_spin = 0.0
+SPIN_FPS = 24.0
+slash_scene = ExtResource("20_v8d2g")
+spin_impact_scene = ExtResource("10_6cbrt")
+swoosh_sounds = Array[AudioStream]([ExtResource("3_ew7rt"), ExtResource("4_u3olo"), ExtResource("5_nvtkd")])
+
+[node name="DiveStrikeComponent" type="Node" parent="."]
+script = ExtResource("21_wwds4")
+player_path = null
+sprite_path = null
+spring_arm_path = null
+dive_strike_enabled = null
+dive_hang_duration = null
+dive_strike_speed = null
+dive_max_duration = null
+dive_pierce_enemies = null
+dive_invincible = null
+dive_resonance_damage_divisor = null
+dive_resonance_regen_lockout = 0.0
+dive_aoe_radius = null
+dive_aoe_damage_factor = null
+dive_knockback_strength = null
+DIVE_HANG_FRAME = null
+DIVE_STRIKE_FRAME = null
+afterimage_enabled = null
+dive_afterimage_count = null
+dive_afterimage_color = null
+dive_afterimage_fade_time = null
+dive_hang_bob_amplitude = null
+dive_hang_scale_pulse = null
+dive_trail_color = null
+dive_impact_color = null
+dive_camera_shake_strength = null
+dive_camera_shake_duration = null
+dive_impact_scene = ExtResource("10_6cbrt")
+dive_impact_scale = null
+dive_impact_delay = null
+dive_impact_lifetime = null
+dive_impact_y_offset = null
+dive_hitstop_on_direct_hit = null
+dive_hitstop_on_impact = null
+dive_strike_sound = ExtResource("3_ew7rt")
+dive_impact_sound = ExtResource("7_4wng8")
+synergy_manager_path = null
+
+[node name="SynergyManager" type="Node" parent="."]
+script = ExtResource("26_l3e1g")
+
+[node name="HeatBar3D" parent="." instance=ExtResource("27_7gdxi")]

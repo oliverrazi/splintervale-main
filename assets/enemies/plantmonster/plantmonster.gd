@@ -861,7 +861,6 @@ func _animate_hit(delta: float) -> void:
 # === ENEMY OVERRIDES ===
 
 func _on_damage_received(amount: int, from_position: Vector3) -> void:
-	GameEffects.hit_effect()
 	var knockback_dir := (global_position - from_position).normalized()
 	_update_facing_direction(-knockback_dir)
 	_enter_state(State.HIT)

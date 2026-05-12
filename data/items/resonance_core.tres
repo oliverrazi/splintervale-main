@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://8i0nuyfaysfl"]
+
+[ext_resource type="Texture2D" uid="uid://om7qur1y0okf" path="res://assets/icons/resonance-core.png" id="1_6hq1s"]
+[ext_resource type="Script" uid="uid://cg8yoieahkb0v" path="res://menu/inventory/item_data.gd" id="2_ehnha"]
+
+[resource]
+script = ExtResource("2_ehnha")
+item_id = "resonance_core"
+item_name = "Resonance Core"
+description = "This is  Resonance Core. Bring this to a resonance alchemist to create a synergy between a wearpon and a relic"
+icon = ExtResource("1_6hq1s")
+item_type = 3
+pickup_text = "You found a Resonance Core. Bring this to a resonance alchemist to create a synergy between a wearpon and a relic"
+usable = false
+consumable = false
+metadata/_custom_type_script = "uid://cg8yoieahkb0v"

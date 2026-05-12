@@ -55,30 +55,34 @@ signal attack_ended()
 @export var ATTACK_COOLDOWN: float = 0.25
 @export var attack_damage: int = 5
 
+
+@export var synergy_manager_path: NodePath = "../SynergyManager"
+var _synergy_manager: SynergyManager = null
+
 # ─── Attack Frame Consts (8 Richtungen × 3 Kombos) ───
 
 # DirMode enum — muss mit Player übereinstimmen
 enum DirMode { DOWN, UP, LEFT, RIGHT, DOWN_LEFT, DOWN_RIGHT, UP_LEFT, UP_RIGHT }
 
-const ATTACK_DOWN_1: Array[int] = [27, 27, 29]
-const ATTACK_DOWN_2: Array[int] = [30, 30, 32]
-const ATTACK_DOWN_3: Array[int] = [27, 27, 29]
+const ATTACK_DOWN_1: Array[int] = [27, 29, 29]
+const ATTACK_DOWN_2: Array[int] = [30, 32, 32]
+const ATTACK_DOWN_3: Array[int] = [27, 29, 29]
 
-const ATTACK_UP_1: Array[int] = [36, 36, 38]
-const ATTACK_UP_2: Array[int] = [39, 39, 41]
-const ATTACK_UP_3: Array[int] = [36, 36, 38]
+const ATTACK_UP_1: Array[int] = [36, 38, 38]
+const ATTACK_UP_2: Array[int] = [39, 41, 41]
+const ATTACK_UP_3: Array[int] = [36, 38, 38]
 
-const ATTACK_SIDE_1: Array[int] = [45, 45, 47]
-const ATTACK_SIDE_2: Array[int] = [48, 48, 50]
-const ATTACK_SIDE_3: Array[int] = [45, 45, 47]
+const ATTACK_SIDE_1: Array[int] = [45, 47, 47]
+const ATTACK_SIDE_2: Array[int] = [48, 50, 50]
+const ATTACK_SIDE_3: Array[int] = [45, 47, 47]
 
-const ATTACK_DOWN_LEFT_1: Array[int] = [72, 72, 74]
-const ATTACK_DOWN_LEFT_2: Array[int] = [75, 75, 77]
-const ATTACK_DOWN_LEFT_3: Array[int] = [72, 72, 74]
+const ATTACK_DOWN_LEFT_1: Array[int] = [72, 74, 74]
+const ATTACK_DOWN_LEFT_2: Array[int] = [75, 77, 77]
+const ATTACK_DOWN_LEFT_3: Array[int] = [72, 74, 74]
 
-const ATTACK_UP_RIGHT_1: Array[int] = [81, 81, 83]
-const ATTACK_UP_RIGHT_2: Array[int] = [84, 84, 86]
-const ATTACK_UP_RIGHT_3: Array[int] = [81, 81, 83]
+const ATTACK_UP_RIGHT_1: Array[int] = [81, 83, 83]
+const ATTACK_UP_RIGHT_2: Array[int] = [84, 86, 86]
+const ATTACK_UP_RIGHT_3: Array[int] = [81, 83, 83]
 
 const COMBO_SPRITE_FLIP_FRAMES := {}
 
@@ -126,13 +130,14 @@ var _attack_can_chain: bool = false
 var _attack_buffered: bool = false
 var _attack_cooldown_timer: float = 0.0
 var _attack_dir_mode: int = DirMode.DOWN
+var _buffered_dir_mode: int = -1
 
 var _current_attack_frames: Array[int] = []
 var _current_attack_duration: float = 0.0
 var _current_attack_base_duration: float = 0.0
 
 var _slash_spawned_this_attack: bool = false
-var _slash_spawn_frame: int = 2
+var _slash_spawn_frame: int = 1
 
 var _hit_already: bool = false
 
@@ -151,10 +156,11 @@ func _ready() -> void:
 		push_error("SwordComponent: Parent muss ein CharacterBody3D (Player) sein!")
 		return
 	
-	# Referenzen holen
+	_synergy_manager = get_node_or_null(synergy_manager_path) as SynergyManager
 	_character = _player.get_node_or_null("charactersprite") as LayeredPixelSprite3D
 	_spring_arm = _player.get_node_or_null("SpringArm3D")
-
+	
+	call_deferred("_auto_equip_initial_weapon")
 
 # ─── Public API ───
 
@@ -189,6 +195,7 @@ func try_attack(dir_mode: int) -> void:
 		# Kombo buffern
 		if _attack_can_chain and _attack_step < 3:
 			_attack_buffered = true
+			_buffered_dir_mode = dir_mode
 		return
 	
 	if _attack_cooldown_timer > 0.0:
@@ -199,9 +206,11 @@ func try_attack(dir_mode: int) -> void:
 
 
 ## Kombo buffern (wenn bereits am Angreifen)
-func buffer_combo() -> void:
+func buffer_combo(dir_mode: int = -1) -> void:
 	if _is_attacking and _attack_can_chain and _attack_step < 3:
 		_attack_buffered = true
+		if dir_mode >= 0:
+			_buffered_dir_mode = dir_mode
 
 
 ## Angriff sofort abbrechen (z.B. bei Knockback)
@@ -212,16 +221,22 @@ func cancel() -> void:
 
 ## Muss jeden Frame aufgerufen werden (vom Player in _physics_process)
 func process_attack(delta: float) -> void:
+	
+	var speed_mult: float = 1.0
+	if GameManager and GameManager.player_data:
+		speed_mult = GameManager.player_data.get_attack_speed_multiplier()
+		
+	var effective_delta: float = delta * speed_mult
 	# Cooldown immer ticken
 	if _attack_cooldown_timer > 0.0:
-		_attack_cooldown_timer -= delta
+		_attack_cooldown_timer -= effective_delta
 		if _attack_cooldown_timer < 0.0:
 			_attack_cooldown_timer = 0.0
 	
 	if not _is_attacking:
 		return
 	
-	_update_attack(delta)
+	_update_attack(effective_delta)
 
 
 ## Gibt die Attack-Bewegungsgeschwindigkeit zurück (für Player-Movement)
@@ -257,7 +272,7 @@ func _start_attack(step: int) -> void:
 	_current_attack_duration = _get_attack_duration(_current_attack_frames)
 	
 	attack_started.emit()
-
+	
 
 func _end_attack() -> void:
 	_is_attacking = false
@@ -271,6 +286,7 @@ func _end_attack() -> void:
 	_attack_cooldown_timer = ATTACK_COOLDOWN
 	_slash_spawned_this_attack = false
 	
+	_buffered_dir_mode = -1 
 	attack_ended.emit()
 
 
@@ -283,6 +299,9 @@ func _update_attack(delta: float) -> void:
 
 	if _attack_time >= _current_attack_duration:
 		if _attack_buffered and _attack_step < 3:
+			if _buffered_dir_mode >= 0:           # NEU
+				_attack_dir_mode = _buffered_dir_mode
+				_buffered_dir_mode = -1
 			_start_attack(_attack_step + 1)
 			return
 		else:
@@ -465,13 +484,24 @@ func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
 		var actual_damage: int = GameManager.player_data.get_attack_damage(base_damage)
 		var source_pos: Vector3 = hit_area.get_meta("source_position", _player.global_position)
 
+		if _synergy_manager != null:
+			var mult: float = _synergy_manager.get_damage_multiplier_for_external_hit()
+			print(mult)
+			actual_damage = int(round(float(actual_damage) * mult))
+		
 		if not _hit_already:
 			body.take_damage(actual_damage, source_pos)
 			_hit_already = true
-
+			
+			if _synergy_manager != null:
+				_synergy_manager.extend_combo_on_normal_hit()
+				
+			# Impact-VFX zwischen Spieler und Enemy spawnen
 			var impact_pos: Vector3 = (_player.global_position + body.global_position) / 2.0
 			impact_pos.y += 0.3
 			_spawn_impact_vfx(impact_pos)
+			
+			# Hit-Sound am Enemy
 			_play_hit_sound(body.global_position)
 
 
@@ -542,6 +572,23 @@ func _play_hit_sound(world_pos: Vector3) -> void:
 		randf_range(1.0 - hit_pitch_variation, 1.0 + hit_pitch_variation)
 	)
 
+
+func _auto_equip_initial_weapon() -> void:
+	var inv: Node = get_node_or_null("/root/InventoryManager")
+	if inv == null:
+		return
+	
+	# Erste Waffe in der Hotbar suchen und equippen.
+	for slot in range(4):
+		var item_id: String = inv.get_hotbar_item(slot)
+		if item_id == "":
+			continue
+		var item_data: ItemData = inv.get_item_data(item_id)
+		if item_data == null:
+			continue
+		if item_data.item_type == ItemData.ItemType.WEAPON:
+			equip_weapon(item_id)
+			return
 
 # ─── Internal: Weapon Overlay ───
 

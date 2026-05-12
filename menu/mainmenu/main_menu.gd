@@ -101,10 +101,20 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# ESC schließt das Options-Overlay
-	if _options_open and event.is_action_pressed("ui_cancel", false):
-		_close_options_overlay()
+	if not _options_open:
+		return
+	if not event.is_action_pressed("ui_cancel", false):
+		return
+	
+	# Zuerst die SettingsUI fragen — die handhabt Tab-Inhalt → Tab-Liste
+	# selbst und gibt true zurück. Dann ESC NICHT auch noch Overlay schließen.
+	if _options_ui and _options_ui.handle_back():
 		get_viewport().set_input_as_handled()
+		return
+	
+	# SettingsUI sagte "kein interner Back nötig" → Overlay schließen
+	_close_options_overlay()
+	get_viewport().set_input_as_handled()
 
 
 func _load_font() -> void:
@@ -322,7 +332,7 @@ func _build_options_overlay() -> void:
 	_options_overlay.add_child(center)
 	
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(520, 560)
+	panel.custom_minimum_size = Vector2(700, 540)
 	
 	var sb := StyleBoxFlat.new()
 	sb.bg_color              = C_BG_DEEP

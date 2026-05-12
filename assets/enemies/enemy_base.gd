@@ -75,6 +75,21 @@ class_name Enemy
 @export var death_vfx_lifetime: float = 2.0
 @export var death_sound: AudioStream
 
+@export_group("Drowning")
+@export var drown_duration: float = 0.7
+@export var drown_flip_interval: float = 0.1
+@export var splash_vfx_scene: PackedScene
+
+var _is_drowning: bool = false
+var _drown_timer: float = 0.0
+var _drown_flip_timer: float = 0.0
+var _drown_flip_state: bool = false
+
+@export_group("Instant Death")
+@export var fall_death_y_offset: float = 8.0
+@export var instant_death_vfx_scene: PackedScene  # optional, z. B. Splash
+@export var instant_death_vfx_offset: Vector3 = Vector3.ZERO
+
 # === HURT ===
 @export_group("Hurt")
 @export var hurt_sound: AudioStream
@@ -139,6 +154,9 @@ func _on_damage_received(_amount: int, _from_position: Vector3) -> void:
 
 func _on_death() -> void:
 	pass
+	
+func _on_drown_started() -> void:
+	pass
 
 func _on_death_finished() -> void:
 	pass
@@ -151,6 +169,9 @@ func _on_confusion_ended() -> void:
 
 func _get_hurt_frame() -> Dictionary:
 	return {frame = 0, flip = false}
+
+func _get_drown_frame() -> int:
+	return _get_hurt_frame().frame
 
 func _get_death_frames() -> Array[int]:
 	return death_frames
@@ -234,16 +255,25 @@ func _update_hp_bar_timer(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _is_drowning:
+		_process_drowning(delta)
+		return
+	
+	
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	
 	if not is_inside_tree() or get_world_3d() == null:
 		return
 	
-	if global_position.y < _spawn_position.y - 8.0:
-		global_position = _spawn_position
-		velocity = Vector3.ZERO
+	#if global_position.y < _spawn_position.y - 8.0:
+	#	global_position = _spawn_position
+	#	velocity = Vector3.ZERO
+	#	return
+	if global_position.y < _spawn_position.y - fall_death_y_offset:
+		kill_instantly()
 		return
+	
 	
 	if _is_dead:
 		_process_death(delta)
@@ -369,7 +399,7 @@ func _unfreeze() -> void:
 
 # === HEALTH SYSTEM ===
 
-func take_damage(amount: int, from_position: Vector3) -> void:
+func take_damage(amount: int, from_position: Vector3, skip_hitstop: bool = false) -> void:
 	if _is_dead or _is_invincible:
 		return
 	
@@ -390,6 +420,11 @@ func take_damage(amount: int, from_position: Vector3) -> void:
 	
 	_play_sound(hurt_sound, hurt_pitch_variation)
 	
+	# Gemeinsame Effekte: Hitstop + Shake — kann pro Aufruf unterdrückt werden
+	if not skip_hitstop and GameEffects:
+		GameEffects.hit_effect()
+	
+	# Subclass-Hook: Facing, Target-Set, Group-Alert, State-Übergang etc.
 	_on_damage_received(amount, from_position)
 	
 	if _health <= 0:
@@ -420,6 +455,36 @@ func _die() -> void:
 	_play_sound(death_sound)
 	
 	_on_death()
+	
+func kill_instantly() -> void:
+	if _is_dead:
+		return
+
+	_is_dead = true
+	velocity = Vector3.ZERO
+	_hp_bar_visible(false)
+
+	if _is_confused:
+		_end_confusion()
+
+	# Subclass-Cleanup (VFX, Tongue, Thrust etc.)
+	_on_death()
+
+	# Rewards (EXP, Gold, Popup)
+	_give_rewards()
+
+	# Optional: Splash/Poof-VFX
+	if instant_death_vfx_scene != null:
+		var vfx := instant_death_vfx_scene.instantiate() as Node3D
+		get_tree().current_scene.add_child(vfx)
+		vfx.global_position = global_position + instant_death_vfx_offset
+		for child in vfx.get_children():
+			if child is GPUParticles3D:
+				child.emitting = true
+		get_tree().create_timer(death_vfx_lifetime).timeout.connect(vfx.queue_free)
+
+	_on_death_finished()
+	queue_free()
 
 
 func _process_death(delta: float) -> void:
@@ -473,6 +538,53 @@ func _finish_death() -> void:
 		_give_rewards()
 	_on_death_finished()
 	queue_free()
+
+func start_drowning() -> void:
+	if _is_dead or _is_drowning:
+		return
+
+	_is_drowning = true
+	_drown_timer = drown_duration
+	_drown_flip_timer = 0.0
+	_drown_flip_state = false
+	velocity = Vector3.ZERO
+
+	_hp_bar_visible(false)
+
+	sprite.frame = _get_drown_frame()
+	sprite.flip_h = false  # wird von _process_drowning gespiegelt
+	sprite.modulate = Color.WHITE
+	sprite.modulate.a = 1.0
+
+	# Subclass-Cleanup (Goblin: Thrust-VFX entfernen)
+	_on_drown_started()
+
+	_spawn_splash_vfx()
+
+
+func _process_drowning(delta: float) -> void:
+	_drown_timer -= delta
+
+	_drown_flip_timer -= delta
+	if _drown_flip_timer <= 0.0:
+		_drown_flip_state = not _drown_flip_state
+		sprite.flip_h = _drown_flip_state
+		_drown_flip_timer = drown_flip_interval
+
+	if _drown_timer <= 0.0:
+		_is_drowning = false
+		kill_instantly()
+
+func _spawn_splash_vfx() -> void:
+	if splash_vfx_scene == null:
+		return
+	var splash := splash_vfx_scene.instantiate() as Node3D
+	get_tree().current_scene.add_child(splash)
+	splash.global_position = global_position
+	for child in splash.get_children():
+		if child is GPUParticles3D:
+			child.emitting = true
+	get_tree().create_timer(2.0).timeout.connect(splash.queue_free)
 
 
 func _give_rewards() -> void:

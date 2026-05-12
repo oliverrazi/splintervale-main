@@ -35,6 +35,8 @@ InventoryManager="*res://scripts/game/inventory_manager.gd"
 VistaManager="*res://assets/vfx/environment/VistaZone/vista_manager.gd"
 PlayerManager="*res://scripts/game/player_manager.gd"
 AudioPool="*res://scripts/game/audio_pool.gd"
+Settings="*res://scripts/settings/settings.gd"
+TreeOcclusionManager="*res://scripts/tree_occlusion_manager.gd"
 
 [display]
 
@@ -124,7 +126,19 @@ common/physics_interpolation=true
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+camera/depth_of_field/depth_of_field_bokeh_shape=0
 anti_aliasing/quality/msaa_3d=1
 textures/decals/filter=2
 environment/volumetric_fog/volume_size=128
 2d/snap/snap_2d_transforms_to_pixel=true
+
+[shader_globals]
+
+player_world_position={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+camera_world_position={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}

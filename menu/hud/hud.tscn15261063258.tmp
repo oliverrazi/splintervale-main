@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://cha40ttjmdp01"]
+
+[ext_resource type="Script" uid="uid://x3fo3nd3yyfe" path="res://menu/hud/hud.gd" id="1_21lnx"]
+[ext_resource type="PackedScene" uid="uid://d3fjhuvcx00bm" path="res://assets/characters/synergy/combo_widget.tscn" id="2_u2e21"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_21lnx")
+
+[node name="ComboWidget" parent="." instance=ExtResource("2_u2e21")]

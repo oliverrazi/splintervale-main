@@ -264,13 +264,10 @@ func _process_ai(delta: float) -> void:
  
  
 func _on_damage_received(amount: int, from_position: Vector3) -> void:
-	if GameEffects:
-		GameEffects.hit_effect()
- 
 	var attacker := get_tree().get_first_node_in_group("player")
 	if attacker:
 		_target = attacker
- 
+
 	var knockback_dir := (global_position - from_position).normalized()
 	_update_facing_direction(-knockback_dir)
 	_enter_state(State.HIT)

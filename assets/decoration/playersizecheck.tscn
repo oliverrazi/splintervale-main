@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://fgsli8d1gkfr"]
+
+[ext_resource type="Script" uid="uid://eargwxyah7bh" path="res://scripts/world/vector_anchor_targetable_3D.gd" id="1_826vl"]
+[ext_resource type="PackedScene" uid="uid://cj0hntct6bavh" path="res://assets/characters/playersizecheck.glb" id="2_826vl"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_gmpj2"]
+height = 1.6254883
+radius = 0.09863281
+
+[node name="IronBollard" type="StaticBody3D"]
+script = ExtResource("1_826vl")
+
+[node name="AnchorPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15148711, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8469238, 0)
+shape = SubResource("CylinderShape3D_gmpj2")
+
+[node name="playersizecheck" parent="." instance=ExtResource("2_826vl")]

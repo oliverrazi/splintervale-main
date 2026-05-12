@@ -11,6 +11,8 @@ var start_sound: AudioStreamPlayer
 var _is_transitioning: bool = false
 
 
+signal scene_transition_completed
+
 func _ready() -> void:
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -89,6 +91,8 @@ func transition_to(scene_path: String, play_sound: bool = true) -> void:
 	fade_in()
 	
 	_is_transitioning = false
+	
+	scene_transition_completed.emit()
 
 
 ## Übergang zum Spiel (zeigt HUD, optional lädt Save)
@@ -123,6 +127,8 @@ func transition_to_game(scene_path: String, load_save: bool = false) -> void:
 	fade_in()
 	
 	_is_transitioning = false
+	
+	scene_transition_completed.emit()
 
 
 ## Setzt Overlay sofort auf Schwarz
@@ -160,6 +166,8 @@ func transition_to_with_spawn(scene_path: String, spawn_point_id: String, play_s
 
 	fade_in()
 	_is_transitioning = false
+	
+	scene_transition_completed.emit()
 
 
 func _position_player_at_spawn(spawn_id: String) -> void:

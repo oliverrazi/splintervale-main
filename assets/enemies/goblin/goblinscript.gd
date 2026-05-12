@@ -88,6 +88,8 @@ const ATTACK_TOP: Array[int] = [38, 39]
 const HURT_DOWN_RIGHT: int = 40
 const HURT_UP_RIGHT: int = 41
 
+const DROWN_FRAME: int = 53
+
 const DEATH_FRAME_LIST: Array[int] = [50, 51, 52]
 
 const THRUST_YAW_DEG := {
@@ -197,8 +199,6 @@ func _process_ai(delta: float) -> void:
 
 
 func _on_damage_received(amount: int, from_position: Vector3) -> void:
-	if GameEffects:
-		GameEffects.hit_effect()
 	_last_damage_time = Time.get_ticks_msec() / 1000.0
 
 	var attacker := get_tree().get_first_node_in_group("player")
@@ -252,6 +252,9 @@ func _get_hurt_frame() -> Dictionary:
 		_:
 			return {frame = HURT_DOWN_RIGHT, flip = false}
 
+
+func _get_drown_frame() -> int:
+	return DROWN_FRAME
 
 func _get_death_frames() -> Array[int]:
 	return DEATH_FRAME_LIST
@@ -1093,3 +1096,6 @@ func clear_target() -> void:
 	_target = null
 	if _state not in [State.HIT, State.DEAD, State.CONFUSED]:
 		_enter_state(State.PATROL_IDLE)
+		
+func _on_drown_started() -> void:
+	_cleanup_thrust_vfx_immediate()

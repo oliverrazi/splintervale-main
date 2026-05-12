@@ -1,0 +1,77 @@
+[gd_scene load_steps=12 format=3 uid="uid://boio6c5ac7qb2"]
+
+[ext_resource type="ArrayMesh" uid="uid://d0okku0bubu44" path="res://assets/enemies/bosses/ogre.res" id="1_7sx80"]
+[ext_resource type="Shader" uid="uid://cdmtmh53uu0bh" path="res://scripts/shader/boss_pixel_3d.gdshader" id="2_s28up"]
+[ext_resource type="Texture2D" uid="uid://dald4u6ha5w2x" path="res://assets/enemies/bosses/oger_body_tex_v2.png" id="3_7sx80"]
+[ext_resource type="ArrayMesh" uid="uid://cbpa40irpdydi" path="res://assets/enemies/bosses/ogre/torus.res" id="4_0hy03"]
+[ext_resource type="Shader" uid="uid://dnmnogq52l615" path="res://scripts/shader/boss_edge_detect.gdshader" id="4_52ujj"]
+[ext_resource type="Texture2D" uid="uid://d3frc882s6c21" path="res://assets/enemies/bosses/ogre2_1_schurz_tex.png" id="5_52ujj"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_81f4n"]
+viewport_path = NodePath("RenderViewport")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_81f4n"]
+render_priority = 0
+shader = ExtResource("2_s28up")
+shader_parameter/albedo_texture = ExtResource("3_7sx80")
+shader_parameter/posterize_levels = 3
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kjylb"]
+render_priority = 0
+shader = ExtResource("2_s28up")
+shader_parameter/albedo_texture = ExtResource("5_52ujj")
+shader_parameter/posterize_levels = 3
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7sx80"]
+render_priority = 0
+shader = ExtResource("4_52ujj")
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/depth_threshold = 0.13409999660727
+shader_parameter/outline_thickness = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_s28up"]
+material = SubResource("ShaderMaterial_7sx80")
+
+[node name="PixelBoss" type="Node3D"]
+
+[node name="BossSprite" type="Sprite3D" parent="."]
+billboard = 1
+shaded = true
+texture_filter = 2
+texture = SubResource("ViewportTexture_81f4n")
+
+[node name="RenderViewport" type="SubViewport" parent="."]
+own_world_3d = true
+transparent_bg = true
+size = Vector2i(220, 190)
+render_target_update_mode = 4
+
+[node name="BossCam" type="Camera3D" parent="RenderViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 1, 3)
+projection = 1
+current = true
+size = 2.5
+
+[node name="BossLight" type="DirectionalLight3D" parent="RenderViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.9659259, 0.25881907, 0, -0.25881907, 0.9659258, 0, 0.46831417, 0.56998223)
+light_color = Color(0.9830989, 0.83297443, 0.8213793, 1)
+light_energy = 5.229
+light_indirect_energy = 0.421
+light_volumetric_fog_energy = 0.0
+light_angular_distance = 6.71
+
+[node name="BossRotator" type="Node3D" parent="RenderViewport"]
+
+[node name="OgerMesh" type="MeshInstance3D" parent="RenderViewport/BossRotator"]
+mesh = ExtResource("1_7sx80")
+surface_material_override/0 = SubResource("ShaderMaterial_81f4n")
+
+[node name="Lendenschurz" type="MeshInstance3D" parent="RenderViewport/BossRotator"]
+mesh = ExtResource("4_0hy03")
+surface_material_override/0 = SubResource("ShaderMaterial_kjylb")
+
+[node name="PostProcessQuad" type="MeshInstance3D" parent="RenderViewport"]
+mesh = SubResource("QuadMesh_s28up")
+skeleton = NodePath("../..")
