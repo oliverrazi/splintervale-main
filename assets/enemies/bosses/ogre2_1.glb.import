@@ -45,8 +45,44 @@ _subresources={
 "generate/shadow_meshes": 0,
 "lods/normal_merge_angle": 20.0,
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre.res",
-"save_to_file/path": "uid://d0okku0bubu44"
+"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/body.res",
+"save_to_file/path": "uid://p8h876ny1iyj"
+},
+"ogre2_1_Cylinder_002": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/teeth.res",
+"save_to_file/path": "uid://jdyc1tticvqy"
+},
+"ogre2_1_Cylinder_006": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/hair.res",
+"save_to_file/path": "uid://dnyyibc2j34sm"
+},
+"ogre2_1_Sphere": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/toes.res",
+"save_to_file/path": "uid://cojxjm6qdqdpp"
+},
+"ogre2_1_Sphere_003": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/shoulderpads.res",
+"save_to_file/path": "uid://cu25v7ogphqg5"
 },
 "ogre2_1_Torus": {
 "generate/lightmap_uv": 0,
@@ -56,6 +92,15 @@ _subresources={
 "save_to_file/enabled": true,
 "save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/torus.res",
 "save_to_file/path": "uid://c6rcylp38x82a"
+},
+"ogre2_1_Torus_001": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://assets/enemies/bosses/ogre/armor.res",
+"save_to_file/path": "uid://dpm2gvo38aorf"
 }
 }
 }

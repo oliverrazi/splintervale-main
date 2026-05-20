@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bdqkbnjcs1otq"]
+[gd_scene format=3 uid="uid://bdqkbnjcs1otq"]
 
 [ext_resource type="Texture2D" uid="uid://v70f15ek0k0w" path="res://assets/vfx/hits/Flash001.png" id="1_471pv"]
 [ext_resource type="Texture2D" uid="uid://bas16xwa5cey4" path="res://assets/vfx/hits/Flare001.png" id="2_f0af5"]
@@ -7,6 +7,7 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cx03g"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("1_471pv")
 billboard_mode = 3
@@ -42,6 +43,7 @@ alpha_curve = SubResource("CurveTexture_1vbun")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_duivf"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("2_f0af5")
 billboard_mode = 3
@@ -67,6 +69,7 @@ emission_curve = SubResource("CurveTexture_f5gfu")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ipfhd"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("3_2ggt2")
 billboard_mode = 3
@@ -82,9 +85,9 @@ scale_curve = SubResource("CurveTexture_13u78")
 color = Color(1.8816792, 2.9076278, 3.3459997, 0.1)
 alpha_curve = SubResource("CurveTexture_f5gfu")
 
-[node name="Impact1" type="Node3D"]
+[node name="Impact1" type="Node3D" unique_id=1238486765]
 
-[node name="Flash" type="GPUParticles3D" parent="."]
+[node name="Flash" type="GPUParticles3D" parent="." unique_id=1278185944]
 material_override = SubResource("StandardMaterial3D_cx03g")
 emitting = false
 amount = 1
@@ -94,7 +97,7 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_aaca3")
 draw_pass_1 = SubResource("QuadMesh_3f41j")
 
-[node name="Flare" type="GPUParticles3D" parent="."]
+[node name="Flare" type="GPUParticles3D" parent="." unique_id=942719452]
 material_override = SubResource("StandardMaterial3D_duivf")
 emitting = false
 amount = 1
@@ -104,7 +107,7 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_u7oro")
 draw_pass_1 = SubResource("QuadMesh_3f41j")
 
-[node name="Shockwave" type="GPUParticles3D" parent="."]
+[node name="Shockwave" type="GPUParticles3D" parent="." unique_id=584336839]
 material_override = SubResource("StandardMaterial3D_ipfhd")
 emitting = false
 amount = 1

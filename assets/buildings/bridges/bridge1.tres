@@ -1,4 +1,4 @@
-[gd_resource type="ArrayMesh" load_steps=53 format=4 uid="uid://by66uxtuxdbtq"]
+[gd_resource type="ArrayMesh" format=4 uid="uid://by66uxtuxdbtq"]
 
 [ext_resource type="Texture2D" uid="uid://cti5anfengeiv" path="res://assets/buildings/bridge1_wood-table.png" id="1_wkqtl"]
 [ext_resource type="Texture2D" uid="uid://cfgxh54op18bn" path="res://assets/buildings/bridge1_wood-table_normal.png" id="2_qora4"]

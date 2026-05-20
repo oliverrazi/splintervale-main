@@ -1,0 +1,103 @@
+[gd_scene format=3 uid="uid://cem6lk7yof5jo"]
+
+[ext_resource type="PackedScene" uid="uid://dv75eb0ai2agv" path="res://assets/enemies/bosses/ogre/ogre2_4.glb" id="1_obxw8"]
+[ext_resource type="Shader" uid="uid://5byap4qva0" path="res://scripts/shader/boss_outline.gdshader" id="2_d5gyk"]
+[ext_resource type="Shader" uid="uid://cdmtmh53uu0bh" path="res://scripts/shader/boss_pixel_3d.gdshader" id="2_ouhxn"]
+[ext_resource type="Texture2D" uid="uid://c8mkid5q4xvih" path="res://assets/enemies/bosses/ogre/ogre2_4_oger_body_tex_v2.png" id="3_khwy5"]
+[ext_resource type="Texture2D" uid="uid://ck3w46oto1q0r" path="res://assets/enemies/bosses/ogre/ogre2_4_ogre_club.png" id="3_kthto"]
+[ext_resource type="Texture2D" uid="uid://cy4qprcf4s4vb" path="res://assets/enemies/bosses/ogre/ogre2_4_ogre_cape.png" id="6_6q5ld"]
+[ext_resource type="Texture2D" uid="uid://bk554ll5s3e5r" path="res://assets/enemies/bosses/ogre/ogre2_4_ogre_armor.png" id="6_33s5f"]
+[ext_resource type="Texture2D" uid="uid://dhv4snmcfybcy" path="res://assets/enemies/bosses/ogre/ogre2_4_schurz_tex.png" id="9_33s5f"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n8txo"]
+render_priority = 0
+shader = ExtResource("2_d5gyk")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_163tx"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_n8txo")
+shader = ExtResource("2_ouhxn")
+shader_parameter/albedo_texture = ExtResource("3_kthto")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jr8vh"]
+render_priority = 0
+shader = ExtResource("2_d5gyk")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jh4ib"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_jr8vh")
+shader = ExtResource("2_ouhxn")
+shader_parameter/albedo_texture = ExtResource("6_33s5f")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7u7mj"]
+render_priority = 0
+shader = ExtResource("2_d5gyk")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f2pax"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_7u7mj")
+shader = ExtResource("2_ouhxn")
+shader_parameter/albedo_texture = ExtResource("6_6q5ld")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nmxnt"]
+render_priority = 0
+shader = ExtResource("2_d5gyk")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f5yuj"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_nmxnt")
+shader = ExtResource("2_ouhxn")
+shader_parameter/albedo_texture = ExtResource("3_khwy5")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f5v1w"]
+render_priority = 0
+shader = ExtResource("2_d5gyk")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xdh7c"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_f5v1w")
+shader = ExtResource("2_ouhxn")
+shader_parameter/albedo_texture = ExtResource("9_33s5f")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[node name="ogre2_4" unique_id=1474847185 instance=ExtResource("1_obxw8")]
+
+[node name="Hand" parent="." index="0" unique_id=226579440]
+visible = false
+
+[node name="Hair_001" parent="." index="1" unique_id=1978853276]
+visible = false
+
+[node name="Keule" parent="Armature/Skeleton3D/L Thumb" parent_id_path=PackedInt32Array(895705724) index="0" unique_id=1743159548]
+surface_material_override/0 = SubResource("ShaderMaterial_163tx")
+
+[node name="Armor" parent="Armature/Skeleton3D/Spine" parent_id_path=PackedInt32Array(1130210976) index="0" unique_id=563523601]
+surface_material_override/0 = SubResource("ShaderMaterial_jh4ib")
+
+[node name="Cape" parent="Armature/Skeleton3D/Spine" parent_id_path=PackedInt32Array(1130210976) index="1" unique_id=581831297]
+surface_material_override/0 = SubResource("ShaderMaterial_f2pax")
+
+[node name="Oger" parent="Armature/Skeleton3D" parent_id_path=PackedInt32Array(515730975) index="5" unique_id=1253518419]
+surface_material_override/0 = SubResource("ShaderMaterial_f5yuj")
+
+[node name="Schurz" parent="Armature/Skeleton3D" parent_id_path=PackedInt32Array(515730975) index="6" unique_id=194714]
+surface_material_override/0 = SubResource("ShaderMaterial_xdh7c")

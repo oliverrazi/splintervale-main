@@ -1,4 +1,4 @@
-[gd_resource type="ArrayMesh" load_steps=6 format=4 uid="uid://c4cvvnqd7dt1s"]
+[gd_resource type="ArrayMesh" format=4 uid="uid://c4cvvnqd7dt1s"]
 
 [ext_resource type="Texture2D" uid="uid://b62erj2nug0nx" path="res://assets/base_tiles/mushroom/mushroom1_hat.png" id="1_1hpgf"]
 

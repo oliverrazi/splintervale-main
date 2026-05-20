@@ -7,7 +7,7 @@ extends Area3D
 @export var zone_priority: int = 0  # höher = wichtiger (für überlappende Zonen)
 
 func _ready() -> void:
-	#body_entered.connect(_on_body_entered)
+	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
 func _on_body_entered(body: Node3D) -> void:

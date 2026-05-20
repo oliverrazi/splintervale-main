@@ -28,6 +28,10 @@ signal dive_cancelled(reason: String)
 @export var dive_pierce_enemies: bool = true
 @export var dive_invincible: bool = true
 
+@export_group("Dive Bounce")
+@export var dive_bounce_force: float = 8.0   # horizontal weg vom Gegner
+@export var dive_bounce_up: float = 6.0
+
 @export_group("Dive Strike Damage")
 @export var dive_resonance_damage_divisor: float = 4.0
 @export var dive_resonance_regen_lockout: float = 2.0
@@ -372,6 +376,23 @@ func _on_dive_impact(impact_pos: Vector3) -> void:
 	dive_completed.emit()
 
 
+func _bounce_off_dive(enemy: Node) -> void:
+	# Dive sauber beenden (wie _on_dive_impact, aber ohne Ground-Snap/AOE)
+	_remove_dive_charge_particles()
+	if _sprite:
+		_sprite.modulate = Color.WHITE
+	_state = State.IDLE
+	if _player and is_instance_valid(_player):
+		if _player.has_method("_show_idle"):
+			_player._show_idle()
+		if "_attack_cooldown_timer" in _player:
+			_player._attack_cooldown_timer = 0.0
+		if _player.has_method("apply_knockback"):
+			_player.apply_knockback(enemy.global_position, dive_bounce_force)
+		_player.velocity.y = dive_bounce_up
+	_play_sound(dive_impact_sound)
+	dive_completed.emit()
+
 # ============================================
 # DAMAGE
 # ============================================
@@ -401,7 +422,15 @@ func _try_hit_dive_enemy(enemy: Node, is_aoe: bool) -> void:
 	var direct_damage: int = _calculate_dive_damage()
 	var damage: int = direct_damage if not is_aoe else int(round(direct_damage * dive_aoe_damage_factor))
 	
-	enemy.take_damage(damage, _player.global_position)
+	var bounced := false
+	if enemy.has_method("take_dive_strike"):
+		bounced = (enemy.take_dive_strike(damage, _player.global_position) == true)
+	else:
+		enemy.take_damage(damage, _player.global_position)
+	if bounced:
+		var bp: Vector3 = enemy.global_position + Vector3(0, dive_impact_y_offset, 0)
+		_bounce_off_dive(enemy)
+		return
 	
 	# Knockback
 	var knockback_dir: Vector3 = enemy.global_position - _player.global_position
@@ -413,7 +442,10 @@ func _try_hit_dive_enemy(enemy: Node, is_aoe: bool) -> void:
 	
 	# Impact-VFX
 	var impact_pos: Vector3 = enemy.global_position + Vector3(0, dive_impact_y_offset, 0)
-	CombatVFXUtils.spawn_impact(self, dive_impact_scene, impact_pos, dive_impact_scale, dive_impact_delay, dive_impact_lifetime)
+	if enemy.get("is_armored") == true:
+		pass 
+	else:
+		CombatVFXUtils.spawn_impact(self, dive_impact_scene, impact_pos, dive_impact_scale, dive_impact_delay, dive_impact_lifetime)
 	
 	# Hitstop bei direkten Treffern
 	if not is_aoe and dive_hitstop_on_direct_hit > 0.0 and GameEffects:

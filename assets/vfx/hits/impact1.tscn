@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://c6m87rolirnhh"]
+[gd_scene format=3 uid="uid://c6m87rolirnhh"]
 
 [ext_resource type="Texture2D" uid="uid://v70f15ek0k0w" path="res://assets/vfx/hits/Flash001.png" id="1_3f41j"]
 [ext_resource type="Texture2D" uid="uid://bas16xwa5cey4" path="res://assets/vfx/hits/Flare001.png" id="2_jvjkb"]
@@ -7,6 +7,7 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cx03g"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("1_3f41j")
 billboard_mode = 3
@@ -42,6 +43,7 @@ alpha_curve = SubResource("CurveTexture_1vbun")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_duivf"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("2_jvjkb")
 billboard_mode = 3
@@ -67,6 +69,7 @@ emission_curve = SubResource("CurveTexture_f5gfu")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ipfhd"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("3_jvjkb")
 billboard_mode = 3
@@ -85,11 +88,12 @@ alpha_curve = SubResource("CurveTexture_f5gfu")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0gpyp"]
 transparency = 1
 cull_mode = 2
+no_depth_test = true
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("1_3f41j")
 billboard_keep_scale = true
 
-[sub_resource type="CurveTexture" id="CurveTexture_jvjkb"]
+[sub_resource type="CurveTexture" id="CurveTexture_gsaib"]
 curve = SubResource("Curve_ipfhd")
 
 [sub_resource type="Curve" id="Curve_13u78"]
@@ -105,7 +109,7 @@ point_count = 2
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_ipfhd"]
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_yivtc"]
 curve_x = SubResource("Curve_13u78")
 curve_y = SubResource("Curve_duivf")
 curve_z = SubResource("Curve_f5gfu")
@@ -118,13 +122,13 @@ initial_velocity_max = 6.5
 gravity = Vector3(0, 0, 0)
 scale_min = 0.049999997
 scale_max = 0.099999994
-scale_curve = SubResource("CurveXYZTexture_ipfhd")
+scale_curve = SubResource("CurveXYZTexture_yivtc")
 color = Color(18.892157, 6.126437, 4.6874576, 1)
-alpha_curve = SubResource("CurveTexture_jvjkb")
+alpha_curve = SubResource("CurveTexture_gsaib")
 
-[node name="Impact1" type="Node3D"]
+[node name="Impact1" type="Node3D" unique_id=1658007750]
 
-[node name="Flash" type="GPUParticles3D" parent="."]
+[node name="Flash" type="GPUParticles3D" parent="." unique_id=2048848557]
 material_override = SubResource("StandardMaterial3D_cx03g")
 emitting = false
 amount = 1
@@ -134,7 +138,7 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_aaca3")
 draw_pass_1 = SubResource("QuadMesh_3f41j")
 
-[node name="Flare" type="GPUParticles3D" parent="."]
+[node name="Flare" type="GPUParticles3D" parent="." unique_id=246878493]
 material_override = SubResource("StandardMaterial3D_duivf")
 emitting = false
 amount = 1
@@ -144,7 +148,7 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_u7oro")
 draw_pass_1 = SubResource("QuadMesh_3f41j")
 
-[node name="Shockwave" type="GPUParticles3D" parent="."]
+[node name="Shockwave" type="GPUParticles3D" parent="." unique_id=1537287084]
 material_override = SubResource("StandardMaterial3D_ipfhd")
 emitting = false
 amount = 1
@@ -154,7 +158,7 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_1vbun")
 draw_pass_1 = SubResource("QuadMesh_3f41j")
 
-[node name="Sparks" type="GPUParticles3D" parent="."]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1364696877]
 material_override = SubResource("StandardMaterial3D_0gpyp")
 emitting = false
 amount = 20

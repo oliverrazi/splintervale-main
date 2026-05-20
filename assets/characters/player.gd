@@ -93,6 +93,10 @@ var _is_knocked_back: bool = false
 var _is_hurt_flashing: bool = false
 var _hurt_flash_timer: float = 0.0
 
+var _is_launched: bool = false
+var _launch_left_ground: bool = false
+var _launch_vel: Vector3 = Vector3.ZERO
+
 var _footstep_timer: float = 0.0
 
 const HURT_DOWN_LEFT: int = 61
@@ -245,6 +249,10 @@ func _physics_process(delta: float) -> void:
 	
 	if _is_dead:
 		_process_death(delta)
+		return
+		
+	if _is_launched:
+		_process_launch(delta)
 		return
 
 	if GameManager and GameManager.player_data:
@@ -588,6 +596,40 @@ func _process_knockback(delta: float) -> void:
 	
 	move_and_slide()
 
+func launch_airborne(dir: Vector3, h_force: float, up_force: float) -> void:
+	if _is_dead or _is_drowning:
+		return
+	if sword and sword.is_attacking():
+		sword.cancel()
+	if vector_anchor and vector_anchor.is_active():
+		vector_anchor.cancel()
+	_is_knocked_back = false
+	_knockback_velocity = Vector3.ZERO
+	var d := dir
+	d.y = 0.0
+	if d.length() < 0.001:
+		d = -global_transform.basis.z
+	d = d.normalized()
+	_launch_vel = d * h_force + Vector3.UP * up_force
+	_launch_left_ground = false
+	_is_launched = true
+
+func _process_launch(delta: float) -> void:
+	# eigene Velocity, unabhängig von externem Zeroing (set_frozen, _bounce_off_dive)
+	_launch_vel.y -= gravity * delta
+	velocity = _launch_vel
+	#var hd := _get_hurt_frame()
+	character.frame = 93
+	#character.flip_h = hd.flip
+	_recover_from_stuck()
+	move_and_slide()
+	if not is_on_floor():
+		_launch_left_ground = true
+	elif _launch_left_ground:
+		_is_launched = false
+		_is_knocked_back = false
+		_knockback_velocity = Vector3.ZERO
+		velocity = Vector3.ZERO
 
 func _get_hurt_frame() -> Dictionary:
 	match _last_dir_mode:
@@ -1067,6 +1109,24 @@ func _spawn_heal_particles() -> void:
 		if is_instance_valid(particles):
 			particles.queue_free()
 	)
+	
+func apply_knockback(from_position: Vector3, force: float = -1.0) -> void:
+	# Reiner Rückstoß ohne Schaden (z.B. Schwert prallt an Boss-Rüstung ab)
+	if _is_dead or _is_drowning:
+		return
+	if dodge_component and dodge_component.is_dodging():
+		return
+	var dir := global_position - from_position
+	dir.y = 0.0
+	if dir.length() < 0.001:
+		return
+	dir = dir.normalized()
+	var f := force if force > 0.0 else knockback_force
+	_knockback_velocity = dir * f
+	_knockback_timer = knockback_duration
+	_is_knocked_back = true
+	if sword and sword.is_attacking():
+		sword.cancel()
 
 
 func _play_footstep_sound() -> void:

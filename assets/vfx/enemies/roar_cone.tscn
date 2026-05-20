@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cfnxqagfrl43w"]
+
+[ext_resource type="Script" uid="uid://cq7de1c2vudg" path="res://assets/vfx/enemies/roar_vfx.gd" id="1_x4tkl"]
+
+[node name="RoarCone" type="Node3D" unique_id=1059246297]
+script = ExtResource("1_x4tkl")

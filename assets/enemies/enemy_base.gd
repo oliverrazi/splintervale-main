@@ -100,6 +100,8 @@ var _drown_flip_state: bool = false
 @export var HFRAMES: int = 10
 @export var VFRAMES: int = 10
 
+@export var terrain: Terrain3D
+
 # === INTERNAL STATE ===
 var _health: int
 var _spawn_position: Vector3
@@ -234,7 +236,6 @@ func _await_terrain_ready() -> void:
 	_is_frozen = true
 	velocity = Vector3.ZERO
 	
-	await get_tree().process_frame
 	_on_ready_after_terrain()
 
 
@@ -392,6 +393,12 @@ func _freeze() -> void:
 func _unfreeze() -> void:
 	if not _is_frozen:
 		return
+
+	if terrain and terrain.data:
+		var h: float = terrain.data.get_height(global_position)
+		if not is_nan(h):
+			global_position.y = h
+
 	_is_frozen = false
 	velocity = Vector3.ZERO
 	set_physics_process(true)

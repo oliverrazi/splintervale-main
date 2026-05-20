@@ -594,6 +594,13 @@ func _on_projectile_hit() -> void:
 		_reflect_projectile(_current_target)
 		_cancel_ability("projectile_reflected")
 		return
+		
+	if _current_target.has_method("vector_anchor_blocks") and _current_target.vector_anchor_blocks():
+		var blocker: Node = _current_target
+		_cancel_ability("blocked")              # Komponente zuerst sauber zurück auf IDLE
+		if blocker.has_method("on_vector_anchor_blocked"):
+			blocker.on_vector_anchor_blocked(_player)
+		return
 	
 	_start_launch()
 

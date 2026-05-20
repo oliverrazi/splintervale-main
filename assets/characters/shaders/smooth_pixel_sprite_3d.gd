@@ -48,7 +48,7 @@ enum FilterAlgorithm {
 @export_range(0.3, 3.0, 0.1) var aa_sharpness: float = 1.2 : set = _set_aa_sharpness
 @export_range(0.0, 1.0, 0.1) var frame_bleed_guard: float = 0.5 : set = _set_frame_bleed_guard
 
-@export_range(0.0, 0.1, 0.001) var depth_bias: float = 0.0 : set = _set_depth_bias
+@export_range(0.0, 0.5, 0.001) var depth_bias: float = 0.0 : set = _set_depth_bias
 
 # --- Internes ---
 var _material: ShaderMaterial

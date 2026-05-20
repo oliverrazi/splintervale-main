@@ -405,7 +405,11 @@ func _damage_enemies_in_radius() -> void:
 				continue
 			
 			var enemy_pos: Vector3 = (node as Node3D).global_position + Vector3(0, hit_height_offset, 0)
-			if enemy_pos.distance_squared_to(center) > radius_sq:
+			var extra_reach: float = 0.0
+			if node.has_method("get_hit_radius"):
+				extra_reach = node.get_hit_radius()
+			var reach: float = hit_radius + extra_reach
+			if enemy_pos.distance_squared_to(center) > reach * reach:
 				continue
 			
 			var eid: int = node.get_instance_id()
@@ -433,7 +437,10 @@ func _damage_enemies_in_radius() -> void:
 			_hit_cooldowns[eid] = per_enemy_hit_cooldown
 			
 			var impact_pos: Vector3 = (node as Node3D).global_position + Vector3(0, spin_impact_y_offset, 0)
-			CombatVFXUtils.spawn_impact(self, spin_impact_scene, impact_pos, spin_impact_scale, spin_impact_delay, spin_impact_lifetime)
+			if node.get("is_armored") == true:
+				pass 
+			else:
+				CombatVFXUtils.spawn_impact(self, spin_impact_scene, impact_pos, spin_impact_scale, spin_impact_delay, spin_impact_lifetime)
 
 func _calculate_damage() -> int:
 	var sword_base: int = 5

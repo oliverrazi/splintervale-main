@@ -1,4 +1,4 @@
-[gd_resource type="ArrayMesh" load_steps=5 format=4 uid="uid://c5vjv6y8jcaq"]
+[gd_resource type="ArrayMesh" format=4 uid="uid://c5vjv6y8jcaq"]
 
 [ext_resource type="Texture2D" uid="uid://b4dvnu7c81py" path="res://assets/base_tiles/tree4_treestump5.png" id="1_cpr2e"]
 [ext_resource type="Texture2D" uid="uid://cyis7jgu6sv43" path="res://assets/base_tiles/tree4_treestump3_normal.png" id="2_4cldp"]

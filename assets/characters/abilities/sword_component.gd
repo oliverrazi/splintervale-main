@@ -499,7 +499,10 @@ func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
 			# Impact-VFX zwischen Spieler und Enemy spawnen
 			var impact_pos: Vector3 = (_player.global_position + body.global_position) / 2.0
 			impact_pos.y += 0.3
-			_spawn_impact_vfx(impact_pos)
+			if body.get("is_armored") == true:
+				pass 
+			else:
+				_spawn_impact_vfx(impact_pos)
 			
 			# Hit-Sound am Enemy
 			_play_hit_sound(body.global_position)

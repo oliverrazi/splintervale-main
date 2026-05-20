@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://nfjq5bnx8iop"]
+[gd_scene format=3 uid="uid://nfjq5bnx8iop"]
 
 [ext_resource type="Script" uid="uid://8vx8klns2yvp" path="res://menu/mainmenu/main_menu.gd" id="1_menu"]
 [ext_resource type="AudioStream" uid="uid://ohygvbp5hm6i" path="res://menu/assets/sounds/select.wav" id="2_g44bh"]
@@ -167,7 +167,7 @@ dof_blur_near_distance = 4.94
 dof_blur_near_transition = -1.0
 dof_blur_amount = 0.06
 
-[node name="MainMenu" type="Control"]
+[node name="MainMenu" type="Control" unique_id=352208927]
 texture_filter = 2
 layout_mode = 3
 anchors_preset = 15
@@ -179,7 +179,7 @@ script = ExtResource("1_menu")
 select_sound = ExtResource("2_g44bh")
 confirm_sound = ExtResource("3_o6okc")
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1483852315]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -188,28 +188,28 @@ grow_horizontal = 2
 grow_vertical = 2
 stretch = true
 
-[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1669968366]
 handle_input_locally = false
 size = Vector2i(1152, 648)
 render_target_update_mode = 4
 
-[node name="MenuScene3D" type="Node3D" parent="SubViewportContainer/SubViewport"]
+[node name="MenuScene3D" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=2066220721]
 
-[node name="CameraPivot" type="Node3D" parent="SubViewportContainer/SubViewport/MenuScene3D"]
+[node name="CameraPivot" type="Node3D" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=541372789]
 transform = Transform3D(0.890189, 0, -0.4555915, 0, 1, 0, 0.4555915, 0, 0.890189, 12.039119, 0.061558783, 0)
 
-[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/MenuScene3D/CameraPivot"]
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/MenuScene3D/CameraPivot" unique_id=1553935579]
 transform = Transform3D(0.22445744, -0.146146, 0.9634627, 0.0150319645, 0.98909175, 0.14653161, -0.9743681, -0.018407363, 0.22420582, 1.0288458, 0.74001956, 0.41961622)
 fov = 60.0
 near = 0.023
 far = 23.61
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewportContainer/SubViewport/MenuScene3D"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=882577034]
 transform = Transform3D(-0.18904242, 0.96429485, -0.18546835, 0.124726236, 0.21092346, 0.9695126, 0.97401553, 0.16014624, -0.16014634, 11.378534, 1.110914, 0)
 light_energy = 1.2
 shadow_enabled = true
 
-[node name="Terrain3D" type="Terrain3D" parent="SubViewportContainer/SubViewport/MenuScene3D"]
+[node name="Terrain3D" type="Terrain3D" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=1032132093]
 data_directory = "res://menu/mainmenu"
 material = SubResource("Terrain3DMaterial_lbtey")
 assets = SubResource("Terrain3DAssets_0wlwb")
@@ -219,75 +219,75 @@ vertex_spacing = 0.25
 top_level = true
 metadata/_edit_lock_ = true
 
-[node name="griffin" parent="SubViewportContainer/SubViewport/MenuScene3D" instance=ExtResource("8_bnl5v")]
+[node name="griffin" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=1388408125 instance=ExtResource("8_bnl5v")]
 transform = Transform3D(0.2, 0, 0, 0, 0.19678824, 0.035698622, 0, -0.035698622, 0.19678824, 11.666134, -0.03000617, 0.22500634)
 
-[node name="Grass" type="Node3D" parent="SubViewportContainer/SubViewport/MenuScene3D"]
+[node name="Grass" type="Node3D" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=2055592830]
 
-[node name="GrassChunk2" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk2" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" unique_id=1374151272 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.340795, 0, 2.6597078)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk2" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk2" unique_id=828082609 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk2/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk2/GrassChunk" unique_id=334892591 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk3" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk3" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" unique_id=894133498 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.371143, 0, 2.6597078)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk3" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk3" unique_id=1923217731 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk3/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk3/GrassChunk" unique_id=1097921723 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk4" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk4" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" unique_id=1277647149 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.514646, 0, -12.329624)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk4" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk4" unique_id=416644428 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk4/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk4/GrassChunk" unique_id=1215987367 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk5" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk5" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" unique_id=1251410335 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.340795, 0, -12.329624)
 lod_switch = 100.0
 impostor_fade_in_start = 100.0
@@ -295,35 +295,35 @@ impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk5" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk5" unique_id=1954178676 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk5/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk5/GrassChunk" unique_id=178840855 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk6" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk6" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" unique_id=482648623 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.374105, 0, -5.0811105)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk6" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk6" unique_id=2075533812 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk6/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk6/GrassChunk" unique_id=148899555 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 lod_switch = 50.0
 impostor_fade_in_start = 100.0
@@ -331,231 +331,231 @@ impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass" unique_id=667260751 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0386305, 0, 3.5548587)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk" unique_id=311295418 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk/GrassChunk" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Grass/GrassChunk/GrassChunk" unique_id=1003053796 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06145239, 0, 4.9620953)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="Trees" type="Node3D" parent="SubViewportContainer/SubViewport/MenuScene3D"]
+[node name="Trees" type="Node3D" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=692849751]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 5.9186187, 0, 0)
 
-[node name="pinetree_cut" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1848515819 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.69143, 0, 6.270265)
 
-[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=73312224 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 5.36449, 0, 1.9925945)
 
-[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1445656237 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 5.2178326, -0.12020135, -7.838374)
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=405243780 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.820341, 0, 12.91293)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=971146254 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.115426, -0.12020136, 2.5998316)
 
-[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=2086308818 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -3.3943968, 0, 9.94343)
 
-[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=1499961774 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5114393, -0.12020136, 5.671845)
 
-[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=2119788653 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9282894, -0.12020136, 7.8082075)
 
-[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=1221097601 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -0.8204336, -0.12020136, 5.3208385)
 
-[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut4" unique_id=526046951 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, -5.1977034, 0.09869504, 10.706085)
 
-[node name="pinetree_cut5" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut5" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1558229588 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.427421, 0, -9.907346)
 
-[node name="pinetree_cut6" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut6" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1015042094 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7601, -0.12020135, -3.214643)
 
-[node name="pinetree_cut7" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut7" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=533415688 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 8.334471, 0, 4.128957)
 
-[node name="pinetree_cut8" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut8" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=659232924 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 8.334471, -0.12020135, -5.7020116)
 
-[node name="pinetree_cut9" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut9" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=791314103 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.074311, 0, -5.125266)
 
-[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1134700894 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2474451, -0.12020135, -2.2789912)
 
-[node name="pinetree_cut11" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut11" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1979268274 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 2.8278809, 0, 5.0646086)
 
-[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1023159257 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8305964, -0.12020135, -0.14262867)
 
-[node name="pinetree_cut15" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut15" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1849867915 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 7.9384546, 0, 7.200971)
 
-[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=359263107 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 7.9384546, -0.12020135, -2.6299973)
 
-[node name="pinetree_cut18" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut18" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=206707416 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 6.2071276, 0.09869504, -5.108568)
 
-[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" unique_id=1598329872 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6434612, -0.12020135, -5.3510056)
 
-[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" unique_id=2100389688 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 5.2178326, -0.12020135, -7.838374)
 
-[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("9_qkuil")]
+[node name="GrassChunk" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=1684838443 instance=ExtResource("9_qkuil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.820341, 0, 12.91293)
 impostor_fade_in_start = 100.0
 impostor_fade_in_end = 100.0
 grass_fade_out_start = 100.0
 grass_fade_out_end = 100.0
 
-[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=277570999 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.115426, -0.12020136, 2.5998316)
 
-[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut3" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=581823538 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -3.3943968, 0, 9.94343)
 
-[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut4" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=1371910739 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -3.5410547, -0.12020136, 0.11246061)
 
-[node name="pinetree_cut8" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut8" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=92694605 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -0.4244156, -0.12020136, 2.2488246)
 
-[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut10" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=1315806813 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5114393, -0.12020136, 5.671845)
 
-[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=899708957 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -3.9370718, -0.12020136, 3.184477)
 
-[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut14" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=1255569226 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9282894, -0.12020136, 7.8082075)
 
-[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut16" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=927010020 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -0.8204336, -0.12020136, 5.3208385)
 
-[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18/pinetree_cut4" unique_id=1282747033 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.1543452, 0, 0.682772, 0, 0.7, 0, -0.682772, 0, 0.1543452, -5.3088055, 0.09869504, 10.214604)
 
-[node name="pinetree_cut6" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut6" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" unique_id=1882752213 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7601, -0.12020135, -3.214643)
 
-[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" unique_id=1315122773 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 4.8218164, -0.12020135, -4.76636)
 
-[node name="pinetree_cut18" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut18" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees/pinetree_cut18" unique_id=1187752784 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 6.2071276, 0.09869504, -5.108568)
 
-[node name="pinetree_cut19" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut19" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=778679796 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 13.718465, 0.21889639, -5.0308933)
 
-[node name="pinetree_cut20" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut20" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=2125478891 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, 0.79020405, 0.09869504, 5.324128)
 
-[node name="pinetree_cut21" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut21" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1924842545 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 11.04153, 0.21889639, -3.758364)
 
-[node name="pinetree_cut23" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut23" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1901122565 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 8.917111, 0.21889639, 2.208928)
 
-[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut24" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=340399276 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, 3.561185, 0.09869504, 2.7552485)
 
-[node name="pinetree_cut26" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut26" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=727730311 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 12.901584, 0.09869504, -4.04494)
 
-[node name="pinetree_cut27" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut27" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=981693382 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 7.800688, 0.21889639, 8.709978)
 
-[node name="pinetree_cut28" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut28" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1195867634 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, 3.6992931, 0.09869504, 6.387756)
 
-[node name="pinetree_cut29" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut29" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1343355720 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 11.455506, 0.21889639, -5.2421217)
 
-[node name="pinetree_cut30" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut30" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=902732041 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.22049315, 0, 0.9753885, 0, 1, 0, -0.9753885, 0, 0.22049315, 11.887197, 0.09869504, -6.61382)
 
-[node name="pinetree_cut31" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut31" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1420220981 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.17639452, 0, 0.7803108, 0, 0.8, 0, -0.7803108, 0, 0.17639452, 12.560105, 0.21889639, -7.857951)
 
-[node name="pinetree_cut32" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut32" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1416387687 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, 6.470273, 0.09869504, 3.8188763)
 
-[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut2" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=605128832 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.811208, -0.12020136, 3.4930706)
 
-[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut12" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=2048481865 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.207221, -0.12020136, -4.451094)
 
-[node name="pinetree_cut17" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut17" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1320884249 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -6.5162153, -0.12020136, -4.8021007)
 
-[node name="pinetree_cut25" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut25" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1163452655 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, -10.893485, 0.09869504, 0.5831461)
 
-[node name="pinetree_cut13" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut13" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1699255753 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.4483366, -0.12020135, -1.3857517)
 
-[node name="pinetree_cut22" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut22" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1506872844 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.811208, -0.12020136, 3.4930706)
 
-[node name="pinetree_cut33" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut33" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1582228003 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.207221, -0.12020136, -4.451094)
 
-[node name="pinetree_cut34" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut34" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1496035419 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.602789, -0.12020136, -0.92558384)
 
-[node name="pinetree_cut35" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut35" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=684516533 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.998802, -0.12020136, 2.14643)
 
-[node name="pinetree_cut36" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut36" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=2145223879 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -0.30779648, -0.12020136, -9.220754)
 
-[node name="pinetree_cut37" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut37" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1916606288 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(0.24254248, 0, 1.0729274, 0, 1.1, 0, -1.0729274, 0, 0.24254248, -4.685066, 0.09869504, -3.8355074)
 
-[node name="pinetree_cut38" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut38" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=961606421 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.002248, -0.12020135, -12.511642)
 
-[node name="pinetree_cut39" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut39" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1639391156 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.602789, -0.12020136, -0.92558384)
 
-[node name="pinetree_cut40" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" instance=ExtResource("10_pfmj8")]
+[node name="pinetree_cut40" parent="SubViewportContainer/SubViewport/MenuScene3D/Trees" unique_id=1145501002 instance=ExtResource("10_pfmj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.998802, -0.12020136, 2.14643)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewportContainer/SubViewport/MenuScene3D"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewportContainer/SubViewport/MenuScene3D" unique_id=976876771]
 environment = SubResource("Environment_lb3k0")
 camera_attributes = SubResource("CameraAttributesPractical_k17ts")
 
-[node name="Overlay" type="CanvasLayer" parent="."]
+[node name="Overlay" type="CanvasLayer" parent="." unique_id=915192958]
 
-[node name="UIRoot" type="Control" parent="Overlay"]
+[node name="UIRoot" type="Control" parent="Overlay" unique_id=1737636143]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -563,7 +563,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="Overlay/UIRoot"]
+[node name="MarginContainer" type="MarginContainer" parent="Overlay/UIRoot" unique_id=1175555265]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -575,55 +575,55 @@ theme_override_constants/margin_top = 60
 theme_override_constants/margin_right = 80
 theme_override_constants/margin_bottom = 60
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Overlay/UIRoot/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Overlay/UIRoot/MarginContainer" unique_id=1692758874]
 layout_mode = 2
 
-[node name="BoxContainer" type="BoxContainer" parent="Overlay/UIRoot/MarginContainer/VBoxContainer"]
+[node name="BoxContainer" type="BoxContainer" parent="Overlay/UIRoot/MarginContainer/VBoxContainer" unique_id=1641641647]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/BoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/BoxContainer" unique_id=85472887]
 texture_filter = 2
 layout_mode = 2
 texture = ExtResource("11_8rv8s")
 expand_mode = 3
 stretch_mode = 6
 
-[node name="Spacer" type="Control" parent="Overlay/UIRoot/MarginContainer/VBoxContainer"]
+[node name="Spacer" type="Control" parent="Overlay/UIRoot/MarginContainer/VBoxContainer" unique_id=2031412955]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MenuContainer" type="VBoxContainer" parent="Overlay/UIRoot/MarginContainer/VBoxContainer"]
+[node name="MenuContainer" type="VBoxContainer" parent="Overlay/UIRoot/MarginContainer/VBoxContainer" unique_id=369092159]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/separation = 16
 
-[node name="ButtonStart" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer"]
+[node name="ButtonStart" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer" unique_id=1985805608]
 custom_minimum_size = Vector2(280, 56)
 layout_mode = 2
 text = "New Game"
 
-[node name="ButtonLoad" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer"]
+[node name="ButtonLoad" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer" unique_id=2076491637]
 custom_minimum_size = Vector2(280, 56)
 layout_mode = 2
 text = "Load Game"
 
-[node name="ButtonOptions" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer"]
+[node name="ButtonOptions" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer" unique_id=1273312014]
 custom_minimum_size = Vector2(280, 56)
 layout_mode = 2
 text = "Options"
 
-[node name="ButtonQuit" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer"]
+[node name="ButtonQuit" type="Button" parent="Overlay/UIRoot/MarginContainer/VBoxContainer/MenuContainer" unique_id=1787999010]
 custom_minimum_size = Vector2(280, 56)
 layout_mode = 2
 text = "Quit Game"
 
-[node name="BottomSpacer" type="Control" parent="Overlay/UIRoot/MarginContainer/VBoxContainer"]
+[node name="BottomSpacer" type="Control" parent="Overlay/UIRoot/MarginContainer/VBoxContainer" unique_id=109889489]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1143094838]
 stream = ExtResource("13_1vfm6")
 volume_db = -4.402
 autoplay = true

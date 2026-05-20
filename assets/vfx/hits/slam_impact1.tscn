@@ -1,0 +1,147 @@
+[gd_scene format=3 uid="uid://csm254sil4crn"]
+
+[ext_resource type="Texture2D" uid="uid://17be43jg02rt" path="res://assets/vfx/hits/shockwave-ring.png" id="1_71dbs"]
+[ext_resource type="Texture2D" uid="uid://c0gmbxnqkngbw" path="res://assets/vfx/hits/floorcracks.png" id="2_5jiwo"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_q0d4l"]
+size = Vector2(3, 3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_podmy"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.94509804, 0.92156863, 0.90588236, 1)
+albedo_texture = ExtResource("1_71dbs")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_017yc"]
+emission_shape = 1
+emission_sphere_radius = 0.25
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = -5.0
+initial_velocity_max = 5.0
+gravity = Vector3(0, 0.4, 0)
+scale_min = 0.35
+scale_max = 0.9
+color = Color(0.93884987, 0.7875593, 0.634254, 0.6509804)
+
+[sub_resource type="QuadMesh" id="QuadMesh_iuw23"]
+size = Vector2(0.1, 0.1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xf7v2"]
+emission_shape = 1
+emission_sphere_radius = 0.15
+spread = 180.0
+initial_velocity_min = 2.5
+initial_velocity_max = 6.0
+angular_velocity_min = -720.0
+angular_velocity_max = 719.99994
+scale_min = 0.08
+scale_max = 0.22
+
+[sub_resource type="BoxMesh" id="BoxMesh_m1ria"]
+size = Vector3(0.12, 0.12, 0.12)
+
+[sub_resource type="Animation" id="Animation_71dbs"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ShockwaveRing:surface_material_override/0:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.94509804, 0.92156863, 0.90588236, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_3o2w3"]
+resource_name = "impact"
+step = 1.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ShockwaveRing:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.39999998, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0.1, 0.1, 0.1), Vector3(1, 1, 1), Vector3(1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CrackDecal:albedo_mix")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.9, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ShockwaveRing:surface_material_override/0:albedo_color")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.03, 0.35, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.94509804, 0.92156863, 0.90588236, 0), Color(0.94509804, 0.92156863, 0.90588236, 0.3372549), Color(0.94509804, 0.92156863, 0.90588236, 0.67058825), Color(0.94509804, 0.92156863, 0.90588236, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wkjj1"]
+_data = {
+&"RESET": SubResource("Animation_71dbs"),
+&"impact": SubResource("Animation_3o2w3")
+}
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_71dbs"]
+
+[node name="SlamImpact1" type="Node3D" unique_id=1189461321]
+
+[node name="ShockwaveRing" type="MeshInstance3D" parent="." unique_id=1428997856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+layers = 2
+mesh = SubResource("PlaneMesh_q0d4l")
+surface_material_override/0 = SubResource("StandardMaterial3D_podmy")
+
+[node name="CrackDecal" type="Decal" parent="." unique_id=1201380064]
+size = Vector3(2.5, 2.5, 2.5)
+texture_albedo = ExtResource("2_5jiwo")
+albedo_mix = 0.0
+cull_mask = 1048573
+
+[node name="DustParticles" type="GPUParticles3D" parent="." unique_id=270028320]
+visible = false
+emitting = false
+amount = 40
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+randomness = 0.5
+process_material = SubResource("ParticleProcessMaterial_017yc")
+draw_pass_1 = SubResource("QuadMesh_iuw23")
+
+[node name="RockParticles" type="GPUParticles3D" parent="." unique_id=474830624]
+emitting = false
+amount = 30
+lifetime = 0.7
+one_shot = true
+explosiveness = 1.0
+randomness = 0.35
+process_material = SubResource("ParticleProcessMaterial_xf7v2")
+draw_pass_1 = SubResource("BoxMesh_m1ria")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=846364471]
+libraries/ = SubResource("AnimationLibrary_wkjj1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=928102134]
+visible = false
+mesh = SubResource("PlaneMesh_71dbs")

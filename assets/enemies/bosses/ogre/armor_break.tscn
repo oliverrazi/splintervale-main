@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://dqcv4e7btqbek"]
+
+[ext_resource type="ArrayMesh" uid="uid://bre2jschxr1jq" path="res://assets/enemies/bosses/ogre/broken_armor_l.res" id="1_byo6h"]
+[ext_resource type="Shader" uid="uid://5byap4qva0" path="res://scripts/shader/boss_outline.gdshader" id="2_s75sj"]
+[ext_resource type="Shader" uid="uid://cdmtmh53uu0bh" path="res://scripts/shader/boss_pixel_3d.gdshader" id="3_vete4"]
+[ext_resource type="Texture2D" uid="uid://c7u6pddh4v83s" path="res://assets/enemies/bosses/ogre/ogre_broken_armor_ogre_armor.png" id="4_o7mmb"]
+[ext_resource type="ArrayMesh" uid="uid://clavajsbqspw8" path="res://assets/enemies/bosses/ogre/broken_armor_r.res" id="5_bc6o2"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7q0f5"]
+render_priority = 0
+shader = ExtResource("2_s75sj")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5ilvi"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_7q0f5")
+shader = ExtResource("3_vete4")
+shader_parameter/albedo_texture = ExtResource("4_o7mmb")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_byo6h"]
+size = Vector3(0.63983154, 0.638916, 0.2793579)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qbjhc"]
+render_priority = 0
+shader = ExtResource("2_s75sj")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tabx8"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_qbjhc")
+shader = ExtResource("3_vete4")
+shader_parameter/albedo_texture = ExtResource("4_o7mmb")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s75sj"]
+size = Vector3(0.6588135, 0.61828613, 0.31677246)
+
+[node name="ArmorBreak" type="Node3D" unique_id=1488461331]
+
+[node name="Armor_L" type="RigidBody3D" parent="." unique_id=1276887977]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Armor_L" unique_id=2142087745]
+mesh = ExtResource("1_byo6h")
+surface_material_override/0 = SubResource("ShaderMaterial_5ilvi")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Armor_L" unique_id=2031444783]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0020446777, 0.7796631, -0.15988159)
+shape = SubResource("BoxShape3D_byo6h")
+
+[node name="Armor_R" type="RigidBody3D" parent="." unique_id=139518778]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Armor_R" unique_id=1101638359]
+mesh = ExtResource("5_bc6o2")
+surface_material_override/0 = SubResource("ShaderMaterial_tabx8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Armor_R" unique_id=1228218086]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.007385254, 0.77923584, 0.16351318)
+shape = SubResource("BoxShape3D_s75sj")

@@ -1,4 +1,4 @@
-[gd_resource type="ArrayMesh" load_steps=5 format=4 uid="uid://djb7nall6as3x"]
+[gd_resource type="ArrayMesh" format=4 uid="uid://djb7nall6as3x"]
 
 [ext_resource type="Shader" uid="uid://y6s8cwi70byj" path="res://assets/decoration/crystals/crystalshader.gdshader" id="1_3ul63"]
 
