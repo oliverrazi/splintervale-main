@@ -9,8 +9,8 @@ var _material_cache: Dictionary = {}  # source-material-id -> ShaderMaterial
 @export var edge_noise: Texture2D = preload("res://assets/base_tiles/trees/edge_noise.tres")  # falls du den Pfad weißt
 
 @export_group("Occlusion")
-@export var occlusion_radius      := 2.5
-@export var occlusion_softness    := 1.5
+@export var occlusion_radius      := 1.5
+@export var occlusion_softness    := 1.0
 @export var min_alpha             := 0.0
 @export var height_threshold      := -0.3
 @export var height_softness       := 0.6
@@ -23,6 +23,10 @@ var _material_cache: Dictionary = {}  # source-material-id -> ShaderMaterial
 @export var wobble_scale      := 0.12
 @export var rim_strength      := 0.0
 
+const FAR_AWAY := Vector3(99999.0, 0.0, 99999.0)
+var _suppressed: bool = false
+
+
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
@@ -33,6 +37,11 @@ func register_player(player: Node3D) -> void:
 	_player = player
 
 func _process(_delta: float) -> void:
+	if _suppressed:
+		RenderingServer.global_shader_parameter_set("player_world_position", FAR_AWAY)
+		RenderingServer.global_shader_parameter_set("camera_world_position", FAR_AWAY)
+		return
+ 
 	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player")
 		if _player == null: return
@@ -42,6 +51,9 @@ func _process(_delta: float) -> void:
 	RenderingServer.global_shader_parameter_set("player_world_position", _player.global_position)
 	RenderingServer.global_shader_parameter_set("camera_world_position", _camera.global_position)
 
+
+
+@export var debug_occlusion := false
 ## Liefert ein ShaderMaterial für das Quellmaterial - cached nach erstem Aufruf.
 func get_or_create_material(source: BaseMaterial3D) -> ShaderMaterial:
 	if source == null:
@@ -52,6 +64,8 @@ func get_or_create_material(source: BaseMaterial3D) -> ShaderMaterial:
 
 	var sm := ShaderMaterial.new()
 	sm.shader = occlusion_shader
+	
+	sm.set_shader_parameter("debug_occlusion", debug_occlusion)
 
 	# Quell-spezifisch
 	sm.set_shader_parameter("albedo_texture", source.albedo_texture)
@@ -76,3 +90,16 @@ func get_or_create_material(source: BaseMaterial3D) -> ShaderMaterial:
 
 	_material_cache[key] = sm
 	return sm
+	
+func set_suppressed(value: bool) -> void:
+	_suppressed = value
+	if _suppressed:
+		# Sofort einen Frame "weit weg" schreiben, damit der Effekt nicht erst
+		# im naechsten _process verschwindet.
+		RenderingServer.global_shader_parameter_set("player_world_position", FAR_AWAY)
+		RenderingServer.global_shader_parameter_set("camera_world_position", FAR_AWAY)
+ 
+ 
+func is_suppressed() -> bool:
+	return _suppressed
+ 

@@ -44,6 +44,14 @@ extends CharacterBody3D
 @export var UP_RIGHT_RUN_END_FRAME: int = 69
 
 
+@export var DOWN_WALK_FRAMES: Array[int] = [2, 3, 5, 6]
+@export var UP_WALK_FRAMES: Array[int] = [11,12, 14, 15]
+@export var LEFT_WALK_FRAMES: Array[int] = [16, 26, 17, 25]
+
+@export var DOWN_LEFT_WALK_FRAMES: Array[int] = [56, 57, 59, 60]
+@export var UP_RIGHT_WALK_FRAMES: Array[int] = [65, 66, 68, 69]
+
+
 @export_group("Item Pickup")
 @export var item_hold_frame: int = 90
 
@@ -57,6 +65,17 @@ var _is_holding_item: bool = false
 @export var invincibility_duration: float = 0.5
 @export var hurt_flash_duration: float = 0.15
 @export var hurt_blink_speed: float = 0.1
+
+
+@export_group("Hurt Feedback")
+@export var hurt_sounds: Array[AudioStream] = []
+@export var hurt_volume_db: float = -2.0
+@export var hurt_pitch_variation: float = 0.08
+@export var hurt_hitstop_duration: float = 0.12   ## kräftiger als Standard-Treffer (0.15 default)
+@export var hurt_shake_intensity: float = 0.12    ## deutlich stärker als hit_effect (0.03)
+@export var hurt_shake_duration: float = 0.3
+@export var hurt_zoom_amount: float = 2.5         ## kurzer Punch-In bei Treffer
+@export var hurt_zoom_duration: float = 0.25
 
 @export_group("Fall Recovery")
 @export var fall_hp_loss_percent: float = 0.1  # 10%
@@ -132,6 +151,8 @@ const CONSUMABLE_COOLDOWN_TIME: float = 0.5
 
 var _hotbar_held: Array[bool] = [false, false, false, false]
 var _vector_anchor_slot: int = -1
+
+
 
 # ─── Node References ───
 @onready var character: LayeredPixelSprite3D = $charactersprite
@@ -282,6 +303,9 @@ func _physics_process(delta: float) -> void:
 			_check_vector_anchor_release()
 			return
 
+	if sword:
+		sword.process_attack(delta)
+
 	if _is_frozen:
 		return
 
@@ -297,9 +321,6 @@ func _physics_process(delta: float) -> void:
 		_process_knockback(delta)
 		return
 
-	# ─── SwordComponent: Cooldown + Attack Update ───
-	if sword:
-		sword.process_attack(delta)
 
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -532,8 +553,28 @@ func take_damage(amount: int, from_position: Vector3) -> void:
 	if sword and sword.is_attacking():
 		sword.cancel()
 
+	_play_hurt_feedback()
+
 	if not GameManager.player_data.is_alive():
 		_die()
+
+func _play_hurt_feedback() -> void:
+	# SFX über AudioPool (konsistent mit Footsteps/Sword)
+	if not hurt_sounds.is_empty():
+		AudioPool.play_3d(
+			hurt_sounds.pick_random(),
+			global_position,
+			hurt_volume_db,
+			randf_range(1.0 - hurt_pitch_variation, 1.0 + hurt_pitch_variation)
+		)
+
+	if not GameEffects:
+		return
+
+	# Player-Treffer: kräftiger als der Standard-hit_effect bei Gegner-Treffern.
+	GameEffects.hitstop(hurt_hitstop_duration)
+	GameEffects.shake(hurt_shake_intensity, hurt_shake_duration)
+	GameEffects.zoom(hurt_zoom_amount, hurt_zoom_duration)
 
 
 func is_alive() -> bool:
@@ -689,6 +730,58 @@ func _update_animation(dir: Vector2, delta: float) -> void:
 		_anim_time = 0.0
 		_show_idle()
 
+func _animate_walk_8dir(delta: float) -> void:
+	_anim_time += delta
+
+	_footstep_timer -= delta
+	if _footstep_timer <= 0.0:
+		_play_footstep_sound()
+		_footstep_timer = footstep_interval
+
+	var frames: Array[int] = []
+	var flip: bool = false
+
+	match _last_dir_mode:
+		DirMode.DOWN:
+			frames = DOWN_WALK_FRAMES
+
+		DirMode.UP:
+			frames = UP_WALK_FRAMES
+
+		DirMode.LEFT:
+			frames = LEFT_WALK_FRAMES
+
+		DirMode.RIGHT:
+			frames = LEFT_WALK_FRAMES
+			flip = true
+
+		DirMode.DOWN_LEFT:
+			frames = DOWN_LEFT_WALK_FRAMES
+
+		DirMode.DOWN_RIGHT:
+			frames = DOWN_LEFT_WALK_FRAMES
+			flip = true
+
+		DirMode.UP_RIGHT:
+			frames = UP_RIGHT_WALK_FRAMES
+
+		DirMode.UP_LEFT:
+			frames = UP_RIGHT_WALK_FRAMES
+			flip = true
+
+		_:
+			frames = DOWN_WALK_FRAMES
+
+	if frames.is_empty():
+		_show_idle()
+		return
+
+	var frame_index: int = int(floor(_anim_time * WALK_FPS)) % frames.size()
+
+	character.frame = frames[frame_index]
+	character.flip_h = flip
+
+
 
 func _animate_run_8dir(delta: float) -> void:
 	_anim_time += delta
@@ -818,6 +911,9 @@ func _use_hotbar_slot_with_combo(slot_index: int) -> void:
 
 	var item_data: ItemData = inv_manager.get_item_data(item_id)
 	if item_data == null:
+		return
+		
+	if item_data.item_type != ItemData.ItemType.WEAPON and _is_action_locked():
 		return
 
 	match item_data.item_type:
@@ -1187,3 +1283,138 @@ func _update_hand_visibility() -> void:
 	
 	if character.has_layer("vector_anchor"):
 		character.set_layer_visible("vector_anchor", show_vector_anchor and not _is_holding_item)
+		
+		
+func _is_action_locked() -> bool:
+	if sword and sword.is_attacking():
+		return true
+	if sword_spin and sword_spin.is_spinning():
+		return true
+	if dodge_component and dodge_component.is_active_dodge():
+		return true
+	if vector_anchor and vector_anchor.is_active():
+		return true
+	return false
+		
+		
+# CINEMATICS
+
+
+var _cinematic_mode: bool = false
+
+func set_cinematic_mode(active: bool) -> void:
+	_cinematic_mode = active
+	if active:
+		if sword and sword.has_method("cancel") and sword.is_attacking(): sword.cancel()
+		if vector_anchor and vector_anchor.is_active(): vector_anchor.cancel()
+		velocity = Vector3.ZERO
+		_is_knocked_back = false
+		set_frozen(true)
+	else:
+		set_frozen(false)
+
+func cinematic_face(world_dir: Vector3) -> void:
+	if world_dir.length_squared() < 0.0001: return
+	var dir2: Vector2
+	var spring_arm := get_node_or_null("SpringArm3D")
+	if spring_arm:
+		var yaw: float = spring_arm.rotation.y
+		var forward := Vector3(sin(yaw), 0, cos(yaw))
+		var right := Vector3(cos(yaw), 0, -sin(yaw))
+		dir2 = Vector2(world_dir.dot(right), world_dir.dot(forward)).normalized()
+	else:
+		dir2 = Vector2(world_dir.x, world_dir.z).normalized()
+	_last_dir_mode = _get_direction_from_input(dir2)
+	match _last_dir_mode:
+		DirMode.RIGHT, DirMode.DOWN_RIGHT, DirMode.UP_RIGHT:
+			_facing_right = true
+		DirMode.LEFT, DirMode.DOWN_LEFT, DirMode.UP_LEFT:
+			_facing_right = false
+	_show_idle()
+
+func cinematic_show_frame(frame: int, flip_h: bool = false) -> void:
+	if character:
+		character.frame = frame
+		character.flip_h = flip_h
+
+func cinematic_tween_to(target: Vector3, duration: float) -> Tween:
+	var t := create_tween()
+	t.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	t.tween_property(self, "global_position", target, duration)
+	return t
+
+func cinematic_sword_attack(idx: int) -> void:
+	# Schwert-Component triggern; passe den Methodennamen ggf. an
+	if sword and sword.has_method("try_attack"):
+		sword.try_attack(_last_dir_mode)
+
+func cinematic_jump_back(direction: Vector3, h_force: float = 7.0, up_force: float = 5.0) -> void:
+	if direction.length_squared() < 0.0001: return
+	launch_airborne(direction.normalized(), h_force, up_force)
+
+func cinematic_walk_to(target: Vector3, speed: float, anim_speed_scale: float = 1.0) -> void:
+	var start := global_position
+	var flat := target - start
+	flat.y = 0.0
+	if flat.length() < 0.001:
+		return
+ 
+	cinematic_face(flat.normalized())
+	var dist := flat.length()
+	var duration := dist / maxf(speed, 0.01)
+ 
+	_is_moving = true
+	_anim_time = 0.0
+	var elapsed := 0.0
+	while elapsed < duration:
+		var dt := get_process_delta_time()
+		elapsed += dt
+		var k: float = clampf(elapsed / duration, 0.0, 1.0)
+		var e: float = k * k * (3.0 - 2.0 * k)
+		global_position = start.lerp(target, e)
+		_animate_walk_8dir(dt * anim_speed_scale)
+		await get_tree().process_frame
+ 
+	global_position = target
+	_is_moving = false
+	_anim_time = 0.0
+	_show_idle()
+ 
+ 
+# --- Silhouette: Sprite stark abdunkeln / wiederherstellen -----------
+func cinematic_set_dark(color: Color) -> void:
+	if character:
+		character.modulate = color
+ 
+func cinematic_restore_color() -> void:
+	if character:
+		character.modulate = Color.WHITE
+		character.modulate.a = 1.0
+ 
+ 
+# --- Cutscene-Sprite (z.B. Robe) -------------------------------------
+var _saved_cutscene_base: Texture2D = null
+ 
+func cinematic_set_texture(tex: Texture2D) -> void:
+	if character == null or tex == null:
+		return
+	var base_layer := character.get_layer("base") if character.has_layer("base") else null
+	if base_layer:
+		_saved_cutscene_base = base_layer.texture
+	character.set_layer("base", tex, 0)
+	if character.has_layer("weapon"):
+		character.set_layer_visible("weapon", false)
+	if character.has_layer("vector_anchor"):
+		character.set_layer_visible("vector_anchor", false)
+ 
+ 
+func cinematic_restore_texture() -> void:
+	if character == null:
+		return
+	if _saved_cutscene_base:
+		character.set_layer("base", _saved_cutscene_base, 0)
+		_saved_cutscene_base = null
+	if character.has_layer("weapon"):
+		character.set_layer_visible("weapon", true)
+	if character.has_layer("vector_anchor"):
+		character.set_layer_visible("vector_anchor", true)

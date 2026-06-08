@@ -54,6 +54,11 @@ class_name Goblin
 @export var thrust_offset_left: Vector3 = Vector3(-0.2, 0.0, 0.5)
 @export var thrust_offset_up_left: Vector3 = Vector3(-0.1, 0.0, 0.3)
 
+# === VISUAL VARIANT ===
+@export_group("Visual Variant")
+@export var sprite_texture_override: Texture2D
+@export var sprite_modulate_override: Color = Color.WHITE
+
 
 # === FRAME DEFINITIONS ===
 const IDLE_RIGHT: Array[int] = [0, 0]
@@ -154,12 +159,23 @@ var _group: Node = null
 # === ENEMY OVERRIDES ===
 
 func _on_ready_after_terrain() -> void:
+	_apply_visual_variant()
+	
 	_last_position_check = global_position
 	call_deferred("_setup_detection")
 	_state_timer = randf_range(0.0, patrol_wait_time_max)
 
 	if _target == null:
 		_state = State.PATROL_IDLE
+		
+func _apply_visual_variant() -> void:
+	if sprite == null:
+		return
+
+	if sprite_texture_override != null:
+		sprite.texture = sprite_texture_override
+
+	sprite.modulate = sprite_modulate_override
 
 
 func _process_ai(delta: float) -> void:
@@ -282,20 +298,19 @@ func _setup_detection() -> void:
 
 
 func _check_player_detection() -> void:
+	
+	
+	
 	if _group != null and not _was_recently_damaged():
 		return
-
-	if _target == null or not is_instance_valid(_target):
-		_target = get_tree().get_first_node_in_group("player")
-
-	if _target == null:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
 		return
-
-	var distance := global_position.distance_to(_target.global_position)
+	var distance := global_position.distance_to(player.global_position)
 	var effective_range := lose_interest_range if _was_recently_damaged() else detection_range
-
 	if distance <= effective_range:
 		if _state in [State.PATROL_IDLE, State.PATROL_WALK]:
+			_target = player
 			_enter_state(State.ALERT)
 		elif _state == State.ATTACK_RECOVERY and distance > preferred_distance + preferred_distance_tolerance:
 			_enter_state(State.CHASE)
@@ -910,7 +925,7 @@ func _animate_idle() -> void:
 	var data := _get_flip_and_frames_idle()
 	sprite.frame = data.frames[0]
 	sprite.flip_h = data.flip
-	sprite.modulate = Color.WHITE
+	sprite.modulate = sprite_modulate_override
 
 
 func _animate_walk(delta: float) -> void:
@@ -920,7 +935,7 @@ func _animate_walk(delta: float) -> void:
 	var idx: int = int(_anim_time * WALK_FPS) % frames.size()
 	sprite.frame = frames[idx]
 	sprite.flip_h = data.flip
-	sprite.modulate = Color.WHITE
+	sprite.modulate = sprite_modulate_override
 
 
 func _animate_run(delta: float) -> void:
@@ -930,21 +945,21 @@ func _animate_run(delta: float) -> void:
 	var idx: int = int(_anim_time * RUN_FPS) % frame_count
 	sprite.frame = data.start + idx
 	sprite.flip_h = data.flip
-	sprite.modulate = Color.WHITE
+	sprite.modulate = sprite_modulate_override
 
 
 func _show_attack_windup_frame() -> void:
 	var data := _get_flip_and_attack_frames()
 	sprite.frame = data.frames[0]
 	sprite.flip_h = data.flip
-	sprite.modulate = Color.WHITE
+	sprite.modulate = sprite_modulate_override
 
 
 func _show_attack_strike_frame() -> void:
 	var data := _get_flip_and_attack_frames()
 	sprite.frame = data.frames[1]
 	sprite.flip_h = data.flip
-	sprite.modulate = Color.WHITE
+	sprite.modulate = sprite_modulate_override
 
 
 func _animate_hit_damaged(delta: float) -> void:
@@ -953,7 +968,7 @@ func _animate_hit_damaged(delta: float) -> void:
 	sprite.frame = data.frame
 	sprite.flip_h = data.flip
 	var flash := fmod(_anim_time, hit_flash_duration * 2.0) < hit_flash_duration
-	sprite.modulate = Color(1.5, 0.5, 0.5) if flash else Color.WHITE
+	sprite.modulate = Color(1.5, 0.5, 0.5) if flash else sprite_modulate_override
 
 
 # === THRUST VFX ===

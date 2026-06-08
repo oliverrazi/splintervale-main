@@ -79,25 +79,74 @@ shader_parameter/albedo_texture = ExtResource("9_33s5f")
 shader_parameter/posterize_levels = 4
 shader_parameter/stylized_ambient = Color(0.3, 0.3, 0.4, 1)
 
-[node name="ogre2_4" unique_id=1474847185 instance=ExtResource("1_obxw8")]
+[node name="ogre2_4" unique_id=443797214 instance=ExtResource("1_obxw8")]
 
-[node name="Hand" parent="." index="0" unique_id=226579440]
+[node name="Hand" parent="." index="0" unique_id=817293344]
 visible = false
 
-[node name="Hair_001" parent="." index="1" unique_id=1978853276]
+[node name="Hair_001" parent="." index="1" unique_id=2040179223]
 visible = false
 
-[node name="Keule" parent="Armature/Skeleton3D/L Thumb" parent_id_path=PackedInt32Array(895705724) index="0" unique_id=1743159548]
+[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(1762782854) index="0" unique_id=141540053]
+bones/2/rotation = Quaternion(0.41289547, -0.0017909852, 0.0019710795, 0.9107746)
+bones/3/rotation = Quaternion(-0.029300597, -0.03161422, 0.68475056, 0.72750175)
+bones/4/rotation = Quaternion(-0.26837638, -0.11413401, 0.5417605, 0.7883166)
+bones/5/rotation = Quaternion(0.39840022, 0.13812491, 4.9629496e-05, 0.90675175)
+bones/6/rotation = Quaternion(0.14179516, -0.12937464, 0.0041522435, 0.98139656)
+bones/7/rotation = Quaternion(0.7615921, -0.108240545, 0.2354109, 0.594006)
+bones/8/rotation = Quaternion(0.0076039573, 0.12336287, 0.2059056, 0.97073513)
+bones/9/rotation = Quaternion(-0.2753418, 0.19761983, 0.43298677, 0.83525795)
+bones/10/rotation = Quaternion(-0.03483902, 0.037748773, -0.6716555, 0.7390807)
+bones/11/rotation = Quaternion(-0.23588553, -0.113243654, -0.49241674, 0.8300963)
+bones/12/rotation = Quaternion(0.18989915, -0.13958855, -0.14102188, 0.9615437)
+bones/13/rotation = Quaternion(1.4751759e-09, -1.8951232e-07, -0.03194046, 0.9994898)
+bones/14/rotation = Quaternion(0.56650555, -0.16586944, -0.24598524, 0.7687978)
+bones/15/rotation = Quaternion(-0.13825236, -0.07983101, -0.079595305, 0.9839604)
+bones/16/rotation = Quaternion(0.16374646, 0.08033912, -0.43511593, 0.88170683)
+bones/18/rotation = Quaternion(-0.7198912, 0.28779823, 0.0453621, 0.62997717)
+bones/19/rotation = Quaternion(0.08846692, 0.037636142, -0.37890133, 0.9204297)
+bones/20/rotation = Quaternion(0.030641697, 0.02491186, 0.7313842, 0.68082136)
+bones/21/rotation = Quaternion(-0.10439616, 6.163176e-08, -0.17035344, 0.9798373)
+bones/22/position = Vector3(1.2270553e-22, 0.5286882, 3.5527137e-15)
+bones/23/rotation = Quaternion(-0.63246614, -0.24229088, -0.10068075, 0.72879714)
+bones/24/rotation = Quaternion(-0.08092643, 0.017717604, 0.3000439, 0.9503214)
+bones/25/rotation = Quaternion(-0.011925401, -0.02364193, -0.70108235, 0.7125886)
+bones/26/rotation = Quaternion(0.15431893, 4.2711466e-07, 0.11884868, 0.98084694)
+bones/27/position = Vector3(-4.4824913e-10, 0.5286882, 1.2602448e-10)
+bones/27/rotation = Quaternion(0.98968536, 0.00013668714, -0.13673396, -0.042740323)
+bones/28/position = Vector3(0.029566549, 0.010432775, -0.21654756)
+bones/28/rotation = Quaternion(-0.15962666, -0.06388683, -0.076044954, 0.9821685)
+bones/30/position = Vector3(-0.07969415, 0.018947598, -0.20081632)
+bones/30/rotation = Quaternion(-0.12537101, -0.02938729, 0.1260775, 0.98362744)
+bones/31/rotation = Quaternion(0.041968986, 0.001657065, 0.01874593, 0.99894166)
+bones/32/position = Vector3(0.008011386, 0.042646546, 0.19439578)
+bones/33/rotation = Quaternion(0.011208303, 0.0017990913, -0.044577826, 0.9989414)
+bones/34/position = Vector3(0.107556485, 0.049724046, 0.16984722)
+bones/35/rotation = Quaternion(-0.044350084, 0.0016731389, -0.012077197, 0.99894166)
+
+[node name="Neck" parent="Armature/Skeleton3D" index="0" unique_id=314257705]
+transform = Transform3D(0.99997246, 1.0780283e-09, -0.007419994, -0.0055805966, 0.65904623, -0.75208145, 0.00489012, 0.75210226, 0.65902805, 0.0020491788, 0.97131145, 3.57923e-08)
+
+[node name="L Thumb" parent="Armature/Skeleton3D" index="1" unique_id=378537095]
+transform = Transform3D(-0.7135171, 0.5979808, 0.36511928, 0.63392746, 0.32906225, 0.6998956, 0.29837704, 0.7308467, -0.613868, -0.59129244, 0.4991279, -0.0028542504)
+
+[node name="Keule" parent="Armature/Skeleton3D/L Thumb" index="0" unique_id=277704259]
 surface_material_override/0 = SubResource("ShaderMaterial_163tx")
 
-[node name="Armor" parent="Armature/Skeleton3D/Spine" parent_id_path=PackedInt32Array(1130210976) index="0" unique_id=563523601]
+[node name="L Shoulder" parent="Armature/Skeleton3D" index="2" unique_id=741555317]
+transform = Transform3D(0.067910746, -0.9939668, -0.0861286, 0.99767417, 0.068164125, -8.688973e-07, 0.005871739, -0.08592822, 0.996284, 0.0020491788, 0.97131145, 3.57923e-08)
+
+[node name="R Shoulder" parent="Armature/Skeleton3D" index="3" unique_id=372524923]
+transform = Transform3D(0.08724815, 0.99088895, 0.1026014, -0.99614596, 0.087711036, 3.5536374e-09, -0.008999271, -0.102205954, 0.99472255, 0.0020491788, 0.97131145, 3.57923e-08)
+
+[node name="Armor" parent="Armature/Skeleton3D/Spine" parent_id_path=PackedInt32Array(154804035) index="0" unique_id=1503374779]
 surface_material_override/0 = SubResource("ShaderMaterial_jh4ib")
 
-[node name="Cape" parent="Armature/Skeleton3D/Spine" parent_id_path=PackedInt32Array(1130210976) index="1" unique_id=581831297]
+[node name="Cape" parent="Armature/Skeleton3D/Spine" parent_id_path=PackedInt32Array(154804035) index="1" unique_id=1571314137]
 surface_material_override/0 = SubResource("ShaderMaterial_f2pax")
 
-[node name="Oger" parent="Armature/Skeleton3D" parent_id_path=PackedInt32Array(515730975) index="5" unique_id=1253518419]
+[node name="Oger" parent="Armature/Skeleton3D" index="5" unique_id=1322498046]
 surface_material_override/0 = SubResource("ShaderMaterial_f5yuj")
 
-[node name="Schurz" parent="Armature/Skeleton3D" parent_id_path=PackedInt32Array(515730975) index="6" unique_id=194714]
+[node name="Schurz" parent="Armature/Skeleton3D" index="6" unique_id=1201882480]
 surface_material_override/0 = SubResource("ShaderMaterial_xdh7c")

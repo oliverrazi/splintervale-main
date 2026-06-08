@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bbof3ygfcjwm1"]
+
+[ext_resource type="PackedScene" uid="uid://b1rg206hhelcg" path="res://assets/base_tiles/wilds/pinetree_log.glb" id="1_8txl8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8txl8"]
+size = Vector3(0.5338898, 0.51760864, 2.3405762)
+
+[node name="pinetree_log" unique_id=1541708549 instance=ExtResource("1_8txl8")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="2" unique_id=953845629]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=834338850]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1185379, 0.21577454, -0.00012207031)
+shape = SubResource("BoxShape3D_8txl8")

@@ -1,0 +1,52 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://b3jdvmiqkrk3h"]
+
+[ext_resource type="Texture2D" uid="uid://5fp8ph8pgirm" path="res://assets/decoration/griffin_mythstone.png" id="1_517ai"]
+
+[sub_resource type="Shader" id="Shader_oo03c"]
+code = "shader_type spatial;
+render_mode cull_front, depth_draw_opaque, unshaded;
+
+uniform vec4 outline_color : source_color = vec4(0.05, 0.05, 0.05, 1.0);
+uniform float outline_width = 0.008;
+
+
+void vertex() {
+    VERTEX += NORMAL * outline_width;
+}
+
+void fragment() {
+    ALBEDO = outline_color.rgb;
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wtrwi"]
+render_priority = 0
+shader = SubResource("Shader_oo03c")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.018
+
+[sub_resource type="Shader" id="Shader_26jhm"]
+code = "shader_type spatial;
+render_mode depth_draw_opaque, cull_back;
+uniform sampler2D albedo_texture : source_color, filter_nearest, repeat_disable;
+uniform int posterize_levels : hint_range(2, 16) = 4;
+uniform vec3 stylized_ambient : source_color = vec3(0.3, 0.3, 0.4);
+void fragment() {
+    vec4 albedo_col = texture(albedo_texture, UV);
+    ALBEDO = albedo_col.rgb;
+}
+void light() {
+    float ndotl = max(dot(NORMAL, LIGHT), 0.0);
+    float posterized = round(ndotl * (float(posterize_levels) - 1.0)) / (float(posterize_levels) - 1.0);
+    DIFFUSE_LIGHT += ALBEDO * LIGHT_COLOR.rgb * posterized * ATTENUATION;
+
+    // Ambient als minimum hinzu (nicht akkumulieren über mehrere Lichter)
+    DIFFUSE_LIGHT = max(DIFFUSE_LIGHT, ALBEDO * stylized_ambient);
+}"
+
+[resource]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_wtrwi")
+shader = SubResource("Shader_26jhm")
+shader_parameter/albedo_texture = ExtResource("1_517ai")
+shader_parameter/posterize_levels = 14
+shader_parameter/stylized_ambient = Color(0.7747373, 0.77675706, 0.8503861, 1)

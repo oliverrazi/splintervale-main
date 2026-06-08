@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c48hni57aonml"]
+[gd_scene format=3 uid="uid://c48hni57aonml"]
 
 [ext_resource type="Script" uid="uid://beu4q647ksao6" path="res://assets/items/small_chest.gd" id="1_67gdy"]
 [ext_resource type="ArrayMesh" uid="uid://c8ip1xjvdr10n" path="res://assets/items/ChestBody2.tres" id="2_67gdy"]
@@ -10,30 +10,30 @@ size = Vector3(0.9003906, 0.9582825, 1.15979)
 [sub_resource type="BoxShape3D" id="BoxShape3D_uk2yu"]
 size = Vector3(0.77264404, 0.53100586, 0.9525757)
 
-[node name="SmallChest" type="Node3D"]
+[node name="SmallChest" type="Node3D" unique_id=1232871203]
 script = ExtResource("1_67gdy")
 lid_open_angle = 110.0
 lid_open_duration = 2.0
 lid_rotation_axis = "z"
 
-[node name="ChestBody" type="StaticBody3D" parent="."]
+[node name="ChestBody" type="StaticBody3D" parent="." unique_id=2080901579]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ChestBody"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ChestBody" unique_id=1198481165]
 mesh = ExtResource("2_67gdy")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ChestBody"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ChestBody" unique_id=1008209062]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.049804688, 0.5034332, -0.005065918)
 shape = SubResource("BoxShape3D_e3hoj")
 
-[node name="Lid" type="Node3D" parent="."]
+[node name="Lid" type="Node3D" parent="." unique_id=1487044654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38664943, 0.5811984, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Lid"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Lid" unique_id=529071042]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00552395, -0.0049619675, -0.002625227)
 mesh = ExtResource("3_343nd")
 
-[node name="InteractionArea" type="Area3D" parent="."]
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1723298520]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=2120770574]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.41303182, 0.23449707, -0.0018005371)
 shape = SubResource("BoxShape3D_uk2yu")

@@ -106,6 +106,9 @@ signal target_confused(target: Node3D, duration: float)
 @export var bounce_max_duration: float = 1.6        # Sicherheits-Timeout
 @export var bounce_invincible: bool = false
 
+@export var block_bounce_speed_multiplier: float = 0.85   # mehr Rückstoß als Wand (0.35)
+@export var block_bounce_upward_kick: float = 1.5
+
 
 @export_group("Launch Impact VFX")
 @export var launch_impact_scene: PackedScene
@@ -122,6 +125,9 @@ signal target_confused(target: Node3D, duration: float)
 @export var land_sound: AudioStream
 
 @export var dive_strike_path: NodePath = "../DiveStrikeComponent"
+
+@export var block_check_progress: float = 0.40   # ~Apex (0.5 wäre exakt über Oger)
+var _block_triggered: bool = false
 
 # === TARGETING ===
 const TARGETABLE_GROUPS: Array[String] = ["enemies", "enemy", "targetable", "projectile"]
@@ -225,6 +231,9 @@ func start_charging() -> bool:
 		return false
 	
 	if _player == null:
+		return false
+	
+	if _player.has_method("_is_action_locked") and _player._is_action_locked():
 		return false
 	
 	if not _has_resonance(resonance_drain_per_second * 0.016):
@@ -595,12 +604,6 @@ func _on_projectile_hit() -> void:
 		_cancel_ability("projectile_reflected")
 		return
 		
-	if _current_target.has_method("vector_anchor_blocks") and _current_target.vector_anchor_blocks():
-		var blocker: Node = _current_target
-		_cancel_ability("blocked")              # Komponente zuerst sauber zurück auf IDLE
-		if blocker.has_method("on_vector_anchor_blocked"):
-			blocker.on_vector_anchor_blocked(_player)
-		return
 	
 	_start_launch()
 
@@ -670,6 +673,7 @@ func _start_launch() -> void:
 	
 	_state = State.LAUNCHING
 	_launch_progress = 0.0
+	_block_triggered = false
 	_afterimage_timer = 0.0
 	_afterimages_spawned = 0
 	_confusion_triggered = false
@@ -735,6 +739,15 @@ func _process_launching(delta: float) -> void:
 	
 	if _launch_progress >= 1.0:
 		_complete_launch()
+		return
+		
+	if not _block_triggered \
+	and _launch_progress >= block_check_progress \
+	and _current_target != null and is_instance_valid(_current_target) \
+	and _current_target.has_method("vector_anchor_blocks") \
+	and _current_target.vector_anchor_blocks():
+		_block_triggered = true
+		_on_blocked_mid_launch()
 		return
 	
 	if confuse_enemy and not _confusion_triggered and _launch_progress >= confusion_trigger_point:
@@ -1913,6 +1926,43 @@ func _get_target_indicator_position(target: Node3D) -> Vector3:
 	if target.has_method("get_vector_anchor_indicator_position"):
 		return target.get_vector_anchor_indicator_position()
 	return target.global_position
+	
+func _on_blocked_mid_launch() -> void:
+	var blocker: Node = _current_target
+	
+	# Block-spezifischer Bounce — eigene Werte, kein _show_idle, keine i-Frames
+	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
+	flight_dir.y = 0.0
+	if flight_dir.length_squared() < 0.0001:
+		flight_dir = _player.global_position - _launch_target_pos
+		flight_dir.y = 0.0
+	if flight_dir.length_squared() < 0.0001:
+		flight_dir = Vector3.FORWARD
+	flight_dir = flight_dir.normalized()
+	
+	var launch_distance: float = _launch_start_pos.distance_to(_launch_end_pos)
+	var launch_speed: float = launch_distance / launch_duration
+	_bounce_velocity = -flight_dir * launch_speed * block_bounce_speed_multiplier
+	_bounce_velocity.y = block_bounce_upward_kick
+	_bounce_time = 0.0
+	_bounce_start_y = _launch_start_pos.y
+	_player.global_position -= flight_dir * 0.05
+	_state = State.BOUNCING
+	
+	# launch_invincible-Schutz aufheben, sonst kommt der Damage nicht durch
+	if _player and "_invincibility_timer" in _player:
+		_player._invincibility_timer = 0.0
+	
+	# Oger: Block-Anim + take_damage + ImpactVFX
+	if blocker and is_instance_valid(blocker) and blocker.has_method("on_vector_anchor_blocked"):
+		blocker.on_vector_anchor_blocked(_player)
+	
+	# Hurt-Frame manuell setzen — _process_invincibility läuft im BOUNCING nicht
+	if _player and _sprite and _player.has_method("_get_hurt_frame"):
+		var hd: Dictionary = _player._get_hurt_frame()
+		if hd.has("frame"):
+			_sprite.frame = hd.frame
+			_sprite.flip_h = hd.flip
 
 
 # ============================================
@@ -1964,3 +2014,13 @@ func _on_dive_cancelled(_reason: String) -> void:
 	_state = State.IDLE
 	_current_target = null
 	ability_cancelled.emit("dive_cancelled")
+
+
+
+func cinematic_launch_at(target: Node3D) -> void:
+	if target == null or not is_instance_valid(target): return
+	if _player == null: return
+	_current_target = target
+	_block_triggered = false
+	_start_launch()
+	#_start_launch(target.global_position)

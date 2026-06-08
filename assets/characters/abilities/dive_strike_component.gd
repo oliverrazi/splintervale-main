@@ -73,6 +73,9 @@ signal dive_cancelled(reason: String)
 
 const SYNERGY_ID: String = "dive_strike"
 
+@export_group("Cinematic Mode")
+@export var cinematic_mode: bool = false
+
 # === STATE ===
 enum State { IDLE, HANG, STRIKE }
 var _state: State = State.IDLE
@@ -339,7 +342,21 @@ func _process_dive_strike(delta: float) -> void:
 
 
 func _on_dive_impact(impact_pos: Vector3) -> void:
-	# Player auf Boden snapping
+	# AOE-Damage + VFX laufen immer
+	_apply_dive_aoe_damage(impact_pos)
+	_spawn_dive_impact_vfx(impact_pos)
+	_apply_camera_shake()
+	_play_sound(dive_impact_sound)
+
+	if cinematic_mode:
+		# Director übernimmt Position und Frame-Halten.
+		# Hier NICHT _show_idle() callen, NICHT global_position überschreiben,
+		# NICHT den attack_cooldown anfassen.
+		_state = State.IDLE
+		dive_completed.emit()
+		return
+
+	# ─── Normalbetrieb ───
 	var space_state := _player.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.create(
 		impact_pos + Vector3(0, 0.5, 0),
@@ -348,30 +365,18 @@ func _on_dive_impact(impact_pos: Vector3) -> void:
 	ray.collision_mask = _player.collision_mask
 	ray.exclude = [_player.get_rid()]
 	var hit := space_state.intersect_ray(ray)
-	
+
 	var ground_pos: Vector3 = impact_pos
 	if not hit.is_empty():
 		ground_pos = hit.position + Vector3(0, 0.02, 0)
-	
+
 	_player.global_position = ground_pos
-	
-	# AOE Damage
-	_apply_dive_aoe_damage(ground_pos)
-	
-	# VFX
-	_spawn_dive_impact_vfx(ground_pos)
-	_apply_camera_shake()
-	_play_sound(dive_impact_sound)
-	
-	#if dive_hitstop_on_impact > 0.0 and GameEffects:
-		#GameEffects.hitstop(dive_hitstop_on_impact)
-	
-	# Player-State zurücksetzen
+
 	if _player.has_method("_show_idle"):
 		_player._show_idle()
 	if "_attack_cooldown_timer" in _player:
 		_player._attack_cooldown_timer = 0.0
-	
+
 	_state = State.IDLE
 	dive_completed.emit()
 
@@ -427,18 +432,21 @@ func _try_hit_dive_enemy(enemy: Node, is_aoe: bool) -> void:
 		bounced = (enemy.take_dive_strike(damage, _player.global_position) == true)
 	else:
 		enemy.take_damage(damage, _player.global_position)
-	if bounced:
+	if bounced and not cinematic_mode:
 		var bp: Vector3 = enemy.global_position + Vector3(0, dive_impact_y_offset, 0)
 		_bounce_off_dive(enemy)
 		return
 	
+	
+	
 	# Knockback
-	var knockback_dir: Vector3 = enemy.global_position - _player.global_position
-	knockback_dir.y = 0
-	if knockback_dir.length_squared() > 0.0001:
-		knockback_dir = knockback_dir.normalized()
-		if "_knockback_velocity" in enemy:
-			enemy._knockback_velocity += knockback_dir * dive_knockback_strength
+	if not cinematic_mode:
+		var knockback_dir: Vector3 = enemy.global_position - _player.global_position
+		knockback_dir.y = 0
+		if knockback_dir.length_squared() > 0.0001:
+			knockback_dir = knockback_dir.normalized()
+			if "_knockback_velocity" in enemy:
+				enemy._knockback_velocity += knockback_dir * dive_knockback_strength
 	
 	# Impact-VFX
 	var impact_pos: Vector3 = enemy.global_position + Vector3(0, dive_impact_y_offset, 0)
@@ -448,7 +456,7 @@ func _try_hit_dive_enemy(enemy: Node, is_aoe: bool) -> void:
 		CombatVFXUtils.spawn_impact(self, dive_impact_scene, impact_pos, dive_impact_scale, dive_impact_delay, dive_impact_lifetime)
 	
 	# Hitstop bei direkten Treffern
-	if not is_aoe and dive_hitstop_on_direct_hit > 0.0 and GameEffects:
+	if not is_aoe and dive_hitstop_on_direct_hit > 0.0 and GameEffects and not cinematic_mode:
 		GameEffects.hitstop(dive_hitstop_on_direct_hit)
 
 

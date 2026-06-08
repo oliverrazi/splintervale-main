@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://17be43jg02rt" path="res://assets/vfx/hits/shockwave-ring.png" id="1_71dbs"]
 [ext_resource type="Texture2D" uid="uid://c0gmbxnqkngbw" path="res://assets/vfx/hits/floorcracks.png" id="2_5jiwo"]
+[ext_resource type="Script" uid="uid://5m77h5pfw6wv" path="res://scripts/combat/vfx_hit_area.gd" id="3_5jiwo"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_q0d4l"]
 size = Vector2(3, 3)
@@ -42,7 +43,7 @@ scale_max = 0.22
 size = Vector3(0.12, 0.12, 0.12)
 
 [sub_resource type="Animation" id="Animation_71dbs"]
-length = 0.001
+length = 0.06666667
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -55,10 +56,35 @@ tracks/0/keys = {
 "update": 0,
 "values": [Color(0.94509804, 0.92156863, 0.90588236, 1)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HitArea:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HitArea:monitoring")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_3o2w3"]
 resource_name = "impact"
-step = 1.2
+length = 1.05
+step = 0.01
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -66,7 +92,7 @@ tracks/0/path = NodePath("ShockwaveRing:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.39999998, 0.7),
+"times": PackedFloat32Array(0, 0.6, 0.7),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
 "values": [Vector3(0.1, 0.1, 0.1), Vector3(1, 1, 1), Vector3(1, 1, 1)]
@@ -78,7 +104,7 @@ tracks/1/path = NodePath("CrackDecal:albedo_mix")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.08, 1),
+"times": PackedFloat32Array(0, 0.2, 0.8),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
 "values": [0.0, 0.9, 0.0]
@@ -95,6 +121,30 @@ tracks/2/keys = {
 "update": 0,
 "values": [Color(0.94509804, 0.92156863, 0.90588236, 0), Color(0.94509804, 0.92156863, 0.90588236, 0.3372549), Color(0.94509804, 0.92156863, 0.90588236, 0.67058825), Color(0.94509804, 0.92156863, 0.90588236, 0)]
 }
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HitArea:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.1, 0.1, 0.1), Vector3(1, 1, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HitArea:monitoring")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.51),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wkjj1"]
 _data = {
@@ -104,10 +154,14 @@ _data = {
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_71dbs"]
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_q0d4l"]
+height = 0.026855469
+radius = 1.4365234
+
 [node name="SlamImpact1" type="Node3D" unique_id=1189461321]
 
 [node name="ShockwaveRing" type="MeshInstance3D" parent="." unique_id=1428997856]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+transform = Transform3D(0.93999994, 0, 0, 0, 0.93999994, 0, 0, 0, 0.93999994, 0, 0.03, 0)
 layers = 2
 mesh = SubResource("PlaneMesh_q0d4l")
 surface_material_override/0 = SubResource("StandardMaterial3D_podmy")
@@ -115,7 +169,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_podmy")
 [node name="CrackDecal" type="Decal" parent="." unique_id=1201380064]
 size = Vector3(2.5, 2.5, 2.5)
 texture_albedo = ExtResource("2_5jiwo")
-albedo_mix = 0.0
+albedo_mix = 0.35999998
 cull_mask = 1048573
 
 [node name="DustParticles" type="GPUParticles3D" parent="." unique_id=270028320]
@@ -145,3 +199,11 @@ libraries/ = SubResource("AnimationLibrary_wkjj1")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=928102134]
 visible = false
 mesh = SubResource("PlaneMesh_71dbs")
+
+[node name="HitArea" type="Area3D" parent="." unique_id=838308265]
+transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.14043531, 0)
+script = ExtResource("3_5jiwo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitArea" unique_id=1295493701]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.11254883, 0)
+shape = SubResource("CylinderShape3D_q0d4l")

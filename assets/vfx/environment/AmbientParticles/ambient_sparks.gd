@@ -2,7 +2,7 @@ extends Node3D
 
 @export var follow_player: bool = true
 @export var offset: Vector3 = Vector3(0, 2, 0)
-@export var glow_color: Color = Color(1.285, 2.454, 1.663, 1.0)
+@export var glow_color: Color = Color(0.0, 1.315, 1.625, 1.0)
 @export var glow_intensity: float = 3.0
 
 @onready var particles: GPUParticles3D = $GPUParticles3D

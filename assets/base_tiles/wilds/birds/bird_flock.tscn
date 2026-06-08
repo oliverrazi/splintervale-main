@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cf884lkrma4qa"]
+
+[ext_resource type="Script" uid="uid://h6f5lwhv42i6" path="res://assets/base_tiles/wilds/birds/bird_flock.gd" id="1_44mjk"]
+[ext_resource type="Texture2D" uid="uid://dt66ik1pykp4e" path="res://assets/base_tiles/wilds/birds/bird.png" id="2_3ci65"]
+
+[node name="BirdFlock" type="Node3D" unique_id=409348720]
+script = ExtResource("1_44mjk")
+bird_texture = ExtResource("2_3ci65")

@@ -66,3 +66,12 @@ func _swap_players() -> void:
 	var temp := _current_player
 	_current_player = _next_player
 	_next_player = temp
+	
+func pause_music() -> void:
+	_current_player.stream_paused = true
+	_next_player.stream_paused = true
+
+
+func resume_music() -> void:
+	_current_player.stream_paused = false
+	_next_player.stream_paused = false

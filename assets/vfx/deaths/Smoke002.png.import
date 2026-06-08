@@ -3,20 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dj4sqfc0g2502"
-path.s3tc="res://.godot/imported/Smoke002.png-ddc0ce6772d683edb35f86552e9272dd.s3tc.ctex"
+path="res://.godot/imported/Smoke002.png-ddc0ce6772d683edb35f86552e9272dd.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/vfx/deaths/Smoke002.png"
-dest_files=["res://.godot/imported/Smoke002.png-ddc0ce6772d683edb35f86552e9272dd.s3tc.ctex"]
+dest_files=["res://.godot/imported/Smoke002.png-ddc0ce6772d683edb35f86552e9272dd.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

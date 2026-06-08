@@ -119,6 +119,9 @@ SPEED = 3.0
 JUMP_VELOCITY = 2.0
 invincibility_duration = 0.8
 hurt_blink_speed = 0.2
+hurt_sounds = Array[AudioStream]([ExtResource("7_4wng8")])
+hurt_shake_duration = 0.2
+hurt_zoom_amount = 0.5
 levelup_popup_scene = ExtResource("9_ltcqi")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=125148006]

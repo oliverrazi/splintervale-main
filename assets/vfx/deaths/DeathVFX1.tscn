@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://jrf05g6oulvw"]
+[gd_scene format=3 uid="uid://jrf05g6oulvw"]
 
 [ext_resource type="Texture2D" uid="uid://cvi6t08ypwidx" path="res://assets/vfx/deaths/Smoke001_pixelated.png" id="1_7uuuy"]
 [ext_resource type="Texture2D" uid="uid://v70f15ek0k0w" path="res://assets/vfx/hits/Flash001.png" id="2_7uuuy"]
@@ -50,8 +50,8 @@ initial_velocity_max = 2.0
 angular_velocity_min = -50.000015
 angular_velocity_max = 49.99998
 gravity = Vector3(0, 0, 0)
-scale_min = 0.5
-scale_max = 0.79999995
+scale_min = 0.049999997
+scale_max = 0.08
 scale_curve = SubResource("CurveTexture_sru0a")
 scale_over_velocity_max = 2.0
 color_ramp = SubResource("GradientTexture1D_b3ik2")
@@ -105,20 +105,20 @@ alpha_curve = SubResource("CurveTexture_1vbun")
 
 [sub_resource type="QuadMesh" id="QuadMesh_8wemi"]
 
-[node name="DeathVfx1" type="Node3D"]
+[node name="DeathVfx1" type="Node3D" unique_id=1775205446]
 
-[node name="Smoke" type="GPUParticles3D" parent="."]
+[node name="Smoke" type="GPUParticles3D" parent="." unique_id=1501968743]
 material_override = SubResource("StandardMaterial3D_7uuuy")
 emitting = false
-amount = 40
-lifetime = 0.5
+amount = 5
+lifetime = 0.3
 one_shot = true
 speed_scale = 0.7
 fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_pqqjw")
 draw_pass_1 = SubResource("QuadMesh_ae34f")
 
-[node name="Sparks" type="GPUParticles3D" parent="."]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1059887927]
 material_override = SubResource("StandardMaterial3D_wnlha")
 emitting = false
 amount = 40

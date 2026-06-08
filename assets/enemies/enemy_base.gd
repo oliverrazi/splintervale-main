@@ -75,6 +75,8 @@ class_name Enemy
 @export var death_vfx_lifetime: float = 2.0
 @export var death_sound: AudioStream
 
+@export var ash_death_scene: PackedScene
+
 @export_group("Drowning")
 @export var drown_duration: float = 0.7
 @export var drown_flip_interval: float = 0.1
@@ -105,7 +107,22 @@ var _drown_flip_state: bool = false
 # === INTERNAL STATE ===
 var _health: int
 var _spawn_position: Vector3
-var _target: Node3D = null
+
+var _target: Node3D = null:
+	set(value):
+		if value == _target:
+			return
+		_target = value
+		_sync_combat_state()
+		
+func _sync_combat_state() -> void:
+	if not has_node("/root/CombatManager"):
+		return
+	if _target != null:
+		CombatManager.engage_enemy(self)
+	else:
+		CombatManager.disengage_enemy(self)
+
 var _player_ref: Node3D = null
 var _is_frozen: bool = false
 var _is_dead: bool = false
@@ -134,6 +151,8 @@ var sprite: SmoothPixelSprite3D  = null
 var _death_phase: int = 0
 var _death_timer: float = 0.0
 var _rewards_given: bool = false
+
+var _ash_spawned: bool = false
 
 # Stuck Detection
 var _last_position_check: Vector3 = Vector3.ZERO
@@ -451,11 +470,17 @@ func _die() -> void:
 		_end_confusion()
 	
 	_is_dead = true
+	
+	if has_node("/root/CombatManager"):
+		CombatManager.disengage_enemy(self)
+		
 	velocity = Vector3.ZERO
 	_anim_time = 0.0
 	_death_phase = 0
 	_death_timer = 0.0
 	_rewards_given = false
+	
+	_ash_spawned = false
 	
 	_hp_bar_visible(false)
 	
@@ -463,11 +488,16 @@ func _die() -> void:
 	
 	_on_death()
 	
+	
 func kill_instantly() -> void:
 	if _is_dead:
 		return
 
 	_is_dead = true
+	
+	if has_node("/root/CombatManager"):
+		CombatManager.disengage_enemy(self)
+	
 	velocity = Vector3.ZERO
 	_hp_bar_visible(false)
 
@@ -531,11 +561,23 @@ func _process_death(delta: float) -> void:
 				_death_timer = death_dissolve_time
 		
 		2:
+			if not _ash_spawned:
+				_ash_spawned = true
+			if ash_death_scene and sprite:
+				var ash := ash_death_scene.instantiate()
+				get_tree().current_scene.add_child(ash)
+				if ash.has_method("play"):
+					ash.play(sprite, death_dissolve_time)
+				sprite.visible = false
+				
 			_death_timer -= delta
-			var progress := 1.0 - (_death_timer / maxf(death_dissolve_time, 0.01))
-			progress = clampf(progress, 0.0, 1.0)
-			sprite.modulate.a = 1.0 - progress
-			
+
+			# Fallback: alter Alpha-Fade nur, wenn keine Ash-Szene gesetzt
+			if ash_death_scene == null and sprite:
+				var progress := 1.0 - (_death_timer / maxf(death_dissolve_time, 0.01))
+				progress = clampf(progress, 0.0, 1.0)
+				sprite.modulate.a = 1.0 - progress
+
 			if _death_timer <= 0.0:
 				_finish_death()
 
@@ -821,3 +863,13 @@ func get_target() -> Node3D:
 
 func set_target(new_target: Node3D) -> void:
 	_target = new_target
+	
+func get_player() -> Node3D:
+	if _player_ref == null or not is_instance_valid(_player_ref):
+		_player_ref = get_tree().get_first_node_in_group("player")
+	return _player_ref
+	
+
+func _exit_tree() -> void:
+	if has_node("/root/CombatManager"):
+		CombatManager.disengage_enemy(self)

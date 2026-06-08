@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://f6trxuxb5mbl"]
+
+[ext_resource type="PackedScene" uid="uid://bmhhmydwucog8" path="res://assets/base_tiles/trees/pine/pinetree_cut.glb" id="1_8dj77"]
+
+[node name="pinetree_cut" unique_id=999307076 instance=ExtResource("1_8dj77")]

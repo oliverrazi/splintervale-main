@@ -344,16 +344,13 @@ func _process_ai(delta: float) -> void:
 # === PLAYER DETECTION ===
 
 func _check_player_detection() -> void:
-	if _target == null or not is_instance_valid(_target):
-		_target = get_tree().get_first_node_in_group("player")
-
-	if _target == null:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
 		return
-
-	var distance := global_position.distance_to(_target.global_position)
-
+	var distance := global_position.distance_to(player.global_position)
 	if distance <= detection_range:
 		if _state in [State.PATROL_IDLE, State.PATROL_FLOAT]:
+			_target = player
 			_enter_state(State.ALERT)
 	elif distance > lose_interest_range:
 		if _state in [State.ORBIT, State.ATTACK_COOLDOWN]:

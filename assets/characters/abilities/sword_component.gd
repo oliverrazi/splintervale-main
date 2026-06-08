@@ -416,6 +416,11 @@ func _get_attack_world_dir() -> Vector3:
 		return Vector3.ZERO
 	return (_spring_arm.transform.basis * Vector3(dir2.x, 0, dir2.y)).normalized()
 
+func can_chain() -> bool:
+	return _is_attacking and _attack_can_chain and _attack_step < 3
+	
+func get_current_step() -> int:
+	return _attack_step
 
 # ─── Internal: Slash VFX ───
 
@@ -491,7 +496,8 @@ func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
 		
 		if not _hit_already:
 			body.take_damage(actual_damage, source_pos)
-			_hit_already = true
+			#wollen wir erstmal nicht mehr
+			#_hit_already = true
 			
 			if _synergy_manager != null:
 				_synergy_manager.extend_combo_on_normal_hit()

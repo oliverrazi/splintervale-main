@@ -1,0 +1,263 @@
+[gd_scene format=3 uid="uid://l30x0px3tdae"]
+
+[ext_resource type="Script" uid="uid://dmqqjnsys3pbc" path="res://assets/enemies/assets/boss_ash_death.gd" id="1_script"]
+[ext_resource type="Shader" uid="uid://buc3ae5do7q3e" path="res://assets/enemies/assets/dissolve_ash.gdshader" id="2_ghost_shader"]
+
+[sub_resource type="FastNoiseLite" id="ghost_noise_fnl"]
+frequency = 0.04
+
+[sub_resource type="NoiseTexture2D" id="ghost_noise_tex"]
+noise = SubResource("ghost_noise_fnl")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ghost_mat"]
+render_priority = 0
+shader = ExtResource("2_ghost_shader")
+shader_parameter/hframes = 1
+shader_parameter/vframes = 1
+shader_parameter/frame = 0
+shader_parameter/flip_h = false
+shader_parameter/noise_tex = SubResource("ghost_noise_tex")
+shader_parameter/dissolve = 0.0
+shader_parameter/edge_width = 0.04
+shader_parameter/dissolve_pixel_resolution = 128.0
+shader_parameter/white_mix = 0.0
+shader_parameter/black_mix = 0.0
+shader_parameter/sprite_modulate = Color(1, 1, 1, 1)
+shader_parameter/fade_in = 0.0
+shader_parameter/edge_color = Color(0.7, 0.2, 1, 1)
+shader_parameter/emission_strength = 0.15
+shader_parameter/wind_dir = Vector2(1, -0.35)
+shader_parameter/wind_skew = 0.0
+shader_parameter/z_bias = 0.01
+
+[sub_resource type="QuadMesh" id="ghost_mesh"]
+
+[sub_resource type="Gradient" id="smoke_gradient"]
+offsets = PackedFloat32Array(0, 0.2, 0.7, 1)
+colors = PackedColorArray(0.15, 0.1, 0.17, 0, 0.17, 0.11, 0.19, 0.4, 0.1, 0.06, 0.13, 0.2, 0.04, 0.02, 0.07, 0)
+
+[sub_resource type="GradientTexture1D" id="smoke_ramp"]
+gradient = SubResource("smoke_gradient")
+
+[sub_resource type="Curve" id="smoke_scale_curve"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="smoke_scale_tex"]
+curve = SubResource("smoke_scale_curve")
+
+[sub_resource type="ParticleProcessMaterial" id="smoke_proc"]
+emission_shape = 1
+emission_sphere_radius = 0.18
+direction = Vector3(0.2, 1, 0)
+spread = 40.0
+initial_velocity_min = 0.12
+initial_velocity_max = 0.32
+gravity = Vector3(0, 0.3, 0)
+damping_min = 0.3
+damping_max = 0.6
+scale_min = 1.8
+scale_max = 3.2
+scale_curve = SubResource("smoke_scale_tex")
+color_ramp = SubResource("smoke_ramp")
+turbulence_enabled = true
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 1.5
+
+[sub_resource type="Gradient" id="very_soft_grad"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="very_soft_circle_tex"]
+gradient = SubResource("very_soft_grad")
+width = 48
+height = 48
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="smoke_mat"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("very_soft_circle_tex")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="smoke_quad"]
+material = SubResource("smoke_mat")
+size = Vector2(0.14, 0.14)
+
+[sub_resource type="Gradient" id="flake_gradient"]
+offsets = PackedFloat32Array(0, 0.2, 0.7, 1)
+colors = PackedColorArray(0.12, 0.1, 0.13, 0.85, 0.1, 0.08, 0.11, 0.75, 0.05, 0.04, 0.06, 0.35, 0.03, 0.02, 0.04, 0)
+
+[sub_resource type="GradientTexture1D" id="flake_ramp"]
+gradient = SubResource("flake_gradient")
+
+[sub_resource type="ParticleProcessMaterial" id="flake_proc"]
+emission_shape = 1
+emission_sphere_radius = 0.3
+direction = Vector3(0.5, 0.5, 0)
+spread = 180.0
+initial_velocity_min = 0.25
+initial_velocity_max = 1.1
+angular_velocity_min = -180.0
+angular_velocity_max = 180.0
+gravity = Vector3(0, 0.3, 0)
+damping_min = 0.5
+damping_max = 1.8
+scale_min = 0.6
+scale_max = 1.8
+color_ramp = SubResource("flake_ramp")
+turbulence_enabled = true
+turbulence_noise_strength = 0.9
+turbulence_noise_scale = 1.8
+
+[sub_resource type="Gradient" id="circle_grad"]
+offsets = PackedFloat32Array(0, 0.6, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.7, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="soft_circle_tex"]
+gradient = SubResource("circle_grad")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="flake_mat"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("soft_circle_tex")
+billboard_mode = 1
+billboard_keep_scale = true
+
+[sub_resource type="QuadMesh" id="flake_quad"]
+material = SubResource("flake_mat")
+size = Vector2(0.04, 0.04)
+
+[sub_resource type="Gradient" id="ember_gradient"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(0.7, 0.3, 0.9, 1, 0.6, 0.2, 0.8, 0.9, 0.35, 0.1, 0.5, 0.55, 0.15, 0.04, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="ember_ramp"]
+gradient = SubResource("ember_gradient")
+
+[sub_resource type="ParticleProcessMaterial" id="ember_proc"]
+emission_shape = 1
+emission_sphere_radius = 0.22
+direction = Vector3(0.3, 1, 0)
+spread = 90.0
+initial_velocity_min = 0.3
+initial_velocity_max = 0.9
+gravity = Vector3(0, 0.35, 0)
+damping_min = 0.4
+damping_max = 1.0
+scale_min = 0.5
+scale_max = 1.1
+color_ramp = SubResource("ember_ramp")
+turbulence_enabled = true
+turbulence_noise_strength = 0.7
+turbulence_noise_scale = 2.2
+
+[sub_resource type="StandardMaterial3D" id="ember_mat"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("soft_circle_tex")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="ember_quad"]
+material = SubResource("ember_mat")
+size = Vector2(0.035, 0.035)
+
+[sub_resource type="Gradient" id="glow_ember_gradient"]
+offsets = PackedFloat32Array(0, 0.3, 0.8, 1)
+colors = PackedColorArray(0.7, 0.2, 1, 0.8, 0.5, 0.15, 0.8, 0.6, 0.3, 0.08, 0.5, 0.3, 0.1, 0.02, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="glow_ember_ramp"]
+gradient = SubResource("glow_ember_gradient")
+
+[sub_resource type="ParticleProcessMaterial" id="glow_ember_proc"]
+lifetime_randomness = 0.6
+emission_shape = 1
+emission_sphere_radius = 0.15
+direction = Vector3(0, 1, 0)
+spread = 25.0
+initial_velocity_min = 0.05
+initial_velocity_max = 0.18
+gravity = Vector3(0, 0.15, 0)
+damping_min = 0.3
+damping_max = 0.8
+scale_min = 0.4
+scale_max = 0.9
+color_ramp = SubResource("glow_ember_ramp")
+
+[sub_resource type="StandardMaterial3D" id="glow_ember_mat"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("soft_circle_tex")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="glow_ember_quad"]
+material = SubResource("glow_ember_mat")
+size = Vector2(0.025, 0.025)
+
+[node name="BossAshDeath" type="Node3D" unique_id=7179472]
+script = ExtResource("1_script")
+
+[node name="Ghost" type="MeshInstance3D" parent="." unique_id=1170645059]
+material_override = SubResource("ghost_mat")
+mesh = SubResource("ghost_mesh")
+
+[node name="Smoke" type="GPUParticles3D" parent="." unique_id=1489353466]
+emitting = false
+amount = 5
+lifetime = 2.5
+one_shot = true
+randomness = 0.8
+process_material = SubResource("smoke_proc")
+draw_pass_1 = SubResource("smoke_quad")
+
+[node name="Flakes" type="GPUParticles3D" parent="." unique_id=20977896]
+emitting = false
+amount = 15
+lifetime = 1.8
+one_shot = true
+randomness = 0.7
+process_material = SubResource("flake_proc")
+draw_pass_1 = SubResource("flake_quad")
+
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=1187344048]
+emitting = false
+amount = 6
+lifetime = 1.2
+one_shot = true
+explosiveness = 0.2
+randomness = 0.6
+process_material = SubResource("ember_proc")
+draw_pass_1 = SubResource("ember_quad")
+
+[node name="DeathLight" type="OmniLight3D" parent="." unique_id=1245164282]
+light_color = Color(0.7, 0.2, 1, 1)
+light_energy = 0.0
+omni_range = 3.0
+omni_attenuation = 2.0
+
+[node name="EmberGlowLight" type="OmniLight3D" parent="." unique_id=401093190]
+light_color = Color(0.7, 0.2, 1, 1)
+light_energy = 0.0
+light_specular = 0.3
+omni_range = 1.8
+omni_attenuation = 2.5
+
+[node name="EmberGlowParticles" type="GPUParticles3D" parent="." unique_id=372393368]
+emitting = false
+lifetime = 1.5
+randomness = 0.7
+process_material = SubResource("glow_ember_proc")
+draw_pass_1 = SubResource("glow_ember_quad")

@@ -1,4 +1,4 @@
-[gd_resource type="MultiMesh" load_steps=2 format=3 uid="uid://dyrc455fa1243"]
+[gd_resource type="MultiMesh" format=3 uid="uid://dyrc455fa1243"]
 
 [ext_resource type="ArrayMesh" uid="uid://c2bdhndajqnxs" path="res://assets/base_tiles/single-grass2-low.obj" id="1_m85eo"]
 

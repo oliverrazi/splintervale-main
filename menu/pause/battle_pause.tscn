@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://0ih8mellxis1"]
+
+[ext_resource type="Script" uid="uid://bnwqk65sv8llg" path="res://menu/pause/battle_pause.gd" id="1_ufa1q"]
+
+[node name="BattlePause" type="CanvasLayer" unique_id=408250354]
+script = ExtResource("1_ufa1q")
+pause_text = "pause"

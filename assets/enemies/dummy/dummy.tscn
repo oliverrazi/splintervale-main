@@ -1,0 +1,101 @@
+[gd_scene format=3 uid="uid://d2s3cel4c78vw"]
+
+[ext_resource type="Script" uid="uid://c2qe8uwmj5s41" path="res://assets/enemies/dummy/dummy.gd" id="1_o2mh7"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="2_x6jc4"]
+[ext_resource type="Texture2D" uid="uid://bwibo57ouwjw7" path="res://assets/enemies/dummy/dummy.png" id="3_c8va4"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="4_3h44s"]
+[ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="5_lofge"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_v5ygx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_s5xbu"]
+render_priority = 0
+shader = ExtResource("2_x6jc4")
+shader_parameter/sprite_texture = ExtResource("3_c8va4")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(0.2, 1)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.15
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+shader_parameter/depth_bias = 0.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_fbjpm"]
+size = Vector2(0.64, 0.64)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0u026"]
+radius = 0.39013672
+
+[sub_resource type="Shader" id="Shader_vqxjp"]
+code = "
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
+
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.05, 1.0);
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.35;
+uniform float softness : hint_range(0.0, 1.0) = 0.4;
+
+void fragment() {
+	vec2 uv = UV * 2.0 - 1.0;
+	float dist = length(uv);
+	float inner = 1.0 - softness;
+	float alpha = 1.0 - smoothstep(inner, 1.0, dist);
+	alpha *= alpha;
+
+	ALBEDO = shadow_color.rgb;
+	ALPHA = alpha * shadow_opacity;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lpdrp"]
+render_priority = 0
+shader = SubResource("Shader_vqxjp")
+shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
+shader_parameter/shadow_opacity = 0.6
+shader_parameter/softness = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_siwso"]
+size = Vector2(0.5, 0.3)
+orientation = 1
+
+[node name="Dummy" type="CharacterBody3D" unique_id=505348099]
+collision_layer = 17
+collision_mask = 37
+script = ExtResource("1_o2mh7")
+sprite_texture_override = ExtResource("3_c8va4")
+HFRAMES = 5
+VFRAMES = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1291501346]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.06611407, 0)
+shape = SubResource("CapsuleShape3D_v5ygx")
+
+[node name="Sprite3D" type="MeshInstance3D" parent="." unique_id=1526060243]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_s5xbu")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_fbjpm")
+script = ExtResource("4_3h44s")
+texture = ExtResource("3_c8va4")
+hframes = 5
+aa_sharpness = 1.7
+
+[node name="AttackArea" type="Area3D" parent="." unique_id=309728860]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea" unique_id=35883641]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_0u026")
+
+[node name="BlobShadow" type="MeshInstance3D" parent="." unique_id=1777868103]
+top_level = true
+material_override = SubResource("ShaderMaterial_lpdrp")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_siwso")
+script = ExtResource("5_lofge")
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.1
+ground_offset = 0.02

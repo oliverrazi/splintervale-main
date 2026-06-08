@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://b1e4qowbn1vrl"]
+
+[ext_resource type="PackedScene" uid="uid://wrgxjjxy3yfn" path="res://assets/base_tiles/wilds/stake1.glb" id="1_f2q4g"]
+[ext_resource type="Texture2D" uid="uid://bftttnqflu1ta" path="res://assets/base_tiles/wilds/stake1_stake.png" id="2_j7n26"]
+[ext_resource type="Material" uid="uid://cpisdyra3njc5" path="res://assets/base_tiles/wilds/stake-material.tres" id="3_148x6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pmix6"]
+albedo_texture = ExtResource("2_j7n26")
+metallic_specular = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_148x6"]
+size = Vector3(2.5289307, 2.2021484, 1.0925293)
+
+[node name="stake1" unique_id=884026020 instance=ExtResource("1_f2q4g")]
+
+[node name="Cylinder" parent="." index="0" unique_id=1243892820]
+surface_material_override/0 = ExtResource("3_148x6")
+
+[node name="Cylinder_001" parent="." index="5" unique_id=1824331582]
+surface_material_override/0 = ExtResource("3_148x6")
+
+[node name="Cylinder_002" parent="." index="10" unique_id=1745868302]
+surface_material_override/0 = SubResource("StandardMaterial3D_pmix6")
+
+[node name="Cylinder_003" parent="." index="11" unique_id=1140450885]
+surface_material_override/0 = ExtResource("3_148x6")
+
+[node name="Cylinder_004" parent="." index="12" unique_id=2050259026]
+surface_material_override/0 = ExtResource("3_148x6")
+
+[node name="Cylinder_005" parent="." index="21" unique_id=1272207020]
+surface_material_override/0 = ExtResource("3_148x6")
+
+[node name="Cylinder_006" parent="." index="22" unique_id=1785855744]
+surface_material_override/0 = ExtResource("3_148x6")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="23" unique_id=359318213]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1904570008]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0254517, 1.0336914, 0.366333)
+shape = SubResource("BoxShape3D_148x6")

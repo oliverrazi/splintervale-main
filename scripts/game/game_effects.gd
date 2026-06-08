@@ -46,38 +46,42 @@ func shake(intensity: float = 0.3, duration: float = 0.2) -> void:
 	_shake_intensity = intensity
 	_shake_duration = duration
 	_shake_timer = duration
-	
-	if _camera == null:
-		_camera = get_viewport().get_camera_3d()
+	_refresh_camera()
 
+func _refresh_camera() -> void:
+	var new_cam: Camera3D = get_viewport().get_camera_3d()
+	if new_cam == _camera:
+		return
+	# Alte Kamera sauber zurücksetzen, falls sie noch da ist
+	if _camera != null and is_instance_valid(_camera):
+		_camera.h_offset = 0.0
+		_camera.v_offset = 0.0
+	_camera = new_cam
 
 func _process_shake(delta: float) -> void:
 	if _shake_timer <= 0.0:
 		return
 	
+	# Jeden Frame neu - die aktive Kamera kann sich mitten im Shake ändern
+	# (z.B. wenn der Finisher endet und _teardown_camera läuft)
+	_refresh_camera()
 	if _camera == null:
-		_camera = get_viewport().get_camera_3d()
-		if _camera == null:
-			return
+		return
 	
 	_shake_timer -= delta
-	
-	# Shake Intensität nimmt ab über Zeit
+
 	var progress: float = _shake_timer / _shake_duration
 	var current_intensity: float = _shake_intensity * progress
-	
-	# Zufällige Offset
+
 	var offset := Vector3(
 		randf_range(-current_intensity, current_intensity),
 		randf_range(-current_intensity, current_intensity),
 		0.0
 	)
 	
-	# Wende Shake auf Camera an (lokaler Offset)
 	_camera.h_offset = offset.x
 	_camera.v_offset = offset.y
-	
-	# Reset wenn fertig
+
 	if _shake_timer <= 0.0:
 		_camera.h_offset = 0.0
 		_camera.v_offset = 0.0

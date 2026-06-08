@@ -145,3 +145,5 @@ func _intersect_x(a: Vector2, b: Vector2, x: float) -> Vector2:
 		return Vector2(x, a.y)
 	var t: float = (x - a.x) / dx
 	return a.lerp(b, clamp(t, 0.0, 1.0))
+	
+	

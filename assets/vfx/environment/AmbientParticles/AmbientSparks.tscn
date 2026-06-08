@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://h4cr2foe4u0f"]
+[gd_scene format=3 uid="uid://h4cr2foe4u0f"]
 
 [ext_resource type="Script" uid="uid://kba5h5itnfgu" path="res://assets/vfx/environment/AmbientParticles/ambient_sparks.gd" id="1_de08x"]
 
@@ -28,10 +28,10 @@ billboard_mode = 1
 material = SubResource("StandardMaterial3D_s0e47")
 size = Vector2(0.02, 0.02)
 
-[node name="AmbientSparks" type="Node3D"]
+[node name="AmbientSparks" type="Node3D" unique_id=1668924763]
 script = ExtResource("1_de08x")
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=184525880]
 amount = 250
 lifetime = 8.0
 preprocess = 4.0

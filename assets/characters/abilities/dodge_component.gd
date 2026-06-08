@@ -82,6 +82,8 @@ var _sprite: LayeredPixelSprite3D = null  # CHANGED: war Sprite3D
 var _spring_arm: Node3D = null
 
 
+var _cinematic_dodge_active: bool = false
+
 func _ready() -> void:
 	_player = get_node_or_null(player_path) as CharacterBody3D
 	_sprite = _find_sprite()  # CHANGED: eigene Suche statt as Sprite3D
@@ -150,6 +152,9 @@ func can_dodge() -> bool:
 		return false
 	if _player.has_method("is_alive") and not _player.is_alive():
 		return false
+	# Während eines aktiven Schwertangriffs kein Dodge.
+	if _player.has_method("_is_action_locked") and _player._is_action_locked():
+		return false
 	return true
 
 func force_end_for_spin() -> void:
@@ -189,6 +194,41 @@ func is_active_dodge() -> bool:
 func get_cooldown_remaining() -> float:
 	return max(0.0, _dodge_cooldown_timer)
 
+
+func cinematic_dodge(world_dir: Vector3) -> bool:
+	if _player == null or _sprite == null: return false
+	if _is_dodging: return false
+	if world_dir.length_squared() < 0.0001: return false
+	var dir := world_dir.normalized()
+	_facing_dir_mode = _player._last_dir_mode
+	_move_dir_mode = _world_dir_to_dir_mode(dir)
+	_is_back_dodge = false
+	_dodge_direction = dir
+	_is_dodging = true
+	_is_fading_out = false
+	_dodge_timer = dodge_duration
+	_afterimage_timer = 0.0
+	_afterimages_spawned = 0
+	_cinematic_dodge_active = true
+	if dodge_invincibility:
+		_player._invincibility_timer = max(_player._invincibility_timer, dodge_duration + 0.05)
+	if afterimage_enabled: _spawn_afterimage()
+	_cleanup_shimmer()
+	if shimmer_enabled: _start_shimmer_trail()
+	_play_dodge_sound()
+	dodge_started.emit()
+	return true
+
+func _world_dir_to_dir_mode(world_dir: Vector3) -> int:
+	var dir2: Vector2
+	if _spring_arm:
+		var yaw: float = _spring_arm.rotation.y
+		var forward := Vector3(sin(yaw), 0, cos(yaw))
+		var right := Vector3(cos(yaw), 0, -sin(yaw))
+		dir2 = Vector2(world_dir.dot(right), world_dir.dot(forward)).normalized()
+	else:
+		dir2 = Vector2(world_dir.x, world_dir.z).normalized()
+	return _get_direction_from_input(dir2)
 
 # ============================================
 # INTERNAL - DODGE LOGIC
@@ -292,9 +332,19 @@ func _process_dodge(delta: float) -> void:
 	# Frame anzeigen
 	_show_dodge_frame()
 	
+	if not _cinematic_dodge_active:
+		_player.velocity.x = _dodge_direction.x * dodge_speed
+		_player.velocity.z = _dodge_direction.z * dodge_speed
+	
 	# Dodge beenden -> Fade-Out starten
 	if _dodge_timer <= 0.0:
-		_start_fade_out()
+		if _cinematic_dodge_active:
+			_cinematic_dodge_active = false
+			_end_dodge()
+		else:
+			_start_fade_out()
+
+	
 
 
 func _start_fade_out() -> void:

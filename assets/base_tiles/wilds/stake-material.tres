@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cpisdyra3njc5"]
+
+[ext_resource type="Texture2D" uid="uid://bftttnqflu1ta" path="res://assets/base_tiles/wilds/stake1_stake.png" id="1_gqjjw"]
+[ext_resource type="Shader" uid="uid://g4fnk3cc1lk6" path="res://scripts/shader/pixelate_3d.gdshader" id="1_vfrb0"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_vfrb0")
+shader_parameter/albedo_texture = ExtResource("1_gqjjw")
+shader_parameter/use_normal_map = false
+shader_parameter/use_orm_map = false
+shader_parameter/pixel_density = Vector2(32, 128)
+shader_parameter/uv_scale = 1.0
+shader_parameter/albedo_tint = Color(1, 1, 1, 1)
+shader_parameter/roughness_value = 0.9
+shader_parameter/metallic_value = 0.0
+shader_parameter/specular_value = 0.3
+shader_parameter/quantize_colors = false
+shader_parameter/color_steps = 16
+shader_parameter/use_alpha_scissor = false
+shader_parameter/alpha_scissor = 0.5

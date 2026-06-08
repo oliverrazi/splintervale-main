@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b5i3x18n3t8o8"]
+
+[ext_resource type="PackedScene" uid="uid://bm5q6wef13odu" path="res://assets/base_tiles/wilds/stake2.glb" id="1_vgrq1"]
+[ext_resource type="Material" uid="uid://cpisdyra3njc5" path="res://assets/base_tiles/wilds/stake-material.tres" id="2_k88dr"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vgrq1"]
+size = Vector3(1.9825745, 1.9907227, 0.6466675)
+
+[node name="stake2" unique_id=1870752485 instance=ExtResource("1_vgrq1")]
+
+[node name="Cylinder_004" parent="." index="1" unique_id=1810747656]
+surface_material_override/0 = ExtResource("2_k88dr")
+
+[node name="Cylinder_006" parent="." index="2" unique_id=1916867239]
+surface_material_override/0 = ExtResource("2_k88dr")
+
+[node name="Cylinder_007" parent="." index="3" unique_id=1958414608]
+surface_material_override/0 = ExtResource("2_k88dr")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="7" unique_id=1979004241]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1215723468]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.009414673, 1.013916, 0.131073)
+shape = SubResource("BoxShape3D_vgrq1")

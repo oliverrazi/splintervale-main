@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bi24nqwyuiqrc"]
+
+[ext_resource type="Shader" uid="uid://n7iy5mfi2i0b" path="res://scripts/shader/tree_variation.gdshader" id="1_kydc6"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_kydc6")

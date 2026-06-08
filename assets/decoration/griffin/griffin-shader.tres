@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://r408klkh4rtx"]
+
+[ext_resource type="Shader" uid="uid://5byap4qva0" path="res://scripts/shader/boss_outline.gdshader" id="1_17rdp"]
+[ext_resource type="Shader" uid="uid://cdmtmh53uu0bh" path="res://scripts/shader/boss_pixel_3d.gdshader" id="2_g1wih"]
+[ext_resource type="Texture2D" uid="uid://rjgtq6jdb1kr" path="res://assets/decoration/griffin-detail_griffin-statue.png" id="3_yy6rt"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2t5qi"]
+render_priority = 0
+shader = ExtResource("1_17rdp")
+shader_parameter/outline_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/outline_width = 0.008
+
+[resource]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_2t5qi")
+shader = ExtResource("2_g1wih")
+shader_parameter/albedo_texture = ExtResource("3_yy6rt")
+shader_parameter/posterize_levels = 4
+shader_parameter/stylized_ambient = Color(0.21823812, 0.21813273, 0.2955542, 1)

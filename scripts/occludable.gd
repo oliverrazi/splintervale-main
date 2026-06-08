@@ -27,4 +27,7 @@ func _convert_material(mi: MeshInstance3D) -> void:
 		if orig is BaseMaterial3D:
 			var shader_mat := TreeOcclusionManager.get_or_create_material(orig)
 			if shader_mat != null:
+				# Stamm o.ä.: occludiert, aber kein Wind
+				if mi.is_in_group("no_wind"):
+					mi.set_instance_shader_parameter("wind_enabled", 0.0)
 				mi.set_surface_override_material(surface_idx, shader_mat)

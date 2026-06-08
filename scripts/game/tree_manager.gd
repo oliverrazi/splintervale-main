@@ -58,17 +58,29 @@ class TreeData:
 
 func _ready() -> void:
 	_setup_multimesh()
+	_prepare_mesh_materials_for_color() 
 	auto_load()
-	
 	
 	if not Engine.is_editor_hint() and tree_scene != null:
 		for i in pool_warmup:
 			var t := tree_scene.instantiate() as Node3D
 			add_child(t)
-			t.position = POOL_HIDDEN_POS
+			# Aufwärmen: sichtbar an einer Position vor der Kamera-Achse,
+			# damit die GPU die Shader-Pipeline VOR dem ersten echten Spawn kompiliert
+			t.position = Vector3(0, -50, 0)  # unter dem Boden, aber im Render
+			t.visible = true
+			t.process_mode = Node.PROCESS_MODE_INHERIT
+			_pool.append(t)
+
+		# Ein paar Frames rendern lassen, damit Pipelines kompiliert werden
+		for f in 3:
+			await get_tree().process_frame
+
+		# Jetzt erst verstecken und parken
+		for t in _pool:
 			t.visible = false
 			t.process_mode = Node.PROCESS_MODE_DISABLED
-			_pool.append(t)
+			t.position = POOL_HIDDEN_POS
 	
 	# Im Editor nicht nach Spieler suchen
 	if Engine.is_editor_hint():
@@ -140,50 +152,70 @@ func _setup_multimesh() -> void:
 	_multimesh_instance = MultiMeshInstance3D.new()
 	_multimesh_instance.name = "TreeMultiMesh"
 	add_child(_multimesh_instance)
-	
+
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = false
-	mm.use_custom_data = false
-	
+	mm.use_custom_data = true       
+
 	if tree_mesh:
 		mm.mesh = tree_mesh
-	
+
 	_multimesh_instance.multimesh = mm
-	
-	if tree_material:
-		_multimesh_instance.material_override = tree_material
+
 
 
 func _rebuild_multimesh() -> void:
-	if _multimesh_instance == null or _multimesh_instance.multimesh == null:
+	if _multimesh_instance == null:
 		return
-	
-	var mm := _multimesh_instance.multimesh
+
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = false
+	mm.use_colors = true
+	mm.mesh = tree_mesh
 	mm.instance_count = _tree_data.size()
-	
+
 	for i in _tree_data.size():
 		var data := _tree_data[i]
-		_update_multimesh_instance(i, data, not data.is_real)
+		var transform := Transform3D()
+		if not data.is_real:
+			transform = transform.rotated(Vector3.UP, data.rotation_y)
+			transform = transform.scaled(Vector3.ONE * data.scale)
+			transform.origin = data.position
+		else:
+			transform.origin = Vector3(0, -10000, 0)
+		mm.set_instance_transform(i, transform)
+		mm.set_instance_color(i, TreeVariation.instance_color_for(data.position))
 
+	_multimesh_instance.multimesh = mm
+
+func _prepare_mesh_materials_for_color() -> void:
+	if tree_mesh == null:
+		return
+	for s in tree_mesh.get_surface_count():
+		var mat := tree_mesh.surface_get_material(s)
+		if mat is StandardMaterial3D:
+			(mat as StandardMaterial3D).vertex_color_use_as_albedo = false
 
 func _update_multimesh_instance(index: int, data: TreeData, visible: bool) -> void:
 	var mm := _multimesh_instance.multimesh
 	if index >= mm.instance_count:
 		return
-	
+
 	var transform := Transform3D()
-	
+
 	if visible:
 		transform = transform.rotated(Vector3.UP, data.rotation_y)
 		transform = transform.scaled(Vector3.ONE * data.scale)
 		transform.origin = data.position
 	else:
-		# Unsichtbar: Skalierung auf 0 oder weit weg verschieben
 		transform.origin = Vector3(0, -10000, 0)
-	
+
 	mm.set_instance_transform(index, transform)
 
+	# DIESE ZEILE ist entscheidend:
+	mm.set_instance_color(index, TreeVariation.instance_color_for(data.position))
 
 func _update_tree_states() -> void:
 	if _player == null:
@@ -263,38 +295,52 @@ func _spawn_real_tree(index: int) -> void:
 		tree_instance = tree_scene.instantiate() as Node3D
 		add_child(tree_instance)
 
-	# 1) Transform zuerst — der Baum sitzt bereits am Zielort,
-	#    bevor er für den Renderer auftaucht
 	tree_instance.position = data.position
 	tree_instance.rotation.y = data.rotation_y
 	tree_instance.scale = Vector3.ONE * data.scale
+	
+	_apply_color_to_real_tree(tree_instance, data.position) 
 
-	# 2) Dann erst Visibility + Process aktivieren
 	tree_instance.visible = true
 	tree_instance.process_mode = Node.PROCESS_MODE_INHERIT
 
 	_real_trees[index] = tree_instance
 	data.is_real = true
-	_update_multimesh_instance(index, data, false)
+
+	# MultiMesh-Slot erst im nächsten Frame verstecken (verhindert Flacker-Lücke)
+	_hide_multimesh_slot_deferred(index, data)
+
+
+func _hide_multimesh_slot_deferred(index: int, data: TreeData) -> void:
+	await get_tree().process_frame
+	# Nur verstecken, wenn der Baum immer noch real ist (kann sich geändert haben)
+	if data.is_real:
+		_update_multimesh_instance(index, data, false)
 
 
 func _despawn_real_tree(index: int) -> void:
 	var data := _tree_data[index]
 	if not data.is_real:
-		return  # Bereits despawnt
-	
-	# Echte Szene entfernen
-	if _real_trees.has(index):
-		var tree_instance: Node3D = _real_trees[index]
-		if is_instance_valid(tree_instance):
-			tree_instance.visible = false
-			tree_instance.process_mode = Node.PROCESS_MODE_DISABLED
-			tree_instance.position = POOL_HIDDEN_POS
-			_pool.append(tree_instance)
-		_real_trees.erase(index)
-	
+		return
+
+	# Zuerst MultiMesh-Slot wieder sichtbar machen
 	data.is_real = false
 	_update_multimesh_instance(index, data, true)
+
+	# Echte Scene erst im nächsten Frame verstecken (verhindert Flacker-Lücke)
+	if _real_trees.has(index):
+		var tree_instance: Node3D = _real_trees[index]
+		_real_trees.erase(index)
+		_hide_real_tree_deferred(tree_instance)
+
+
+func _hide_real_tree_deferred(tree_instance: Node3D) -> void:
+	await get_tree().process_frame
+	if is_instance_valid(tree_instance):
+		tree_instance.visible = false
+		tree_instance.process_mode = Node.PROCESS_MODE_DISABLED
+		tree_instance.position = POOL_HIDDEN_POS
+		_pool.append(tree_instance)
 
 
 ## Debug: Zeigt Statistiken
@@ -354,10 +400,59 @@ func auto_load() -> bool:
 		var scene_root := get_tree().current_scene
 		if scene_root != null:
 			scene_name = scene_root.name
+
 	
 	if scene_name == "":
 		return false
 	
+
+	
 	# Node-Name für separate Dateien pro TreeManager
 	var path := "res://data/trees/" + scene_name + "_" + name + ".json"
 	return load_from_file(path)
+	
+	
+	
+func _apply_color_to_real_tree(scene_root: Node3D, pos: Vector3) -> void:
+	var tint := TreeVariation.instance_color_for(pos)
+	_tint_meshes_recursive(scene_root, tint)
+
+
+func _tint_meshes_recursive(node: Node, tint: Color) -> void:
+	if node is MeshInstance3D:
+		var mi := node as MeshInstance3D
+		# Stamm (no_wind-Gruppe) nicht tönen
+		if not mi.is_in_group("no_wind"):
+			mi.set_instance_shader_parameter("instance_tint", Vector3(tint.r, tint.g, tint.b))
+	for child in node.get_children():
+		_tint_meshes_recursive(child, tint)
+		#
+		
+func _test_fresh_import() -> void:
+	var scene: PackedScene = load("res://assets/base_tiles/trees/pine/pinetree_cut.glb")
+	var inst := scene.instantiate()
+	print("=== FRISCHE GLB ===")
+	_dump_colors(inst)
+	inst.queue_free()
+	
+func _debug_colors() -> void:
+	var test := tree_scene.instantiate() as Node3D
+	_dump_colors(test)
+	test.queue_free()
+
+func _dump_colors(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mi := node as MeshInstance3D
+		if mi.mesh != null:
+			for s in mi.mesh.get_surface_count():
+				var arrays := mi.mesh.surface_get_arrays(s)
+				var colors = arrays[Mesh.ARRAY_COLOR]
+				if colors != null and colors.size() > 0:
+					# Mittelwert über alle Vertices statt nur erster
+					var sum := 0.0
+					for c in colors:
+						sum += c.r
+					var avg :Variant= sum / colors.size()
+					print(mi.name, " surf ", s, " durchschnittl. R: ", avg, " (", colors.size(), " verts)")
+	for child in node.get_children():
+		_dump_colors(child)

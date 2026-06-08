@@ -313,14 +313,10 @@ func _setup_detection() -> void:
  
  
 func _check_player_detection() -> void:
-	if _target == null or not is_instance_valid(_target):
-		_target = get_tree().get_first_node_in_group("player")
- 
-	if _target == null:
+	var player := get_player()
+	if player == null:
 		return
- 
-	var distance := global_position.distance_to(_target.global_position)
- 
+	var distance := global_position.distance_to(player.global_position)
 	if distance > lose_interest_range and _state not in [State.DIVE_ATTACK, State.SWIPE_ATTACK]:
 		_target = null
 		_enter_state_return_to_wall()

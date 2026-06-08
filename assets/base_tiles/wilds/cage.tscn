@@ -1,0 +1,114 @@
+[gd_scene format=3 uid="uid://ct1qkj0ljtoxh"]
+
+[ext_resource type="PackedScene" uid="uid://6kibpfnk7puy" path="res://assets/base_tiles/wilds/cage.glb" id="1_ra6x1"]
+[ext_resource type="Material" uid="uid://cpisdyra3njc5" path="res://assets/base_tiles/wilds/stake-material.tres" id="2_7hfyc"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ra6x1"]
+size = Vector3(2.5375109, 2.223999, 2.2634735)
+
+[node name="cage" unique_id=896243656 instance=ExtResource("1_ra6x1")]
+
+[node name="Cylinder_004" parent="." index="1" unique_id=540925006]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_001" parent="." index="2" unique_id=1403997452]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_002" parent="." index="3" unique_id=1176291232]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_009" parent="." index="4" unique_id=1291387678]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_010" parent="." index="5" unique_id=1869514525]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_017" parent="." index="6" unique_id=1941893084]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_018" parent="." index="7" unique_id=2111922357]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_027" parent="." index="8" unique_id=715610426]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_028" parent="." index="9" unique_id=572253561]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_039" parent="." index="10" unique_id=1281661821]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_042" parent="." index="11" unique_id=1903924260]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_043" parent="." index="12" unique_id=1400430990]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_003" parent="." index="13" unique_id=547469036]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_005" parent="." index="14" unique_id=1706810530]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_008" parent="." index="15" unique_id=1005784062]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_011" parent="." index="16" unique_id=595219638]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_012" parent="." index="17" unique_id=125862183]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_013" parent="." index="18" unique_id=634463616]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_014" parent="." index="19" unique_id=1092186592]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_006" parent="." index="20" unique_id=1897527728]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_007" parent="." index="21" unique_id=1322010535]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_015" parent="." index="22" unique_id=923000545]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_016" parent="." index="23" unique_id=245132219]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_019" parent="." index="24" unique_id=1072865287]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_020" parent="." index="25" unique_id=2125984181]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_021" parent="." index="26" unique_id=1260548502]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_022" parent="." index="27" unique_id=223528909]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_023" parent="." index="28" unique_id=738567159]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_024" parent="." index="29" unique_id=1537839082]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_025" parent="." index="30" unique_id=1137576397]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_026" parent="." index="31" unique_id=125998102]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_029" parent="." index="67" unique_id=1822879031]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="Cylinder_030" parent="." index="68" unique_id=1810021358]
+surface_material_override/0 = ExtResource("2_7hfyc")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="77" unique_id=95670661]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1966363198]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1461225, 1.0512085, -0.7357254)
+shape = SubResource("BoxShape3D_ra6x1")

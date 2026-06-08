@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://b645a74nnapj4"]
+
+[ext_resource type="Script" uid="uid://c4rng2va0rst6" path="res://assets/decoration/griffin/griffin.gd" id="1_aqo3k"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="1_rg85x"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="2_aqo3k"]
+[ext_resource type="PackedScene" uid="uid://3a1jusjp5bj1" path="res://assets/decoration/griffin.tscn" id="3_rg85x"]
+[ext_resource type="Shader" uid="uid://dnmnogq52l615" path="res://scripts/shader/boss_edge_detect.gdshader" id="4_dyt3i"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_3xkjf"]
+viewport_path = NodePath("RenderViewport")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aqo3k"]
+render_priority = 0
+shader = ExtResource("1_rg85x")
+shader_parameter/sprite_texture = SubResource("ViewportTexture_3xkjf")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(1, 1)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.15
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+shader_parameter/depth_bias = 0.2
+
+[sub_resource type="QuadMesh" id="QuadMesh_himbi"]
+size = Vector2(0, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7sx80"]
+render_priority = 0
+shader = ExtResource("4_dyt3i")
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/depth_threshold = 0.13409999660727
+shader_parameter/outline_thickness = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_wsuk1"]
+material = SubResource("ShaderMaterial_7sx80")
+
+[node name="Griffin" type="Node3D" unique_id=490471565]
+script = ExtResource("1_aqo3k")
+
+[node name="GriffinSprite" type="MeshInstance3D" parent="." unique_id=1080188444]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5981821, 0)
+material_override = SubResource("ShaderMaterial_aqo3k")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_himbi")
+script = ExtResource("2_aqo3k")
+texture = SubResource("ViewportTexture_3xkjf")
+aa_sharpness = 1.7
+depth_bias = 0.2
+
+[node name="RenderViewport" type="SubViewport" parent="." unique_id=990881812]
+own_world_3d = true
+transparent_bg = true
+size = Vector2i(140, 160)
+render_target_update_mode = 4
+
+[node name="BossCam" type="Camera3D" parent="RenderViewport" unique_id=849621695]
+transform = Transform3D(1, 0, 0, 0, 0.9799247, 0.19936793, 0, -0.19936793, 0.9799247, 0, 3.7670698, 12.495393)
+projection = 1
+current = true
+size = 2.5
+
+[node name="BossLight" type="DirectionalLight3D" parent="RenderViewport" unique_id=617986857]
+transform = Transform3D(1, 0, 0, 0, 0.9659259, 0.25881907, 0, -0.25881907, 0.9659258, 0, 0.46831417, 0.56998223)
+light_energy = 7.0
+light_indirect_energy = 0.421
+light_volumetric_fog_energy = 0.0
+light_angular_distance = 6.71
+
+[node name="BossRotator" type="Node3D" parent="RenderViewport" unique_id=649330601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.13249099, 0)
+
+[node name="griffin" parent="RenderViewport/BossRotator" unique_id=583591995 instance=ExtResource("3_rg85x")]
+transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 0.5, 0, 0.5, 0, -2.1855694e-08, 0, 0, 0)
+
+[node name="PostProcessQuad" type="MeshInstance3D" parent="RenderViewport" unique_id=431073043]
+mesh = SubResource("QuadMesh_wsuk1")
+skeleton = NodePath("../..")

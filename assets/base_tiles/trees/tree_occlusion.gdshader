@@ -31,45 +31,90 @@ uniform float noise_strength_2 : hint_range(0.0, 0.4)  = 0.10;
 uniform float wobble_speed     : hint_range(0.0, 2.0)  = 0.35;
 uniform float wobble_scale     : hint_range(0.0, 1.0)  = 0.12;
 
+uniform float wind_strength    : hint_range(0.0, 1.0)  = 0.04;  // max. Ausschlag in Metern
+uniform float wind_speed       : hint_range(0.0, 4.0)  = 0.15;   // Tempo der großen Schwingung
+uniform float wind_flutter     : hint_range(0.0, 1.0)  = 0.08;  // feines Blatt-Zittern
+uniform float wind_flutter_speed : hint_range(0.0, 12.0) = 7.0; // Tempo des Zitterns
+uniform vec2  wind_direction   = vec2(1.0, 0.3);                // Hauptwindrichtung (X,Z)
+uniform float wind_height_falloff : hint_range(0.1, 10.0) = 2.0;
+
 // Inner Rim Light
 uniform vec3  rim_color    : source_color = vec3(0.55, 0.8, 1.0);
 uniform float rim_strength : hint_range(0.0, 2.0)  = 0.45;
 uniform float rim_width    : hint_range(0.02, 0.4) = 0.12;
 
+uniform bool debug_occlusion = false;
+
 varying vec3 v_world_pos;
 
+instance uniform vec3 instance_tint = vec3(1.0);
+
+instance uniform float wind_enabled = 1.0;
+
 void vertex() {
+    float wind_mask = wind_enabled;
+
+    // Pro Blatt-Objekt eine eigene Phase, damit nicht alle synchron sind.
+    // Aus dem Objekt-Ursprung abgeleitet (MODEL_MATRIX), NICHT pro Vertex.
+    float obj_phase = sin(MODEL_MATRIX[3].x * 1.7 + MODEL_MATRIX[3].z * 2.3) * 6.28;
+
+    // Böigkeit: zwei langsame Sinus mit ungleichen Frequenzen überlagern.
+    // Das erzeugt ein unregelmäßiges An- und Abschwellen statt gleichmäßigem Wabern.
+    float t = TIME * wind_speed;
+    float gust = sin(t + obj_phase) * 0.6
+               + sin(t * 0.37 + obj_phase * 1.7) * 0.4;
+
+    // Hauptbewegung: ganzes Blatt-Objekt wiegt sich als Einheit
+    vec2 dir = normalize(wind_direction);
+    float sway = gust * wind_strength * wind_mask;
+
+    // Feines Flattern: deutlich reduziert und langsamer, nur als Akzent.
+    // Nutzt obj_phase statt VERTEX-Position -> kein Verwabern mehr.
+    float flutter = sin(t * wind_flutter_speed + obj_phase) * wind_flutter * wind_mask;
+
+    VERTEX.x += dir.x * (sway + flutter);
+    VERTEX.z += dir.y * (sway + flutter);
     v_world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 }
 
 void fragment() {
     vec4 base = texture(albedo_texture, UV) * albedo_color;
 
-    // 1) Camera→Player-Achse berechnen
-    vec2 cam_xz    = camera_world_position.xz;
-    vec2 player_xz = player_world_position.xz+0.7;
-    vec2 frag_xz   = v_world_pos.xz;
+    // 3D-Sichtlinie Kamera -> Player
+    vec3 cam = camera_world_position;
+    vec3 ply = player_world_position;
+    vec3 axis = ply - cam;
+    float axis_len = length(axis);
+    vec3 axis_dir = (axis_len > 0.001) ? axis / axis_len : vec3(0.0, 0.0, 1.0);
 
-    vec2 cam_to_player = player_xz - cam_xz;
-    float cp_len = length(cam_to_player);
-    vec2 line_dir = (cp_len > 0.001) ? cam_to_player / cp_len : vec2(0.0, 1.0);
+    // Fragment relativ zur Kamera
+    vec3 to_frag = v_world_pos - cam;
 
-    vec2 to_frag = frag_xz - player_xz;
-    // Senkrechte Distanz zur Sichtachse — das wird unsere "Aussparungs-Säule"
-    float perpendicular = abs(to_frag.x * line_dir.y - to_frag.y * line_dir.x);
-    // Position entlang der Achse: < 0 vor Player (Camera-seitig), > 0 hinter Player
-    float along = dot(to_frag, line_dir);
+    // Projektion auf die Achse: t=0 an Kamera, t=axis_len am Player
+    float t = dot(to_frag, axis_dir);
 
-    // Hinter dem Player wird der Effekt sanft ausgeschaltet
-    float forward_mask = 1.0 - smoothstep(0.0, behind_player_falloff, along);
+    // Senkrechter 3D-Abstand zur Sichtlinie (rundherum gleich)
+    vec3 closest = cam + axis_dir * t;
+    float perpendicular = length(v_world_pos - closest);
 
-    // 2) Basis-Sichtbarkeit aus perpendicular-Distanz
+    // Nur im Segment ZWISCHEN Kamera und Player aktiv
+    float in_segment = smoothstep(0.0, behind_player_falloff, t)
+                 * (1.0 - smoothstep(axis_len - behind_player_falloff, axis_len, t));
+
+     // t normalisiert: 0 = Kamera, 1 = Player
+    float t_norm = clamp(t / axis_len, 0.0, 1.0);
+
+    // Radius verjüngt sich zum Player hin (und leicht zur Kamera),
+    // breit in der Mitte der Sichtlinie. sin(pi*x) = 0 an beiden Enden, 1 in der Mitte.
+    float radius_profile = sin(t_norm * 3.14159);
+    float dynamic_radius = occlusion_radius * radius_profile;
+
     float radial = smoothstep(
-        occlusion_radius - occlusion_softness,
-        occlusion_radius + occlusion_softness,
+        dynamic_radius - occlusion_softness,
+        dynamic_radius + occlusion_softness,
         perpendicular
     );
-    radial = mix(1.0, radial, forward_mask);
+    radial = mix(1.0, radial, in_segment);
 
     // 3) Zwei-oktavige Noise mit Wobble
     vec2 wobble_offset = vec2(
@@ -96,11 +141,22 @@ void fragment() {
     // 6) Rim Light — schmaler Ring exakt am Übergang, NUR wo wir occluden
     //    rim_band ist nur dort > 0, wo radial in [0.5-w, 0.5+w] liegt
     float rim_band = (1.0 - smoothstep(rim_width, rim_width * 2.0, abs(radial - 0.5)))
-                   * h_mask * forward_mask;
+                   * h_mask * in_segment;
     vec3 rim_emission = rim_color * rim_band * rim_strength;
+	
+	if (debug_occlusion) {
+        // occlusion = 1.0 -> wird ausgeblendet (rot), 0.0 -> sichtbar (grün)
+        ALBEDO = vec3(occlusion, 1.0 - occlusion, 0.0);
+        EMISSION = vec3(occlusion, 1.0 - occlusion, 0.0) * 0.5;
+        ALPHA = 1.0;  // alles sichtbar lassen zum Debuggen
+          // restliche Berechnung überspringen
+    } else {
+	    ALBEDO = base.rgb * instance_tint;
+	    EMISSION = rim_emission;
+	    ALPHA    = base.a * final_alpha;
+	    ALPHA_HASH_SCALE = 1.0;
+	}
 
-    ALBEDO   = base.rgb;
-    EMISSION = rim_emission;
-    ALPHA    = base.a * final_alpha;
-    ALPHA_HASH_SCALE = 1.0;
+
+
 }

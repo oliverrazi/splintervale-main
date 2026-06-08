@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://c7e0r62arjjed"]
+
+[ext_resource type="Script" uid="uid://cenfox7qc8yge" path="res://assets/vfx/environment/AmbientParticles/ambient_sparks_round.gd" id="1_jgbhn"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gc0di"]
+emission_shape = 3
+emission_box_extents = Vector3(15, 4, 15)
+direction = Vector3(50, 5, 50)
+spread = 180.0
+initial_velocity_min = 0.049999997
+initial_velocity_max = 0.14999999
+angular_velocity_min = -45.000015
+angular_velocity_max = 44.999985
+gravity = Vector3(0, 0.05, 0)
+scale_min = 0.29999998
+color = Color(0.80830514, 1.353256, 0.80830514, 1)
+hue_variation_min = -0.050000023
+hue_variation_max = -0.050000023
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s0e47"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.30661958, 0.7377567, 1.353, 1)
+detail_uv_layer = 1
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_n81gc"]
+material = SubResource("StandardMaterial3D_s0e47")
+size = Vector2(0.02, 0.02)
+
+[node name="AmbientSparksBlue" type="Node3D" unique_id=1668924763]
+script = ExtResource("1_jgbhn")
+base_amount = 1200
+base_alpha = 0.3
+base_emission_intensity = 0.75
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=184525880]
+amount = 50
+lifetime = 8.0
+preprocess = 4.0
+randomness = 1.0
+process_material = SubResource("ParticleProcessMaterial_gc0di")
+draw_pass_1 = SubResource("QuadMesh_n81gc")

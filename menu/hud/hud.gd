@@ -1105,3 +1105,20 @@ func _on_overheat_started(_duration: float, heat_bar: Node) -> void:
 func _on_overheat_ended(heat_bar: Node) -> void:
 	if is_instance_valid(heat_bar):
 		heat_bar.end_overheat()
+
+
+
+func hide_for_intro() -> void:
+	visible = false
+	if _hud_root:
+		_hud_root.modulate.a = 0.0
+ 
+ 
+
+func reveal_after_intro(duration: float = 0.8) -> void:
+	visible = true
+	if _hud_root == null:
+		return
+	_hud_root.modulate.a = 0.0
+	var t := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	t.tween_property(_hud_root, "modulate:a", 1.0, duration)

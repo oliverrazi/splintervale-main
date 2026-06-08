@@ -14,6 +14,7 @@ extends Control
 @export var camera_sway_speed: float = 0.3
 @export var camera_sway_amount: float = 2.0
 
+@export_file("*.tscn") var intro_scene_path: String = "res://scenes/cutscenes/intro/IntroCutscene.tscn"
 
 # ══════════════════════════════════════════════════════════════
 #  FARBEN
@@ -360,18 +361,20 @@ func _build_options_overlay() -> void:
 # ══════════════════════════════════════════════════════════════
 
 func _on_start_pressed() -> void:
+	# New Game -> Intro-Szene laden. Der CutsceneDirector in der Intro-Szene
+	# wechselt am Ende selbst zu game_scene_path (im Director gesetzt).
 	if has_node("/root/SceneTransition"):
-		get_node("/root/SceneTransition").transition_to_game(game_scene_path)
+		get_node("/root/SceneTransition").transition_to_game(intro_scene_path, false, true)
 	else:
-		_simple_transition(game_scene_path)
-
-
+		_simple_transition(intro_scene_path)
+ 
+ 
 func _on_load_pressed() -> void:
 	if not GameManager.has_save_file():
 		return
-	
+	# Load -> direkt ins Spiel, kein Intro.
 	if has_node("/root/SceneTransition"):
-		get_node("/root/SceneTransition").transition_to_game(game_scene_path, true)
+		get_node("/root/SceneTransition").transition_to_game(game_scene_path, true, true)
 	else:
 		await GameManager.load_game()
 		_simple_transition(game_scene_path)

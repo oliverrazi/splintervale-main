@@ -293,6 +293,7 @@ func _process(delta: float) -> void:
 		_cam_attributes.dof_blur_far_distance = target_far
 		_cam_attributes.dof_blur_near_distance = target_near
 
+	debug_print_dof = false
 	if debug_print_dof:
 		_debug_timer += delta
 		if _debug_timer >= 1.0:

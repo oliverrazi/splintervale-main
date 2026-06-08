@@ -68,7 +68,7 @@ func fade_out(duration: float = -1.0) -> Signal:
 
 
 ## Übergang zu einer Szene mit Fade und optionalem Sound
-func transition_to(scene_path: String, play_sound: bool = true) -> void:
+func transition_to(scene_path: String, play_sound: bool = false) -> void:
 	if _is_transitioning:
 		return
 	_is_transitioning = true
@@ -96,13 +96,13 @@ func transition_to(scene_path: String, play_sound: bool = true) -> void:
 
 
 ## Übergang zum Spiel (zeigt HUD, optional lädt Save)
-func transition_to_game(scene_path: String, load_save: bool = false) -> void:
+func transition_to_game(scene_path: String, load_save: bool = false, play_sound: bool = false) -> void:
 	if _is_transitioning:
 		return
 	_is_transitioning = true
 	
 	# Sound abspielen
-	if start_sound and start_sound.stream:
+	if start_sound and start_sound.stream and play_sound:
 		start_sound.play()
 	
 	# Fade Out

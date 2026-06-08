@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://sxdjfxc83241"]
+
+[ext_resource type="Script" uid="uid://bgii6vrwqajqg" path="res://menu/hud/low_hp_vignette.gd" id="1_ilf8y"]
+[ext_resource type="Shader" uid="uid://bk0fsdvrou3bh" path="res://menu/hud/shaders/low_hp_vignette.gdshader" id="2_mmpv4"]
+
+[node name="LowHpVignette" type="CanvasLayer" unique_id=1273949492]
+script = ExtResource("1_ilf8y")
+vignette_shader = ExtResource("2_mmpv4")
+tint_color = Color(0.6342945, 0.023710255, 0.025125695, 1)

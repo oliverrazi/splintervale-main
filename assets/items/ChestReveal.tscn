@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://doytwiax0t073"]
+
+[ext_resource type="Script" uid="uid://c0degunc6m45u" path="res://assets/items/chest_reveal.gd" id="1_script"]
+[ext_resource type="Shader" uid="uid://bgjew8dv0alfp" path="res://assets/items/god_ray.gdshader" id="2_ray_shader"]
+[ext_resource type="AudioStream" uid="uid://c5co7egja4abt" path="res://assets/audio/sfx/chest_reveal.wav" id="3_e60yn"]
+
+[sub_resource type="ShaderMaterial" id="beam_mat"]
+render_priority = 0
+shader = ExtResource("2_ray_shader")
+shader_parameter/ray_color = Color(0.55, 0.82, 1, 1)
+shader_parameter/core_brightness = 1.0
+shader_parameter/fade_in = 0.0
+shader_parameter/top_fade = 0.15
+shader_parameter/horizontal_softness = 0.7
+shader_parameter/shimmer_speed = 1.2
+shader_parameter/shimmer_amount = 0.15
+
+[sub_resource type="QuadMesh" id="beam_mesh"]
+size = Vector2(2, 8)
+
+[sub_resource type="Gradient" id="spot_grad"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.7, 0.85, 1, 0.5, 0.5, 0.7, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="spot_tex"]
+gradient = SubResource("spot_grad")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="floor_mat"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(0.55, 0.82, 1, 0)
+albedo_texture = SubResource("spot_tex")
+
+[sub_resource type="PlaneMesh" id="floor_mesh"]
+material = SubResource("floor_mat")
+size = Vector2(2.8, 2.8)
+
+[node name="ChestReveal" type="Node3D" unique_id=1111772840]
+script = ExtResource("1_script")
+reveal_sound = ExtResource("3_e60yn")
+
+[node name="GodRay" type="Node3D" parent="." unique_id=446975537]
+
+[node name="Beam" type="MeshInstance3D" parent="GodRay" unique_id=309087523]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+material_override = SubResource("beam_mat")
+mesh = SubResource("beam_mesh")
+
+[node name="Floor" type="MeshInstance3D" parent="GodRay" unique_id=951807404]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+mesh = SubResource("floor_mesh")
+
+[node name="LightFlash" type="OmniLight3D" parent="." unique_id=213429894]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+light_color = Color(0.7, 0.9, 1, 1)
+light_energy = 0.0
+light_specular = 0.3
+omni_range = 4.0
+omni_attenuation = 2.0
+
+[node name="AudioPlayer" type="AudioStreamPlayer3D" parent="." unique_id=798947967]
+attenuation_model = 2
+max_distance = 30.0

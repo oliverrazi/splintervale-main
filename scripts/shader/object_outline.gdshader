@@ -1,0 +1,13 @@
+shader_type spatial;
+render_mode depth_draw_opaque, cull_disabled;
+uniform vec4 outline_color : source_color = vec4(0.05, 0.05, 0.05, 1.0);
+uniform float outline_width = 0.008;
+
+
+void vertex() {
+    VERTEX += NORMAL * outline_width;
+}
+
+void fragment() {
+    ALBEDO = outline_color.rgb;
+}

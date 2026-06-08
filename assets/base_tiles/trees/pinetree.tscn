@@ -1,4 +1,4 @@
-[gd_scene load_steps=172 format=4 uid="uid://c8u5vyoqg0wea"]
+[gd_scene format=4 uid="uid://c8u5vyoqg0wea"]
 
 [ext_resource type="Script" uid="uid://ckc6rp5jceupb" path="res://scripts/occludable.gd" id="1_wl8v5"]
 [ext_resource type="Texture2D" uid="uid://dqiruftw2ebwd" path="res://assets/base_tiles/pinetree_cut_treestump3.png" id="2_jrkwc"]
@@ -2348,144 +2348,144 @@ _data = {
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_wuj6e"]
 height = 2.2895508
 
-[node name="pinetree_cut" type="Node3D"]
+[node name="pinetree_cut" type="Node3D" unique_id=1696837849]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 script = ExtResource("1_wl8v5")
 
-[node name="Cube" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="Cube" type="MeshInstance3D" parent="." unique_id=1318901059 groups=["foliage"]]
 mesh = SubResource("ArrayMesh_pvar6")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_2b51q")
 
-[node name="Empty" type="Node3D" parent="."]
+[node name="Empty" type="Node3D" parent="." unique_id=1431621530]
 transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0, 1.0948539, 0.30231047)
 
-[node name="pineleaf_004" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_004" type="MeshInstance3D" parent="." unique_id=1022340557 groups=["foliage"]]
 transform = Transform3D(-0.34643775, 0.36575973, 0.56716853, 0.013698638, -0.3825054, 0.7218007, 0.59890914, 0.22032186, 0.311568, -0.31580183, 2.8036273, -0.25836048)
 mesh = SubResource("ArrayMesh_hr22f")
 skeleton = NodePath("")
 
-[node name="pineleaf_005" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_005" type="MeshInstance3D" parent="." unique_id=385886149 groups=["foliage"]]
 transform = Transform3D(0.24138868, -0.371981, -0.65924114, -0.016492823, -0.4077475, 0.68478113, -0.64534473, -0.12871738, -0.26408726, 0.6540774, 2.7206507, 0.18893778)
 mesh = SubResource("ArrayMesh_bokq4")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_oqisk")
 
-[node name="pineleaf_006" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_006" type="MeshInstance3D" parent="." unique_id=1624817371 groups=["foliage"]]
 transform = Transform3D(-0.43721715, -0.33410305, -0.4918675, 0.012989182, -0.39522818, 0.750871, -0.48913568, 0.28814477, 0.45959866, 0.5320367, 2.8046873, -0.37039047)
 mesh = SubResource("ArrayMesh_jplox")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_od63r")
 
-[node name="pineleaf_007" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_007" type="MeshInstance3D" parent="." unique_id=713615418 groups=["foliage"]]
 transform = Transform3D(-0.5394422, -0.064978756, -0.068305805, 0.010752618, -0.4364691, 0.8122481, -0.06287096, 0.48287937, 0.7249901, 0.10702904, 2.7088115, -0.66337615)
 mesh = SubResource("ArrayMesh_iy4mp")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_vbdiq")
 
-[node name="pineleaf_008" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_008" type="MeshInstance3D" parent="." unique_id=479150466 groups=["foliage"]]
 transform = Transform3D(-0.53929895, -0.06296188, -0.07050493, 0.017332498, -0.47000283, 0.7546138, -0.061366163, 0.42057297, 0.8327485, 0.05658438, 3.2342677, -0.5218712)
 mesh = SubResource("ArrayMesh_1qg2r")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_fpg2o")
 
-[node name="pineleaf_009" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_009" type="MeshInstance3D" parent="." unique_id=608831127 groups=["foliage"]]
 transform = Transform3D(-0.007584874, -0.34177566, -0.7210545, 0.057959206, -0.4180681, 0.58566904, -0.7325502, -0.029538687, 0.053803854, 0.49358174, 3.3200939, 0.028348923)
 mesh = SubResource("ArrayMesh_iyfa3")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_tw3a0")
 
-[node name="pineleaf_010" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_010" type="MeshInstance3D" parent="." unique_id=1276999627 groups=["foliage"]]
 transform = Transform3D(0.53885835, 0.041928113, -0.031262834, 0.03641728, -0.4688753, 0.75733095, 0.012891392, -0.42804936, -0.832625, 0.10095706, 3.3293452, 0.46790427)
 mesh = SubResource("ArrayMesh_cvh4u")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_avw1b")
 
-[node name="pineleaf_011" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_011" type="MeshInstance3D" parent="." unique_id=399299383 groups=["foliage"]]
 transform = Transform3D(0.13771912, 0.3812574, 0.6449775, -0.035328787, -0.38074964, 0.66791093, 0.7154855, -0.09218615, -0.09116782, -0.32251027, 3.1779246, 0.023264095)
 mesh = SubResource("ArrayMesh_4oln4")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_hiho2")
 
-[node name="pineleaf_012" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_012" type="MeshInstance3D" parent="." unique_id=678625650 groups=["foliage"]]
 transform = Transform3D(-0.31552565, -0.040716078, -0.044206265, 0.014973808, -0.33840242, 0.39697617, -0.034171056, 0.22767207, 0.5821434, 0.053651534, 3.7740219, -0.32744837)
 mesh = SubResource("ArrayMesh_8efll")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_asfxs")
 
-[node name="pineleaf_013" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_013" type="MeshInstance3D" parent="." unique_id=1233491660 groups=["foliage"]]
 transform = Transform3D(-0.013152139, -0.24263778, -0.5567145, 0.027141664, -0.33065617, 0.40529543, -0.31520763, -0.018347759, 0.05812797, 0.319749, 3.772424, 0.02751216)
 mesh = SubResource("ArrayMesh_5t7ew")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_ywnv3")
 
-[node name="pineleaf_014" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_014" type="MeshInstance3D" parent="." unique_id=705773134 groups=["foliage"]]
 transform = Transform3D(0.29453608, -0.06002873, -0.23271841, 0.027141647, -0.3306561, 0.4052955, -0.113036744, -0.23580985, -0.5090697, 0.131307, 3.7167685, 0.34951517)
 mesh = SubResource("ArrayMesh_8so1c")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_7uqy2")
 
-[node name="pineleaf_015" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_015" type="MeshInstance3D" parent="." unique_id=722346310 groups=["foliage"]]
 transform = Transform3D(0.1835514, 0.21310012, 0.43407872, 0.027141659, -0.3306561, 0.40529558, 0.25658858, -0.11746536, -0.35339123, -0.24160664, 3.753254, 0.18446213)
 mesh = SubResource("ArrayMesh_wagvx")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_0cb05")
 
-[node name="pineleaf_016" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_016" type="MeshInstance3D" parent="." unique_id=1825313919 groups=["foliage"]]
 transform = Transform3D(-0.050627843, 0.24347763, 0.5453341, -0.065787435, -0.32913578, 0.38729963, 0.3055721, -0.03052062, 0.17373489, -0.32613158, 3.7178016, -0.083695)
 mesh = SubResource("ArrayMesh_5vojn")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_l08qf")
 
-[node name="pineleaf_017" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_017" type="MeshInstance3D" parent="." unique_id=1996694997 groups=["foliage"]]
 transform = Transform3D(0.31295514, -0.028888052, 0.09331331, 0.027395977, -0.19303572, -0.60697097, 0.03967369, 0.361173, -0.3169435, 0.004817538, 4.100693, -0.040316343)
 mesh = SubResource("ArrayMesh_s0eai")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_t6k1a")
 
-[node name="pineleaf_018" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_018" type="MeshInstance3D" parent="." unique_id=1168049748 groups=["foliage"]]
 transform = Transform3D(-0.016432304, 0.36307183, -0.32057354, 0.044800367, -0.18610255, -0.60817516, -0.313031, -0.04569378, -0.07021256, -0.08624233, 4.0658445, 0.034271266)
 mesh = SubResource("ArrayMesh_8qruu")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_rspmo")
 
-[node name="pineleaf_019" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_019" type="MeshInstance3D" parent="." unique_id=1039735761 groups=["foliage"]]
 transform = Transform3D(0.16204758, -0.14231946, -0.1438469, -0.030487338, -0.17676392, 0.3319615, -0.12435525, -0.14212075, -0.26883194, 0.105389014, 3.9989688, 0.22127417)
 mesh = SubResource("ArrayMesh_aujf0")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_o6xuh")
 
-[node name="pineleaf_020" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_020" type="MeshInstance3D" parent="." unique_id=1322927686 groups=["foliage"]]
 transform = Transform3D(-0.08039081, -0.18043172, -0.28307417, -0.027313063, -0.16972509, 0.34348655, -0.18826693, 0.10166822, 0.071042165, 0.17358844, 3.9780884, -0.04431589)
 mesh = SubResource("ArrayMesh_d4hee")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_xey3s")
 
-[node name="pineleaf_021" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_021" type="MeshInstance3D" parent="." unique_id=120023723 groups=["foliage"]]
 transform = Transform3D(-0.104494266, 0.1885821, 0.22446083, -0.027313055, -0.16972502, 0.34348667, 0.17603429, 0.08560855, 0.18653493, -0.1394204, 4.0011067, -0.091396935)
 mesh = SubResource("ArrayMesh_5ggnt")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_dqnow")
 
-[node name="pineleaf_022" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_022" type="MeshInstance3D" parent="." unique_id=1455386917 groups=["foliage"]]
 transform = Transform3D(0.15256305, 0.120388165, 0.22634093, -0.02731305, -0.1697251, 0.34348655, 0.13649778, -0.1685192, -0.18424916, -0.119379774, 4.040616, 0.15045464)
 mesh = SubResource("ArrayMesh_ashn2")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_odb58")
 
-[node name="pineleaf_023" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_023" type="MeshInstance3D" parent="." unique_id=1251720529 groups=["foliage"]]
 transform = Transform3D(-0.30781707, -0.09506994, -0.025570694, 0.044800356, -0.18610255, -0.60817516, 0.05922023, -0.3533706, 0.32717475, -0.012771208, 3.9775746, 0.14427987)
 mesh = SubResource("ArrayMesh_d8onv")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_hffek")
 
-[node name="pineleaf_024" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_024" type="MeshInstance3D" parent="." unique_id=341159486 groups=["foliage"]]
 transform = Transform3D(0.04123584, -0.35829735, 0.32513633, 0.044800386, -0.18610252, -0.60817516, 0.31073788, 0.07437832, 0.04453661, 0.13904068, 4.0380354, 0.0435969)
 mesh = SubResource("ArrayMesh_nptms")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_2bmnq")
 
-[node name="bigleaf" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="bigleaf" type="MeshInstance3D" parent="." unique_id=959714811 groups=["foliage"]]
 transform = Transform3D(0.3079445, -0.031269725, -0.03941693, -0.006402334, -0.40677518, 0.5888229, -0.021656265, -0.32438785, -0.73457116, 0.041102037, 1.940964, 0.9557499)
 mesh = SubResource("ArrayMesh_aednx")
 skeleton = NodePath("")
@@ -2494,7 +2494,7 @@ surface_material_override/1 = SubResource("StandardMaterial3D_flomw")
 surface_material_override/2 = SubResource("StandardMaterial3D_pb8ld")
 surface_material_override/3 = SubResource("StandardMaterial3D_7nli4")
 
-[node name="bigleaf_001" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="bigleaf_001" type="MeshInstance3D" parent="." unique_id=1790427890 groups=["foliage"]]
 transform = Transform3D(0.17378803, -0.27400348, -0.6010275, -0.006402347, -0.4067753, 0.58882266, -0.25514024, -0.17642927, -0.42416367, 0.8627694, 1.940964, 0.389074)
 mesh = SubResource("ArrayMesh_alwll")
 skeleton = NodePath("")
@@ -2503,7 +2503,7 @@ surface_material_override/1 = SubResource("StandardMaterial3D_d5dc0")
 surface_material_override/2 = SubResource("StandardMaterial3D_nwwuf")
 surface_material_override/3 = SubResource("StandardMaterial3D_npu45")
 
-[node name="bigleaf_002" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="bigleaf_002" type="MeshInstance3D" parent="." unique_id=884428007 groups=["foliage"]]
 transform = Transform3D(0.17322601, 0.2649236, 0.6156643, -0.0064023286, -0.40677503, 0.58882314, 0.25552213, -0.18979165, -0.40262353, -0.8331328, 1.940964, 0.65206885)
 mesh = SubResource("ArrayMesh_340sb")
 skeleton = NodePath("")
@@ -2512,7 +2512,7 @@ surface_material_override/1 = SubResource("StandardMaterial3D_a56xy")
 surface_material_override/2 = SubResource("StandardMaterial3D_cufv4")
 surface_material_override/3 = SubResource("StandardMaterial3D_lyyii")
 
-[node name="bigleaf_003" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="bigleaf_003" type="MeshInstance3D" parent="." unique_id=28905774 groups=["foliage"]]
 transform = Transform3D(-0.18757966, -0.25361615, -0.5915878, -0.006402342, -0.4067748, 0.5888238, -0.24517888, 0.20465687, 0.4372317, 0.81995696, 1.940964, -0.71352255)
 mesh = SubResource("ArrayMesh_oq8q0")
 skeleton = NodePath("")
@@ -2521,7 +2521,7 @@ surface_material_override/1 = SubResource("StandardMaterial3D_a441t")
 surface_material_override/2 = SubResource("StandardMaterial3D_uuptb")
 surface_material_override/3 = SubResource("StandardMaterial3D_m8wk6")
 
-[node name="bigleaf_004" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="bigleaf_004" type="MeshInstance3D" parent="." unique_id=552721579 groups=["foliage"]]
 transform = Transform3D(-0.15888631, 0.2836609, 0.62433934, -0.0064023375, -0.40677506, 0.58882314, 0.2646771, 0.16044275, 0.38903555, -0.8580938, 1.940964, -0.35380554)
 mesh = SubResource("ArrayMesh_hfwyf")
 skeleton = NodePath("")
@@ -2530,7 +2530,7 @@ surface_material_override/1 = SubResource("StandardMaterial3D_tmt8e")
 surface_material_override/2 = SubResource("StandardMaterial3D_v507i")
 surface_material_override/3 = SubResource("StandardMaterial3D_l0w8s")
 
-[node name="bigleaf_005" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="bigleaf_005" type="MeshInstance3D" parent="." unique_id=1888485684 groups=["foliage"]]
 transform = Transform3D(-0.30619815, 0.04980187, 0.081434116, -0.0064023347, -0.40677494, 0.58882344, 0.039262168, 0.32206404, 0.7311063, -0.070239276, 1.940964, -0.9666221)
 mesh = SubResource("ArrayMesh_gu53r")
 skeleton = NodePath("")
@@ -2539,45 +2539,43 @@ surface_material_override/1 = SubResource("StandardMaterial3D_13wo3")
 surface_material_override/2 = SubResource("StandardMaterial3D_yre1w")
 surface_material_override/3 = SubResource("StandardMaterial3D_mbust")
 
-[node name="pineleaf_001" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_001" type="MeshInstance3D" parent="." unique_id=779816897 groups=["foliage"]]
 transform = Transform3D(0.5375694, -0.10726207, -0.15652904, -0.013186359, -0.45795897, 0.7704143, -0.12036348, -0.42888415, -0.78349483, 0.14873725, 2.7206507, 0.55057573)
 mesh = SubResource("ArrayMesh_y11ih")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_lefcq")
 
-[node name="pineleaf_002" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_002" type="MeshInstance3D" parent="." unique_id=1435492592 groups=["foliage"]]
 transform = Transform3D(0.38390172, 0.33962247, 0.5712963, -0.0881411, -0.36317366, 0.75569934, 0.5552973, -0.29244187, -0.2750121, -0.36110276, 2.8358877, 0.22713178)
 mesh = SubResource("ArrayMesh_kdouh")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_a3e8q")
 
-[node name="pineleaf_003" type="MeshInstance3D" parent="." groups=["foliage"]]
+[node name="pineleaf_003" type="MeshInstance3D" parent="." unique_id=617387215 groups=["foliage"]]
 transform = Transform3D(0.084947735, 0.46286723, 0.75199497, 0.048730053, -0.43522418, 0.81503004, 0.5312909, -0.03408872, -0.19499062, -0.32253528, 3.388208, 0.16256163)
 mesh = SubResource("ArrayMesh_uunvs")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_yyvmg")
 
-[node name="trunk" type="MeshInstance3D" parent="."]
+[node name="trunk" type="MeshInstance3D" parent="." unique_id=1293738540]
 mesh = SubResource("ArrayMesh_j57sr")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_egq8g")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_76did")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=371580478]
+libraries/ = SubResource("AnimationLibrary_76did")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=431502535]
 collision_layer = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1649243170]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 2.0819967, 0)
 shape = SubResource("CylinderShape3D_wuj6e")
 
-[node name="StaticBody3D2" type="StaticBody3D" parent="."]
+[node name="StaticBody3D2" type="StaticBody3D" parent="." unique_id=1706985916]
 collision_layer = 4
 collision_mask = 4
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2" unique_id=103185104]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 1.4596465, 0)
 shape = SubResource("CylinderShape3D_wuj6e")
