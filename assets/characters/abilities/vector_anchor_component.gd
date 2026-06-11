@@ -27,6 +27,19 @@ signal target_confused(target: Node3D, duration: float)
 @export var radius_height: float = 0.3
 @export var resonance_drain_per_second: float = 10.0
 
+@export_group("Charge Movement")
+@export var charge_move_speed_factor: float = 0.2   # Anteil der normalen Laufgeschwindigkeit
+
+@export_group("Frames - Charging Walk")
+@export var CHARGE_WALK_DOWN_FRAMES: Array[int] = [99, 100]
+@export var CHARGE_WALK_UP_FRAMES: Array[int] = [101, 102]
+@export var CHARGE_WALK_SIDE_FRAMES: Array[int] = [103, 104]
+@export var CHARGE_WALK_DOWN_LEFT_FRAMES: Array[int] = [105, 106]
+@export var CHARGE_WALK_UP_RIGHT_FRAMES: Array[int] = [108, 109]
+@export var charge_walk_fps: float = 3.0
+
+var _charge_locked_dir_mode: int = 0
+
 @export_group("Charge Visual")
 @export var charge_fade_in_time: float = 0.12
 @export var charge_fade_out_time: float = 0.12
@@ -109,6 +122,23 @@ signal target_confused(target: Node3D, duration: float)
 @export var block_bounce_speed_multiplier: float = 0.85   # mehr Rückstoß als Wand (0.35)
 @export var block_bounce_upward_kick: float = 1.5
 
+@export_group("Chain (Spiderman)")
+@export var chain_enabled: bool = true
+@export var chain_window_start: float = 0.45          # ab wann im Flug re-targetbar (Apex)
+@export var chain_cone_angle_deg: float = 70.0        # Öffnungswinkel des Such-Cones
+@export var chain_search_radius: float = 6.0          # Reichweite der Kettensuche
+@export var chain_resonance_base: float = 8.0         # Kosten für das erste Kettenglied
+@export var chain_resonance_per_link: float = 4.0     # zusätzliche Kosten je weiterem Glied
+@export var chain_max_links: int = 0                  # 0 = unbegrenzt (Cone+Resonanz limitieren)
+@export var chain_no_target_sound: AudioStream 
+
+@export_group("Projectile Origin Offset")
+@export var beam_origin_down: Vector3 = Vector3(0, 0.5, 0)
+@export var beam_origin_up: Vector3 = Vector3(0, 0.5, 0)
+@export var beam_origin_side: Vector3 = Vector3(0.2, 0.4, 0)
+@export var beam_origin_down_diag: Vector3 = Vector3(0.15, 0.4, 0)
+@export var beam_origin_up_diag: Vector3 = Vector3(0.15, 0.45, 0)
+
 
 @export_group("Launch Impact VFX")
 @export var launch_impact_scene: PackedScene
@@ -133,7 +163,7 @@ var _block_triggered: bool = false
 const TARGETABLE_GROUPS: Array[String] = ["enemies", "enemy", "targetable", "projectile"]
 
 # === STATE ===
-enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, DIVE_DELEGATED, BOUNCING, RECOVERY }
+enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, DIVE_DELEGATED, BOUNCING, RECOVERY, FALLING }
 
 var _state: State = State.IDLE
 var _current_radius: float = 0.0
@@ -158,6 +188,8 @@ var _radius_mesh: MeshInstance3D = null
 var _charge_audio: AudioStreamPlayer3D = null
 var _radius_tween: Tween = null
 
+var _charge_walk_time: float = 0.0
+
 # === TARGET INDICATOR RUNTIME ===
 var _target_indicator_root: Node3D = null
 var _target_indicator_mesh: MeshInstance3D = null
@@ -175,7 +207,16 @@ var _dive_player_base_y: float = 0.0
 var _dive_charge_particles: GPUParticles3D = null
 var _dive_resonance_used: float = 0.0
 
+var _land_in_air: bool = false
 
+var _chain_count: int = 0
+
+var _chain_preview_target: Node3D = null
+
+var _launch_locked_dir_mode: int = 0
+var _launch_locked_flip: bool = false
+
+var _chain_shoot_frame_hold: float = 0.0
 
 # === CACHED REFERENCES ===
 var _player: CharacterBody3D = null
@@ -208,6 +249,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	match _state:
+		State.IDLE:
+			if _target_indicator_root != null or _chain_preview_target != null:
+				_cleanup_all_indicators()
 		State.CHARGING:
 			_process_charging(delta)
 		State.PROJECTILE:
@@ -220,6 +264,8 @@ func _physics_process(delta: float) -> void:
 			_process_bouncing(delta)
 		State.RECOVERY:
 			pass
+		State.FALLING:
+			_process_falling(delta)
 
 
 # ============================================
@@ -244,8 +290,8 @@ func start_charging() -> bool:
 	_current_radius = radius_start
 	_charge_time = 0.0
 	_current_target = null
-	
-	_player.velocity = Vector3.ZERO
+	_chain_count = 0 
+	_charge_locked_dir_mode = _player._last_dir_mode 
 	
 	_create_radius_visual()
 	_start_charge_sound()
@@ -268,6 +314,17 @@ func stop_charging() -> void:
 	else:
 		_cancel_ability("no_target")
 
+
+func is_charging_movement_allowed() -> bool:
+	return _state == State.CHARGING
+
+
+func get_charge_move_factor() -> float:
+	return charge_move_speed_factor
+
+
+func get_charge_locked_dir_mode() -> int:
+	return _charge_locked_dir_mode
 
 func cancel() -> void:
 	charging_stopped.emit()
@@ -328,8 +385,119 @@ func _process_charging(delta: float) -> void:
 	if _current_target != null and is_instance_valid(_current_target):
 		_sync_target_indicator()
 	
-	_show_charge_frame()
+	var moving: bool = false
+	if _player != null:
+		var h_vel := Vector2(_player.velocity.x, _player.velocity.z)
+		moving = h_vel.length_squared() > 0.04   # kleine Deadzone gegen Zittern
 
+	if moving:
+		_charge_walk_time += delta
+	else:
+		_charge_walk_time = 0.0
+
+	_show_charge_frame(moving)
+
+func try_chain_launch() -> bool:
+	if not chain_enabled:
+		return false
+	if _state != State.LAUNCHING:
+		return false
+	if _launch_progress < chain_window_start:
+		return false
+	if chain_max_links > 0 and _chain_count >= chain_max_links:
+		return false
+
+	var cost: float = chain_resonance_base + chain_resonance_per_link * float(_chain_count)
+	if not _has_resonance(cost):
+		return false
+
+	var next_target: Node3D = _find_chain_target()
+	if next_target == null:
+		_play_sound(chain_no_target_sound)
+		return false
+
+	if not _consume_resonance(cost):
+		return false
+
+	_chain_count += 1
+
+	# Preview-Pointer wird zum echten Ziel — sauber wegräumen, Strahl + Launch
+	_clear_chain_preview()
+	_remove_target_indicator()
+
+	_spawn_chain_beam(_player.global_position, next_target)
+
+	_current_target = next_target
+	_block_triggered = false
+	
+	_chain_count += 1
+
+	_clear_chain_preview()
+	_remove_target_indicator()
+
+	_spawn_chain_beam(_player.global_position, next_target)
+
+	_current_target = next_target
+
+	# Kurz die Schuss-Pose zeigen (wie beim ersten Projectile-Fire)
+	_face_target(next_target.global_position)
+	_show_charge_frame()
+	_chain_shoot_frame_hold = 0.12
+
+	_block_triggered = false
+	_start_launch()
+	return true
+
+
+func _find_chain_target() -> Node3D:
+	# Cone-Achse = aktuelle horizontale FLUGRICHTUNG (nicht Facing!)
+	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
+	flight_dir.y = 0.0
+	if flight_dir.length_squared() < 0.0001:
+		return null
+	flight_dir = flight_dir.normalized()
+
+	var origin: Vector3 = _player.global_position
+	var cos_half_angle: float = cos(deg_to_rad(chain_cone_angle_deg * 0.5))
+
+	var best_target: Node3D = null
+	var best_score: float = -INF
+
+	for group in TARGETABLE_GROUPS:
+		for node in get_tree().get_nodes_in_group(group):
+			if not (node is Node3D):
+				continue
+			# Aktuelles Ziel überspringen — sonst springt er auf sich selbst zurück
+			if node == _current_target:
+				continue
+			if node.has_method("is_vector_anchor_targetable") and not node.is_vector_anchor_targetable():
+				continue
+
+			var target_pos: Vector3 = _get_target_anchor_position(node)
+			var to_target: Vector3 = target_pos - origin
+			to_target.y = 0.0
+			var distance: float = to_target.length()
+
+			if distance > chain_search_radius or distance < 0.5:
+				continue
+
+			var dir_to_target: Vector3 = to_target.normalized()
+			var dot: float = dir_to_target.dot(flight_dir)
+
+			# Harte Cone-Grenze: außerhalb des Öffnungswinkels = raus
+			if dot < cos_half_angle:
+				continue
+
+			# Innerhalb des Cones: am ehesten geradeaus + am nächsten gewinnt
+			var facing_score: float = dot
+			var distance_score: float = 1.0 - (distance / chain_search_radius)
+			var score: float = facing_score * 2.5 + distance_score * 0.8
+
+			if score > best_score:
+				best_score = score
+				best_target = node
+
+	return best_target
 
 func _update_target() -> void:
 	var best_target: Node3D = null
@@ -356,8 +524,19 @@ func _update_target() -> void:
 				
 				var direction: Vector3 = to_target.normalized()
 				var dot: float = direction.dot(player_forward)
-				var score: float = dot * 2.0 - distance / _current_radius
-				
+
+				# Blickrichtung dominiert, aber NICHTS wird komplett verworfen.
+				# dot [-1, 1] → facing [0, 1], hinten gibt minimalen Restwert statt Ausschluss.
+				var facing_score: float = (dot + 1.0) * 0.5   # [0, 1]
+				facing_score = pow(facing_score, 2.0)          # Front überproportional bevorzugt
+
+				var distance_score: float = 1.0 - (distance / _current_radius)
+
+				# Front-Gewicht hoch, Distanz als Tiebreaker.
+				# Ein frontales Ziel schlägt fast immer ein gleich nahes hinter dem Spieler,
+				# aber wenn vorne nichts ist, gewinnt das hintere trotzdem.
+				var score: float = facing_score * 3.0 + distance_score * 0.6
+
 				if score > best_score:
 					best_score = score
 					best_target = node
@@ -447,7 +626,65 @@ func _create_projectile() -> void:
 	glow.material_override = _create_beam_material(0.55, 2.2)
 	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_projectile_node.add_child(glow)
+	
+	var muzzle := MeshInstance3D.new()
+	muzzle.name = "BeamMuzzle"
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.06
+	sphere.height = 0.12
+	sphere.radial_segments = 16
+	sphere.rings = 8
+	muzzle.mesh = sphere
+	muzzle.material_override = _create_muzzle_material()
+	muzzle.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_projectile_node.add_child(muzzle)
 
+func _create_muzzle_material() -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = _get_muzzle_shader()
+	mat.set_shader_parameter("ball_color", projectile_color)
+	mat.set_shader_parameter("brightness", 1.4)
+	mat.set_shader_parameter("time", 0.0)
+	return mat
+
+var _muzzle_shader_cache: Shader = null
+
+func _get_muzzle_shader() -> Shader:
+	if _muzzle_shader_cache != null:
+		return _muzzle_shader_cache
+	_muzzle_shader_cache = Shader.new()
+	_muzzle_shader_cache.code = """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, blend_add, depth_draw_never;
+
+uniform vec4 ball_color : source_color = vec4(0.7, 0.9, 1.0, 1.0);
+uniform float brightness = 1.4;
+uniform float time = 0.0;
+
+void fragment() {
+	float facing = abs(dot(NORMAL, VIEW));
+
+	// Sehr enger, heller Kern — fällt steil ab (starker Gradient zum Rand)
+	float core = pow(facing, 6.0);
+	// Schwacher, breiter Halo drumherum für den weichen Auslauf
+	float halo = pow(facing, 2.0) * 0.18;
+
+	float pulse = 0.92 + sin(time * 18.0) * 0.08;
+
+	// Kern leicht aufgehellt, Rand bleibt in kalter Strahlfarbe
+	vec3 col = mix(ball_color.rgb, vec3(1.0), core * 0.5);
+	float intensity = (core + halo) * brightness * pulse;
+
+	if (intensity < 0.015) {
+		discard;
+	}
+
+	ALBEDO = col * intensity;
+	ALPHA = 1.0;
+	EMISSION = col * intensity * 1.5;
+}
+""";
+	return _muzzle_shader_cache
 
 func _build_beam_cross_mesh(thickness: float) -> ArrayMesh:
 	# Zwei gekreuzte Quads in + Form. Unit-Length entlang Z,
@@ -516,26 +753,36 @@ uniform float softness = 1.5;
 uniform float time = 0.0;
 
 void fragment() {
-	float width_dist = abs(UV.x - 0.5) * 2.0;
+	// UV.y bei dieser Mesh läuft vom Ziel (0) zum Player (1) — invertieren,
+	// damit der Trichter am PLAYER sitzt.
+	float along = 1.0 - UV.y;
+
+	// Trichter nur im ersten kurzen Stück am Player, danach konstant
+	float taper_zone = 0.12;
+	float width_profile = smoothstep(0.0, taper_zone, along);
+	width_profile = mix(0.12, 1.0, width_profile);
+
+	// Querschnitt — schmaler Grundstrahl (höhere Basis-Schärfe)
+	float width_dist = (abs(UV.x - 0.5) * 2.0) / width_profile;
 	float width_falloff = pow(max(0.0, 1.0 - width_dist), softness);
-	
-	// Weicher Taper an beiden Enden — kein hartes Abschneiden
-	float length_mask = smoothstep(0.0, 0.05, UV.y) * smoothstep(1.0, 0.94, UV.y);
-	
-	// Energiefluss entlang der Länge
-	float flow = fract(UV.y * 3.5 - time * 7.0);
+
+	// Weicher Taper am Player-Ende (jetzt bei along = 0)
+	float length_mask = smoothstep(0.0, 0.04, along);
+
+	float flow = fract(along * 3.5 - time * 7.0);
 	float striation = 0.80 + smoothstep(0.25, 0.0, abs(flow - 0.5)) * 0.4;
-	
-	// Hochfrequentes Flackern für Plasma-Gefühl
+
 	float flicker = 0.92 + sin(time * 28.0) * 0.06 + sin(time * 41.0) * 0.03;
-	
-	// Heißer weißer Kern, kalte Farbe nach außen
+
 	vec3 hot = mix(beam_color.rgb, vec3(1.0), pow(width_falloff, 3.0));
 	vec3 col = mix(beam_color.rgb, hot, width_falloff);
-	
+
 	float intensity = width_falloff * length_mask * striation * flicker * brightness;
-	
-	// blend_add addiert ALBEDO direkt zum Framebuffer — Intensität modulieren wir über die Farbe
+
+	if (intensity < 0.01) {
+		discard;
+	}
+
 	ALBEDO = col * intensity;
 	ALPHA = 1.0;
 	EMISSION = col * intensity * 1.8;
@@ -554,7 +801,7 @@ func _process_projectile(delta: float) -> void:
 		_cancel_ability("target_invalid")
 		return
 	
-	var player_pos: Vector3 = _player.global_position + Vector3(0, 0.5, 0)
+	var player_pos: Vector3 = _player.global_position + _get_beam_origin_offset()
 	var target_pos: Vector3 = _get_target_anchor_position(_current_target) + Vector3(0, 0.3, 0)
 	var total_distance: float = player_pos.distance_to(target_pos)
 	var direction: Vector3 = (target_pos - player_pos).normalized()
@@ -589,6 +836,14 @@ func _process_projectile(delta: float) -> void:
 		glow.scale = Vector3(1.0, 1.0, beam_length)
 		if glow.material_override is ShaderMaterial:
 			glow.material_override.set_shader_parameter("time", current_time)
+			
+	var muzzle := _projectile_node.get_node_or_null("BeamMuzzle") as MeshInstance3D
+	if muzzle:
+		muzzle.position = Vector3(0, 0, -beam_length * 0.5)
+		var grow: float = clamp(beam_length / total_distance, 0.3, 1.0)
+		muzzle.scale = Vector3.ONE * (0.5 + grow * 0.3)
+		if muzzle.material_override is ShaderMaterial:
+			muzzle.material_override.set_shader_parameter("time", current_time)
 
 
 func _on_projectile_hit() -> void:
@@ -621,56 +876,48 @@ func _reflect_projectile(projectile: Node3D) -> void:
 
 func _start_launch() -> void:
 	_hit_enemies_this_launch.clear()
+	_chain_preview_target = null
 	
 	if _current_target == null or not is_instance_valid(_current_target):
-		print("[VectorAnchor] _start_launch ABORT: target invalid")
 		_cancel_ability("target_invalid")
 		return
-	
+
 	var start_pos: Vector3 = _player.global_position
 	var target_pos: Vector3 = _get_target_anchor_position(_current_target)
-	
+
 	var end_pos: Vector3 = target_pos * 2.0 - start_pos
 	end_pos.y = start_pos.y
-	
-	print("[VectorAnchor] Launch attempt:")
-	print("  start_pos=", start_pos)
-	print("  target_pos=", target_pos)
-	print("  end_pos=", end_pos)
-	print("  distance=", start_pos.distance_to(end_pos))
-	
+
 	var space_state := _player.get_world_3d().direct_space_state
 	var exclude_rids: Array = [_player.get_rid()]
-	# Feinere Fallbacks, inklusive sehr kurzer Distanzen hinter dem Target
 	var test_positions: Array[Vector3] = [end_pos]
 	var dir_to_end: Vector3 = (end_pos - target_pos).normalized()
 	for dist in [2.0, 1.5, 1.2, 0.9, 0.7, 0.5, 0.3]:
 		var alt: Vector3 = target_pos + dir_to_end * dist
 		alt.y = start_pos.y
 		test_positions.append(alt)
-	
+
 	var resolved_end_pos: Vector3 = Vector3.ZERO
 	var found_valid: bool = false
-	
+	var land_in_air: bool = false
+
 	for candidate in test_positions:
 		var result := _check_launch_destination(candidate, exclude_rids)
 		if result.valid:
 			resolved_end_pos = result.position
 			found_valid = true
-			print("  Ziel OK bei ", candidate, " → Landepunkt=", resolved_end_pos)
+			land_in_air = result.get("in_air", false)
 			break
-		else:
-			print("  Ziel blockiert bei ", candidate, ": ", result.reason)
-	
-	# Letzter Ausweg: In-Place-Launch. Der Spieler bleibt fast stehen,
-	# aber alle Gameplay-Effekte (Enemy-Confusion, Hit-Damage, VFX) laufen normal ab.
+
+	# Kein valider Boden auf dem ganzen Pfad → Klippe. Wir fliegen zum
+	# ersten Kandidaten und lassen danach die Schwerkraft übernehmen.
 	if not found_valid:
-		print("[VectorAnchor] Alle Positionen blockiert — In-Place-Launch")
-		resolved_end_pos = start_pos
-	
+		resolved_end_pos = test_positions[0]
+		resolved_end_pos.y = start_pos.y
+		land_in_air = true
+
 	end_pos = resolved_end_pos
-	print("[VectorAnchor] Launch START → end_pos=", end_pos)
-	
+
 	_state = State.LAUNCHING
 	_launch_progress = 0.0
 	_block_triggered = false
@@ -678,44 +925,54 @@ func _start_launch() -> void:
 	_afterimages_spawned = 0
 	_confusion_triggered = false
 	_launch_time = 0.0
-	
+	_land_in_air = land_in_air
+
 	_launch_start_pos = start_pos
 	_launch_target_pos = target_pos
 	_launch_end_pos = end_pos
 	
+	var flight_flat: Vector3 = end_pos - start_pos
+	flight_flat.y = 0.0
+	if flight_flat.length_squared() > 0.0001:
+		_launch_locked_dir_mode = _direction_from_vector(flight_flat)
+	else:
+		_launch_locked_dir_mode = _player._last_dir_mode
+	_launch_locked_flip = _compute_flip_for_dir(_launch_locked_dir_mode)
+	_player._last_dir_mode = _launch_locked_dir_mode
+
 	if launch_invincible:
 		_player._invincibility_timer = max(_player._invincibility_timer, launch_duration + 0.1)
-	
+
 	_play_sound(launch_sound)
 	launch_started.emit()
 
 func _check_launch_destination(candidate: Vector3, exclude_rids: Array) -> Dictionary:
-	# Schritt 1: Raycast nach unten um echten Boden zu finden.
-	# Wir starten etwas über dem Kandidaten und strahlen weit nach unten.
 	var space_state := _player.get_world_3d().direct_space_state
-	var ray_start: Vector3 = candidate + Vector3(0, 1.0, 0)
-	var ray_end: Vector3 = candidate + Vector3(0, -3.0, 0)
-	
+	# Weiter nach oben strahlen, damit auch erhöhte Plattformen erkannt werden
+	var ray_start: Vector3 = candidate + Vector3(0, 2.5, 0)
+	var ray_end: Vector3 = candidate + Vector3(0, -4.0, 0)
+
 	var ray_query := PhysicsRayQueryParameters3D.create(ray_start, ray_end)
 	ray_query.collision_mask = _player.collision_mask
 	ray_query.exclude = exclude_rids
 	ray_query.hit_back_faces = false
-	
+
 	var hit := space_state.intersect_ray(ray_query)
 	if hit.is_empty():
-		return {"valid": false, "reason": "kein Boden gefunden", "position": candidate}
-	
+		# Kein Boden → Klippe/Abgrund. Als "valid aber in_air" zurückgeben,
+		# damit der Flug startet und danach gefallen wird.
+		return {"valid": false, "reason": "kein Boden", "position": candidate, "in_air": true}
+
 	var ground_y: float = hit.position.y
-	
-	# Zu weit unterhalb oder oberhalb der Ausgangshöhe → Klippe oder Wand über uns
 	var y_diff: float = ground_y - candidate.y
-	if y_diff > 0.8:
+
+	# Stufe nach oben jetzt großzügig erlaubt (Plattform hochspringen)
+	if y_diff > 2.2:
 		return {"valid": false, "reason": "Boden zu hoch (+%.2fm)" % y_diff, "position": candidate}
-	if y_diff < -2.0:
-		return {"valid": false, "reason": "Boden zu tief (%.2fm)" % y_diff, "position": candidate}
-	
-	# Schritt 2: Prüfe, ob auf Kopfhöhe des Players Freiraum ist.
-	# Kleine Sphere 0.9m über dem tatsächlichen Boden.
+	# Nach unten: tiefer Boden = ok, wir fallen halt. Nur sehr tief = "in_air"
+	var landing_in_air: bool = y_diff < -2.0
+
+	# Kopffreiheit am Zielpunkt
 	var head_check_pos: Vector3 = Vector3(candidate.x, ground_y + 0.9, candidate.z)
 	var shape_query := PhysicsShapeQueryParameters3D.new()
 	var sphere := SphereShape3D.new()
@@ -724,23 +981,25 @@ func _check_launch_destination(candidate: Vector3, exclude_rids: Array) -> Dicti
 	shape_query.transform = Transform3D(Basis(), head_check_pos)
 	shape_query.collision_mask = _player.collision_mask
 	shape_query.exclude = exclude_rids
-	
+
 	var head_results := space_state.intersect_shape(shape_query, 1)
 	if head_results.size() > 0:
 		return {"valid": false, "reason": "Kopfhöhe blockiert", "position": candidate}
-	
-	# Landepunkt leicht über dem Boden, damit Player nicht reinclippt
+
 	var landing: Vector3 = Vector3(candidate.x, ground_y + 0.02, candidate.z)
-	return {"valid": true, "reason": "Bodenkontakt", "position": landing}
+	return {"valid": true, "reason": "Bodenkontakt", "position": landing, "in_air": landing_in_air}
 
 func _process_launching(delta: float) -> void:
 	_launch_progress += delta / launch_duration
 	_launch_time += delta
 	
+	if _chain_shoot_frame_hold > 0.0:
+		_chain_shoot_frame_hold -= delta
+
 	if _launch_progress >= 1.0:
 		_complete_launch()
 		return
-		
+
 	if not _block_triggered \
 	and _launch_progress >= block_check_progress \
 	and _current_target != null and is_instance_valid(_current_target) \
@@ -749,19 +1008,24 @@ func _process_launching(delta: float) -> void:
 		_block_triggered = true
 		_on_blocked_mid_launch()
 		return
-	
+
 	if confuse_enemy and not _confusion_triggered and _launch_progress >= confusion_trigger_point:
 		if _current_target != null and is_instance_valid(_current_target):
 			_confuse_target(_current_target)
 		_confusion_triggered = true
-	
+		
+	if chain_enabled and _launch_progress >= chain_window_start:
+		_update_chain_preview()
+	elif _chain_preview_target != null:
+		_clear_chain_preview()
+
 	var t: float = _launch_progress
-	var horizontal_pos: Vector3 = _launch_start_pos.lerp(_launch_end_pos, t)
+	# Start→End in ALLEN Achsen interpolieren, Bogen kommt obendrauf
+	var base_pos: Vector3 = _launch_start_pos.lerp(_launch_end_pos, t)
 	var arc: float = 4.0 * launch_arc_height * t * (1.0 - t)
-	
-	var new_pos: Vector3 = horizontal_pos
-	new_pos.y = _launch_start_pos.y + arc
-	
+	var new_pos: Vector3 = base_pos
+	new_pos.y = base_pos.y + arc
+
 	if _launch_time >= collision_delay:
 		var space_state := _player.get_world_3d().direct_space_state
 		var shape_query := PhysicsShapeQueryParameters3D.new()
@@ -771,27 +1035,26 @@ func _process_launching(delta: float) -> void:
 		shape_query.transform = Transform3D(Basis(), new_pos + Vector3(0, 0.3, 0))
 		shape_query.collision_mask = _player.collision_mask
 		shape_query.exclude = [_player.get_rid()]
-		
-		# Bis zu 8 Kollisionen pro Frame einsammeln, sodass Wand + Enemy gleichzeitig erkannt werden
+
 		var results := space_state.intersect_shape(shape_query, 8)
-		
+
 		var blocking_hit := false
 		for result in results:
 			var collider = result.get("collider")
 			if collider == null or not is_instance_valid(collider):
 				continue
-			
+
 			var is_enemy: bool = collider is Enemy \
 				or collider.is_in_group("enemies") \
 				or collider.is_in_group("enemy")
-			
+
 			if is_enemy:
 				_try_hit_launch_enemy(collider)
 				if not launch_pierce_enemies:
 					blocking_hit = true
 			else:
 				blocking_hit = true
-		
+
 		if blocking_hit:
 			if bounce_enabled:
 				_start_bounce(new_pos)
@@ -799,18 +1062,15 @@ func _process_launching(delta: float) -> void:
 				_face_target(_launch_target_pos)
 				if _player.has_method("_show_idle"):
 					_player._show_idle()
-				
 				if "_attack_cooldown_timer" in _player:
 					_player._attack_cooldown_timer = 0.0
-				
 				_state = State.IDLE
 				_current_target = null
-				
 				ability_cancelled.emit("collision")
 			return
-	
+
 	_player.global_position = new_pos
-	
+
 	if afterimage_enabled and _sprite != null:
 		var afterimage_interval: float = launch_duration / float(afterimage_count)
 		_afterimage_timer += delta
@@ -818,30 +1078,37 @@ func _process_launching(delta: float) -> void:
 			_spawn_afterimage()
 			_afterimage_timer = 0.0
 			_afterimages_spawned += 1
-	
-	_show_air_frame()
+
+	if _chain_shoot_frame_hold <= 0.0:
+		_show_air_frame()
 
 
 func _complete_launch() -> void:
+	if _land_in_air:
+		# Klippe: nicht hart positionieren, sondern fallen lassen.
+		_start_fall()
+		return
+
 	_player.global_position = _launch_end_pos
-	
+
 	if confuse_enemy and not _confusion_triggered:
 		if _current_target != null and is_instance_valid(_current_target):
 			_confuse_target(_current_target)
-	
+
 	_face_target(_launch_target_pos)
-	
+
 	if use_idle_frame_on_land and _player.has_method("_show_idle"):
 		_player._show_idle()
-	
+
 	if "_attack_cooldown_timer" in _player:
 		_player._attack_cooldown_timer = 0.0
-	
+
 	_play_sound(land_sound)
-	
+
+	_cleanup_all_indicators()
 	_state = State.IDLE
 	_current_target = null
-	
+
 	launch_completed.emit()
 
 func _start_bounce(collision_pos: Vector3) -> void:
@@ -887,7 +1154,8 @@ func _start_bounce(collision_pos: Vector3) -> void:
 	_face_target(_launch_target_pos)
 	if _player.has_method("_show_idle"):
 		_player._show_idle()
-	
+		
+	_cleanup_all_indicators()
 	_state = State.BOUNCING
 
 
@@ -950,7 +1218,8 @@ func _end_bounce() -> void:
 	
 	if "_attack_cooldown_timer" in _player:
 		_player._attack_cooldown_timer = 0.0
-	
+		
+	_cleanup_all_indicators()
 	_state = State.IDLE
 	_current_target = null
 	
@@ -1722,42 +1991,58 @@ func _spawn_afterimage() -> void:
 # FRAMES
 # ============================================
 
-func _show_charge_frame() -> void:
+func _show_charge_frame(moving: bool = false) -> void:
 	if _sprite == null or _player == null:
 		return
-	
+
 	if not use_custom_charge_frames:
 		if _player.has_method("_show_idle"):
 			_player._show_idle()
 		return
-	
-	var dir_mode: int = _player._last_dir_mode
+
+	var dir_mode: int = _charge_locked_dir_mode
 	var frame: int
 	var flip: bool = false
-	
+
+	# Walk-Frames pro Richtung holen (gespiegelte Richtungen flippen)
+	var walk_frames: Array[int] = []
 	match dir_mode:
 		DirMode.DOWN:
+			walk_frames = CHARGE_WALK_DOWN_FRAMES
 			frame = CHARGE_DOWN_FRAME
 		DirMode.UP:
+			walk_frames = CHARGE_WALK_UP_FRAMES
 			frame = CHARGE_UP_FRAME
 		DirMode.LEFT:
+			walk_frames = CHARGE_WALK_SIDE_FRAMES
 			frame = CHARGE_SIDE_FRAME
 		DirMode.RIGHT:
+			walk_frames = CHARGE_WALK_SIDE_FRAMES
 			frame = CHARGE_SIDE_FRAME
 			flip = true
 		DirMode.DOWN_LEFT:
+			walk_frames = CHARGE_WALK_DOWN_LEFT_FRAMES
 			frame = CHARGE_DOWN_LEFT_FRAME
 		DirMode.DOWN_RIGHT:
+			walk_frames = CHARGE_WALK_DOWN_LEFT_FRAMES
 			frame = CHARGE_DOWN_LEFT_FRAME
 			flip = true
 		DirMode.UP_RIGHT:
+			walk_frames = CHARGE_WALK_UP_RIGHT_FRAMES
 			frame = CHARGE_UP_RIGHT_FRAME
 		DirMode.UP_LEFT:
+			walk_frames = CHARGE_WALK_UP_RIGHT_FRAMES
 			frame = CHARGE_UP_RIGHT_FRAME
 			flip = true
 		_:
+			walk_frames = CHARGE_WALK_DOWN_FRAMES
 			frame = CHARGE_DOWN_FRAME
-	
+
+	# Bewegt → Walk-Cycle, sonst statischer Charge-Frame
+	if moving and not walk_frames.is_empty():
+		var idx: int = int(floor(_charge_walk_time * charge_walk_fps)) % walk_frames.size()
+		frame = walk_frames[idx]
+
 	_sprite.frame = frame
 	_sprite.flip_h = flip
 
@@ -1765,26 +2050,18 @@ func _show_charge_frame() -> void:
 func _show_air_frame() -> void:
 	if _sprite == null or _player == null:
 		return
-	
-	var to_target: Vector3 = _launch_target_pos - _player.global_position
-	to_target.y = 0
-	var dir_mode: int = _direction_from_vector(to_target)
-	
+
+	var dir_mode: int = _launch_locked_dir_mode
 	_player._last_dir_mode = dir_mode
-	match dir_mode:
-		DirMode.RIGHT, DirMode.DOWN_RIGHT, DirMode.UP_RIGHT:
-			_player._facing_right = true
-		DirMode.LEFT, DirMode.DOWN_LEFT, DirMode.UP_LEFT:
-			_player._facing_right = false
-	
+
 	if not use_custom_air_frames:
 		if _player.has_method("_show_idle"):
 			_player._show_idle()
 		return
-	
+
 	var frame: int
-	var flip: bool = false
-	
+	var flip: bool = _launch_locked_flip
+
 	match dir_mode:
 		DirMode.DOWN:
 			frame = AIR_DOWN_FRAME
@@ -1794,20 +2071,17 @@ func _show_air_frame() -> void:
 			frame = AIR_SIDE_FRAME
 		DirMode.RIGHT:
 			frame = AIR_SIDE_FRAME
-			flip = true
 		DirMode.DOWN_LEFT:
 			frame = AIR_DOWN_LEFT_FRAME
 		DirMode.DOWN_RIGHT:
 			frame = AIR_DOWN_LEFT_FRAME
-			flip = true
 		DirMode.UP_RIGHT:
 			frame = AIR_UP_RIGHT_FRAME
 		DirMode.UP_LEFT:
 			frame = AIR_UP_RIGHT_FRAME
-			flip = true
 		_:
 			frame = AIR_DOWN_FRAME
-	
+
 	_sprite.frame = frame
 	_sprite.flip_h = flip
 
@@ -1892,8 +2166,16 @@ func _consume_resonance(amount: float) -> bool:
 	return false
 
 
+func _compute_flip_for_dir(dir_mode: int) -> bool:
+	match dir_mode:
+		DirMode.RIGHT, DirMode.DOWN_RIGHT, DirMode.UP_RIGHT:
+			return true
+		_:
+			return false
+
 func _cancel_ability(reason: String) -> void:
 	_remove_radius_visual()
+	_chain_preview_target = null
 	_remove_target_indicator()
 	# _remove_dive_charge_particles()  ← DIESE ZEILE LÖSCHEN
 	_stop_charge_sound()
@@ -1911,6 +2193,69 @@ func _cancel_ability(reason: String) -> void:
 	
 	ability_cancelled.emit(reason)
 	
+	
+func _spawn_chain_beam(from_pos: Vector3, target: Node3D) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+
+	var beam := Node3D.new()
+	beam.name = "ChainBeam"
+	get_tree().current_scene.add_child(beam)
+
+	var start: Vector3 = from_pos + _get_beam_origin_offset()
+	var target_pos: Vector3 = _get_target_anchor_position(target) + Vector3(0, 0.3, 0)
+	var length: float = start.distance_to(target_pos)
+	var center: Vector3 = start.lerp(target_pos, 0.5)
+
+	beam.global_position = center
+	beam.look_at(target_pos, Vector3.UP)
+
+	var core := MeshInstance3D.new()
+	core.mesh = _build_beam_cross_mesh(0.135)
+	core.material_override = _create_beam_material(1.25, 1.4)
+	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	core.scale = Vector3(1.0, 1.0, length)
+	beam.add_child(core)
+
+	var glow := MeshInstance3D.new()
+	glow.mesh = _build_beam_cross_mesh(0.16)
+	glow.material_override = _create_beam_material(0.55, 2.2)
+	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	glow.scale = Vector3(1.0, 1.0, length)
+	beam.add_child(glow)
+	
+	var muzzle := MeshInstance3D.new()
+	var msphere := SphereMesh.new()
+	msphere.radius = 0.06
+	msphere.height = 0.12
+	msphere.radial_segments = 16
+	msphere.rings = 8
+	muzzle.mesh = msphere
+	muzzle.material_override = _create_muzzle_material()
+	muzzle.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	muzzle.position = Vector3(0, 0, -length * 0.5)
+	beam.add_child(muzzle)
+
+	# Schneller Aufblitz + Fade, dann weg
+	var t0: float = Time.get_ticks_msec() / 1000.0
+	var tween := create_tween()
+	tween.tween_method(func(elapsed: float):
+		if not is_instance_valid(beam):
+			return
+		var now: float = t0 + elapsed
+		for m in [core, glow]:
+			if is_instance_valid(m) and m.material_override is ShaderMaterial:
+				m.material_override.set_shader_parameter("time", now)
+		# Glow schrumpft leicht beim Faden
+		var f: float = 1.0 - (elapsed / 0.2)
+		core.scale.x = max(0.05, f)
+		core.scale.y = max(0.05, f)
+	, 0.0, 0.2, 0.2)
+	tween.chain().tween_callback(beam.queue_free)
+
+	var semitones: float = float(_chain_count)   # erstes Glied = 0 Halbtöne
+	var pitch: float = pow(2.0, semitones / 18.0)
+	_play_sound(release_sound, pitch)
 
 func _get_target_anchor_position(target: Node3D) -> Vector3:
 	if target == null:
@@ -1965,6 +2310,169 @@ func _on_blocked_mid_launch() -> void:
 			_sprite.flip_h = hd.flip
 
 
+var _fall_velocity: Vector3 = Vector3.ZERO
+
+func _get_beam_origin_offset() -> Vector3:
+	var dir_mode: int = _player._last_dir_mode
+	var local_offset: Vector3
+	var mirror: bool = false
+
+	match dir_mode:
+		DirMode.DOWN:
+			local_offset = beam_origin_down
+		DirMode.UP:
+			local_offset = beam_origin_up
+		DirMode.LEFT:
+			local_offset = beam_origin_side
+		DirMode.RIGHT:
+			local_offset = beam_origin_side
+			mirror = true
+		DirMode.DOWN_LEFT:
+			local_offset = beam_origin_down_diag
+		DirMode.DOWN_RIGHT:
+			local_offset = beam_origin_down_diag
+			mirror = true
+		DirMode.UP_LEFT:
+			local_offset = beam_origin_up_diag
+		DirMode.UP_RIGHT:
+			local_offset = beam_origin_up_diag
+			mirror = true
+		_:
+			local_offset = beam_origin_down
+
+	if mirror:
+		local_offset.x = -local_offset.x
+
+	# X/Z relativ zur Kamera ausrichten, Y bleibt Welt-hoch
+	if _spring_arm:
+		var yaw: float = _spring_arm.rotation.y
+		var forward := Vector3(sin(yaw), 0, cos(yaw))
+		var right := Vector3(cos(yaw), 0, -sin(yaw))
+		return right * local_offset.x + forward * local_offset.z + Vector3(0, local_offset.y, 0)
+
+	return local_offset
+
+func _start_fall() -> void:
+	# Horizontale Restbewegung aus dem Launch beibehalten, vertikal frei fallen
+	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
+	flight_dir.y = 0.0
+	if flight_dir.length_squared() > 0.0001:
+		flight_dir = flight_dir.normalized()
+		var launch_speed: float = _launch_start_pos.distance_to(_launch_end_pos) / launch_duration
+		_fall_velocity = flight_dir * launch_speed * 0.4
+	else:
+		_fall_velocity = Vector3.ZERO
+	_fall_velocity.y = 0.0
+
+	if _player.has_method("_show_idle"):
+		_player._show_idle()
+	if _player.has_method("_get_fall_frame"):
+		var fd: Dictionary = _player._get_fall_frame()
+		if fd.has("frame"):
+			_sprite.frame = fd.frame
+			_sprite.flip_h = fd.flip
+
+	_state = State.FALLING
+
+
+func _process_falling(delta: float) -> void:
+	_fall_velocity.y -= bounce_gravity * delta
+
+	var new_pos: Vector3 = _player.global_position + _fall_velocity * delta
+
+	# Boden suchen
+	var space_state := _player.get_world_3d().direct_space_state
+	var ray := PhysicsRayQueryParameters3D.create(
+		_player.global_position + Vector3(0, 0.3, 0),
+		new_pos + Vector3(0, -0.1, 0)
+	)
+	ray.collision_mask = _player.collision_mask
+	ray.exclude = [_player.get_rid()]
+	var hit := space_state.intersect_ray(ray)
+
+	if not hit.is_empty():
+		new_pos = hit.position
+		_player.global_position = new_pos
+		_end_fall()
+		return
+
+	# Horizontaler Wand-Check
+	var shape_query := PhysicsShapeQueryParameters3D.new()
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.3
+	shape_query.shape = sphere
+	shape_query.transform = Transform3D(Basis(), new_pos + Vector3(0, 0.3, 0))
+	shape_query.collision_mask = _player.collision_mask
+	shape_query.exclude = [_player.get_rid()]
+	var results := space_state.intersect_shape(shape_query, 4)
+	for r in results:
+		var collider = r.get("collider")
+		if collider == null or not is_instance_valid(collider):
+			continue
+		var is_enemy: bool = collider is Enemy or collider.is_in_group("enemies") or collider.is_in_group("enemy")
+		if not is_enemy:
+			_fall_velocity.x = 0.0
+			_fall_velocity.z = 0.0
+			new_pos.x = _player.global_position.x
+			new_pos.z = _player.global_position.z
+			break
+
+	_player.global_position = new_pos
+
+
+func _end_fall() -> void:
+	_fall_velocity = Vector3.ZERO
+	if use_idle_frame_on_land and _player.has_method("_show_idle"):
+		_player._show_idle()
+	if "_attack_cooldown_timer" in _player:
+		_player._attack_cooldown_timer = 0.0
+	_play_sound(land_sound)
+	_cleanup_all_indicators()
+	_state = State.IDLE
+	_current_target = null
+	launch_completed.emit()
+	
+func _update_chain_preview() -> void:
+	if chain_max_links > 0 and _chain_count >= chain_max_links:
+		_clear_chain_preview()
+		return
+	var cost: float = chain_resonance_base + chain_resonance_per_link * float(_chain_count)
+	if not _has_resonance(cost):
+		_clear_chain_preview()
+		return
+
+	var candidate: Node3D = _find_chain_target()
+
+	if candidate == null or not is_instance_valid(candidate):
+		_clear_chain_preview()
+		return
+
+	if candidate != _chain_preview_target:
+		_chain_preview_target = candidate
+		var prev_target := _current_target
+		_current_target = candidate
+		_create_target_indicator()
+		_current_target = prev_target
+
+	if _target_indicator_root != null and is_instance_valid(_target_indicator_root):
+		if not is_instance_valid(_chain_preview_target):
+			_clear_chain_preview()
+			return
+		var prev := _current_target
+		_current_target = _chain_preview_target
+		_sync_target_indicator()
+		_current_target = prev
+		
+func _cleanup_all_indicators() -> void:
+	_chain_preview_target = null
+	_remove_target_indicator()
+
+
+func _clear_chain_preview() -> void:
+	if _chain_preview_target != null:
+		_remove_target_indicator()
+		_chain_preview_target = null
+
 # ============================================
 # SOUND
 # ============================================
@@ -1987,13 +2495,14 @@ func _stop_charge_sound() -> void:
 		_charge_audio = null
 
 
-func _play_sound(sound: AudioStream) -> void:
+func _play_sound(sound: AudioStream, pitch: float = 1.0) -> void:
 	if sound == null:
 		return
-	
+
 	var audio := AudioStreamPlayer3D.new()
 	audio.stream = sound
 	audio.volume_db = -3.0
+	audio.pitch_scale = pitch
 	_player.add_child(audio)
 	audio.play()
 	audio.finished.connect(audio.queue_free)
@@ -2022,5 +2531,6 @@ func cinematic_launch_at(target: Node3D) -> void:
 	if _player == null: return
 	_current_target = target
 	_block_triggered = false
+	_chain_count = 0
 	_start_launch()
 	#_start_launch(target.global_position)

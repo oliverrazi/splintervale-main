@@ -42,6 +42,13 @@ class_name ForestOrb
 @export var attack_cooldown: float = 2.0
 @export var charge_hit_radius: float = 0.4
 
+@export var windup_duration: float = 0.8
+@export var windup_vibrate_amplitude: float = 0.04   ## Vibrations-Stärke in Metern
+@export var windup_vibrate_frequency: float = 35.0   ## Vibrations-Tempo (Hz)
+@export var windup_glow_color: Color = Color(1.0, 0.1, 0.05, 1.0)  ## Sattes Rot
+@export var windup_glow_energy: float = 4.0
+@export var windup_glow_pulse_speed: float = 6.0
+
 # === GLOW ===
 @export_group("Glow")
 @export var glow_color: Color = Color(0.3, 0.8, 0.2, 1.0)
@@ -69,6 +76,13 @@ class_name ForestOrb
 # === ANIMATION ===
 @export_group("Animation")
 @export var DIRECTION_HYSTERESIS: float = 20.0
+
+@export_group("Death Fall")
+@export var death_fall_gravity: float = 18.0
+@export var death_fall_max_speed: float = 12.0
+@export var death_fall_ground_offset: float = 0.05  ## Wie hoch über _spawn-Boden er liegen bleibt
+@export var death_fall_timeout: float = 2.0         ## Sicherheits-Timeout falls kein Boden gefunden wird
+@export var death_fall_wobble: float = 6.0
 
 
 # === FRAME DEFINITIONS ===
@@ -103,6 +117,7 @@ enum State {
 	SWOOP_TIGHTEN,
 	SWOOP_PASS,
 	SWOOP_WIDEN,
+	ATTACK_WINDUP,
 	ATTACK_CHARGE,
 	ATTACK_COOLDOWN,
 	HIT,
@@ -150,6 +165,12 @@ var _mini_orb_lights: Array[OmniLight3D] = []
 var _mini_orb_angles: Array[float] = []
 var _mini_orb_time: float = 0.0
 
+var _windup_origin: Vector3 = Vector3.ZERO
+var _windup_time: float = 0.0
+
+var _death_fall_velocity: float = 0.0
+var _death_ground_y: float = 0.0
+var _death_has_ground: bool = false
 
 # === LIFECYCLE ===
 
@@ -266,6 +287,11 @@ func _update_glow(delta: float) -> void:
 	var pulse := sin(_glow_time * glow_pulse_speed * TAU) * glow_pulse_intensity
 
 	match _state:
+		State.ATTACK_WINDUP:
+			var ramp := clampf(_windup_time / maxf(windup_duration, 0.01), 0.0, 1.0)
+			var fast_pulse := sin(_windup_time * windup_glow_pulse_speed * TAU) * glow_pulse_intensity
+			_glow_light.light_color = windup_glow_color
+			_glow_light.light_energy = lerpf(glow_swoop_energy, windup_glow_energy, ramp) + fast_pulse
 		State.ATTACK_CHARGE:
 			_glow_light.light_color = glow_charge_color
 			_glow_light.light_energy = glow_charge_energy + pulse
@@ -275,16 +301,21 @@ func _update_glow(delta: float) -> void:
 		_:
 			_glow_light.light_color = glow_color
 			_glow_light.light_energy = glow_energy + pulse
+			
 
 	if sprite and _state != State.HIT:
-		var glow_mod := 1.0 + pulse * 0.3
-		sprite.modulate = Color(glow_mod, glow_mod, glow_mod, 1.0)
+		if _state == State.ATTACK_WINDUP:
+			var red_pulse := 0.7 + sin(_windup_time * windup_glow_pulse_speed * TAU) * 0.3
+			sprite.modulate = Color(1.0, red_pulse * 0.4, red_pulse * 0.3, 1.0)
+		else:
+			var glow_mod := 1.0 + pulse * 0.3
+			sprite.modulate = Color(glow_mod, glow_mod, glow_mod, 1.0)
 
 
 func _update_mini_orbs(delta: float) -> void:
 	_mini_orb_time += delta
 
-	var is_charging := _state == State.ATTACK_CHARGE
+	var is_charging := _state == State.ATTACK_CHARGE or _state == State.ATTACK_WINDUP
 	var current_speed := mini_orb_charge_speed if is_charging else mini_orb_speed
 	var current_radius := mini_orb_charge_radius if is_charging else mini_orb_radius
 
@@ -315,7 +346,7 @@ func _process_ai(delta: float) -> void:
 	if _attack_cooldown_timer > 0.0:
 		_attack_cooldown_timer -= delta
 
-	if _state not in [State.DEAD, State.HIT, State.ATTACK_CHARGE, State.SWOOP_TIGHTEN, State.SWOOP_PASS, State.SWOOP_WIDEN]:
+	if _state not in [State.DEAD, State.HIT, State.ATTACK_WINDUP, State.ATTACK_CHARGE, State.SWOOP_TIGHTEN, State.SWOOP_PASS, State.SWOOP_WIDEN]:
 		_check_player_detection()
 
 	match _state:
@@ -339,6 +370,8 @@ func _process_ai(delta: float) -> void:
 			_process_attack_cooldown(delta)
 		State.HIT:
 			_process_hit(delta)
+		State.ATTACK_WINDUP:
+			_process_attack_windup(delta)
 
 
 # === PLAYER DETECTION ===
@@ -405,6 +438,13 @@ func _enter_state(new_state: State) -> void:
 			_target_orbit_radius = _base_orbit_radius
 			_orbit_speed_target = randf_range(orbit_speed_min, orbit_speed_max)
 
+		State.ATTACK_WINDUP:
+			_state_timer = windup_duration
+			_windup_time = 0.0
+			_windup_origin = global_position
+			velocity = Vector3.ZERO
+			_face_target()
+			
 		State.ATTACK_CHARGE:
 			_has_hit_player = false
 			_state_timer = charge_max_duration
@@ -485,7 +525,7 @@ func _process_orbit(delta: float) -> void:
 	_orbit_timer -= delta
 	if _orbit_timer <= 0.0:
 		if _swoop_count >= _swoops_needed and _attack_cooldown_timer <= 0.0:
-			_enter_state(State.ATTACK_CHARGE)
+			_enter_state(State.ATTACK_WINDUP)
 		else:
 			_enter_state(State.SWOOP_TIGHTEN)
 
@@ -549,6 +589,24 @@ func _process_attack_charge(delta: float) -> void:
 	if _state_timer <= 0.0 or _has_hit_player:
 		_enter_state(State.ATTACK_COOLDOWN)
 
+func _process_attack_windup(delta: float) -> void:
+	_windup_time += delta
+	velocity = Vector3.ZERO
+
+	# Schweben halten + hochfrequentes Vibrieren um den Ursprung
+	var vib_x := sin(_windup_time * windup_vibrate_frequency * TAU) * windup_vibrate_amplitude
+	var vib_z := cos(_windup_time * windup_vibrate_frequency * TAU * 1.3) * windup_vibrate_amplitude
+	global_position.x = _windup_origin.x + vib_x
+	global_position.z = _windup_origin.z + vib_z
+
+	_face_target()
+	_animate_idle()
+
+	_state_timer -= delta
+	if _state_timer <= 0.0:
+		global_position.x = _windup_origin.x
+		global_position.z = _windup_origin.z
+		_enter_state(State.ATTACK_CHARGE)
 
 func _process_attack_cooldown(delta: float) -> void:
 	_animate_idle()
@@ -653,13 +711,38 @@ func _process_death_custom(delta: float) -> bool:
 				sprite.modulate = Color.WHITE
 
 			if _death_timer >= death_hold_time:
-				_give_rewards()
-				_spawn_death_vfx()
+				# Glow erlischt schlagartig – die Magie verlässt den Orb
+				if _glow_light:
+					_glow_light.light_energy = 0.0
+				_death_fall_velocity = 0.0
+				_death_ground_y = _find_death_ground()
 				_death_phase = 1
 				_death_timer = 0.0
 			return true
 
-		1:  # Dissolve mit Glow-Fade
+		1:  # Fall wie ein Stein
+			_death_timer += delta
+			_death_fall_velocity = minf(_death_fall_velocity + death_fall_gravity * delta, death_fall_max_speed)
+			global_position.y -= _death_fall_velocity * delta
+
+			# Sprite kippelt leicht im Fall
+			if sprite:
+				var wobble := sin(_death_timer * 18.0) * deg_to_rad(death_fall_wobble)
+				sprite.rotation.z = wobble
+
+			var landed := _death_has_ground and global_position.y <= _death_ground_y + death_fall_ground_offset
+			if landed:
+				global_position.y = _death_ground_y + death_fall_ground_offset
+			if landed or _death_timer >= death_fall_timeout:
+				if sprite:
+					sprite.rotation.z = 0.0
+				_give_rewards()
+				_spawn_death_vfx()
+				_death_phase = 2
+				_death_timer = 0.0
+			return true
+
+		2:  # Dissolve mit Glow-Fade
 			_death_timer += delta
 			var progress := clampf(_death_timer / maxf(death_dissolve_time, 0.01), 0.0, 1.0)
 
@@ -667,7 +750,7 @@ func _process_death_custom(delta: float) -> bool:
 				sprite.modulate.a = 1.0 - progress
 
 			if _glow_light:
-				_glow_light.light_energy = glow_energy * (1.0 - progress)
+				_glow_light.light_energy = 0.0  # bleibt aus
 
 			if progress >= 1.0:
 				_finish_death()
@@ -675,6 +758,22 @@ func _process_death_custom(delta: float) -> bool:
 			return true
 
 	return false
+
+
+func _find_death_ground() -> float:
+	# Raycast nach unten, um den echten Boden zu finden (Terrain3D / Collision Layer 1)
+	var space := get_world_3d().direct_space_state
+	var from := global_position
+	var to := global_position + Vector3(0, -20.0, 0)
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = 1
+	query.exclude = [self]
+	var result := space.intersect_ray(query)
+	if result:
+		_death_has_ground = true
+		return result.position.y
+	_death_has_ground = false
+	return global_position.y - 10.0  # Fallback: fällt frei bis Timeout
 
 
 # === DIRECTION ===

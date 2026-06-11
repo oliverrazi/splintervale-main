@@ -12,12 +12,14 @@
 [ext_resource type="Script" uid="uid://c1cosj70m0bns" path="res://scripts/grass_distance_culling.gd" id="11_oplge"]
 [ext_resource type="Texture2D" uid="uid://dodm02ekoftak" path="res://assets/base_tiles/world_texture/terrasse2_normal_t.png" id="12_4be7j"]
 [ext_resource type="PackedScene" uid="uid://b6skeaq3oesm2" path="res://assets/base_tiles/trees/pine/pinetree.tscn" id="17_g2b3w"]
+[ext_resource type="ArrayMesh" uid="uid://qa6a60llma8w" path="res://assets/base_tiles/trees/pine/pinetree_mesh.tres" id="18_1pdo1"]
 [ext_resource type="Material" uid="uid://bi24nqwyuiqrc" path="res://assets/base_tiles/trees/pine/pinetree_variation.tres" id="18_nc11x"]
 [ext_resource type="Script" uid="uid://b5yq4u7heohqc" path="res://scripts/lighting/hd2d_world_environment.gd" id="21_psbg5"]
 [ext_resource type="Script" uid="uid://dil7kum55r45e" path="res://scripts/lighting/hd2d_sun_light.gd" id="22_t54xj"]
 [ext_resource type="Shader" uid="uid://brvo4l5ljo0ju" path="res://scenes/Water.gdshader" id="24_7vilt"]
 [ext_resource type="Script" uid="uid://bfursro1ef0cy" path="res://scripts/world/grass_chunk_painter.gd" id="27_am7hm"]
 [ext_resource type="PackedScene" uid="uid://dbw8pa1qxayia" path="res://scenes/world/grass_chunk.tscn" id="28_y4vt1"]
+[ext_resource type="Shader" uid="uid://cflmx8l8frhpu" path="res://scenes/Water/pond.gdshader" id="31_1pdo1"]
 [ext_resource type="Script" uid="uid://b674vnssnd2im" path="res://assets/enemies/enemy_group.gd" id="31_d0xdr"]
 [ext_resource type="PackedScene" uid="uid://carynrqtho3nk" path="res://assets/enemies/goblin/goblin.tscn" id="32_5busl"]
 [ext_resource type="PackedScene" uid="uid://h4cr2foe4u0f" path="res://assets/vfx/environment/AmbientParticles/AmbientSparks.tscn" id="33_5el1k"]
@@ -68,7 +70,6 @@
 [ext_resource type="PackedScene" uid="uid://1upgxdgn6qw1" path="res://assets/decoration/potion/potion.tscn" id="59_8aiiw"]
 [ext_resource type="PackedScene" uid="uid://ddbqr2ntsos4h" path="res://assets/base_tiles/stone/stone_2.tscn" id="59_8ba6h"]
 [ext_resource type="PackedScene" uid="uid://k8hu7oh0haba" path="res://assets/base_tiles/bush/bush3.tscn" id="59_mlmk1"]
-[ext_resource type="ArrayMesh" uid="uid://c847fjgcxx6kf" path="res://assets/base_tiles/trees/pinetree_mesh.tres" id="59_y4vt1"]
 [ext_resource type="ArrayMesh" uid="uid://id0youln5lg" path="res://assets/base_tiles/bush/bush3_mesh.tres" id="60_4be7j"]
 [ext_resource type="PackedScene" uid="uid://coy56g6ieo4we" path="res://assets/buildings/wooden_box.glb" id="60_hixtp"]
 [ext_resource type="PackedScene" uid="uid://22x1ukyyggpd" path="res://assets/buildings/anvil.glb" id="61_kwyff"]
@@ -106,6 +107,7 @@
 [ext_resource type="Script" uid="uid://ddi2stwb3bcwh" path="res://scripts/lighting/fog_patch.gd" id="95_3brlq"]
 [ext_resource type="PackedScene" uid="uid://cysfft4v05mkn" path="res://assets/base_tiles/trees/tree_4.tscn" id="95_8ba6h"]
 [ext_resource type="PackedScene" uid="uid://p0ltf0g8f746" path="res://assets/enemies/bosses/ogre2_1.glb" id="98_bg746"]
+[ext_resource type="PackedScene" uid="uid://b4jclyx4oukn0" path="res://assets/decoration/iron-bollard.tscn" id="99_d2vxc"]
 [ext_resource type="PackedScene" uid="uid://boio6c5ac7qb2" path="res://assets/enemies/bosses/ogre.tscn" id="100_86uv1"]
 [ext_resource type="Script" uid="uid://brkpogdfdfvai" path="res://assets/enemies/bosses/scripts/arena_bounds.gd" id="101_yu463"]
 [ext_resource type="PackedScene" uid="uid://b5i3x18n3t8o8" path="res://assets/base_tiles/wilds/stake_2.tscn" id="102_ub2iy"]
@@ -121,6 +123,7 @@
 [ext_resource type="Texture2D" uid="uid://cwq2pqdfke1oa" path="res://menu/mainmenu/griffinblade6.png" id="117_ljd0o"]
 [ext_resource type="FontFile" uid="uid://dis4s1wngdk8" path="res://menu/assets/fonts/Merriweather Light.ttf" id="117_spj36"]
 [ext_resource type="Texture2D" uid="uid://dt66ik1pykp4e" path="res://assets/base_tiles/wilds/birds/bird.png" id="120_llisd"]
+[ext_resource type="Script" uid="uid://dxfxdp0vd444m" path="res://scripts/editorscripts/performance_benchmark.gd" id="122_wha2b"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_3fh52"]
 radius = 1.8104124
@@ -1190,144 +1193,6 @@ subdivide_width = 200
 subdivide_depth = 200
 orientation = 1
 
-[sub_resource type="Shader" id="Shader_3brlq"]
-code = "shader_type spatial;
-render_mode blend_mix;
-
-uniform sampler2D DEPTH_TEXTURE : hint_depth_texture, filter_linear_mipmap;
-uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
-
-// --- Wasserfarben ---
-uniform vec4 color_deep    : source_color = vec4(0.06, 0.18, 0.42, 1.0);
-uniform vec4 color_shallow : source_color = vec4(0.18, 0.55, 0.65, 1.0);
-uniform vec4 color_fresnel : source_color = vec4(0.55, 0.82, 0.95, 1.0);
-
-uniform float water_alpha_shallow : hint_range(0.0, 1.0, 0.01) = 0.55;
-uniform float water_alpha_deep    : hint_range(0.0, 1.0, 0.01) = 0.88;
-
-// --- Foam / Ränder ---
-uniform vec4  foam_color     : source_color = vec4(0.92, 0.97, 1.0, 1.0);
-uniform float edge_scale     : hint_range(0.0, 3.0, 0.01) = 0.5;
-uniform float foam_sharpness : hint_range(1.0, 8.0, 0.1)  = 3.0;
-
-// --- Wellen / Normalmap ---
-uniform sampler2D wave            : hint_default_white, filter_linear, repeat_enable;
-uniform sampler2D texture_normal  : hint_normal,        filter_linear, repeat_enable;
-uniform sampler2D texture_normal2 : hint_normal,        filter_linear, repeat_enable;
-uniform vec2  wave_direction  = vec2(1.0,  0.4);
-uniform vec2  wave_direction2 = vec2(-0.3, 1.0);
-uniform float time_scale  : hint_range(0.0, 0.2, 0.005) = 0.018;
-uniform float noise_scale  = 10.0;
-uniform float height_scale = 0.15;
-uniform float normal_strength : hint_range(0.0, 2.0, 0.05) = 0.8;
-
-// --- Tiefe ---
-uniform float beers_law    : hint_range(0.1, 6.0, 0.05) = 2.5;
-uniform float depth_offset = -0.75;
-
-// --- Refraktion (dezent für JRPG-Stil) ---
-uniform float refraction_strength : hint_range(0.0, 1.0, 0.01) = 0.15;
-
-// --- Fresnel ---
-uniform float fresnel_power : hint_range(1.0, 10.0, 0.1) = 4.5;
-uniform float fresnel_blend : hint_range(0.0, 1.0, 0.01) = 0.35;
-
-// --- Surface ---
-uniform float metallic  : hint_range(0.0, 1.0) = 0.05;
-uniform float roughness : hint_range(0.0, 1.0) = 0.04;
-
-// --- Tiefenberechnung ---
-uniform float near = 1.0;
-uniform float far  = 100.0;
-
-varying float height;
-varying vec3  world_pos;
-
-// -------------------------------------------------------
-
-float fresnel_f(float power, vec3 normal, vec3 view) {
-    return pow(1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0), power);
-}
-
-float linearize_depth(float d) {
-    d = 2.0 * d - 1.0;
-    return near * far / (far + d * (near - far));
-}
-
-// -------------------------------------------------------
-
-void vertex() {
-    world_pos  = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-    height     = texture(wave, world_pos.xz / noise_scale + TIME * time_scale).r;
-    VERTEX.y  += height * height_scale;
-}
-
-void fragment() {
-    // --- Tiefe auslesen ---
-   float raw_depth = texture(DEPTH_TEXTURE, SCREEN_UV).r;
-	vec4 scene_ndc  = vec4(SCREEN_UV * 2.0 - 1.0, raw_depth, 1.0);
-	vec4 scene_view = INV_PROJECTION_MATRIX * scene_ndc;
-	scene_view /= scene_view.w;
-	float scene_z   = scene_view.z; // View-Space, negativ
-
-	// Wasser-Fragment ebenfalls View-Space (VERTEX.z ist schon dort)
-	float water_z   = VERTEX.z;
-
-	// Differenz: positiv = Szenengeometrie ist hinter Wasseroberfläche
-	float depth_diff = water_z - scene_z;
-	depth_diff = max(depth_diff, 0.0);
-
-	// Beer's Law für Tiefenfarbe
-	float depth_blend       = clamp(1.0 - exp(depth_diff * -beers_law), 0.0, 1.0);
-	float depth_blend_power = clamp(pow(depth_blend, 2.5), 0.0, 1.0);
-
-	// Foam-Maske
-	float foam = pow(clamp(1.0 - depth_diff / edge_scale, 0.0, 1.0), foam_sharpness);
-
-
-
-    // --- Normalmaps ---
-    vec2 t1 = TIME * wave_direction  * time_scale;
-    vec2 t2 = TIME * wave_direction2 * time_scale;
-    vec3 n1 = texture(texture_normal,  world_pos.xz / noise_scale + t1).rgb;
-    vec3 n2 = texture(texture_normal2, world_pos.xz / noise_scale + t2).rgb;
-    // Rohe [0,1]-Werte für NORMAL_MAP merken:
-    vec3 normal_map_val = mix(n1, n2, 0.5);
-    // Für Refraktion in [-1,1] umrechnen:
-    vec2 normal_offset  = (normal_map_val.xy * 2.0 - 1.0) * normal_strength;
-	
-	float fr = fresnel_f(fresnel_power, NORMAL, VIEW);
-
-	float shore_fade = clamp(1.0 - depth_diff / (edge_scale * 4.0), 0.0, 1.0);
-	shore_fade = pow(shore_fade, 1.5);
-
-	// Refraktion near shore unterdrücken (verhindert dass dunkles Terrain durchscheint)
-	float refr_fade = (1.0 - depth_blend_power) * refraction_strength * 0.015;
-	refr_fade *= (1.0 - shore_fade); // <-- NEU: kein Refract in Shore-Zone
-	vec2  ref_uv     = SCREEN_UV + normal_offset * refr_fade;
-	vec3  screen_col = textureLod(SCREEN_TEXTURE, ref_uv, depth_blend_power * 2.5).rgb;
-
-	// Farbmischung wie gehabt...
-	vec3 depth_col = mix(color_shallow.rgb, color_deep.rgb, depth_blend_power);
-	vec3 water_col = mix(screen_col, depth_col, depth_blend_power * 0.9);
-	water_col = mix(water_col, color_fresnel.rgb, fr * fresnel_blend);
-
-	// Shore-Farbe über water_col legen, dann Foam drüber
-	vec3 final_col = mix(water_col, color_shallow.rgb, shore_fade * 0.6); // <-- NEU
-	final_col = mix(final_col, foam_color.rgb, foam);
-
-    // --- Alpha ---
-    // Tiefes Wasser opak, flaches etwas transparent, Foam immer voll opak
-	float water_alpha = mix(water_alpha_shallow, water_alpha_deep, depth_blend_power);
-	float alpha       = mix(water_alpha, 1.0, foam);
-
-    ALBEDO     = final_col;
-    METALLIC   = metallic;
-    ROUGHNESS  = roughness;
-    NORMAL_MAP = normal_map_val;  // [0,1]-Werte direkt übergeben
-    ALPHA      = alpha;
-}"
-
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ljd0o"]
 noise_type = 3
 frequency = 0.0096
@@ -1353,15 +1218,15 @@ seamless = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wha2b"]
 render_priority = 0
-shader = SubResource("Shader_3brlq")
-shader_parameter/color_deep = Color(0.27434835, 0.2135104, 0.7476321, 1)
-shader_parameter/color_shallow = Color(0.5370111, 0.5370114, 0.5370113, 1)
-shader_parameter/color_fresnel = Color(0.25006714, 0.35832575, 0.47050577, 1)
-shader_parameter/water_alpha_shallow = 0.55
-shader_parameter/water_alpha_deep = 0.88
-shader_parameter/foam_color = Color(3.465414e-06, 0.26206055, 0.38158777, 1)
-shader_parameter/edge_scale = 0.1499999966472
-shader_parameter/foam_sharpness = 2.10000001639132
+shader = ExtResource("31_1pdo1")
+shader_parameter/color_shallow = Color(0.11735474, 0.11735482, 0.11735477, 1)
+shader_parameter/color_deep = Color(0.075100504, 0.29711166, 0.35157666, 1)
+shader_parameter/color_fresnel = Color(0.007512699, 0.104779355, 0.14583862, 1)
+shader_parameter/foam_color = Color(0.48309362, 0.48309362, 0.48309362, 0.34901962)
+shader_parameter/edge_scale = 0.6999999843536
+shader_parameter/foam_sharpness = 8.0
+shader_parameter/beers_law = 10.0
+shader_parameter/depth_offset = 1.5
 shader_parameter/wave = SubResource("NoiseTexture2D_2w1ts")
 shader_parameter/texture_normal = SubResource("NoiseTexture2D_spj36")
 shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_llisd")
@@ -1369,17 +1234,18 @@ shader_parameter/wave_direction = Vector2(0.5, 0)
 shader_parameter/wave_direction2 = Vector2(0, 0.5)
 shader_parameter/time_scale = 0.00999999977648
 shader_parameter/noise_scale = 10.0
-shader_parameter/height_scale = 0.03
+shader_parameter/height_scale = 0.04
 shader_parameter/normal_strength = 0.55000000819566
-shader_parameter/beers_law = 0.40000000596048
-shader_parameter/depth_offset = 1.5
-shader_parameter/refraction_strength = 0.15
-shader_parameter/fresnel_power = 4.5
-shader_parameter/fresnel_blend = 0.35
+shader_parameter/fresnel_power = 6.5000000819566
+shader_parameter/fresnel_blend = 0.55
+shader_parameter/refraction_strength = 0.08
+shader_parameter/caustic_scale = 3.0
+shader_parameter/caustic_speed = 0.65000000968578
+shader_parameter/caustic_power = 2.5
+shader_parameter/caustic_strength = 0.28
+shader_parameter/caustic_color = Color(0.55, 0.9, 0.85, 1)
 shader_parameter/metallic = 0.0
-shader_parameter/roughness = 0.10000000475
-shader_parameter/near = 1.0
-shader_parameter/far = 100.0
+shader_parameter/roughness = 0.02000000095
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_7vilt"]
 height = 0.6427727
@@ -1604,7 +1470,7 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_b0o2m"]
 size = Vector3(1.010498, 1.9623413, 1.6713867)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_2w1ts"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d2vxc"]
 render_priority = 0
 shader = ExtResource("94_3ebxn")
 shader_parameter/fog_color = Color(0.4561314, 0.68593657, 0.9166342, 1)
@@ -1623,7 +1489,7 @@ shader_parameter/noise_offset = Vector2(5.9477744, 20.82272)
 [sub_resource type="PlaneMesh" id="PlaneMesh_spj36"]
 size = Vector2(6, 6)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_1pdo1"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_55asd"]
 render_priority = 0
 shader = ExtResource("94_3ebxn")
 shader_parameter/fog_color = Color(0.4561314, 0.68593657, 0.9166342, 1)
@@ -1793,7 +1659,7 @@ shape = SubResource("BoxShape3D_wrl2n")
 [node name="pine" type="Node3D" parent="." unique_id=726786944]
 script = ExtResource("58_am7hm")
 tree_scene = ExtResource("17_g2b3w")
-tree_mesh = ExtResource("59_y4vt1")
+tree_mesh = ExtResource("18_1pdo1")
 tree_material = ExtResource("18_nc11x")
 
 [node name="pinetree_cut" parent="pine" unique_id=1696837849 instance=ExtResource("8_1lqxh")]
@@ -1958,17 +1824,17 @@ script = ExtResource("80_8qplc")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="village/Water/KillZone" unique_id=1849698066]
 shape = SubResource("BoxShape3D_ub2iy")
 
-[node name="Water2" type="MeshInstance3D" parent="village" unique_id=1547304976]
-transform = Transform3D(6.0038657, 0.0026489636, -0.00065224816, -0.003355421, 4.739801, -7.5463704e-06, 0.0008358647, 8.032312e-06, 4.6849494, -26.978867, 0.22051716, 40.756004)
+[node name="Pond" type="MeshInstance3D" parent="village" unique_id=1547304976]
+transform = Transform3D(6.0038657, 0.0026489636, -0.00065224816, -0.003355421, 4.739801, -7.5463704e-06, 0.0008358647, 8.032312e-06, 4.6849494, -26.968857, 0.2326355, 40.74343)
 mesh = SubResource("QuadMesh_3ebxn")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_wha2b")
 
-[node name="KillZone" type="Area3D" parent="village/Water2" unique_id=1763199830]
+[node name="KillZone" type="Area3D" parent="village/Pond" unique_id=1763199830]
 transform = Transform3D(1.0000001, 1.032564e-11, -1.4551915e-11, 3.2799086e-10, 1, 0, 1.4551915e-11, 2.842171e-14, 1.0000001, 3.7431717e-05, -0.492352, 2.3841858e-07)
 script = ExtResource("80_8qplc")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="village/Water2/KillZone" unique_id=472609878]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="village/Pond/KillZone" unique_id=472609878]
 transform = Transform3D(0.999996, -1.04780726e-10, -5.311449e-10, 3.5598705e-10, 0.99999493, 2.728484e-12, -1.1641532e-10, 6.366463e-12, 0.99999493, -5.722046e-06, -0.01736486, 0)
 shape = SubResource("BoxShape3D_ub2iy")
 
@@ -2679,96 +2545,72 @@ transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -0.9277115, 0.44385338,
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.089, 2.5, 10.132)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.1)
+density = 200.0
 shape_points = PackedVector2Array(-6.4040833, -4.03701, -3.1161346, -4.9665985, 0.8232956, -5.3657913, 4.326866, -4.3549423, 5.5652237, -1.5227814, 5.8137054, 1.2970963, 4.71476, 3.6681442, 1.3542175, 5.5586014, 2.1186066, 3.0511856, 0.84941864, 2.1450272, -1.0790405, 1.6668549, -2.1782532, 2.4354782, -1.9024582, 4.2125473, -2.5774002, 5.148117, -5.2339554, 2.6175537, -5.541008, 0.87361145, -6.987465, -1.0762634)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass6" type="Node3D" parent="village" unique_id=953655320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0920029, 0.5, 14.359238)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.1)
+density = 200.0
 shape_points = PackedVector2Array(-3.7951355, -2.3738403, -5.3584595, -3.282753, -2.3772354, -3.9008102, 0.93120575, -5.246002, 1.9491882, -8.045448, 3.8033676, -7.500099, 4.326866, -4.3549423, 5.5652237, -1.5227814, 7.257225, 1.8435059, 9.983963, 3.079628, 9.656754, 5.442795, 10.674736, 6.2789993, 7.366295, 7.406044, 6.7482376, 5.6245804, 5.2212677, 3.952179, 3.0398788, 2.6433487, -1.577385, 2.388855, -2.3772354, 3.0069122, -3.8678436, 1.5162964, -4.4859085, -1.5739975)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass7" type="Node3D" parent="village" unique_id=979683542]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.599014, 0.5, 14.359238)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.1)
+density = 200.0
 shape_points = PackedVector2Array(6.3363037, 0.8985443, 7.7526245, -1.3729248, 9.649963, -0.35744476, 10.396263, 2.0731888, 9.983963, 3.079628, 8.233643, 6.1629868, 6.292549, 5.2881165, 3.3015366, 6.6498413, 3.0398788, 2.6433487, 4.0113983, 1.1390457)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass8" type="Node3D" parent="village" unique_id=601740682]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.599, 1.5, 27.001)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.1)
+density = 200.0
 shape_points = PackedVector2Array(2.0680847, -0.5169983, 1.7244873, 0.857399, 1.7505722, 2.1480026, 1.0627594, 3.092804, 0.028244019, 4.5093536, -1.5262756, 5.8869705, -2.2423859, 6.9304504, -1.8926163, 7.43013, -5.023903, 7.646652, -5.1404953, 3.3494568, -4.222412, 2.2846527, -3.5880737, -0.49057007, -2.1343918, -1.3099213, 0.640831, -1.230629)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass9" type="Node3D" parent="village" unique_id=1978173717]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.81305, 1.5, 27.001)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.1)
+density = 200.0
 shape_points = PackedVector2Array(2.0680847, -0.5169983, 0.21729279, 0.6289444, 0.32844543, 2.6735077, -0.06763458, 5.0992203, -1.566658, 7.031296, -1.9497452, 8.880089, -3.7985382, 10.1959, -3.615326, 9.196556, -5.081032, 8.996681, -6.413498, 8.413727, -6.163025, 6.3617783, -4.4982758, 4.265419, -3.758522, 2.0642242, -3.2034607, 0.041877747, -1.8442993, -1.1419067, 2.1516113, -5.9904404, 5.0236588, -10.613701, 10.453926, -9.782036, 10.558418, -9.181374, 8.130867, -7.724846, 5.446289, -6.1683655, 4.50383, -4.840355, 3.2111816, -3.7802277, 2.6489182, -2.727745)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass5" type="Node3D" parent="village" unique_id=1924223766]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.258, 0.5, 18.562)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.1)
+density = 200.0
 shape_points = PackedVector2Array(-6.4514084, -4.7895355, -3.1605606, -5.3064117, 1.1244125, -6.602371, 1.8968124, -6.970604, 4.5332413, -6.397438, 5.5652237, -1.5227814, 5.8137054, 1.2970963, 4.71476, 3.6681442, 1.3490906, 5.5295258, 0.49736023, 4.7823334, -0.3739853, 3.1361237, -1.5183411, 3.1462097, -1.9024582, 4.2125473, -2.5774002, 5.148117, -5.2339554, 2.6175537, -6.7940445, 0.3218689, -6.987465, -1.0762634)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="pinetree_log" parent="village" unique_id=1541708549 instance=ExtResource("65_3brlq")]
@@ -2795,7 +2637,7 @@ shape = SubResource("BoxShape3D_a35nk")
 [node name="Forest" type="Node3D" parent="mountains" unique_id=672701689]
 script = ExtResource("58_am7hm")
 tree_scene = ExtResource("8_1lqxh")
-tree_mesh = ExtResource("59_y4vt1")
+tree_mesh = ExtResource("18_1pdo1")
 
 [node name="Fences" type="Node3D" parent="mountains" unique_id=810165371]
 visible = false
@@ -2966,19 +2808,14 @@ shape = SubResource("BoxShape3D_oiboj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.442, 12, 12.598)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 grass_scale = Vector2(0.02, 0.15)
+density = 200.0
 shape_points = PackedVector2Array(-26.88274, -4.391964, -20.584259, -5.2736893, -10.37058, -6.267017, -1.4735928, -7.599934, 19.013344, -8.757116, 25.579369, -9.262411, 33.844437, -8.925833, 39.31782, -7.94195, 40.97241, -6.366291, 41.490776, -4.385515, 41.45249, -2.135869, 40.065887, -0.5015526, 39.516277, 2.396803, 35.90314, 5.4715137, 32.746967, 7.2585144, 29.793762, 7.9102345, 27.195938, 8.174923, 24.283028, 12.405287, 20.219048, 14.776556, 16.572151, 15.481735, 9.673382, 15.887789, 3.8507338, 16.446537, -2.6663923, 15.987856, -13.091675, 13.554558, -12.337239, 8.991196, -17.078644, 9.288836, -18.401512, 12.411314, -23.147892, 11.361082, -26.804998, 9.875492, -30.139357, 7.735918, -31.814121, 6.3173428, -32.530685, 3.5248375, -32.14025, 0.74086, -30.926926, -2.1458797, -29.376263, -3.5197878)
 wind_strength = 0.4
 wind_speed = 1.8
 wind_scale = 1.0
 wind_direction = Vector2(1.5, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_color_warm = Color(0.7013743, 0.996365, 0.9695266, 1)
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="MusicZones" type="Node3D" parent="." unique_id=342109790]
@@ -5842,62 +5679,44 @@ random_rotation_range = 12.0
 
 [node name="BillboardGrass" parent="Hills" unique_id=1975848688 instance=ExtResource("68_thp5e")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.551346, 0.45, -6.376152)
-density = 250.0
 scale_variation = 0.6
 color_variation = 0.5
-shape_points = PackedVector2Array(-2.9997177, -4.6754837, 0.12160492, -7.3051605, 10.952469, -5.805237, 13.749657, -5.988777, 12.941566, -3.4704971, 13.573341, -3.6083984, 14.310005, -2.9674606, 11.893265, -1.7995987, 11.71307, -2.1681137, 12.991623, -3.4486084, 13.805782, -6.0213165, 15.237614, -6.234741, 19.091705, -6.5048904, 19.276905, -3.9056473, 16.23354, -2.280922, 15.500355, -1.6684647, 16.69064, -0.6270828, 17.847515, 0.0284729, 17.799225, -0.7162781, 17.095165, -1.2269363, 16.310677, -2.287117, 19.260815, -3.9273834, 20.753311, -3.2580109, 21.510956, -2.5566406, 23.184372, -0.308136, 22.65979, 2.486946, 19.85859, 4.5021667, 18.428085, 5.656784, 16.658855, 5.68589, 14.315891, 3.3322525, 12.83424, 3.3609238, 11.380936, 4.213379, 11.613308, 4.9591446, 14.487869, 4.285324, 14.406609, 3.3354568, 15.645012, 4.6968155, 14.731598, 5.8629837, 11.80209, 6.301506, 7.2360306, 5.7701797, 7.363632, 1.8987579, 4.753952, 1.4472885, 3.5772018, 0.3185501, 4.8624344, -0.52323914, 9.377884, 0.9754257, 10.368004, 2.0187607, 9.328987, 2.7858582, 7.353241, 1.898674, 7.3107758, 2.9608536, 3.0605621, 5.6244965, -3.8439941, 3.7757034, -5.027542, -0.5233154, -4.38575, -2.4671707, -2.550644, -1.4755859, -2.0266495, -2.3933716, -1.156456, -0.84397125, -0.13487244, 0.29218292, 1.9351425, 0.20822906, 1.589714, -0.4925232, -0.3298111, -1.492073, -1.1587067, -0.8906555, -2.0281525, -2.4245071, -1.2023544, -3.4161148)
+density = 250.0
+shape_points = PackedVector2Array(-2.9997177, -4.6754837, 0.12160492, -7.3051605, 10.952469, -5.805237, 13.749657, -5.988777, 12.941566, -3.4704971, 13.573341, -3.6083984, 14.310005, -2.9674606, 11.893265, -1.7995987, 11.71307, -2.1681137, 12.991623, -3.4486084, 13.805782, -6.0213165, 15.237614, -6.234741, 19.091705, -6.5048904, 19.276905, -3.9056473, 16.23354, -2.280922, 15.500355, -1.6684647, 16.69064, -0.6270828, 17.847515, 0.0284729, 17.799225, -0.7162781, 17.095165, -1.2269363, 16.310677, -2.287117, 19.260815, -3.9273834, 20.753311, -3.2580109, 21.510956, -2.5566406, 23.184372, -0.308136, 22.65979, 2.486946, 19.85859, 4.5021667, 18.428085, 5.656784, 16.658855, 5.68589, 14.315891, 3.3322525, 12.83424, 3.3609238, 11.380936, 4.213379, 11.613308, 4.9591446, 14.487869, 4.285324, 14.406609, 3.3354568, 15.645012, 4.6968155, 14.731598, 5.8629837, 11.80209, 6.301506, 7.2360306, 5.7701797, 7.363632, 1.8987579, 4.753952, 1.4472885, 3.5772018, 0.3185501, 4.8624344, -0.52323914, 9.377884, 0.9754257, 10.368004, 2.0187607, 9.328987, 2.7858582, 7.353241, 1.898674, 7.3107758, 2.9608536, 3.0605621, 5.6244965, -3.8439941, 3.7757034, -5.027542, -0.5233154, -4.8359375, -2.8784866, -2.550644, -1.4755859, -2.0266495, -2.3933716, -1.156456, -0.84397125, -0.13487244, 0.29218292, 1.9351425, 0.20822906, 1.589714, -0.4925232, -0.3298111, -1.492073, -1.1587067, -0.8906555, -2.0281525, -2.4245071, -1.2023544, -3.4161148)
 wind_strength = 1.0
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
 lod_fade_end = 40.0
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_color_warm = Color(0.5411765, 0.6901961, 0.35686275, 1)
-noise_color_cool = Color(0.2, 0.47843137, 0.28627452, 1)
-noise_seed = 1
 edge_falloff_distance = 1.0
-edge_min_height = 0.5
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass2" type="Node3D" parent="Hills" unique_id=1829298505]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.084152, 0.93070936, -7.957176)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 250.0
 grass_scale = Vector2(0.02, 0.25)
 scale_variation = 0.6
 color_variation = 0.5
+density = 250.0
 shape_points = PackedVector2Array(-10.841217, -3.033287, -12.164436, -3.6716309, -12.467449, -5.8033295, 5, -5, 6.1354523, -0.7739105, 3.5485077, 4.189369, -0.42931366, 6.659569, -2.0867577, 6.86042, -3.7372322, 6.874008, -4.6712303, 6.6299744, -6.053837, 7.40139, -8.516403, 6.1676025, -8.240002, 4.273613, -8.35051, 2.2701492, -8.311241, 1.7190475, -8.562405, 0.23199463, -9.470249, -1.8213577)
 wind_strength = 1.0
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_color_warm = Color(0.5411765, 0.6901961, 0.35686275, 1)
-noise_color_cool = Color(0.2, 0.47843137, 0.28627452, 1)
-noise_seed = 1
 edge_falloff_distance = 1.0
-edge_min_height = 0.5
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass3" type="Node3D" parent="Hills" unique_id=2141188584]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.084152, -0.09791136, 8.282082)
 script = ExtResource("73_6n42i")
 grass_texture = ExtResource("74_hat0t")
-density = 200.0
 scale_variation = 0.6
 color_variation = 0.5
+density = 200.0
 shape_points = PackedVector2Array(-34.190697, -5.2444916, -29.878456, -5.206871, -23.281258, -3.53508, -21.558819, -3.8657684, -20.416664, 1.4721375, -21.526138, 2.252304, -22.355785, -1.4116058, -21.23922, -2.5761108, -21.548168, -3.83313, -19.514729, -4.0137177, -15.206966, -4.7149353, -12.340057, -3.7935486, -7.966259, -3.8956604, -5.2491226, -4.740631, -3.750946, -4.9122925, -3.5599594, -2.067398, -2.1030464, -1.6639557, -0.6584511, -2.7026367, -0.18938065, -1.8505249, -1.1506271, -1.0444336, -5.4498405, 1.2876892, -6.2543755, 0.041915894, -3.4991264, -2.03714, -3.750946, -4.9122925, -0.85474396, -5.2399445, 0.7965889, -7.60717, 2.10149, -4.0151215, 1.0798302, -0.981781, 2.4833183, 0.9378967, 4.471134, 4.0569153, 4.729904, 2.2871857, 3.3278503, -0.06663513, 1.5838699, -2.2903442, 2.066784, -4.1114655, 6.1354523, -0.7739105, 6.4213753, 4.234543, 4.030304, 5.8763275, 2.0079842, 7.090225, -2.372692, 7.3973236, -4.1390457, 6.666321, -5.2373657, 5.0932465, -4.5229073, 4.5144043, -2.9732628, 5.869461, -1.078167, 6.438202, -0.52749634, 7.406479, -2.3699074, 7.378708, -2.920807, 7.3052216, -4.9347916, 7.2469025, -6.1282196, 7.6509247, -8.485027, 7.629715, -9.103321, 7.0979156, -13.642166, 7.1326447, -14.154175, 6.7724457, -20.476627, 7.024933, -20.532013, 5.6697693, -21.421036, 6.1377716, -21.902058, 4.9561005, -17.539642, 1.7333984, -17.791618, 3.3323364, -20.500462, 5.6563416, -20.4785, 7.055542, -22.212742, 7.0246124, -22.808643, 7.2547455, -24.31894, 7.2344666, -24.877327, 6.789093, -27.323242, 6.847046, -29.801636, 3.249237, -31.10057, 3.2325745, -30.955414, 2.3184967, -31.800758, 1.3530426, -30.06813, 1.0216827, -24.538025, 1.4865265, -23.439476, 2.2085724, -26.32882, 2.7241364, -30.937271, 2.3025665, -31.10279, 3.266632, -34.20912, 3.5681763, -35.764793, 5.8129425, -37.522636, 0.9002228, -37.856453, -2.4688568, -37.626175, -4.7316895)
 wind_strength = 1.0
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_color_warm = Color(0.5411765, 0.6901961, 0.35686275, 1)
-noise_color_cool = Color(0.2, 0.47843137, 0.28627452, 1)
-noise_seed = 1
 edge_falloff_distance = 0.5
-edge_min_height = 0.5
 edge_falloff_curve = 1.0
 
 [node name="BillboardGrass4" type="Node3D" parent="Hills" unique_id=2083560766]
@@ -5909,13 +5728,7 @@ shape_points = PackedVector2Array(-34.190697, -5.2444916, -30.408989, -5.0744934
 wind_strength = 1.0
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_color_warm = Color(0.5401382, 0.6917114, 0.35653588, 1)
-noise_color_cool = Color(0.2, 0.47843137, 0.28627452, 1)
-noise_seed = 1
 edge_falloff_distance = 0.5
-edge_min_height = 0.5
 edge_falloff_curve = 1.0
 
 [node name="appletree1" parent="Hills" unique_id=1818910948 instance=ExtResource("82_0dyva")]
@@ -6176,21 +5989,15 @@ shape = SubResource("SphereShape3D_3fh52")
 
 [node name="BillboardGrass" parent="Forest" unique_id=10677254 instance=ExtResource("68_thp5e")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.220955, 1.4197314, -0.12445068)
-density = 250.0
 scale_variation = 0.6
 color_variation = 0.5
+density = 250.0
 shape_points = PackedVector2Array(15.151781, 2.6443787, 18.139032, 2.6448364, 17.040516, 4.0369263, 16.172182, 5.422409, 13.946749, 7.3365784, 12.1632, 9.290604, 9.898354, 9.221771, 9.1877365, 6.746231, 8.870827, 4.343933, 9.2089405, 1.6855927, 10.684813, -0.06365967, 14.093441, -0.6125641, 17.616957, -0.59451294, 18.447021, 0.49357605, 17.07264, 0.9368439, 15.206007, 0.98677063, 13.832317, 1.3432617, 12.504242, 2.997116, 11.386599, 4.649658, 12.025505, 6.6497955, 12.825457, 8.892609, 13.747601, 7.658432, 13.02907, 6.3866577, 13.459419, 5.1231537, 13.927483, 3.5445404)
 wind_strength = 1.0
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
 lod_fade_end = 40.0
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_color_warm = Color(0.5411765, 0.6901961, 0.35686275, 1)
-noise_color_cool = Color(0.2, 0.47843137, 0.28627452, 1)
-noise_seed = 1
 edge_falloff_distance = 0.5
-edge_min_height = 0.5
 edge_falloff_curve = 1.0
 
 [node name="GodRays" type="Node3D" parent="Forest" unique_id=375174460]
@@ -6267,11 +6074,7 @@ density = 200.0
 shape_points = PackedVector2Array(-5.3784943, -3.5703583, -2.8819466, -4.423645, -3.329296, -2.096222, -3.1389427, -0.16123962, -5.707302, -0.8520355, -5.7104683, 1.956665, -0.10352707, 1.6614532, 3.224495, 2.1097717, 3.6226883, 0.52124023, 1.9160576, 0.08784485, -0.41125488, 0.115753174, -1.0426826, -0.3211975, -0.79418564, -1.4635925, -0.92941666, -3.8368988, 0.767334, -3.6067352, 1.6739998, -3.2092896, 3.2230835, -2.9744568, 5.2367706, -2.4470215, 6.7485123, -1.4515533, 7.9416046, -0.13346863, 6.3479195, 0.61727905, 5.3668976, 3.5346222, 7.3673744, 5.1100616, 5.0291862, 5.5463257, 2.3047104, 6.1359253, -2.0770264, 5.6114807, -5.4142723, 4.366974, -6.7575645, 3.0133972, -8.589394, 2.6572113, -5.7828217, 1.9826355, -5.6906395, -0.93110657, -7.2686653, -1.0962677)
 wind_scale = 1.0
 wind_direction = Vector2(1, 1)
-noise_color_strength = 5.0
-noise_frequency = 0.1
-noise_seed = 2
 edge_falloff_distance = 0.385
-edge_min_height = 0.0
 edge_falloff_curve = 1.0
 
 [node name="CaveWall" type="MeshInstance3D" parent="Forest" unique_id=433335245]
@@ -6351,7 +6154,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.47615, 0, 0)
 
 [node name="Fog4" type="MeshInstance3D" parent="Forest/Fog" unique_id=396498173]
 transform = Transform3D(0.25492257, 0, -0.96696144, 0, 1, 0, 0.96696144, 0, 0.25492257, -0.13093567, 0.37337577, 8.152008)
-material_override = SubResource("ShaderMaterial_2w1ts")
+material_override = SubResource("ShaderMaterial_d2vxc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_spj36")
 skeleton = NodePath("../../Lighting")
@@ -6370,7 +6173,7 @@ soft_distance = 0.72
 
 [node name="Fog5" type="MeshInstance3D" parent="Forest/Fog" unique_id=292458363]
 transform = Transform3D(0.25492257, 0, -0.96696144, 0, 1, 0, 0.96696144, 0, 0.25492257, -13.740402, 2.3476644, 5.1337585)
-material_override = SubResource("ShaderMaterial_1pdo1")
+material_override = SubResource("ShaderMaterial_55asd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_spj36")
 skeleton = NodePath("../../Lighting")
@@ -6385,6 +6188,15 @@ anim_speed = 2.0
 noise_scale = 2.33
 detail_scale = 5.53
 soft_distance = 0.72
+
+[node name="IronBollard" parent="Forest" unique_id=888632000 instance=ExtResource("99_d2vxc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.610966, -1.3088862, -13.109467)
+
+[node name="IronBollard2" parent="Forest" unique_id=195523814 instance=ExtResource("99_d2vxc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.572323, -1.3088862, -13.109467)
+
+[node name="IronBollard3" parent="Forest" unique_id=1371689475 instance=ExtResource("99_d2vxc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.469776, -1.3088862, -13.109467)
 
 [node name="VistaZones" type="Node3D" parent="." unique_id=321775852]
 
@@ -6851,7 +6663,6 @@ studio_font = ExtResource("117_spj36")
 logo_texture = ExtResource("117_ljd0o")
 bird_texture = ExtResource("120_llisd")
 bird_spawn_point = NodePath("BirdSpawnPoint")
-bird_count = 6
 bird_stagger = 0.3
 bird_base_height = 2.0
 bird_base_speed = 3.0
@@ -6866,5 +6677,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5819702, 3.9323528, -2.8538
 
 [node name="BirdSpawnPoint" type="Marker3D" parent="WakeUpDirector" unique_id=743046037]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.7647705, 0.89351094, 3.4911423)
+
+[node name="Node" type="Node" parent="." unique_id=170361501]
+script = ExtResource("122_wha2b")
+hud_enabled = false
 
 [connection signal="timeout" from="Terrain3D/Lod_timer" to="Terrain3D/Grass" method="_on_lod_timer_timeout"]

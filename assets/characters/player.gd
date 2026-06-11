@@ -295,12 +295,15 @@ func _physics_process(delta: float) -> void:
 
 	if vector_anchor and vector_anchor.is_active():
 		if vector_anchor.is_launching():
+			_check_chain_input()
 			_check_dive_strike_input()
 			return
 		elif vector_anchor.is_hanging() or vector_anchor.is_diving():
 			return
 		else:
+			# CHARGING: Release prüfen, aber gedrosselt weiterlaufen lassen
 			_check_vector_anchor_release()
+			_do_charge_movement(delta)
 			return
 
 	if sword:
@@ -362,6 +365,37 @@ func _physics_process(delta: float) -> void:
 		_update_animation(input_dir, delta)
 
 
+func _do_charge_movement(delta: float) -> void:
+	# Schwerkraft beibehalten (falls auf Slope/in Luft)
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+
+	# Input lesen — identisch zur normalen Bewegung
+	var input_dir: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	if input_dir.length_squared() > 0.01:
+		input_dir = input_dir.normalized()
+
+	# Kamera-relative Weltrichtung über SpringArm-Yaw
+	var yaw: float = $SpringArm3D.rotation.y
+	var forward := Vector3(sin(yaw), 0, cos(yaw))
+	var right := Vector3(cos(yaw), 0, -sin(yaw))
+	var world_dir: Vector3 = (right * input_dir.x + forward * input_dir.y).normalized()
+
+	# Gedrosselte Geschwindigkeit
+	var speed: float = SPEED * vector_anchor.get_charge_move_factor()
+
+	if world_dir != Vector3.ZERO:
+		velocity.x = world_dir.x * speed
+		velocity.z = world_dir.z * speed
+	else:
+		velocity.x = move_toward(velocity.x, 0.0, speed)
+		velocity.z = move_toward(velocity.z, 0.0, speed)
+
+	# Blickrichtung eingefroren halten — das Component setzt den Frame selbst
+	_last_dir_mode = vector_anchor.get_charge_locked_dir_mode()
+
+	move_and_slide()
+	
 # ─── Vector Anchor ───
 
 func _check_vector_anchor_release() -> void:
@@ -398,6 +432,40 @@ func _check_dive_strike_input() -> void:
 		if vector_anchor.try_dive_strike():
 			_update_hand_visibility() 
 
+func _check_chain_input() -> void:
+	if vector_anchor == null:
+		return
+
+	var inv: Node = get_node_or_null("/root/InventoryManager")
+	if inv == null:
+		return
+
+	# Slot finden, der den Vector Anchor trägt
+	var anchor_slot: int = -1
+	for slot in range(4):
+		var item_id: String = inv.get_hotbar_item(slot)
+		if item_id == "":
+			continue
+		var item_data: ItemData = inv.get_item_data(item_id)
+		if item_data != null \
+		and item_data.item_type == ItemData.ItemType.EQUIPMENT \
+		and item_data.effect_action == "vector_anchor":
+			anchor_slot = slot
+			break
+
+	if anchor_slot < 0:
+		return
+
+	var action_name: String = ""
+	match anchor_slot:
+		0: action_name = "hotbar_w"
+		1: action_name = "hotbar_a"
+		2: action_name = "hotbar_s"
+		3: action_name = "hotbar_d"
+
+	if action_name != "" and Input.is_action_just_pressed(action_name):
+		if vector_anchor.try_chain_launch():
+			_update_hand_visibility()
 
 func _check_sword_spin_input() -> void:
 	if sword_spin == null or sword_spin.is_spinning():

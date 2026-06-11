@@ -5,3 +5,12 @@
 [resource]
 render_priority = 0
 shader = ExtResource("1_kydc6")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/roughness = 1.0
+shader_parameter/specular = 0.5
+shader_parameter/use_alpha_scissor = true
+shader_parameter/alpha_scissor_threshold = 0.5
+shader_parameter/hue_variation_range = 0.06
+shader_parameter/brightness_variation_range = 0.25
+shader_parameter/saturation_variation_range = 0.3
+shader_parameter/season_hue_shift = 0.0

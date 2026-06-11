@@ -2,118 +2,129 @@
 extends Node3D
 class_name TreeManager
 
-## Das TreeManager-System für performante Baumdarstellung
-## - Ferne Bäume: MultiMesh (ein Draw Call für tausende Bäume)
-## - Nahe Bäume: Echte Szenen mit Occlusion-Support
+## TreeManager-System für performante Baumdarstellung
+## - Ferne Bäume: gechunktes MultiMesh (Frustum-Culling pro Chunk)
+## - Nahe Bäume: echte Szenen mit Occlusion-Support (UNVERÄNDERT)
+##
+## CHUNKING (neu):
+##   Statt EINEM MultiMesh über alle Bäume gibt es pro räumlichem Chunk einen
+##   eigenen MultiMeshInstance3D mit enger AABB. Godots Frustum-Culling zeichnet
+##   dann nur die sichtbaren Chunks statt aller Bäume.
+##
+##   Die index-basierte Real-Tree-Logik bleibt erhalten: ein globaler Baumindex
+##   wird intern auf (chunk_key, local_slot) gemappt.
 
 @export_group("Tree Setup")
-## Die Baum-Szene die für nahe Bäume gespawnt wird
 @export var tree_scene: PackedScene
-## Das Mesh für die MultiMesh-Darstellung (sollte dem Baum ähneln)
 @export var tree_mesh: Mesh
-## Material für das MultiMesh (optional - sonst wird Mesh-Material genutzt)
 @export var tree_material: Material
 
 @export_group("Distances")
-## Ab dieser Distanz werden echte Szenen gespawnt (mit Occlusion)
 @export var spawn_distance: float = 20.0
-## Hysterese um ständiges Spawnen/Despawnen zu vermeiden
 @export var hysteresis: float = 5.0
-## Wie oft pro Sekunde die Distanzen geprüft werden
 @export var update_interval: float = 0.2
 
 @export_group("Performance")
-## Maximale Anzahl echter Baum-Szenen gleichzeitig
 @export var max_real_trees: int = 50
-## Bäume pro Frame spawnen/despawnen (um Lag-Spikes zu vermeiden)
 @export var trees_per_frame: int = 3
+
+@export_group("Chunking")
+## Kantenlänge eines Chunks in Meter. Kleiner = besseres Culling, mehr Draw Calls.
+@export var chunk_size: float = 16.0:
+	set(v):
+		chunk_size = max(v, 1.0)
+		if Engine.is_editor_hint() and _tree_data.size() > 0:
+			_rebuild_multimesh()
+## Distanz (Meter), ab der ein ganzer Chunk verschwindet. 0 = aus.
+@export var chunk_visible_distance: float = 0.0:
+	set(v):
+		chunk_visible_distance = max(v, 0.0)
+		_apply_chunk_visibility()
+## Fade-Breite am Sichtbarkeitsrand (Meter).
+@export var chunk_fade_margin: float = 8.0
 
 var _pool: Array[Node3D] = []
 @export var pool_warmup: int = 30
 
 # Interne Daten
-var _tree_data: Array[TreeData] = []  # Alle Baumpositionen
-var _multimesh_instance: MultiMeshInstance3D
-var _real_trees: Dictionary = {}  # index -> Node3D
+var _tree_data: Array[TreeData] = []
+var _real_trees: Dictionary = {}
 var _player: Node3D
 var _update_timer: float = 0.0
 
-# Queues für graduelles Spawnen/Despawnen
 var _spawn_queue: Array[int] = []
 var _despawn_queue: Array[int] = []
 
+# --- Chunk-State (neu) ---
+var _chunk_root: Node3D                          # Container aller Chunk-Instanzen
+var _chunks: Dictionary = {}                     # chunk_key:Vector2i -> ChunkEntry
+var _index_map: Array = []                       # global index -> {chunk_key, slot}
+
 const POOL_HIDDEN_POS := Vector3(0.0, -100000.0, 0.0)
+const HIDDEN_TRANSFORM_ORIGIN := Vector3(0, -10000, 0)
 
 class TreeData:
 	var position: Vector3
 	var rotation_y: float
 	var scale: float
-	var is_real: bool = false  # true wenn echte Szene aktiv
-	
+	var is_real: bool = false
+
 	func _init(pos: Vector3, rot: float = 0.0, scl: float = 1.0) -> void:
 		position = pos
 		rotation_y = rot
 		scale = scl
 
+## Ein Chunk = ein MultiMeshInstance3D + die globalen Indizes seiner Bäume.
+class ChunkEntry:
+	var mmi: MultiMeshInstance3D
+	var indices: Array[int] = []                 # global index pro lokalem Slot
+
 
 func _ready() -> void:
-	_setup_multimesh()
-	_prepare_mesh_materials_for_color() 
+	_prepare_mesh_materials_for_color()
 	auto_load()
-	
+
 	if not Engine.is_editor_hint() and tree_scene != null:
 		for i in pool_warmup:
 			var t := tree_scene.instantiate() as Node3D
 			add_child(t)
-			# Aufwärmen: sichtbar an einer Position vor der Kamera-Achse,
-			# damit die GPU die Shader-Pipeline VOR dem ersten echten Spawn kompiliert
-			t.position = Vector3(0, -50, 0)  # unter dem Boden, aber im Render
+			t.position = Vector3(0, -50, 0)
 			t.visible = true
 			t.process_mode = Node.PROCESS_MODE_INHERIT
 			_pool.append(t)
-
-		# Ein paar Frames rendern lassen, damit Pipelines kompiliert werden
 		for f in 3:
 			await get_tree().process_frame
-
-		# Jetzt erst verstecken und parken
 		for t in _pool:
 			t.visible = false
 			t.process_mode = Node.PROCESS_MODE_DISABLED
 			t.position = POOL_HIDDEN_POS
-	
-	# Im Editor nicht nach Spieler suchen
+
 	if Engine.is_editor_hint():
 		return
-	
-	# Spieler finden
+
 	await get_tree().process_frame
 	_player = get_tree().get_first_node_in_group("player")
 
 
-
 func _process(delta: float) -> void:
-	# Im Editor nichts tun
 	if Engine.is_editor_hint():
 		return
-	
-	# Spawn/Despawn Queue abarbeiten
 	_process_queues()
-	
-	# Distanz-Check mit Interval
 	_update_timer += delta
 	if _update_timer >= update_interval:
 		_update_timer = 0.0
 		_update_tree_states()
 
 
-## Fügt einen Baum hinzu (Position, Y-Rotation in Grad, Skalierung)
+# ============================================================
+#  TREE-DATEN HINZUFÜGEN (unverändert)
+# ============================================================
+
 func add_tree(position: Vector3, rotation_deg: float = 0.0, scale: float = 1.0) -> void:
 	var data := TreeData.new(position, deg_to_rad(rotation_deg), scale)
 	_tree_data.append(data)
 
 
-## Fügt mehrere Bäume auf einmal hinzu (effizienter)
 func add_trees(trees: Array) -> void:
 	for tree in trees:
 		if tree is Dictionary:
@@ -125,70 +136,133 @@ func add_trees(trees: Array) -> void:
 			add_tree(tree, randf() * 360.0, randf_range(0.8, 1.2))
 
 
-## Generiert Bäume zufällig in einem Bereich
 func generate_random_trees(count: int, area_min: Vector3, area_max: Vector3, terrain: Node3D = null) -> void:
 	for i in count:
 		var x := randf_range(area_min.x, area_max.x)
 		var z := randf_range(area_min.z, area_max.z)
 		var y := area_min.y
-		
-		# Optional: Y-Position vom Terrain holen
 		if terrain and terrain.has_method("get_height"):
 			y = terrain.call("get_height", Vector3(x, 0, z))
-		
 		add_tree(Vector3(x, y, z), randf() * 360.0, randf_range(0.8, 1.2))
-	
-	# MultiMesh aktualisieren nach Batch-Add
 	_rebuild_multimesh()
 
 
-## Muss aufgerufen werden nachdem alle Bäume hinzugefügt wurden
 func finalize() -> void:
 	_rebuild_multimesh()
 	print("TreeManager: ", _tree_data.size(), " Bäume initialisiert")
 
 
-func _setup_multimesh() -> void:
-	_multimesh_instance = MultiMeshInstance3D.new()
-	_multimesh_instance.name = "TreeMultiMesh"
-	add_child(_multimesh_instance)
+# ============================================================
+#  CHUNK-BASIERTES MULTIMESH (neu)
+# ============================================================
 
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = false
-	mm.use_custom_data = true       
-
-	if tree_mesh:
-		mm.mesh = tree_mesh
-
-	_multimesh_instance.multimesh = mm
+func _chunk_key_for(pos: Vector3) -> Vector2i:
+	return Vector2i(int(floor(pos.x / chunk_size)), int(floor(pos.z / chunk_size)))
 
 
-
+## Baut die komplette Chunk-Struktur neu auf. Ersetzt das alte _setup_multimesh
+## + _rebuild_multimesh.
 func _rebuild_multimesh() -> void:
-	if _multimesh_instance == null:
+	# Alten Chunk-Root entfernen
+	if _chunk_root and is_instance_valid(_chunk_root):
+		_chunk_root.queue_free()
+	_chunks.clear()
+
+	if tree_mesh == null:
 		return
 
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_custom_data = false
-	mm.use_colors = true
-	mm.mesh = tree_mesh
-	mm.instance_count = _tree_data.size()
+	_chunk_root = Node3D.new()
+	_chunk_root.name = "TreeChunks"
+	add_child(_chunk_root)
 
+	# 1. Bäume nach Chunk gruppieren (globale Indizes sammeln)
+	var grouping: Dictionary = {}                # chunk_key -> Array[int]
 	for i in _tree_data.size():
-		var data := _tree_data[i]
-		var transform := Transform3D()
-		if not data.is_real:
-			transform = transform.rotated(Vector3.UP, data.rotation_y)
-			transform = transform.scaled(Vector3.ONE * data.scale)
-			transform.origin = data.position
-		else:
-			transform.origin = Vector3(0, -10000, 0)
-		mm.set_instance_transform(i, transform)
-		mm.set_instance_color(i, TreeVariation.instance_color_for(data.position))
+		var key := _chunk_key_for(_tree_data[i].position)
+		if not grouping.has(key):
+			grouping[key] = []
+		grouping[key].append(i)
 
-	_multimesh_instance.multimesh = mm
+	# 2. index_map auf die richtige Größe bringen
+	_index_map.clear()
+	_index_map.resize(_tree_data.size())
+
+	# 3. Pro Chunk einen MultiMeshInstance3D mit enger AABB bauen
+	for key in grouping.keys():
+		var indices: Array = grouping[key]
+		var cnt := indices.size()
+		if cnt == 0:
+			continue
+
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.use_colors = true
+		mm.use_custom_data = true
+		mm.mesh = tree_mesh
+		mm.instance_count = cnt
+
+		var aabb_min := Vector3(INF, INF, INF)
+		var aabb_max := Vector3(-INF, -INF, -INF)
+
+		var entry := ChunkEntry.new()
+		entry.indices.resize(cnt)
+
+		for slot in cnt:
+			var gi: int = indices[slot]
+			var data := _tree_data[gi]
+
+			var t := Transform3D()
+			if not data.is_real:
+				t = t.rotated(Vector3.UP, data.rotation_y)
+				t = t.scaled(Vector3.ONE * data.scale)
+				t.origin = data.position
+			else:
+				t.origin = HIDDEN_TRANSFORM_ORIGIN
+
+			mm.set_instance_transform(slot, t)
+			mm.set_instance_color(slot, TreeVariation.instance_color_for(data.position))
+			mm.set_instance_custom_data(slot, _variation_custom_for(data.position))
+
+			# Mapping global -> (chunk, slot)
+			_index_map[gi] = { "key": key, "slot": slot }
+			entry.indices[slot] = gi
+
+			# AABB (Mesh wächst um ~scale; Baumhöhe großzügig einbeziehen)
+			var s := data.scale
+			var mesh_aabb := tree_mesh.get_aabb()
+			var lo := data.position + mesh_aabb.position * s
+			var hi := lo + mesh_aabb.size * s
+			aabb_min = aabb_min.min(lo)
+			aabb_max = aabb_max.max(hi)
+
+		var mmi := MultiMeshInstance3D.new()
+		mmi.name = "Chunk_%d_%d" % [key.x, key.y]
+		mmi.multimesh = mm
+		mmi.custom_aabb = AABB(aabb_min, aabb_max - aabb_min)
+
+		if chunk_visible_distance > 0.0:
+			mmi.visibility_range_end = chunk_visible_distance
+			mmi.visibility_range_end_margin = chunk_fade_margin
+			mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+
+		_chunk_root.add_child(mmi)
+		entry.mmi = mmi
+		_chunks[key] = entry
+
+	if not Engine.is_editor_hint():
+		print("TreeManager '%s': %d Bäume in %d Chunks" % [name, _tree_data.size(), _chunks.size()])
+
+
+## Variation custom data (war vorher im _rebuild über use_custom_data=false
+## ausgelassen; der pinetree_variation-Shader liest INSTANCE_CUSTOM).
+func _variation_custom_for(pos: Vector3) -> Color:
+	# Deterministisch aus Position: Hue, Brightness, Saturation, frei.
+	var h := hash(Vector2i(int(pos.x * 13.0), int(pos.z * 7.0)))
+	var r := float(h & 0xFF) / 255.0
+	var g := float((h >> 8) & 0xFF) / 255.0
+	var b := float((h >> 16) & 0xFF) / 255.0
+	return Color(r, g, b, 0.0)
+
 
 func _prepare_mesh_materials_for_color() -> void:
 	if tree_mesh == null:
@@ -198,43 +272,70 @@ func _prepare_mesh_materials_for_color() -> void:
 		if mat is StandardMaterial3D:
 			(mat as StandardMaterial3D).vertex_color_use_as_albedo = false
 
+
+## Setzt einen einzelnen Baum im MultiMesh sichtbar/unsichtbar — jetzt über
+## das (chunk, slot)-Mapping statt globalem Index.
 func _update_multimesh_instance(index: int, data: TreeData, visible: bool) -> void:
-	var mm := _multimesh_instance.multimesh
-	if index >= mm.instance_count:
+	if index < 0 or index >= _index_map.size():
+		return
+	var map = _index_map[index]
+	if map == null:
+		return
+	var entry: ChunkEntry = _chunks.get(map["key"])
+	if entry == null or not is_instance_valid(entry.mmi):
+		return
+	var mm := entry.mmi.multimesh
+	var slot: int = map["slot"]
+	if slot >= mm.instance_count:
 		return
 
-	var transform := Transform3D()
-
+	var t := Transform3D()
 	if visible:
-		transform = transform.rotated(Vector3.UP, data.rotation_y)
-		transform = transform.scaled(Vector3.ONE * data.scale)
-		transform.origin = data.position
+		t = t.rotated(Vector3.UP, data.rotation_y)
+		t = t.scaled(Vector3.ONE * data.scale)
+		t.origin = data.position
 	else:
-		transform.origin = Vector3(0, -10000, 0)
+		t.origin = HIDDEN_TRANSFORM_ORIGIN
 
-	mm.set_instance_transform(index, transform)
+	mm.set_instance_transform(slot, t)
+	mm.set_instance_color(slot, TreeVariation.instance_color_for(data.position))
 
-	# DIESE ZEILE ist entscheidend:
-	mm.set_instance_color(index, TreeVariation.instance_color_for(data.position))
+
+func _apply_chunk_visibility() -> void:
+	if not _chunk_root or not is_instance_valid(_chunk_root):
+		return
+	for child in _chunk_root.get_children():
+		if child is MultiMeshInstance3D:
+			if chunk_visible_distance > 0.0:
+				child.visibility_range_end = chunk_visible_distance
+				child.visibility_range_end_margin = chunk_fade_margin
+				child.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+			else:
+				child.visibility_range_end = 0.0
+
+
+# ============================================================
+#  REAL-TREE LOGIK (unverändert — nur _update_multimesh_instance
+#  ist jetzt chunk-aware, der Aufruf bleibt gleich)
+# ============================================================
 
 func _update_tree_states() -> void:
 	if _player == null:
 		return
-	
+
 	var player_pos := _player.global_position
 	var spawn_dist_sq := spawn_distance * spawn_distance
 	var despawn_dist_sq := (spawn_distance + hysteresis) * (spawn_distance + hysteresis)
-	
+
 	var spawn_candidates: Array[Dictionary] = []
 	var real_trees_by_dist: Array[Dictionary] = []
-	
+
 	for i in _tree_data.size():
 		var data := _tree_data[i]
 		var dist_sq := player_pos.distance_squared_to(data.position)
-		
+
 		if data.is_real:
 			real_trees_by_dist.append({"index": i, "dist_sq": dist_sq})
-			# Normale Despawn-Logik
 			if dist_sq > despawn_dist_sq:
 				if i not in _despawn_queue and i not in _spawn_queue:
 					_despawn_queue.append(i)
@@ -242,23 +343,19 @@ func _update_tree_states() -> void:
 			if dist_sq < spawn_dist_sq:
 				if i not in _spawn_queue and i not in _despawn_queue:
 					spawn_candidates.append({"index": i, "dist_sq": dist_sq})
-	
-	# Sortiere: Spawn-Kandidaten nach Nähe, echte Bäume nach Entfernung
+
 	spawn_candidates.sort_custom(func(a, b): return a.dist_sq < b.dist_sq)
-	real_trees_by_dist.sort_custom(func(a, b): return a.dist_sq > b.dist_sq)  # Entfernteste zuerst
-	
-	# Wenn ein Spawn-Kandidat näher ist als der entfernteste echte Baum: tauschen!
+	real_trees_by_dist.sort_custom(func(a, b): return a.dist_sq > b.dist_sq)
+
 	var available_slots := max_real_trees - _real_trees.size() - _spawn_queue.size() + _despawn_queue.size()
-	
+
 	for candidate in spawn_candidates:
 		if available_slots > 0:
 			_spawn_queue.append(candidate.index)
 			available_slots -= 1
 		elif real_trees_by_dist.size() > 0:
-			# Prüfe ob Kandidat näher ist als entferntester echter Baum
 			var furthest := real_trees_by_dist[0]
 			if candidate.dist_sq < furthest.dist_sq:
-				# Tausche: Despawne den entfernten, spawne den nahen
 				if furthest.index not in _despawn_queue:
 					_despawn_queue.append(furthest.index)
 					_spawn_queue.append(candidate.index)
@@ -266,14 +363,12 @@ func _update_tree_states() -> void:
 
 
 func _process_queues() -> void:
-	# Spawnen
 	var spawned := 0
 	while _spawn_queue.size() > 0 and spawned < trees_per_frame:
 		var index: int = _spawn_queue.pop_front()
 		_spawn_real_tree(index)
 		spawned += 1
-	
-	# Despawnen
+
 	var despawned := 0
 	while _despawn_queue.size() > 0 and despawned < trees_per_frame:
 		var index: int = _despawn_queue.pop_front()
@@ -298,8 +393,8 @@ func _spawn_real_tree(index: int) -> void:
 	tree_instance.position = data.position
 	tree_instance.rotation.y = data.rotation_y
 	tree_instance.scale = Vector3.ONE * data.scale
-	
-	_apply_color_to_real_tree(tree_instance, data.position) 
+
+	_apply_color_to_real_tree(tree_instance, data.position)
 
 	tree_instance.visible = true
 	tree_instance.process_mode = Node.PROCESS_MODE_INHERIT
@@ -307,13 +402,11 @@ func _spawn_real_tree(index: int) -> void:
 	_real_trees[index] = tree_instance
 	data.is_real = true
 
-	# MultiMesh-Slot erst im nächsten Frame verstecken (verhindert Flacker-Lücke)
 	_hide_multimesh_slot_deferred(index, data)
 
 
 func _hide_multimesh_slot_deferred(index: int, data: TreeData) -> void:
 	await get_tree().process_frame
-	# Nur verstecken, wenn der Baum immer noch real ist (kann sich geändert haben)
 	if data.is_real:
 		_update_multimesh_instance(index, data, false)
 
@@ -323,11 +416,9 @@ func _despawn_real_tree(index: int) -> void:
 	if not data.is_real:
 		return
 
-	# Zuerst MultiMesh-Slot wieder sichtbar machen
 	data.is_real = false
 	_update_multimesh_instance(index, data, true)
 
-	# Echte Scene erst im nächsten Frame verstecken (verhindert Flacker-Lücke)
 	if _real_trees.has(index):
 		var tree_instance: Node3D = _real_trees[index]
 		_real_trees.erase(index)
@@ -343,76 +434,62 @@ func _hide_real_tree_deferred(tree_instance: Node3D) -> void:
 		_pool.append(tree_instance)
 
 
-## Debug: Zeigt Statistiken
+# ============================================================
+#  STATS / LADEN (unverändert)
+# ============================================================
+
 func get_stats() -> Dictionary:
 	return {
 		"total_trees": _tree_data.size(),
 		"real_trees": _real_trees.size(),
 		"spawn_queue": _spawn_queue.size(),
-		"despawn_queue": _despawn_queue.size()
+		"despawn_queue": _despawn_queue.size(),
+		"chunks": _chunks.size(),
 	}
 
 
-## Lädt Bäume aus einer JSON-Datei (vom Tree Painter gespeichert)
 func load_from_file(path: String) -> bool:
 	if not FileAccess.file_exists(path):
 		push_warning("TreeManager: Datei nicht gefunden: " + path)
 		return false
-	
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		push_error("TreeManager: Konnte Datei nicht öffnen: " + path)
 		return false
-	
 	var json := JSON.new()
 	var error := json.parse(file.get_as_text())
 	file.close()
-	
 	if error != OK:
 		push_error("TreeManager: JSON Parse Error: " + json.get_error_message())
 		return false
-	
 	var data: Array = json.data
 	_tree_data.clear()
-	
 	for entry in data:
 		var pos := Vector3(entry.x, entry.y, entry.z)
 		var rot: float = entry.get("rotation", 0.0)
 		var scl: float = entry.get("scale", 1.0)
 		add_tree(pos, rot, scl)
-	
 	_rebuild_multimesh()
 	print("TreeManager: ", _tree_data.size(), " Bäume geladen aus ", path)
 	return true
 
 
-## Automatisches Laden beim Start (sucht nach passender JSON-Datei)
 func auto_load() -> bool:
 	var scene_name := ""
-	
-	# Im Editor: edited_scene_root verwenden
 	if Engine.is_editor_hint():
 		var edited_root = get_tree().edited_scene_root
 		if edited_root != null:
 			scene_name = edited_root.name
 	else:
-		# Im Spiel: current_scene verwenden
 		var scene_root := get_tree().current_scene
 		if scene_root != null:
 			scene_name = scene_root.name
-
-	
 	if scene_name == "":
 		return false
-	
-
-	
-	# Node-Name für separate Dateien pro TreeManager
 	var path := "res://data/trees/" + scene_name + "_" + name + ".json"
 	return load_from_file(path)
-	
-	
-	
+
+
 func _apply_color_to_real_tree(scene_root: Node3D, pos: Vector3) -> void:
 	var tint := TreeVariation.instance_color_for(pos)
 	_tint_meshes_recursive(scene_root, tint)
@@ -421,38 +498,7 @@ func _apply_color_to_real_tree(scene_root: Node3D, pos: Vector3) -> void:
 func _tint_meshes_recursive(node: Node, tint: Color) -> void:
 	if node is MeshInstance3D:
 		var mi := node as MeshInstance3D
-		# Stamm (no_wind-Gruppe) nicht tönen
 		if not mi.is_in_group("no_wind"):
 			mi.set_instance_shader_parameter("instance_tint", Vector3(tint.r, tint.g, tint.b))
 	for child in node.get_children():
 		_tint_meshes_recursive(child, tint)
-		#
-		
-func _test_fresh_import() -> void:
-	var scene: PackedScene = load("res://assets/base_tiles/trees/pine/pinetree_cut.glb")
-	var inst := scene.instantiate()
-	print("=== FRISCHE GLB ===")
-	_dump_colors(inst)
-	inst.queue_free()
-	
-func _debug_colors() -> void:
-	var test := tree_scene.instantiate() as Node3D
-	_dump_colors(test)
-	test.queue_free()
-
-func _dump_colors(node: Node) -> void:
-	if node is MeshInstance3D:
-		var mi := node as MeshInstance3D
-		if mi.mesh != null:
-			for s in mi.mesh.get_surface_count():
-				var arrays := mi.mesh.surface_get_arrays(s)
-				var colors = arrays[Mesh.ARRAY_COLOR]
-				if colors != null and colors.size() > 0:
-					# Mittelwert über alle Vertices statt nur erster
-					var sum := 0.0
-					for c in colors:
-						sum += c.r
-					var avg :Variant= sum / colors.size()
-					print(mi.name, " surf ", s, " durchschnittl. R: ", avg, " (", colors.size(), " verts)")
-	for child in node.get_children():
-		_dump_colors(child)

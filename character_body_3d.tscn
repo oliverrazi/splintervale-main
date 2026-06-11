@@ -117,6 +117,7 @@ script = ExtResource("1_obynr")
 footstep_sounds = Array[AudioStream]([ExtResource("8_gy32l")])
 SPEED = 3.0
 JUMP_VELOCITY = 2.0
+VFRAMES = 13
 invincibility_duration = 0.8
 hurt_blink_speed = 0.2
 hurt_sounds = Array[AudioStream]([ExtResource("7_4wng8")])
