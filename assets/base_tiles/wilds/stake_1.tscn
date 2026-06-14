@@ -9,7 +9,7 @@ albedo_texture = ExtResource("2_j7n26")
 metallic_specular = 0.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_148x6"]
-size = Vector3(2.5289307, 2.2021484, 1.0925293)
+size = Vector3(2.5289307, 3.8179932, 1.0925293)
 
 [node name="stake1" unique_id=884026020 instance=ExtResource("1_f2q4g")]
 
@@ -37,5 +37,5 @@ surface_material_override/0 = ExtResource("3_148x6")
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="23" unique_id=359318213]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1904570008]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0254517, 1.0336914, 0.366333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0254517, 1.8416138, 0.366333)
 shape = SubResource("BoxShape3D_148x6")

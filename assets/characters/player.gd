@@ -152,6 +152,8 @@ const CONSUMABLE_COOLDOWN_TIME: float = 0.5
 var _hotbar_held: Array[bool] = [false, false, false, false]
 var _vector_anchor_slot: int = -1
 
+var _safe_position_locked: bool = false
+
 
 
 # ─── Node References ───
@@ -196,6 +198,8 @@ func _connect_to_player_data() -> void:
 		pd.hp_changed.connect(_on_hp_changed)
 
 	_update_hud()
+
+
 
 
 func _update_hud() -> void:
@@ -1043,7 +1047,16 @@ func _use_equipment(item_id: String, item_data: ItemData) -> void:
 		_:
 			pass
 
+func lock_safe_position() -> void:
+	_safe_position_locked = true
+
+func unlock_safe_position() -> void:
+	_safe_position_locked = false
+
+
 func _update_safe_position(delta: float) -> void:
+	if _safe_position_locked:   # ← NEU
+		return
 	if not is_on_floor():
 		return
 	if _is_knocked_back or _is_hurt_flashing:
@@ -1054,12 +1067,21 @@ func _update_safe_position(delta: float) -> void:
 		return
 	if sword_spin and sword_spin.is_spinning():
 		return
+	if _is_standing_on_unsafe_floor():   # ← NEU
+		return
 
 	_safe_position_timer -= delta
 	if _safe_position_timer <= 0.0:
 		_last_safe_position = global_position
 		_safe_position_timer = safe_position_update_interval
 
+func _is_standing_on_unsafe_floor() -> bool:
+	for i in range(get_slide_collision_count()):
+		var col := get_slide_collision(i)
+		var collider := col.get_collider()
+		if collider and collider.is_in_group("unsafe_floor"):
+			return true
+	return false
 
 func respawn_after_fall() -> void:
 	if _is_dead or _is_drowning:
@@ -1129,6 +1151,7 @@ func _finish_drowning() -> void:
 	tween.tween_property(character, "modulate:a", 1.0, 0.3)
 
 	_show_idle()
+	unlock_safe_position()  
 	
 func _spawn_splash_vfx() -> void:
 	if splash_vfx_scene != null:

@@ -147,11 +147,12 @@ void fragment() {
 	vec3 tinted_color = mix(color * color_tint_b, color * color_tint_a, noise_normalized);
 
 	float brightness = 1.0 + (noise_normalized - 0.5) * brightness_variation * 2.0;
-	tinted_color *= brightness;
+	//tinted_color *= brightness;
 
 	float luminance = dot(tinted_color, vec3(0.299, 0.587, 0.114));
 	float sat_factor = 1.0 + (noise_normalized - 0.5) * saturation_variation * 2.0;
-	tinted_color = mix(vec3(luminance), tinted_color, sat_factor);
+	sat_factor = clamp(sat_factor, 0.0, 1.0);
+	//tinted_color = mix(vec3(luminance), tinted_color, sat_factor);
 
 	color = tinted_color;
 

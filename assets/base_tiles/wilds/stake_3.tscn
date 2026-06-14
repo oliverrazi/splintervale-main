@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://cpisdyra3njc5" path="res://assets/base_tiles/wilds/stake-material.tres" id="2_hy7v6"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hy7v6"]
-size = Vector3(2.2685928, 2.0888672, 0.6466675)
+size = Vector3(2.2685928, 3.4632568, 0.6466675)
 
 [node name="stake3" unique_id=2113816593 instance=ExtResource("1_n48h1")]
 
@@ -23,5 +23,5 @@ surface_material_override/0 = ExtResource("2_hy7v6")
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="16" unique_id=1526998975]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1616279944]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07921982, 1.0046387, 0.131073)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07921982, 1.6918335, 0.131073)
 shape = SubResource("BoxShape3D_hy7v6")

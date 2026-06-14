@@ -86,6 +86,9 @@ func _setup_noise() -> void:
 	_noise.seed = noise_seed
 
 
+func mark_dirty() -> void:
+	_dirty = true
+
 # ═════════════════════════════════════════════════════════════
 # POLYGON + KANTEN-NOISE
 # ═════════════════════════════════════════════════════════════
@@ -220,23 +223,26 @@ func _rebuild() -> void:
 	if poly.size() < 3:
 		return
 
+	var holes := _collect_holes()   # NEU
+
 	var mesh := ArrayMesh.new()
 
-	_add_cap(mesh, poly, top_y, true, top_uv_scale)
+	_add_cap(mesh, poly, top_y, true, top_uv_scale, holes)   # holes durchreichen
 	mesh.surface_set_material(0, top_material if top_material else _default_mat(Color(0.25, 0.22, 0.2)))
 
 	_add_sides(mesh, poly)
 	mesh.surface_set_material(1, side_material if side_material else _default_mat(Color(0.18, 0.15, 0.13)))
 
 	if generate_bottom:
-		_add_cap(mesh, poly, top_y - depth, false, bottom_uv_scale)
+		_add_cap(mesh, poly, top_y - depth, false, bottom_uv_scale, holes)
 		mesh.surface_set_material(2, bottom_material if bottom_material else _default_mat(Color(0.12, 0.1, 0.09)))
+
+	_add_hole_walls(mesh, holes)   # NEU — Lochwände
 
 	_mesh_instance.mesh = mesh
 
-	# Collision NACH mesh-Zuweisung → liest die echte Geometrie aus
 	if generate_collision:
-		_build_collision(poly)
+		_build_collision(poly)   # liest weiterhin das ganze Mesh → Lochwände inklusive
 
 
 # ═════════════════════════════════════════════════════════════
@@ -244,16 +250,18 @@ func _rebuild() -> void:
 # ═════════════════════════════════════════════════════════════
 
 func _add_cap(mesh: ArrayMesh, poly: PackedVector2Array, y: float,
-		facing_up: bool, uv_sc: float) -> void:
-	var idx := Geometry2D.triangulate_polygon(poly)
+		facing_up: bool, uv_sc: float, holes: Array = []) -> void:
+	# NEU: Triangulation mit Löchern statt direktem triangulate_polygon
+	var tri_result := _triangulate_with_holes(poly, holes)
+	var work_poly: PackedVector2Array = tri_result["verts"]
+	var idx: PackedInt32Array = tri_result["indices"]
 	if idx.is_empty():
 		return
 
-	# Basis-Vertices
+	# Basis-Vertices aus dem (ggf. gebrückten) Polygon
 	var verts: Array[Vector3] = []
-	for p in poly:
+	for p in work_poly:
 		verts.append(Vector3(p.x, y, p.y))
-
 	# Subdivision
 	var fv: Array[Vector3] = verts
 	var fi: PackedInt32Array = idx
@@ -575,6 +583,209 @@ func _point_to_segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var t := clampf(ap.dot(ab) / maxf(ab.dot(ab), 0.0001), 0.0, 1.0)
 	var closest := a + ab * t
 	return p.distance_to(closest)
+	
+# ─── NEU: Triangulation einer Cap MIT Löchern ───
+func _triangulate_with_holes(outer: PackedVector2Array,
+		holes: Array) -> Dictionary:
+	# Gibt {verts: PackedVector2Array, indices: PackedInt32Array} zurück.
+	# Wenn keine Löcher: normale Triangulation.
+	if holes.is_empty():
+		return {
+			"verts": outer,
+			"indices": Geometry2D.triangulate_polygon(outer),
+		}
+
+	# Loch-Polygone einsammeln
+	var hole_polys: Array[PackedVector2Array] = []
+	for h in holes:
+		var hp: PackedVector2Array = h["polygon"]
+		# Loch muss entgegengesetzt zum äußeren Polygon orientiert sein
+		if Geometry2D.is_polygon_clockwise(hp) == Geometry2D.is_polygon_clockwise(outer):
+			hp.reverse()
+		hole_polys.append(hp)
+
+	# Brücken-Verfahren: jedes Loch über eine Brücke ans äußere Polygon nähen.
+	var merged: PackedVector2Array = _stitch_holes(outer, hole_polys)
+	var indices := Geometry2D.triangulate_polygon(merged)
+
+	# Triangle-Filtering: Dreiecke, deren Schwerpunkt IN einem Loch liegt, raus
+	var filtered := PackedInt32Array()
+	for t in range(0, indices.size(), 3):
+		var p0 := merged[indices[t]]
+		var p1 := merged[indices[t + 1]]
+		var p2 := merged[indices[t + 2]]
+		var centroid := (p0 + p1 + p2) / 3.0
+		var in_hole := false
+		for hp in hole_polys:
+			if Geometry2D.is_point_in_polygon(centroid, hp):
+				in_hole = true
+				break
+		if not in_hole:
+			filtered.append(indices[t])
+			filtered.append(indices[t + 1])
+			filtered.append(indices[t + 2])
+
+	return { "verts": merged, "indices": filtered }
+
+# ─── NEU: Lochwände (nach unten extrudiert, Normalen nach innen) ───
+func _add_hole_walls(mesh: ArrayMesh, holes: Array) -> void:
+	for h in holes:
+		var poly: PackedVector2Array = h["polygon"]
+		var hole_depth: float = h["depth"]
+		var verts := PackedVector3Array()
+		var norms := PackedVector3Array()
+		var uvs := PackedVector2Array()
+		var indices := PackedInt32Array()
+
+		var pc := poly.size()
+		var center := _poly_center(poly)
+		var acc := 0.0
+
+		for i in range(pc):
+			var j := (i + 1) % pc
+			var a := poly[i]
+			var b := poly[j]
+			var mid := (a + b) * 0.5
+			# Lochwand-Normale zeigt nach INNEN (zum Lochzentrum)
+			var inward_2d := (center - mid).normalized()
+			var normal := Vector3(inward_2d.x, 0.0, inward_2d.y)
+
+			var edge_len := a.distance_to(b)
+			var u0 := acc * side_uv_scale
+			var u1 := (acc + edge_len) * side_uv_scale
+			acc += edge_len
+
+			var rows: Array[Array] = []
+			for seg in range(side_segments + 1):
+				var t := float(seg) / float(side_segments)
+				var y_val := top_y - hole_depth * t
+				var va := Vector3(a.x, y_val, a.y)
+				var vb := Vector3(b.x, y_val, b.y)
+				if seg > 0 and seg < side_segments and side_noise_strength > 0.0:
+					var na := _noise.get_noise_3d(va.x * 2.0, va.y * 2.0, va.z * 2.0)
+					var nb := _noise.get_noise_3d(vb.x * 2.0, vb.y * 2.0, vb.z * 2.0)
+					# Verschiebung nach innen (Lochwand wölbt sich)
+					va += Vector3(inward_2d.x, 0, inward_2d.y) * na * side_noise_strength
+					vb += Vector3(inward_2d.x, 0, inward_2d.y) * nb * side_noise_strength
+				rows.append([va, vb])
+
+			for seg in range(side_segments):
+				var v_top := float(seg) / float(side_segments) * hole_depth * side_uv_scale
+				var v_bot := float(seg + 1) / float(side_segments) * hole_depth * side_uv_scale
+				var tl: Vector3 = rows[seg][0]
+				var tr: Vector3 = rows[seg][1]
+				var bl: Vector3 = rows[seg + 1][0]
+				var br: Vector3 = rows[seg + 1][1]
+				var base := verts.size()
+				verts.append(tl); verts.append(tr)
+				verts.append(bl); verts.append(br)
+				for _k in range(4):
+					norms.append(normal)
+				uvs.append(Vector2(u0, v_top))
+				uvs.append(Vector2(u1, v_top))
+				uvs.append(Vector2(u0, v_bot))
+				uvs.append(Vector2(u1, v_bot))
+				# Winding umgekehrt ggü. Außenwand, weil Normale nach innen zeigt
+				indices.append(base + 0)
+				indices.append(base + 1)
+				indices.append(base + 2)
+				indices.append(base + 1)
+				indices.append(base + 3)
+				indices.append(base + 2)
+
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = verts
+		arrays[Mesh.ARRAY_NORMAL] = norms
+		arrays[Mesh.ARRAY_TEX_UV] = uvs
+		arrays[Mesh.ARRAY_INDEX] = indices
+		var surf_idx := mesh.get_surface_count()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		var wall_mat: Material = h["material"]
+		mesh.surface_set_material(surf_idx,
+			wall_mat if wall_mat else (side_material if side_material else _default_mat(Color(0.15, 0.12, 0.1))))
+
+# ─── NEU: Löcher über Brücken ins äußere Polygon einnähen ───
+func _stitch_holes(outer: PackedVector2Array,
+		holes: Array[PackedVector2Array]) -> PackedVector2Array:
+	# Vereinfachtes Brücken-Stitching: verbindet jedes Loch mit dem äußeren
+	# Polygon über den nächstgelegenen Punkt. Für konvexe/leicht konkave
+	# Höhlenböden robust genug.
+	var result := outer.duplicate()
+
+	for hole in holes:
+		# Finde das Punktpaar (outer_i, hole_j) mit minimaler Distanz
+		var best_outer := 0
+		var best_hole := 0
+		var best_dist := INF
+		for oi in range(result.size()):
+			for hj in range(hole.size()):
+				var d := result[oi].distance_squared_to(hole[hj])
+				if d < best_dist:
+					best_dist = d
+					best_outer = oi
+					best_hole = hj
+
+		# Brücke einfügen: outer[...best_outer] + hole-loop ab best_hole
+		# + zurück zur Brücke + Rest von outer
+		var bridged := PackedVector2Array()
+		for i in range(best_outer + 1):
+			bridged.append(result[i])
+		# Loch im Kreis ab best_hole durchlaufen
+		for k in range(hole.size() + 1):
+			var idx := (best_hole + k) % hole.size()
+			bridged.append(hole[idx])
+		# zurück zum Brücken-Startpunkt am äußeren Polygon
+		bridged.append(result[best_outer])
+		# Rest des äußeren Polygons
+		for i in range(best_outer + 1, result.size()):
+			bridged.append(result[i])
+
+		result = bridged
+
+	return result
+	
+func _collect_holes() -> Array:
+	var holes := []
+	for child in get_children():
+		if child is CaveHole:
+			var poly: PackedVector2Array = child.get_hole_polygon()
+			if poly.size() >= 3:
+				# Optional: Kanten-Noise aufs Loch anwenden
+				poly = _apply_hole_noise(child, poly)
+				holes.append({
+					"polygon": poly,
+					"depth": child.hole_depth if child.hole_depth > 0.0 else depth,
+					"material": child.wall_material,
+				})
+	return holes
+
+
+func _apply_hole_noise(hole: CaveHole, base: PackedVector2Array) -> PackedVector2Array:
+	if hole.edge_subdivisions == 0 or hole.edge_noise_strength <= 0.0:
+		return base
+	if not _noise:
+		_setup_noise()
+
+	var result := PackedVector2Array()
+	var center := _poly_center(base)
+	for i in range(base.size()):
+		var a := base[i]
+		var b := base[(i + 1) % base.size()]
+		result.append(a)
+		var edge := b - a
+		var perp := Vector2(edge.y, -edge.x).normalized()
+		var mid := (a + b) * 0.5
+		# Beim Loch: Noise nach INNEN (zum Zentrum) für natürliche Ränder
+		if perp.dot((mid - center).normalized()) < 0:
+			perp = -perp
+		for s in range(1, hole.edge_subdivisions + 1):
+			var t := float(s) / float(hole.edge_subdivisions + 1)
+			var p := a.lerp(b, t)
+			var n := _noise.get_noise_2d(p.x * 1.5, p.y * 1.5)
+			p += perp * n * hole.edge_noise_strength
+			result.append(p)
+	return result
 
 # ═════════════════════════════════════════════════════════════
 # SETTERS

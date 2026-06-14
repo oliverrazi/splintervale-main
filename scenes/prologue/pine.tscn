@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://1roan7io8hbg"]
+
+[ext_resource type="Script" uid="uid://bd4da74l2u2k4" path="res://scripts/game/tree_manager.gd" id="1_iv02g"]
+[ext_resource type="PackedScene" uid="uid://b6skeaq3oesm2" path="res://assets/base_tiles/trees/pine/pinetree.tscn" id="2_2acof"]
+[ext_resource type="ArrayMesh" uid="uid://qa6a60llma8w" path="res://assets/base_tiles/trees/pine/pinetree_mesh.tres" id="3_sfif3"]
+[ext_resource type="Material" uid="uid://bi24nqwyuiqrc" path="res://assets/base_tiles/trees/pine/pinetree_variation.tres" id="4_j7rtt"]
+[ext_resource type="PackedScene" uid="uid://c8u5vyoqg0wea" path="res://assets/base_tiles/trees/pinetree.tscn" id="5_6e3nl"]
+
+[node name="pine" type="Node3D" unique_id=2109680582]
+script = ExtResource("1_iv02g")
+tree_scene = ExtResource("2_2acof")
+tree_mesh = ExtResource("3_sfif3")
+tree_material = ExtResource("4_j7rtt")
+
+[node name="pinetree_cut" parent="." unique_id=1696837849 instance=ExtResource("5_6e3nl")]
