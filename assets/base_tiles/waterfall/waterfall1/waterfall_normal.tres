@@ -5,7 +5,7 @@ noise_type = 3
 frequency = 0.04
 
 [resource]
-width = 256
+height = 256
 noise = SubResource("FastNoiseLite_5chwb")
 seamless = true
 as_normal_map = true

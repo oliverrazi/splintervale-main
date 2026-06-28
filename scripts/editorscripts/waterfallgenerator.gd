@@ -15,12 +15,13 @@ func _run() -> void:
 	# Weicher Ring (für Pool-Ripples)
 	#_generate_ring(256, OUT_DIR + "ripple_ring.png")
 	
-	
-	_generate_godray_streaks(128, 512, OUT_DIR + "godray_streaks.png")
-	_generate_godray_motes(256, OUT_DIR + "godray_motes.png")
+
+	#_generate_godray_streaks(128, 512, OUT_DIR + "godray_streaks.png")
+	#_generate_godray_motes(256, OUT_DIR + "godray_motes.png")
 	
 	EditorInterface.get_resource_filesystem().scan()
 	print("Particle-Texturen erzeugt in ", OUT_DIR)
+
 
 func _generate_soft_blob(size: int, path: String, falloff_power: float) -> void:
 	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)

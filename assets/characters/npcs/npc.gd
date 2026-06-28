@@ -12,6 +12,9 @@ enum MovementMode {
 	PATROL_PINGPONG
 }
 
+enum LifeState { SETTLING, ACTIVE, FROZEN }
+var _life_state: LifeState = LifeState.SETTLING
+
 @export_group("NPC Info")
 @export var npc_name: String = "Villager"
 @export var npc_id: String = "npc_001"
@@ -36,6 +39,16 @@ enum MovementMode {
 @export var idle_frame_up: int = 9
 @export var idle_frame_left: int = 18
 @export var idle_frame_right: int = 18
+
+@export_group("Terrain Settle")
+## Wie weit über der Startposition der Raycast beginnt (Puffer für hohes Terrain)
+@export var settle_ray_height: float = 5.0
+## Wie weit nach unten gesucht wird
+@export var settle_ray_depth: float = 20.0
+## Y-Offset des Sprite-Pivots über dem Boden (meist 0, falls Pivot an den Füßen)
+@export var settle_ground_offset: float = 0.0
+## Max. Frames, die auf Terrain-Collision gewartet wird, bevor aufgegeben wird
+@export var settle_max_frames: int = 600
 
 @export_group("Movement")
 @export var movement_mode: MovementMode = MovementMode.STATIONARY
@@ -98,7 +111,7 @@ var _last_position: Vector3 = Vector3.ZERO
 var _stuck_timer: float = 0.0
 
 # Freeze System
-var _is_frozen: bool = false
+var _settle_frame_count: int = 0
 var _player_ref: Node3D = null
 
 
@@ -137,6 +150,9 @@ func _ready() -> void:
 		_interaction_area.body_entered.connect(_on_body_entered)
 		_interaction_area.body_exited.connect(_on_body_exited)
 	
+	_life_state = LifeState.SETTLING
+	_settle_frame_count = 0
+	
 	_wait_timer = randf_range(wait_time_min, wait_time_max)
 
 
@@ -149,22 +165,35 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
-	
+
+	match _life_state:
+		LifeState.SETTLING:
+			_process_settle(delta)
+			return
+		LifeState.FROZEN:
+			# Sollte nicht laufen (physics deaktiviert), aber als Sicherheitsnetz:
+			return
+		LifeState.ACTIVE:
+			pass  # normaler Ablauf unten
+
+	# ---- ab hier: ACTIVE, originale Logik ----
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
 		velocity.y = 0.0
-	
+
+	# Hartes Sicherheitsnetz: kompletter Durchfall -> zurück ins Settling
 	if global_position.y < _start_position.y - 8.0:
-		global_position = _start_position
+		global_position = _start_position + Vector3(0, settle_ray_height, 0)
 		velocity = Vector3.ZERO
+		_enter_settling()
 		return
-	
+
 	if _is_in_dialogue:
 		_face_player()
 		move_and_slide()
 		return
-	
+
 	match movement_mode:
 		MovementMode.STATIONARY:
 			_process_stationary()
@@ -172,8 +201,55 @@ func _physics_process(delta: float) -> void:
 			_process_wander(delta)
 		MovementMode.PATROL_ROUTE, MovementMode.PATROL_LOOP, MovementMode.PATROL_PINGPONG:
 			_process_patrol(delta)
-	
+
 	move_and_slide()
+
+
+# ============ SETTLE LOGIC ============
+
+func _process_settle(_delta: float) -> void:
+	_settle_frame_count += 1
+
+	var space_state := get_world_3d().direct_space_state
+	var from := global_position + Vector3(0, settle_ray_height, 0)
+	var to := global_position + Vector3(0, -settle_ray_depth, 0)
+
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = 1  # Terrain liegt auf Layer 1
+	query.exclude = [get_rid()]  # eigenen Körper ignorieren
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+
+	var result := space_state.intersect_ray(query)
+
+	if result.is_empty():
+		# Terrain3D-Collision noch nicht gestreamt -> geduldig warten
+		if _settle_frame_count >= settle_max_frames:
+			# Notfall: kein Terrain gefunden. NPC trotzdem aktivieren,
+			# damit er nicht für immer einfriert. Auf Startposition belassen.
+			push_warning("NPC '%s' konnte nicht settlen (kein Terrain getroffen)." % npc_name)
+			_finish_settle(global_position)
+		return
+
+	# Terrain getroffen -> exakt auf Oberfläche snappen
+	var ground_y: float = result.position.y + settle_ground_offset
+	_finish_settle(Vector3(global_position.x, ground_y, global_position.z))
+
+
+func _finish_settle(snapped_position: Vector3) -> void:
+	global_position = snapped_position
+	velocity = Vector3.ZERO
+	_start_position = global_position  # korrekte Referenz nach dem Settle
+	_last_position = global_position
+	_life_state = LifeState.ACTIVE
+	_reset_stuck_detection()
+
+
+func _enter_settling() -> void:
+	_life_state = LifeState.SETTLING
+	_settle_frame_count = 0
+	_is_moving = false
+	velocity = Vector3.ZERO
 
 
 # ============ FREEZE SYSTEM ============
@@ -182,31 +258,31 @@ func _check_freeze_state() -> void:
 	if not _player_ref or not is_instance_valid(_player_ref):
 		_player_ref = get_tree().get_first_node_in_group("player")
 		return
-	
+
 	var dist := global_position.distance_to(_player_ref.global_position)
-	
-	if _is_frozen:
-		if dist < unfreeze_distance:
-			_unfreeze()
-	else:
-		if dist > freeze_distance:
-			_freeze()
+
+	match _life_state:
+		LifeState.FROZEN:
+			if dist < unfreeze_distance:
+				_unfreeze()
+		LifeState.ACTIVE:
+			if dist > freeze_distance:
+				_freeze()
+		LifeState.SETTLING:
+			pass  # während des Settlens nicht einfrieren
 
 
 func _freeze() -> void:
-	if _is_frozen:
-		return
-	_is_frozen = true
+	_life_state = LifeState.FROZEN
 	velocity = Vector3.ZERO
 	set_physics_process(false)
 
 
 func _unfreeze() -> void:
-	if not _is_frozen:
-		return
-	_is_frozen = false
-	velocity = Vector3.ZERO
+	# Physik wieder an, aber sicherheitshalber erneut durch SETTLING,
+	# falls Terrain zwischenzeitlich entladen wurde.
 	set_physics_process(true)
+	_enter_settling()
 
 # ============ MOVEMENT PROCESSING ============
 

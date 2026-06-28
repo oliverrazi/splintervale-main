@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://sv2wphqvvcc6"]
+
+[ext_resource type="ArrayMesh" uid="uid://dasukahchgc4t" path="res://assets/base_tiles/wilds/moss/moss1.tres" id="1_chgwu"]
+
+[node name="Moss1" type="MeshInstance3D" unique_id=1266434904]
+mesh = ExtResource("1_chgwu")

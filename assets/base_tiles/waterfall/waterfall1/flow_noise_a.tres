@@ -6,6 +6,6 @@ frequency = 0.015
 cellular_distance_function = 2
 
 [resource]
-width = 256
+width = 1
 noise = SubResource("FastNoiseLite_g0qyr")
 seamless = true

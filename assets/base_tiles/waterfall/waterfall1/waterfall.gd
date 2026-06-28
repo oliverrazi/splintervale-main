@@ -7,6 +7,12 @@ extends Node3D
 @export var waterfall_width: float  = 2.0 : set = _set_width
 @export var flow_intensity: float   = 1.0  # multipliziert flow_speed
 
+@export var wetness_radius: float = 5.0
+
+@export_group("Editor")
+@export var show_bounds_preview: bool = true : set = _set_show_bounds
+var _bounds_helper: MeshInstance3D
+
 @export_group("LOD")
 @export var lod_far_dist: float  = 15.0   # ab hier: keine Particles
 @export var lod_cull_dist: float = 35.0   # ab hier: alles aus
@@ -27,6 +33,8 @@ extends Node3D
 # === Nodes ===
 @onready var fall_mesh:     MeshInstance3D    = get_node_or_null("FallMesh")
 @onready var impact_foam:   MeshInstance3D    = get_node_or_null("ImpactFoam")
+@onready var outer_foam_halo:   MeshInstance3D    = get_node_or_null("OuterFoamHalo")
+@onready var impact_core:   MeshInstance3D    = get_node_or_null("ImpactCore")
 @onready var top_mist:      GPUParticles3D    = get_node_or_null("TopMist")
 @onready var side_spray:    GPUParticles3D    = get_node_or_null("SideSpray")
 @onready var impact_burst:  GPUParticles3D    = get_node_or_null("ImpactBurst")
@@ -47,6 +55,9 @@ func _ready() -> void:
 	
 	if Engine.is_editor_hint():
 		return
+		
+	if has_node("/root/WetnessUpdater"):
+		WetnessUpdater.register_waterfall(self, wetness_radius)
 	
 	if notifier:
 		notifier.screen_entered.connect(_on_screen_entered)
@@ -55,6 +66,10 @@ func _ready() -> void:
 		_is_on_screen = true  # ohne Notifier nehmen wir an: immer sichtbar
 	_current_lod = -1
 	_update_lod(true)
+	
+func _exit_tree() -> void:
+	if has_node("/root/WetnessUpdater"):
+		WetnessUpdater.unregister_waterfall(self)
 
 func _get_player() -> Node3D:
 	# Cache prüfen, ggf. neu suchen (Player kann zwischen Szenen wechseln)
@@ -123,60 +138,118 @@ func _set_width(v: float) -> void:
 	if is_inside_tree(): _apply_dimensions()
 
 func _apply_dimensions() -> void:
+	# === FallMesh: das Wasserfall-Quad ===
 	if fall_mesh:
 		fall_mesh.scale = Vector3(waterfall_width, waterfall_height, 1.0)
 		fall_mesh.position.y = waterfall_height * 0.5
-	if top_mist:
-		top_mist.position.y = waterfall_height
-		var mist_mat := top_mist.process_material as ParticleProcessMaterial
-		if mist_mat:
-			mist_mat.emission_box_extents = Vector3(waterfall_width * 0.35, 0.03, 0.05)
-			mist_mat.spread = 12.0
-	if side_spray:
-		var spray_mat := side_spray.process_material as ParticleProcessMaterial
-		if spray_mat:
-			spray_mat.emission_box_extents = Vector3(
-				waterfall_width * 0.55, waterfall_height * 0.4, 0.05
-			)
-	if impact_burst:
-		var burst_mat := impact_burst.process_material as ParticleProcessMaterial
-		if burst_mat:
-			burst_mat.emission_ring_radius = waterfall_width * 0.3
+	
+	# === ImpactFoam: dichter Schaum-Ring direkt am Aufprall ===
 	if impact_foam:
-		impact_foam.scale = Vector3(waterfall_width * 1.6, 1.0, waterfall_width * 1.6)
-		
-	if godray:
-		var ray_configs = [
-	# [node,      x_world, width, scale_y_factor, y_rot_deg]
-		[godray,    0.0,   0.7,  1.8,   0.0],
-		[godray_2,  -1.2,  0.25, 2.0,   -20.0],
-		[godray_3,  1.4,   0.35, 1.6,   18.0],
-	]
-		for cfg in ray_configs:
-			var ray = cfg[0] as MeshInstance3D
-			if ray:
-				ray.scale = Vector3(cfg[1], waterfall_height * cfg[2], 1.0)
-				ray.position = Vector3(cfg[1], waterfall_height * 0.7, waterfall_width * 0.3)
-				ray.rotation_degrees.y = cfg[3]
-		godray.scale = Vector3(
-			godray_width,
-			waterfall_height * 1.8,  # 1.8 statt 1.4 – ragt weit nach oben raus
-			1.0
-		)
-		godray.position = Vector3(
-			waterfall_width * 0.25,
-			waterfall_height * 0.7,  # höher positioniert
-			waterfall_width * 0.3
-		)
-			
+		impact_foam.scale = Vector3(waterfall_width * 3.5, waterfall_width * 1.8, waterfall_width * 2.8)
+	
+	# === OuterFoamHalo: breiter Schaum-Halo drumherum ===
+	if outer_foam_halo:
+		outer_foam_halo.scale = Vector3(waterfall_width * 2.2, waterfall_width * 0.5, waterfall_width * 2.2)
+	
+	# === ImpactCore: 3D-Schaumkuppel ===
+	if impact_core:
+		impact_core.scale = Vector3(waterfall_width * 1.65, waterfall_width * 0.55, waterfall_width * 0.4)
+	
+	# === TopMist: Lip-Droplets oben ===
+	if top_mist:
+		top_mist.position = Vector3(0, waterfall_height, 0.05)  # vor der FallMesh
+		var tm_mat := top_mist.process_material as ParticleProcessMaterial
+		if tm_mat:
+			tm_mat.emission_box_extents = Vector3(waterfall_width * 0.35, 0.03, 0.05)
+		# Per-Particle Scale: mit Wasserfall-Größe skalieren
+		var size_factor: float = clamp(waterfall_width * 0.5, 0.5, 2.0)
+		_set_particle_quad_size(top_mist, 0.05 * size_factor)
+	
+	# === SideSpray: Seitlich entlang des Falls ===
+	if side_spray:
+		# Position: mittig in der Fallhöhe
+		side_spray.position = Vector3(0, waterfall_height * 0.55, -0.5)
+		var ss_mat := side_spray.process_material as ParticleProcessMaterial
+		if ss_mat:
+			ss_mat.emission_box_extents = Vector3(
+				waterfall_width * 0.9,
+				waterfall_height * 0.4,
+				0.05
+			)
+		var size_factor: float = clamp(waterfall_width * 0.5, 0.5, 2.0)
+		_set_particle_quad_size(side_spray, 0.04 * size_factor)
+	
+	# === ImpactBurst: Splash-Fontäne am Boden ===
+	if impact_burst:
+		impact_burst.position = Vector3(0, waterfall_height * 0.55,-0.5)  # exakt am Aufprall
+		var ib_mat := impact_burst.process_material as ParticleProcessMaterial
+		if ib_mat:
+			ib_mat.emission_ring_radius = waterfall_width * 0.3
+			ib_mat.emission_ring_inner_radius = 0.0
+			ib_mat.emission_ring_height = 0.05
+		var size_factor: float = clamp(waterfall_width * 0.5, 0.5, 2.0)
+		_set_particle_quad_size(impact_burst, 0.06 * size_factor)
+	
+	# === ImpactMist: dichte Bodenwolke ===
 	if impact_mist:
 		var im_mat := impact_mist.process_material as ParticleProcessMaterial
 		if im_mat:
-			im_mat.emission_ring_radius = waterfall_width * 0.35  # kleiner als 0.6
-			im_mat.emission_ring_inner_radius = 0.0
-			im_mat.emission_ring_height = 0.05
+			im_mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+			im_mat.emission_box_extents = Vector3(
+				waterfall_width * 1.8,
+				0.02,
+				waterfall_width * 1.4
+			)
+		# Mist-Puffs skalieren mit Wasserfall-Größe
+		var size_factor: float = clamp(waterfall_width * 0.65,waterfall_width *  1.0, waterfall_width * 0.5)
+		_set_particle_quad_size(impact_mist, 1.0 * size_factor)
+	
+	# === PoolRipples: konzentrische Wellen ===
+	if pool_ripples:
+		var pr_mat := pool_ripples.process_material as ParticleProcessMaterial
+		if pr_mat:
+			pr_mat.emission_ring_radius = waterfall_width * 0.5
+		var size_factor: float = clamp(waterfall_width * 0.5, 0.5, 2.0)
+		_set_particle_quad_size(pool_ripples, 0.4 * size_factor)
+	
+	# === GodRays ===
+	# (dein bestehender GodRay-Code bleibt wie er ist)
+	
+	# === Bounds-Helper ===
+	_update_bounds_preview()
 
 
+# Helper: setzt die Größe des QuadMesh eines Particle-Systems
+func _set_particle_quad_size(particles: GPUParticles3D, size: float) -> void:
+	if particles == null: return
+	var mesh := particles.draw_pass_1
+	if mesh is QuadMesh:
+		(mesh as QuadMesh).size = Vector2(size, size)
+		
+func _set_show_bounds(v: bool) -> void:
+	show_bounds_preview = v
+	_update_bounds_preview()
+
+func _update_bounds_preview() -> void:
+	if not Engine.is_editor_hint():
+		return
+	if _bounds_helper == null and show_bounds_preview:
+		_bounds_helper = MeshInstance3D.new()
+		_bounds_helper.name = "_BoundsPreviewHelper"
+		var box := BoxMesh.new()
+		box.size = Vector3.ONE
+		_bounds_helper.mesh = box
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.3, 0.7, 1.0, 0.15)
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_bounds_helper.material_override = mat
+		add_child(_bounds_helper)
+	if _bounds_helper:
+		_bounds_helper.visible = show_bounds_preview
+		_bounds_helper.scale = Vector3(waterfall_width, waterfall_height, waterfall_width)
+		_bounds_helper.position.y = waterfall_height * 0.5
 
 func set_flow_intensity(v: float) -> void:
 	flow_intensity = v

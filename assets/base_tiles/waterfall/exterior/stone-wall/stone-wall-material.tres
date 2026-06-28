@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bxuw4h2bjio5e"]
+
+[ext_resource type="Texture2D" uid="uid://cr88t5qffeqx2" path="res://assets/base_tiles/waterfall/exterior/stone-wall/stone-wall1_stone_floor2.png" id="1_gu2sq"]
+[ext_resource type="Texture2D" uid="uid://bn8aqpdxnkydl" path="res://assets/base_tiles/waterfall/exterior/stone-wall/stone-wall-normal.tres" id="2_gu2sq"]
+
+[resource]
+resource_name = "Material.001"
+cull_mode = 2
+albedo_texture = ExtResource("1_gu2sq")
+roughness = 0.72
+normal_enabled = true
+normal_scale = 4.2
+normal_texture = ExtResource("2_gu2sq")

@@ -1,0 +1,192 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://kba08l35kw6s"]
+
+[sub_resource type="Shader" id="Shader_yc668"]
+code = "shader_type spatial;
+render_mode blend_mix;
+
+uniform sampler2D DEPTH_TEXTURE : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
+
+// --- Wasserfarben ---
+uniform vec4 color_deep    : source_color = vec4(0.06, 0.18, 0.42, 1.0);
+uniform vec4 color_shallow : source_color = vec4(0.18, 0.55, 0.65, 1.0);
+uniform vec4 color_fresnel : source_color = vec4(0.55, 0.82, 0.95, 1.0);
+
+uniform float water_alpha_shallow : hint_range(0.0, 1.0, 0.01) = 0.55;
+uniform float water_alpha_deep    : hint_range(0.0, 1.0, 0.01) = 0.88;
+
+// --- Foam / Ränder ---
+uniform vec4  foam_color     : source_color = vec4(0.92, 0.97, 1.0, 1.0);
+uniform float edge_scale     : hint_range(0.0, 3.0, 0.01) = 0.5;
+uniform float foam_sharpness : hint_range(1.0, 8.0, 0.1)  = 3.0;
+
+// --- Wellen / Normalmap ---
+uniform sampler2D wave            : hint_default_white, filter_linear, repeat_enable;
+uniform sampler2D texture_normal  : hint_normal,        filter_linear, repeat_enable;
+uniform sampler2D texture_normal2 : hint_normal,        filter_linear, repeat_enable;
+uniform vec2  wave_direction  = vec2(1.0,  0.4);
+uniform vec2  wave_direction2 = vec2(-0.3, 1.0);
+uniform float time_scale  : hint_range(0.0, 0.2, 0.005) = 0.018;
+uniform float noise_scale  = 10.0;
+uniform float height_scale = 0.15;
+uniform float normal_strength : hint_range(0.0, 2.0, 0.05) = 0.8;
+
+// --- Tiefe ---
+uniform float beers_law    : hint_range(0.1, 6.0, 0.05) = 2.5;
+uniform float depth_offset = -0.75;
+
+// --- Refraktion (dezent für JRPG-Stil) ---
+uniform float refraction_strength : hint_range(0.0, 1.0, 0.01) = 0.15;
+
+// --- Fresnel ---
+uniform float fresnel_power : hint_range(1.0, 10.0, 0.1) = 4.5;
+uniform float fresnel_blend : hint_range(0.0, 1.0, 0.01) = 0.35;
+
+// --- Surface ---
+uniform float metallic  : hint_range(0.0, 1.0) = 0.05;
+uniform float roughness : hint_range(0.0, 1.0) = 0.04;
+
+// --- Tiefenberechnung ---
+uniform float near = 1.0;
+uniform float far  = 100.0;
+
+varying float height;
+varying vec3  world_pos;
+
+// -------------------------------------------------------
+
+float fresnel_f(float power, vec3 normal, vec3 view) {
+    return pow(1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0), power);
+}
+
+float linearize_depth(float d) {
+    d = 2.0 * d - 1.0;
+    return near * far / (far + d * (near - far));
+}
+
+// -------------------------------------------------------
+
+void vertex() {
+    world_pos  = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    height     = texture(wave, world_pos.xz / noise_scale + TIME * time_scale).r;
+    VERTEX.y  += height * height_scale;
+}
+
+void fragment() {
+    // --- Tiefe auslesen ---
+   float raw_depth = texture(DEPTH_TEXTURE, SCREEN_UV).r;
+	vec4 scene_ndc  = vec4(SCREEN_UV * 2.0 - 1.0, raw_depth, 1.0);
+	vec4 scene_view = INV_PROJECTION_MATRIX * scene_ndc;
+	scene_view /= scene_view.w;
+	float scene_z   = scene_view.z; // View-Space, negativ
+
+	// Wasser-Fragment ebenfalls View-Space (VERTEX.z ist schon dort)
+	float water_z   = VERTEX.z;
+
+	// Differenz: positiv = Szenengeometrie ist hinter Wasseroberfläche
+	float depth_diff = water_z - scene_z;
+	depth_diff = max(depth_diff, 0.0);
+
+	// Beer's Law für Tiefenfarbe
+	float depth_blend       = clamp(1.0 - exp(depth_diff * -beers_law), 0.0, 1.0);
+	float depth_blend_power = clamp(pow(depth_blend, 2.5), 0.0, 1.0);
+
+	// Foam-Maske
+	float foam = pow(clamp(1.0 - depth_diff / edge_scale, 0.0, 1.0), foam_sharpness);
+
+
+
+    // --- Normalmaps ---
+    vec2 t1 = TIME * wave_direction  * time_scale;
+    vec2 t2 = TIME * wave_direction2 * time_scale;
+    vec3 n1 = texture(texture_normal,  world_pos.xz / noise_scale + t1).rgb;
+    vec3 n2 = texture(texture_normal2, world_pos.xz / noise_scale + t2).rgb;
+    // Rohe [0,1]-Werte für NORMAL_MAP merken:
+    vec3 normal_map_val = mix(n1, n2, 0.5);
+    // Für Refraktion in [-1,1] umrechnen:
+    vec2 normal_offset  = (normal_map_val.xy * 2.0 - 1.0) * normal_strength;
+	
+	float fr = fresnel_f(fresnel_power, NORMAL, VIEW);
+
+	float shore_fade = clamp(1.0 - depth_diff / (edge_scale * 4.0), 0.0, 1.0);
+	shore_fade = pow(shore_fade, 1.5);
+
+	// Refraktion near shore unterdrücken (verhindert dass dunkles Terrain durchscheint)
+	float refr_fade = (1.0 - depth_blend_power) * refraction_strength * 0.015;
+	refr_fade *= (1.0 - shore_fade); // <-- NEU: kein Refract in Shore-Zone
+	vec2  ref_uv     = SCREEN_UV + normal_offset * refr_fade;
+	vec3  screen_col = textureLod(SCREEN_TEXTURE, ref_uv, depth_blend_power * 2.5).rgb;
+
+	// Farbmischung wie gehabt...
+	vec3 depth_col = mix(color_shallow.rgb, color_deep.rgb, depth_blend_power);
+	vec3 water_col = mix(screen_col, depth_col, depth_blend_power * 0.9);
+	water_col = mix(water_col, color_fresnel.rgb, fr * fresnel_blend);
+
+	// Shore-Farbe über water_col legen, dann Foam drüber
+	vec3 final_col = mix(water_col, color_shallow.rgb, shore_fade * 0.6); // <-- NEU
+	final_col = mix(final_col, foam_color.rgb, foam);
+
+    // --- Alpha ---
+    // Tiefes Wasser opak, flaches etwas transparent, Foam immer voll opak
+	float water_alpha = mix(water_alpha_shallow, water_alpha_deep, depth_blend_power);
+	float alpha       = mix(water_alpha, 1.0, foam);
+
+    ALBEDO     = final_col;
+    METALLIC   = metallic;
+    ROUGHNESS  = roughness;
+    NORMAL_MAP = normal_map_val;  // [0,1]-Werte direkt übergeben
+    ALPHA      = alpha;
+}"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_jjr1n"]
+noise_type = 3
+frequency = 0.0096
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_b0o2m"]
+noise = SubResource("FastNoiseLite_jjr1n")
+seamless = true
+as_normal_map = true
+bump_strength = 17.4
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gggvi"]
+noise_type = 3
+frequency = 0.0212
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_bg746"]
+noise = SubResource("FastNoiseLite_gggvi")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_8qplc"]
+seamless = true
+
+[resource]
+render_priority = 0
+shader = SubResource("Shader_yc668")
+shader_parameter/color_deep = Color(0.19345921, 0.3526013, 0.42677712, 1)
+shader_parameter/color_shallow = Color(0.5370111, 0.5370114, 0.5370113, 1)
+shader_parameter/color_fresnel = Color(0.25006714, 0.35832575, 0.47050577, 1)
+shader_parameter/water_alpha_shallow = 0.82999998144784
+shader_parameter/water_alpha_deep = 0.88
+shader_parameter/foam_color = Color(3.465414e-06, 0.26206055, 0.38158777, 1)
+shader_parameter/edge_scale = 0.1499999966472
+shader_parameter/foam_sharpness = 2.10000001639132
+shader_parameter/wave = SubResource("NoiseTexture2D_8qplc")
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_b0o2m")
+shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_bg746")
+shader_parameter/wave_direction = Vector2(1, -3)
+shader_parameter/wave_direction2 = Vector2(-1, -3)
+shader_parameter/time_scale = 0.00999999977648
+shader_parameter/noise_scale = 10.0
+shader_parameter/height_scale = 0.03
+shader_parameter/normal_strength = 0.55000000819566
+shader_parameter/beers_law = 0.40000000596048
+shader_parameter/depth_offset = 1.5
+shader_parameter/refraction_strength = 0.15
+shader_parameter/fresnel_power = 4.5
+shader_parameter/fresnel_blend = 0.35
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.10000000475
+shader_parameter/near = 1.0
+shader_parameter/far = 100.0

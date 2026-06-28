@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b3yt4vh44ho0s"]
+
+[ext_resource type="ArrayMesh" uid="uid://bog1pghba5tq4" path="res://assets/base_tiles/waterfall/exterior/stone-wall/stone-wall1.tres" id="1_hp70m"]
+
+[node name="StoneWall" type="MeshInstance3D" unique_id=847082327]
+mesh = ExtResource("1_hp70m")

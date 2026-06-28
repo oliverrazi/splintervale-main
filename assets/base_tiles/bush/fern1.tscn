@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://bsj2id6g5xbbx"]
+
+[ext_resource type="ArrayMesh" uid="uid://cnpcp8ujxdad7" path="res://assets/base_tiles/bush/fern1.tres" id="1_g1oe3"]
+[ext_resource type="Texture2D" uid="uid://cbm54vj6ah3tq" path="res://assets/base_tiles/bush/fern_fern-branch-pxl.png" id="2_wq2st"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_huwpn"]
+resource_name = "Material.001"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xy3mm"]
+resource_name = "Material.002"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7wkuy"]
+resource_name = "Material.003"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t05b2"]
+resource_name = "Material.004"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4jjcy"]
+resource_name = "Material.005"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xa6ug"]
+resource_name = "Material.006"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jpu0a"]
+resource_name = "Material.007"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f0tkh"]
+resource_name = "Material.008"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gckge"]
+resource_name = "Material.009"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8gxeh"]
+resource_name = "Material.010"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xtmqe"]
+resource_name = "Material.011"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wq2st")
+texture_repeat = false
+
+[node name="Fern1" type="MeshInstance3D" unique_id=19199832]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+mesh = ExtResource("1_g1oe3")
+surface_material_override/0 = SubResource("StandardMaterial3D_huwpn")
+surface_material_override/1 = SubResource("StandardMaterial3D_xy3mm")
+surface_material_override/2 = SubResource("StandardMaterial3D_7wkuy")
+surface_material_override/3 = SubResource("StandardMaterial3D_t05b2")
+surface_material_override/4 = SubResource("StandardMaterial3D_4jjcy")
+surface_material_override/5 = SubResource("StandardMaterial3D_xa6ug")
+surface_material_override/6 = SubResource("StandardMaterial3D_jpu0a")
+surface_material_override/7 = SubResource("StandardMaterial3D_f0tkh")
+surface_material_override/8 = SubResource("StandardMaterial3D_gckge")
+surface_material_override/9 = SubResource("StandardMaterial3D_8gxeh")
+surface_material_override/10 = SubResource("StandardMaterial3D_xtmqe")

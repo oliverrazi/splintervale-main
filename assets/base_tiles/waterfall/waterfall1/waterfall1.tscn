@@ -53,18 +53,26 @@ shader_parameter/normal_strength = 0.6
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_62wc4"]
 render_priority = 0
 shader = ExtResource("2_jhr4c")
+shader_parameter/wall_fade_start = 0.05
+shader_parameter/wall_fade_range = 0.4
 shader_parameter/noise_tex = ExtResource("4_w4rm3")
 shader_parameter/foam_pattern = ExtResource("5_8gyd8")
 shader_parameter/foam_color = Color(0.92, 0.97, 1, 1)
 shader_parameter/flow_speed = 0.8
 shader_parameter/inner_solid = 0.12
-shader_parameter/outer_radius = 0.48
-shader_parameter/density = 0.7
+shader_parameter/outer_radius = 0.31999999284736
+shader_parameter/density = 0.999999977648
 shader_parameter/opacity = 0.95
-shader_parameter/emission = 0.35
+shader_parameter/emission = 0.10000000149012
+shader_parameter/ring_count = 8.0
+shader_parameter/ring_speed = 1.5
+shader_parameter/ring_strength = 0.3999999910592
+shader_parameter/ring_sharpness = 1.40000000596048
+shader_parameter/angular_chaos = 0.4499999899416
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_2sedo"]
 material = SubResource("ShaderMaterial_62wc4")
+size = Vector2(1, 1)
 orientation = 2
 
 [sub_resource type="Curve" id="Curve_okni8"]
@@ -109,11 +117,11 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_iwsl1"]
 material = SubResource("StandardMaterial3D_u7lrm")
-size = Vector2(0.07, 0.07)
+size = Vector2(0.05, 0.05)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_kkha8"]
 emission_shape = 3
-emission_box_extents = Vector3(1.1, 1.206, 0.05)
+emission_box_extents = Vector3(1.8, 1.206, 0.05)
 velocity_pivot = Vector3(0.5, -1.5, 0.2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jhr4c"]
@@ -124,7 +132,7 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_62wc4"]
 material = SubResource("StandardMaterial3D_jhr4c")
-size = Vector2(0.06, 0.06)
+size = Vector2(0.04, 0.04)
 
 [sub_resource type="Curve" id="Curve_iwsl1"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.8316327, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -168,7 +176,7 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_r1udh"]
 material = SubResource("StandardMaterial3D_pgh4t")
-size = Vector2(0.15, 0.15)
+size = Vector2(0.06, 0.06)
 
 [sub_resource type="QuadMesh" id="QuadMesh_80ai0"]
 
@@ -190,40 +198,113 @@ shader_parameter/fresnel_power = 2.5
 shader_parameter/fresnel_strength = 0.85
 
 [sub_resource type="Curve" id="Curve_u7lrm"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.494898, 0.6064333), 0.0, 0.0, 0, 0]
-point_count = 2
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.18539324, 1), 0.0, 0.0, 0, 0, Vector2(0.5416667, 1), 0.0, 0.0, 0, 0, Vector2(0.8820225, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 5
 
 [sub_resource type="CurveTexture" id="CurveTexture_iwsl1"]
 curve = SubResource("Curve_u7lrm")
 
+[sub_resource type="Curve" id="Curve_r1udh"]
+_limits = [-360.0, 360.0, 0.0, 1.0]
+_data = [Vector2(0, -360), 0.0, 0.0, 0, 0, Vector2(0.99999, 360), 0.0, -75.310974, 1, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_80ai0"]
+curve = SubResource("Curve_r1udh")
+
+[sub_resource type="Curve" id="Curve_pgh4t"]
+_limits = [0.0, 2.2529182, 0.0, 1.0]
+_data = [Vector2(0.011904761, 0.9416343), 0.0, 0.0, 0, 0, Vector2(1, 1.7970749), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_r1udh"]
+curve = SubResource("Curve_pgh4t")
+
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_pgh4t"]
-emission_shape = 6
-emission_ring_axis = Vector3(0, 0, 1)
-emission_ring_height = 0.05
-emission_ring_radius = 0.7
-emission_ring_inner_radius = 0.0
-emission_ring_cone_angle = 90.0
-direction = Vector3(0, 1, 0)
-spread = 20.0
-initial_velocity_min = 0.5
-initial_velocity_max = 1.0
-gravity = Vector3(0, 0.3, 0)
-scale_min = 0.29999998
-scale_max = 0.5
-color = Color(0.92, 0.97, 1, 0.6)
+emission_shape_scale = Vector3(0.71, 0.05, 0.6)
+emission_shape = 3
+emission_box_extents = Vector3(3.2, 0.02, 2.8)
+angle_min = -179.99998
+angle_max = 180.00002
+direction = Vector3(0, 0.1, 0)
+spread = 50.0
+flatness = 0.95
+initial_velocity_min = 0.59999996
+initial_velocity_max = 1.1999999
+angular_velocity_min = -20.000015
+angular_velocity_max = 19.999983
+angular_velocity_curve = SubResource("CurveTexture_80ai0")
+gravity = Vector3(0, 0.1, 0)
+damping_min = 0.5
+damping_max = 1.0
+scale_curve = SubResource("CurveTexture_r1udh")
+color = Color(0.9490196, 0.96862745, 1, 1)
 alpha_curve = SubResource("CurveTexture_iwsl1")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r1udh"]
+render_priority = 1
 transparency = 1
+no_depth_test = true
+vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("8_8gyd8")
 billboard_mode = 1
+billboard_keep_scale = true
 
 [sub_resource type="QuadMesh" id="QuadMesh_13hcx"]
 material = SubResource("StandardMaterial3D_r1udh")
-size = Vector2(0.4, 0.4)
+
+[sub_resource type="SphereMesh" id="SphereMesh_80ai0"]
+radius = 0.3
+height = 0.4
+radial_segments = 16
+rings = 8
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a6y8a"]
+render_priority = 0
+shader = ExtResource("2_jhr4c")
+shader_parameter/wall_fade_start = 0.05
+shader_parameter/wall_fade_range = 0.4
+shader_parameter/noise_tex = ExtResource("4_w4rm3")
+shader_parameter/foam_pattern = ExtResource("5_8gyd8")
+shader_parameter/foam_color = Color(0.92, 0.97, 1, 1)
+shader_parameter/flow_speed = 0.8
+shader_parameter/inner_solid = 0.12
+shader_parameter/outer_radius = 0.499999988824
+shader_parameter/density = 0.7
+shader_parameter/opacity = 0.95
+shader_parameter/emission = 0.5000000074506
+shader_parameter/ring_count = 4.0
+shader_parameter/ring_speed = 1.5
+shader_parameter/ring_strength = 1.1999999731776
+shader_parameter/ring_sharpness = 2.5
+shader_parameter/angular_chaos = 0.15
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iwsl1"]
+render_priority = 0
+shader = ExtResource("2_jhr4c")
+shader_parameter/wall_fade_start = 0.05
+shader_parameter/wall_fade_range = 0.4
+shader_parameter/foam_color = Color(0.92, 0.97, 1, 1)
+shader_parameter/flow_speed = 0.40000000596048
+shader_parameter/inner_solid = 0.0
+shader_parameter/outer_radius = 0.499999988824
+shader_parameter/density = 0.4499999899416
+shader_parameter/opacity = 0.4499999899416
+shader_parameter/emission = 0.0
+shader_parameter/ring_count = 8.0
+shader_parameter/ring_speed = 1.5
+shader_parameter/ring_strength = 0.0
+shader_parameter/ring_sharpness = 2.5
+shader_parameter/angular_chaos = 0.7999999821184
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_pgh4t"]
+material = SubResource("ShaderMaterial_iwsl1")
+size = Vector2(1, 1)
+orientation = 2
 
 [node name="Waterfall1" type="Node3D" unique_id=370077476]
 script = ExtResource("1_jhr4c")
+show_bounds_preview = false
 
 [node name="FallMesh" type="MeshInstance3D" parent="." unique_id=751002571]
 transform = Transform3D(2, 0, 0, 0, 6, 0, 0, 0, 1, 0, 3, 0)
@@ -231,54 +312,64 @@ mesh = SubResource("QuadMesh_7iart")
 surface_material_override/0 = SubResource("ShaderMaterial_u7lrm")
 
 [node name="ImpactFoam" type="MeshInstance3D" parent="." unique_id=537655665]
-transform = Transform3D(3.2, 0, 0, 0, 1, 0, 0, 0, 3.2, 0, 0, 0)
+transform = Transform3D(7, 0, 0, 0, 0.95452476, -5.9549327, 0, 3.5623343, 1.5956196, 0, 0, 0)
 mesh = SubResource("PlaneMesh_2sedo")
 
 [node name="TopMist" type="GPUParticles3D" parent="." unique_id=572923237]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+transform = Transform3D(0.3613969, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0.05)
+visible = false
 cast_shadow = 0
 amount = 25
-lifetime = 1.6
 process_material = SubResource("ParticleProcessMaterial_jhr4c")
 draw_pass_1 = SubResource("QuadMesh_iwsl1")
 
 [node name="SideSpray" type="GPUParticles3D" parent="." unique_id=108726130]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0.05)
 amount = 50
+lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_kkha8")
 draw_pass_1 = SubResource("QuadMesh_62wc4")
 
 [node name="ImpactBurst" type="GPUParticles3D" parent="." unique_id=269716020]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.51953435, 0)
-amount = 40
-lifetime = 1.28
+transform = Transform3D(0.66051507, 0, 0, 0, 0.5664373, 0, 0, 0, 0.2741659, 0, 3.0166087, 0)
+amount = 80
 process_material = SubResource("ParticleProcessMaterial_62wc4")
 draw_pass_1 = SubResource("QuadMesh_r1udh")
-
-[node name="ImpactLight" type="OmniLight3D" parent="." unique_id=604493157]
 
 [node name="VisibleOnScreenNotifier3D" type="VisibleOnScreenNotifier3D" parent="." unique_id=102641051]
 visible = false
 
 [node name="GodRay" type="MeshInstance3D" parent="." unique_id=43681740]
-transform = Transform3D(1.1895295, 1.3874311, 0.029516457, -0.15693592, 10.049914, 0.34202006, 0.01976572, -3.7032762, 0.9392289, 0.5, 4.2, 0.6)
+transform = Transform3D(1.1895295, 1.3874311, 0.029516459, -0.15693592, 10.049915, 0.34201998, 0.019765697, -3.7032752, 0.93922895, 0.5, 4.2, 0.6)
 visible = false
 mesh = SubResource("QuadMesh_80ai0")
 surface_material_override/0 = SubResource("ShaderMaterial_13hcx")
 
 [node name="GodRay2" type="MeshInstance3D" parent="." unique_id=1808368618]
-transform = Transform3D(1.1895913, 0.19090271, 0.0327948, 0.15693629, -1.3958213, -0.34202006, 0.015613497, -0.51501346, 0.9391202, -1.2, 4.2, 0.6)
+transform = Transform3D(-1.1895912, 0.19090305, 0.0327948, 0.15693654, 1.3958213, 0.34202006, -0.015613595, -0.51501346, 0.9391202, -1.2, 4.2, 0.6)
 visible = false
 mesh = SubResource("QuadMesh_80ai0")
 surface_material_override/0 = SubResource("ShaderMaterial_13hcx")
 
 [node name="GodRay3" type="MeshInstance3D" parent="." unique_id=2095278341]
-transform = Transform3D(1.3876954, 0.27229017, 0.026237758, -0.18309186, 1.9541498, 0.34202012, 0.027904138, -0.7191356, 0.9393262, 1.4, 4.2, 0.6)
+transform = Transform3D(1.3876954, 0.27229014, 0.026237758, -0.18309185, 1.9541498, 0.34202015, 0.027904138, -0.71913564, 0.9393262, 1.4, 4.2, 0.6)
 visible = false
 mesh = SubResource("QuadMesh_80ai0")
 surface_material_override/0 = SubResource("ShaderMaterial_13hcx")
 
 [node name="ImpactMist" type="GPUParticles3D" parent="." unique_id=1870513670]
+transform = Transform3D(0.6501964, 0, 0, 0, 1, 0, 0, 0, 0.5493317, 0, 0.15, -0.2)
 amount = 20
-lifetime = 0.8
+lifetime = 2.0
+speed_scale = 0.5
 process_material = SubResource("ParticleProcessMaterial_pgh4t")
 draw_pass_1 = SubResource("QuadMesh_13hcx")
+
+[node name="ImpactCore" type="MeshInstance3D" parent="." unique_id=1049957804]
+transform = Transform3D(3.3, 0, 0, 0, 1.08, 0, 0, 0, 0.8, 0, 0, 0)
+mesh = SubResource("SphereMesh_80ai0")
+surface_material_override/0 = SubResource("ShaderMaterial_a6y8a")
+
+[node name="OuterFoamHalo" type="MeshInstance3D" parent="." unique_id=912127627]
+transform = Transform3D(4.4, 0, 0, 0, 0.42261824, -3.9877546, 0, 0.9063078, 1.8595203, 0, 0.01, 0)
+mesh = SubResource("PlaneMesh_pgh4t")

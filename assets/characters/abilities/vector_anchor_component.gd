@@ -51,6 +51,9 @@ var _charge_locked_dir_mode: int = 0
 @export var projectile_color: Color = Color(0.7, 0.85, 1.0, 1.0)
 @export var flash_color: Color = Color(0.894, 0.596, 0.392, 1.0)
 
+@export_group("Projectile Missile")
+@export var beam_missile_length: float = 1.2 
+
 # === LAUNCH/FLIGHT SETTINGS ===
 @export_group("Launch")
 @export var launch_duration: float = 0.8
@@ -163,7 +166,7 @@ var _block_triggered: bool = false
 const TARGETABLE_GROUPS: Array[String] = ["enemies", "enemy", "targetable", "projectile"]
 
 # === STATE ===
-enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, DIVE_DELEGATED, BOUNCING, RECOVERY, FALLING }
+enum State { IDLE, CHARGING, PROJECTILE, LAUNCHING, DIVE_DELEGATED, BOUNCING, RECOVERY }
 
 var _state: State = State.IDLE
 var _current_radius: float = 0.0
@@ -207,7 +210,9 @@ var _dive_player_base_y: float = 0.0
 var _dive_charge_particles: GPUParticles3D = null
 var _dive_resonance_used: float = 0.0
 
-var _land_in_air: bool = false
+
+var _is_falling_phase: bool = false
+
 
 var _chain_count: int = 0
 
@@ -264,8 +269,6 @@ func _physics_process(delta: float) -> void:
 			_process_bouncing(delta)
 		State.RECOVERY:
 			pass
-		State.FALLING:
-			_process_falling(delta)
 
 
 # ============================================
@@ -421,17 +424,6 @@ func try_chain_launch() -> bool:
 
 	_chain_count += 1
 
-	# Preview-Pointer wird zum echten Ziel — sauber wegräumen, Strahl + Launch
-	_clear_chain_preview()
-	_remove_target_indicator()
-
-	_spawn_chain_beam(_player.global_position, next_target)
-
-	_current_target = next_target
-	_block_triggered = false
-	
-	_chain_count += 1
-
 	_clear_chain_preview()
 	_remove_target_indicator()
 
@@ -491,7 +483,8 @@ func _find_chain_target() -> Node3D:
 			# Innerhalb des Cones: am ehesten geradeaus + am nächsten gewinnt
 			var facing_score: float = dot
 			var distance_score: float = 1.0 - (distance / chain_search_radius)
-			var score: float = facing_score * 2.5 + distance_score * 0.8
+			var facing_bucket: float = round(facing_score * 8.0) / 8.0
+			var score: float = facing_bucket * 2.0 + distance_score * 1.2
 
 			if score > best_score:
 				best_score = score
@@ -615,17 +608,20 @@ func _create_projectile() -> void:
 	# Beide als Billboard-Cross (zwei gekreuzte Quads) — keine Caps, keine Nähte.
 	var core := MeshInstance3D.new()
 	core.name = "BeamCore"
-	core.mesh = _build_beam_cross_mesh(0.135)
+	core.mesh = _build_beam_cross_mesh(0.06)
 	core.material_override = _create_beam_material(1.25, 1.4)
 	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_projectile_node.add_child(core)
 	
 	var glow := MeshInstance3D.new()
 	glow.name = "BeamGlow"
-	glow.mesh = _build_beam_cross_mesh(0.16)
+	glow.mesh = _build_beam_cross_mesh(0.09)
 	glow.material_override = _create_beam_material(0.55, 2.2)
 	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_projectile_node.add_child(glow)
+	
+	core.scale = Vector3(1.0, 1.0, beam_missile_length)
+	glow.scale = Vector3(1.0, 1.0, beam_missile_length)
 	
 	var muzzle := MeshInstance3D.new()
 	muzzle.name = "BeamMuzzle"
@@ -635,6 +631,7 @@ func _create_projectile() -> void:
 	sphere.radial_segments = 16
 	sphere.rings = 8
 	muzzle.mesh = sphere
+	muzzle.position = Vector3(0, 0, -beam_missile_length * 0.5)
 	muzzle.material_override = _create_muzzle_material()
 	muzzle.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_projectile_node.add_child(muzzle)
@@ -796,52 +793,55 @@ func _process_projectile(delta: float) -> void:
 	if _projectile_node == null or _current_target == null:
 		_cancel_ability("projectile_lost")
 		return
-	
+
 	if not is_instance_valid(_current_target):
 		_cancel_ability("target_invalid")
 		return
-	
-	var player_pos: Vector3 = _player.global_position + _get_beam_origin_offset()
+
 	var target_pos: Vector3 = _get_target_anchor_position(_current_target) + Vector3(0, 0.3, 0)
-	var total_distance: float = player_pos.distance_to(target_pos)
-	var direction: Vector3 = (target_pos - player_pos).normalized()
-	
 	var current_time: float = Time.get_ticks_msec() / 1000.0
-	
+
+	# Quelle folgt dem Player LIVE (nicht mehr eingefroren)
+	var source_pos: Vector3 = _player.global_position + _get_beam_origin_offset()
+
 	if not _projectile_node.has_meta("start_time"):
 		_projectile_node.set_meta("start_time", current_time)
-	
+
 	var start_time: float = _projectile_node.get_meta("start_time")
 	var elapsed: float = current_time - start_time
-	var beam_head_dist: float = elapsed * projectile_speed
-	
-	if beam_head_dist >= total_distance:
+
+	var total_distance: float = source_pos.distance_to(target_pos)
+	var direction: Vector3 = (target_pos - source_pos).normalized()
+
+	# Wie weit ist die Spitze vom AKTUELLEN Quellpunkt schon vorgedrungen?
+	var tip_dist: float = elapsed * projectile_speed
+
+	if tip_dist >= total_distance:
 		_on_projectile_hit()
 		return
-	
-	var beam_length: float = beam_head_dist
-	var beam_center: Vector3 = player_pos + direction * (beam_length * 0.5)
-	
-	_projectile_node.global_position = beam_center
+
+	# Strahl spannt sich vom Player (source_pos) bis zur Spitze
+	var beam_len: float = tip_dist
+	var center: Vector3 = source_pos + direction * (beam_len * 0.5)
+
+	_projectile_node.global_position = center
 	_projectile_node.look_at(target_pos, Vector3.UP)
-	
+
 	var core := _projectile_node.get_node_or_null("BeamCore") as MeshInstance3D
 	if core:
-		core.scale = Vector3(1.0, 1.0, beam_length)
+		core.scale = Vector3(1.0, 1.0, max(0.01, beam_len))
 		if core.material_override is ShaderMaterial:
 			core.material_override.set_shader_parameter("time", current_time)
-	
+
 	var glow := _projectile_node.get_node_or_null("BeamGlow") as MeshInstance3D
 	if glow:
-		glow.scale = Vector3(1.0, 1.0, beam_length)
+		glow.scale = Vector3(1.0, 1.0, max(0.01, beam_len))
 		if glow.material_override is ShaderMaterial:
 			glow.material_override.set_shader_parameter("time", current_time)
-			
+
 	var muzzle := _projectile_node.get_node_or_null("BeamMuzzle") as MeshInstance3D
 	if muzzle:
-		muzzle.position = Vector3(0, 0, -beam_length * 0.5)
-		var grow: float = clamp(beam_length / total_distance, 0.3, 1.0)
-		muzzle.scale = Vector3.ONE * (0.5 + grow * 0.3)
+		muzzle.position = Vector3(0, 0, -beam_len * 0.5)
 		if muzzle.material_override is ShaderMaterial:
 			muzzle.material_override.set_shader_parameter("time", current_time)
 
@@ -877,7 +877,7 @@ func _reflect_projectile(projectile: Node3D) -> void:
 func _start_launch() -> void:
 	_hit_enemies_this_launch.clear()
 	_chain_preview_target = null
-	
+
 	if _current_target == null or not is_instance_valid(_current_target):
 		_cancel_ability("target_invalid")
 		return
@@ -885,38 +885,12 @@ func _start_launch() -> void:
 	var start_pos: Vector3 = _player.global_position
 	var target_pos: Vector3 = _get_target_anchor_position(_current_target)
 
+	# Durchflug: Endpunkt ist der an der Zielposition gespiegelte Startpunkt.
+	# Das Ziel ist damit IMMER der Scheitelpunkt der Flugbahn.
+	# Durchflug: Endpunkt ist der an der Zielposition gespiegelte Startpunkt.
+	# Das Ziel ist damit IMMER der Scheitelpunkt der Flugbahn.
 	var end_pos: Vector3 = target_pos * 2.0 - start_pos
 	end_pos.y = start_pos.y
-
-	var space_state := _player.get_world_3d().direct_space_state
-	var exclude_rids: Array = [_player.get_rid()]
-	var test_positions: Array[Vector3] = [end_pos]
-	var dir_to_end: Vector3 = (end_pos - target_pos).normalized()
-	for dist in [2.0, 1.5, 1.2, 0.9, 0.7, 0.5, 0.3]:
-		var alt: Vector3 = target_pos + dir_to_end * dist
-		alt.y = start_pos.y
-		test_positions.append(alt)
-
-	var resolved_end_pos: Vector3 = Vector3.ZERO
-	var found_valid: bool = false
-	var land_in_air: bool = false
-
-	for candidate in test_positions:
-		var result := _check_launch_destination(candidate, exclude_rids)
-		if result.valid:
-			resolved_end_pos = result.position
-			found_valid = true
-			land_in_air = result.get("in_air", false)
-			break
-
-	# Kein valider Boden auf dem ganzen Pfad → Klippe. Wir fliegen zum
-	# ersten Kandidaten und lassen danach die Schwerkraft übernehmen.
-	if not found_valid:
-		resolved_end_pos = test_positions[0]
-		resolved_end_pos.y = start_pos.y
-		land_in_air = true
-
-	end_pos = resolved_end_pos
 
 	_state = State.LAUNCHING
 	_launch_progress = 0.0
@@ -925,12 +899,13 @@ func _start_launch() -> void:
 	_afterimages_spawned = 0
 	_confusion_triggered = false
 	_launch_time = 0.0
-	_land_in_air = land_in_air
+	_fall_velocity = Vector3.ZERO
+	_is_falling_phase = false
 
 	_launch_start_pos = start_pos
 	_launch_target_pos = target_pos
 	_launch_end_pos = end_pos
-	
+
 	var flight_flat: Vector3 = end_pos - start_pos
 	flight_flat.y = 0.0
 	if flight_flat.length_squared() > 0.0001:
@@ -990,17 +965,12 @@ func _check_launch_destination(candidate: Vector3, exclude_rids: Array) -> Dicti
 	return {"valid": true, "reason": "Bodenkontakt", "position": landing, "in_air": landing_in_air}
 
 func _process_launching(delta: float) -> void:
-	_launch_progress += delta / launch_duration
 	_launch_time += delta
-	
+
 	if _chain_shoot_frame_hold > 0.0:
 		_chain_shoot_frame_hold -= delta
 
-	if _launch_progress >= 1.0:
-		_complete_launch()
-		return
-
-	if not _block_triggered \
+	if not _is_falling_phase and not _block_triggered \
 	and _launch_progress >= block_check_progress \
 	and _current_target != null and is_instance_valid(_current_target) \
 	and _current_target.has_method("vector_anchor_blocks") \
@@ -1009,23 +979,52 @@ func _process_launching(delta: float) -> void:
 		_on_blocked_mid_launch()
 		return
 
-	if confuse_enemy and not _confusion_triggered and _launch_progress >= confusion_trigger_point:
+	if not _is_falling_phase and confuse_enemy and not _confusion_triggered and _launch_progress >= confusion_trigger_point:
 		if _current_target != null and is_instance_valid(_current_target):
 			_confuse_target(_current_target)
 		_confusion_triggered = true
-		
-	if chain_enabled and _launch_progress >= chain_window_start:
+
+	if chain_enabled and (_is_falling_phase or _launch_progress >= chain_window_start):
 		_update_chain_preview()
 	elif _chain_preview_target != null:
 		_clear_chain_preview()
 
-	var t: float = _launch_progress
-	# Start→End in ALLEN Achsen interpolieren, Bogen kommt obendrauf
-	var base_pos: Vector3 = _launch_start_pos.lerp(_launch_end_pos, t)
-	var arc: float = 4.0 * launch_arc_height * t * (1.0 - t)
-	var new_pos: Vector3 = base_pos
-	new_pos.y = base_pos.y + arc
+	# === Position berechnen ===
+	var new_pos: Vector3
+	var just_landed: bool = false   # NEU
 
+	if not _is_falling_phase:
+		_launch_progress += delta / launch_duration
+		var t: float = _launch_progress
+		var base_pos: Vector3 = _launch_start_pos.lerp(_launch_end_pos, t)
+		var arc: float = 4.0 * launch_arc_height * t * (1.0 - t)
+		new_pos = base_pos
+		new_pos.y = base_pos.y + arc
+
+		if _launch_progress >= 1.0:
+			new_pos = _launch_end_pos
+			if _has_ground_at(_launch_end_pos):
+				_player.global_position = _launch_end_pos
+				_complete_launch()
+				return
+			else:
+				_begin_fall_phase(delta)
+				new_pos = _player.global_position
+	else:
+		# --- Fall-Phase ---
+		_fall_velocity.y -= bounce_gravity * delta
+		new_pos = _player.global_position + _fall_velocity * delta
+
+		# Boden NUR prüfen wenn wir tatsächlich fallen (nicht beim Aufsteigen)
+		if _fall_velocity.y < 0.0 and _has_ground_below(new_pos):
+			var ground := _get_ground_position(new_pos)
+			_player.global_position = ground
+			_complete_launch()
+			return
+
+	# === Wand-/Enemy-Check ===
+	# WICHTIG: In der Fall-Phase NICHT bouncen — sonst Pol-Flackern.
+	# Beim Fallen zählt nur der Boden (oben), Wände stoppen die Horizontalbewegung.
 	if _launch_time >= collision_delay:
 		var space_state := _player.get_world_3d().direct_space_state
 		var shape_query := PhysicsShapeQueryParameters3D.new()
@@ -1043,11 +1042,9 @@ func _process_launching(delta: float) -> void:
 			var collider = result.get("collider")
 			if collider == null or not is_instance_valid(collider):
 				continue
-
 			var is_enemy: bool = collider is Enemy \
 				or collider.is_in_group("enemies") \
 				or collider.is_in_group("enemy")
-
 			if is_enemy:
 				_try_hit_launch_enemy(collider)
 				if not launch_pierce_enemies:
@@ -1056,22 +1053,31 @@ func _process_launching(delta: float) -> void:
 				blocking_hit = true
 
 		if blocking_hit:
-			if bounce_enabled:
+			if _is_falling_phase:
+				# Beim Fallen: Wand stoppt nur die Horizontalbewegung, kein Bounce.
+				# Player rutscht vertikal weiter runter bis Boden.
+				_fall_velocity.x = 0.0
+				_fall_velocity.z = 0.0
+				new_pos.x = _player.global_position.x
+				new_pos.z = _player.global_position.z
+			elif bounce_enabled:
 				_start_bounce(new_pos)
+				return
 			else:
 				_face_target(_launch_target_pos)
 				if _player.has_method("_show_idle"):
 					_player._show_idle()
 				if "_attack_cooldown_timer" in _player:
 					_player._attack_cooldown_timer = 0.0
+				_cleanup_all_indicators()
 				_state = State.IDLE
 				_current_target = null
 				ability_cancelled.emit("collision")
-			return
+				return
 
 	_player.global_position = new_pos
 
-	if afterimage_enabled and _sprite != null:
+	if not _is_falling_phase and afterimage_enabled and _sprite != null:
 		var afterimage_interval: float = launch_duration / float(afterimage_count)
 		_afterimage_timer += delta
 		if _afterimage_timer >= afterimage_interval and _afterimages_spawned < afterimage_count:
@@ -1082,14 +1088,60 @@ func _process_launching(delta: float) -> void:
 	if _chain_shoot_frame_hold <= 0.0:
 		_show_air_frame()
 
+func _begin_fall_phase(delta: float) -> void:
+	_is_falling_phase = true
+	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
+	flight_dir.y = 0.0
+	if flight_dir.length_squared() > 0.0001:
+		flight_dir = flight_dir.normalized()
+		var launch_speed: float = _launch_start_pos.distance_to(_launch_end_pos) / launch_duration
+		_fall_velocity = flight_dir * launch_speed * 0.4
+	else:
+		_fall_velocity = Vector3.ZERO
+	# Leichter Anfangs-Sink, damit der Übergang nahtlos ist
+	_fall_velocity.y = -2.0
+	
+func _has_ground_at(pos: Vector3) -> bool:
+	# Boden auf ungefähr dieser Höhe? (für Parabel-Endpunkt)
+	var space_state := _player.get_world_3d().direct_space_state
+	var ray := PhysicsRayQueryParameters3D.create(
+		pos + Vector3(0, 0.5, 0),
+		pos + Vector3(0, -0.6, 0)
+	)
+	ray.collision_mask = _player.collision_mask
+	ray.exclude = [_player.get_rid()]
+	return not space_state.intersect_ray(ray).is_empty()
+
+
+func _has_ground_below(pos: Vector3) -> bool:
+	# Boden knapp unter uns? (für Fall-Phase, Frame-genau)
+	var space_state := _player.get_world_3d().direct_space_state
+	var ray := PhysicsRayQueryParameters3D.create(
+		_player.global_position + Vector3(0, 0.3, 0),
+		pos + Vector3(0, -0.1, 0)
+	)
+	ray.collision_mask = _player.collision_mask
+	ray.exclude = [_player.get_rid()]
+	return not space_state.intersect_ray(ray).is_empty()
+
+
+func _get_ground_position(pos: Vector3) -> Vector3:
+	var space_state := _player.get_world_3d().direct_space_state
+	var ray := PhysicsRayQueryParameters3D.create(
+		_player.global_position + Vector3(0, 0.3, 0),
+		pos + Vector3(0, -0.5, 0)
+	)
+	ray.collision_mask = _player.collision_mask
+	ray.exclude = [_player.get_rid()]
+	var hit := space_state.intersect_ray(ray)
+	if not hit.is_empty():
+		return hit.position
+	return pos
+
 
 func _complete_launch() -> void:
-	if _land_in_air:
-		# Klippe: nicht hart positionieren, sondern fallen lassen.
-		_start_fall()
-		return
-
-	_player.global_position = _launch_end_pos
+	_is_falling_phase = false
+	_fall_velocity = Vector3.ZERO
 
 	if confuse_enemy and not _confusion_triggered:
 		if _current_target != null and is_instance_valid(_current_target):
@@ -2204,27 +2256,25 @@ func _spawn_chain_beam(from_pos: Vector3, target: Node3D) -> void:
 
 	var start: Vector3 = from_pos + _get_beam_origin_offset()
 	var target_pos: Vector3 = _get_target_anchor_position(target) + Vector3(0, 0.3, 0)
-	var length: float = start.distance_to(target_pos)
-	var center: Vector3 = start.lerp(target_pos, 0.5)
-
-	beam.global_position = center
-	beam.look_at(target_pos, Vector3.UP)
+	var total_dist: float = start.distance_to(target_pos)
+	var direction: Vector3 = (target_pos - start).normalized()
 
 	var core := MeshInstance3D.new()
-	core.mesh = _build_beam_cross_mesh(0.135)
+	core.name = "BeamCore"
+	core.mesh = _build_beam_cross_mesh(0.06)
 	core.material_override = _create_beam_material(1.25, 1.4)
 	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	core.scale = Vector3(1.0, 1.0, length)
 	beam.add_child(core)
 
 	var glow := MeshInstance3D.new()
-	glow.mesh = _build_beam_cross_mesh(0.16)
+	glow.name = "BeamGlow"
+	glow.mesh = _build_beam_cross_mesh(0.09)
 	glow.material_override = _create_beam_material(0.55, 2.2)
 	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	glow.scale = Vector3(1.0, 1.0, length)
 	beam.add_child(glow)
-	
+
 	var muzzle := MeshInstance3D.new()
+	muzzle.name = "BeamMuzzle"
 	var msphere := SphereMesh.new()
 	msphere.radius = 0.06
 	msphere.height = 0.12
@@ -2233,29 +2283,107 @@ func _spawn_chain_beam(from_pos: Vector3, target: Node3D) -> void:
 	muzzle.mesh = msphere
 	muzzle.material_override = _create_muzzle_material()
 	muzzle.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	muzzle.position = Vector3(0, 0, -length * 0.5)
 	beam.add_child(muzzle)
 
-	# Schneller Aufblitz + Fade, dann weg
+	# Flugdauer aus Distanz + Speed
 	var t0: float = Time.get_ticks_msec() / 1000.0
+
+	# Strahl wächst vom Player (live) zur Spitze, bis er das Ziel trifft → dann auflösen.
 	var tween := create_tween()
 	tween.tween_method(func(elapsed: float):
 		if not is_instance_valid(beam):
 			return
-		var now: float = t0 + elapsed
-		for m in [core, glow]:
-			if is_instance_valid(m) and m.material_override is ShaderMaterial:
-				m.material_override.set_shader_parameter("time", now)
-		# Glow schrumpft leicht beim Faden
-		var f: float = 1.0 - (elapsed / 0.2)
-		core.scale.x = max(0.05, f)
-		core.scale.y = max(0.05, f)
-	, 0.0, 0.2, 0.2)
-	tween.chain().tween_callback(beam.queue_free)
+		var src: Vector3 = _player.global_position + _get_beam_origin_offset()
+		var tgt: Vector3
+		if is_instance_valid(target):
+			tgt = _get_target_anchor_position(target) + Vector3(0, 0.3, 0)
+		else:
+			tgt = src + direction
+		var dist: float = src.distance_to(tgt)
+		var dir: Vector3 = (tgt - src).normalized() if dist > 0.001 else direction
+		var tip: float = elapsed * projectile_speed
 
-	var semitones: float = float(_chain_count)   # erstes Glied = 0 Halbtöne
+		# Spitze hat das Ziel erreicht → Strahl auflösen
+		if tip >= dist:
+			_dissolve_chain_beam(beam)
+			return
+
+		var center: Vector3 = src + dir * (tip * 0.5)
+		beam.global_position = center
+		if dir.length_squared() > 0.0001:
+			beam.look_at(center + dir, Vector3.UP)
+		core.scale = Vector3(1.0, 1.0, max(0.01, tip))
+		glow.scale = Vector3(1.0, 1.0, max(0.01, tip))
+		muzzle.position = Vector3(0, 0, -tip * 0.5)
+		var now: float = t0 + elapsed
+		for m in [core, glow, muzzle]:
+			if m.material_override is ShaderMaterial:
+				m.material_override.set_shader_parameter("time", now)
+	, 0.0, 2.0, 2.0)   # Obergrenze als Sicherheits-Timeout, normal trifft er vorher
+	tween.chain().tween_callback(func():
+		if is_instance_valid(beam):
+			beam.queue_free()
+	)
+
+	var semitones: float = float(_chain_count)
 	var pitch: float = pow(2.0, semitones / 18.0)
 	_play_sound(release_sound, pitch)
+	
+func _dissolve_chain_beam(beam: Node3D) -> void:
+	if not is_instance_valid(beam):
+		return
+	# Doppelaufruf verhindern (Tween feuert evtl. mehrfach im Treffer-Frame)
+	if beam.has_meta("dissolving"):
+		return
+	beam.set_meta("dissolving", true)
+
+	var fade := create_tween()
+	fade.set_parallel(true)
+	# Strahl schrumpft leicht + verblasst
+	fade.tween_property(beam, "scale", beam.scale * 0.85, 0.12).set_ease(Tween.EASE_IN)
+	# Über die Shader-brightness ausblenden
+	fade.tween_method(func(v: float):
+		if not is_instance_valid(beam):
+			return
+		for child in beam.get_children():
+			if child is MeshInstance3D and child.material_override is ShaderMaterial:
+				child.material_override.set_shader_parameter("brightness", v)
+	, 1.0, 0.0, 0.12)
+	fade.chain().tween_callback(func():
+		if is_instance_valid(beam):
+			beam.queue_free()
+	)
+	
+func _update_missile_beam(beam: Node3D, core: MeshInstance3D, glow: MeshInstance3D, muzzle: MeshInstance3D, start: Vector3, direction: Vector3, total_dist: float, progress: float, t0: float) -> void:
+	# Spitze fliegt von 0 → total_dist
+	var tip_dist: float = total_dist * progress
+
+	# Länge: am Player rauswachsen, am Ziel einschrumpfen.
+	# grow_zone = erste 25% (Strahl wächst aus dem Player),
+	# shrink_zone = letzte 25% (Strahl zieht sich in die Kugel zusammen)
+	var grow: float = smoothstep(0.0, 0.25, progress)
+	var shrink: float = 1.0 - smoothstep(0.75, 1.0, progress)
+	var len_factor: float = min(grow, shrink)
+	var beam_len: float = beam_missile_length * len_factor
+
+	# Spitze begrenzen, damit der Schweif nicht aus dem Player rauskommt am Anfang
+	var actual_len: float = min(beam_len, tip_dist)
+
+	var tip_pos: Vector3 = start + direction * tip_dist
+	var center: Vector3 = tip_pos - direction * (actual_len * 0.5)
+
+	beam.global_position = center
+	if direction.length_squared() > 0.0001:
+		beam.look_at(beam.global_position + direction, Vector3.UP)
+
+	core.scale = Vector3(1.0, 1.0, max(0.01, actual_len))
+	glow.scale = Vector3(1.0, 1.0, max(0.01, actual_len))
+	muzzle.position = Vector3(0, 0, -actual_len * 0.5)
+
+	var now: float = t0 + progress
+	for m in [core, glow, muzzle]:
+		if m.material_override is ShaderMaterial:
+			m.material_override.set_shader_parameter("time", now)
 
 func _get_target_anchor_position(target: Node3D) -> Vector3:
 	if target == null:
@@ -2352,86 +2480,10 @@ func _get_beam_origin_offset() -> Vector3:
 
 	return local_offset
 
-func _start_fall() -> void:
-	# Horizontale Restbewegung aus dem Launch beibehalten, vertikal frei fallen
-	var flight_dir: Vector3 = _launch_end_pos - _launch_start_pos
-	flight_dir.y = 0.0
-	if flight_dir.length_squared() > 0.0001:
-		flight_dir = flight_dir.normalized()
-		var launch_speed: float = _launch_start_pos.distance_to(_launch_end_pos) / launch_duration
-		_fall_velocity = flight_dir * launch_speed * 0.4
-	else:
-		_fall_velocity = Vector3.ZERO
-	_fall_velocity.y = 0.0
-
-	if _player.has_method("_show_idle"):
-		_player._show_idle()
-	if _player.has_method("_get_fall_frame"):
-		var fd: Dictionary = _player._get_fall_frame()
-		if fd.has("frame"):
-			_sprite.frame = fd.frame
-			_sprite.flip_h = fd.flip
-
-	_state = State.FALLING
 
 
-func _process_falling(delta: float) -> void:
-	_fall_velocity.y -= bounce_gravity * delta
-
-	var new_pos: Vector3 = _player.global_position + _fall_velocity * delta
-
-	# Boden suchen
-	var space_state := _player.get_world_3d().direct_space_state
-	var ray := PhysicsRayQueryParameters3D.create(
-		_player.global_position + Vector3(0, 0.3, 0),
-		new_pos + Vector3(0, -0.1, 0)
-	)
-	ray.collision_mask = _player.collision_mask
-	ray.exclude = [_player.get_rid()]
-	var hit := space_state.intersect_ray(ray)
-
-	if not hit.is_empty():
-		new_pos = hit.position
-		_player.global_position = new_pos
-		_end_fall()
-		return
-
-	# Horizontaler Wand-Check
-	var shape_query := PhysicsShapeQueryParameters3D.new()
-	var sphere := SphereShape3D.new()
-	sphere.radius = 0.3
-	shape_query.shape = sphere
-	shape_query.transform = Transform3D(Basis(), new_pos + Vector3(0, 0.3, 0))
-	shape_query.collision_mask = _player.collision_mask
-	shape_query.exclude = [_player.get_rid()]
-	var results := space_state.intersect_shape(shape_query, 4)
-	for r in results:
-		var collider = r.get("collider")
-		if collider == null or not is_instance_valid(collider):
-			continue
-		var is_enemy: bool = collider is Enemy or collider.is_in_group("enemies") or collider.is_in_group("enemy")
-		if not is_enemy:
-			_fall_velocity.x = 0.0
-			_fall_velocity.z = 0.0
-			new_pos.x = _player.global_position.x
-			new_pos.z = _player.global_position.z
-			break
-
-	_player.global_position = new_pos
 
 
-func _end_fall() -> void:
-	_fall_velocity = Vector3.ZERO
-	if use_idle_frame_on_land and _player.has_method("_show_idle"):
-		_player._show_idle()
-	if "_attack_cooldown_timer" in _player:
-		_player._attack_cooldown_timer = 0.0
-	_play_sound(land_sound)
-	_cleanup_all_indicators()
-	_state = State.IDLE
-	_current_target = null
-	launch_completed.emit()
-	
 func _update_chain_preview() -> void:
 	if chain_max_links > 0 and _chain_count >= chain_max_links:
 		_clear_chain_preview()

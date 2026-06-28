@@ -45,6 +45,7 @@ CombatManager="*uid://caj0bcbwof5h6"
 LowHpVignette="*uid://sxdjfxc83241"
 BattlePause="*uid://0ih8mellxis1"
 WhiteBridge="*uid://bjfh2r8o1rfqp"
+WetnessUpdater="*uid://08k5f588x52i"
 
 [display]
 
@@ -165,4 +166,44 @@ player_world_position={
 camera_world_position={
 "type": "vec3",
 "value": Vector3(0, 0, 0)
+}
+waterfall_count={
+"type": "int",
+"value": 0
+}
+waterfall_pos_0={
+"type": "vec3",
+"value": Vector3(0, -10000, 0)
+}
+waterfall_pos_1={
+"type": "vec3",
+"value": Vector3(0, -10000, 0)
+}
+waterfall_pos_2={
+"type": "vec3",
+"value": Vector3(0, -10000, 0)
+}
+waterfall_radius_0={
+"type": "float",
+"value": 0.001
+}
+waterfall_radius_1={
+"type": "float",
+"value": 0.001
+}
+waterfall_radius_2={
+"type": "float",
+"value": 0.001
+}
+waterfall_height_0={
+"type": "float",
+"value": 0.001
+}
+waterfall_height_1={
+"type": "float",
+"value": 0.001
+}
+waterfall_height_2={
+"type": "float",
+"value": 0.001
 }
