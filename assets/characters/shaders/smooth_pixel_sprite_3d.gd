@@ -1,9 +1,11 @@
-## SmoothPixelSprite3D v4
+## SmoothPixelSprite3D v5
 ##
 ## Drop-in Sprite3D-Ersatz mit:
 ## - Smooth Pixel Filtering (kein Flimmern)
 ## - Korrektes Billboard (Full / Y / Y+Tilt / None)
 ## - modulate-Property (wie Sprite3D)
+## - NEU: HD-2D Beleuchtungsregler (normal_up_blend, self_illumination)
+##   direkt im Inspector, pro Instanz einstellbar
 ##
 ## KEIN manueller Textur-Import nötig.
 
@@ -43,6 +45,16 @@ enum FilterAlgorithm {
 @export var billboard_mode: BillboardMode = BillboardMode.FULL : set = _set_billboard_mode
 @export_range(0.0, 0.5, 0.01) var tilt_amount: float = 0.15 : set = _set_tilt_amount
 
+# --- Beleuchtung (HD-2D) ---
+## Wie stark die Sprite-Normale Richtung Welt-Oben gebogen wird.
+## 0.0 = reagiert nur auf frontales Licht | 1.0 = reagiert nur auf Licht von oben
+@export_range(0.0, 1.0, 0.05) var normal_up_blend: float = 0.6 : set = _set_normal_up_blend
+
+## Lichtunabhängiges Eigenleuchten des Sprites.
+## Hoch = ignoriert Beleuchtung, niedrig = Lichter haben volle Kontrolle.
+## Für HD-2D-Lighting eher 0.1-0.2.
+@export_range(0.0, 1.0, 0.05) var self_illumination: float = 0.15 : set = _set_self_illumination
+
 # --- Shader-Einstellungen ---
 @export var filter_algorithm: FilterAlgorithm = FilterAlgorithm.SMOOTHSTEP : set = _set_filter_algorithm
 @export_range(0.3, 3.0, 0.1) var aa_sharpness: float = 1.2 : set = _set_aa_sharpness
@@ -52,7 +64,7 @@ enum FilterAlgorithm {
 
 # --- Internes ---
 var _material: ShaderMaterial
-var _shader_path: String = "res://assets/characters/shaders/pixel_art_smooth_v4.gdshader"
+var _shader_path: String = "res://assets/characters/shaders/pixel_art_smooth_v5.gdshader"
 
 
 func _ready() -> void:
@@ -120,6 +132,8 @@ func _update_shader_params() -> void:
 	_material.set_shader_parameter("filter_mode", int(filter_algorithm))
 	_material.set_shader_parameter("aa_sharpness", aa_sharpness)
 	_material.set_shader_parameter("frame_bleed_guard", frame_bleed_guard)
+	_material.set_shader_parameter("normal_up_blend", normal_up_blend)
+	_material.set_shader_parameter("self_illumination", self_illumination)
 
 	_material.set_shader_parameter("depth_bias", depth_bias)
 
@@ -170,6 +184,16 @@ func _set_tilt_amount(value: float) -> void:
 	tilt_amount = value
 	if _material:
 		_material.set_shader_parameter("tilt_amount", tilt_amount)
+
+func _set_normal_up_blend(value: float) -> void:
+	normal_up_blend = value
+	if _material:
+		_material.set_shader_parameter("normal_up_blend", normal_up_blend)
+
+func _set_self_illumination(value: float) -> void:
+	self_illumination = value
+	if _material:
+		_material.set_shader_parameter("self_illumination", self_illumination)
 
 func _set_filter_algorithm(value: FilterAlgorithm) -> void:
 	filter_algorithm = value

@@ -1,0 +1,183 @@
+[gd_scene format=3 uid="uid://qde0kj3il507"]
+
+[ext_resource type="Script" uid="uid://bxn6ko8wbkiyb" path="res://assets/vfx/water_splash/splash.gd" id="1_gtryj"]
+[ext_resource type="Shader" uid="uid://cf4u42frf18bd" path="res://assets/vfx/water_splash/shaders/splash_crown.gdshader" id="2_3y7pu"]
+[ext_resource type="Texture2D" uid="uid://blsqrv8ll5jmw" path="res://assets/base_tiles/waterfall/waterfall1/flow_noise_b.tres" id="3_6sqt2"]
+[ext_resource type="Shader" uid="uid://d0b32rlalajyq" path="res://assets/vfx/water_splash/shaders/splash_foam_ring.gdshader" id="4_87v63"]
+[ext_resource type="Shader" uid="uid://ccw3w2yglid8a" path="res://assets/vfx/water_splash/shaders/water_mist.gdshader" id="5_87v63"]
+[ext_resource type="Texture2D" uid="uid://d2guu8msy4epu" path="res://assets/vfx/water_splash/water_mist.png" id="6_3y7pu"]
+[ext_resource type="ArrayMesh" uid="uid://ce2lqigqtuk6u" path="res://assets/vfx/water_splash/ico_sphere.tres" id="6_6sqt2"]
+[ext_resource type="Shader" uid="uid://chbfsus1r4prg" path="res://assets/vfx/water_splash/shaders/water_blobs.gdshader" id="7_87v63"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_gtryj"]
+size = Vector2(0.7, 0.7)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1p3fm"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("2_3y7pu")
+shader_parameter/splash_time = 0.0
+shader_parameter/lifetime = 0.55
+shader_parameter/intensity = 1.0
+shader_parameter/water_color = Color(0.78, 0.88, 0.95, 1)
+shader_parameter/foam_color = Color(0.96, 0.98, 1, 1)
+shader_parameter/noise_tex = ExtResource("3_6sqt2")
+shader_parameter/finger_freq_a = 7.0
+shader_parameter/finger_freq_b = 13.0
+shader_parameter/burst_reach = 0.42
+shader_parameter/core_size = 0.08
+shader_parameter/finger_sharp = 0.05
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_g7bqw"]
+size = Vector2(0.7, 0.7)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_avaiv"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("4_87v63")
+shader_parameter/splash_time = 0.0
+shader_parameter/lifetime = 0.55
+shader_parameter/intensity = 1.0
+shader_parameter/noise_tex = ExtResource("3_6sqt2")
+shader_parameter/foam_color = Color(0.96, 0.98, 1, 1)
+shader_parameter/flow_speed = 0.8
+shader_parameter/density = 0.7
+shader_parameter/emission = 0.25
+shader_parameter/ring_count = 6.0
+shader_parameter/ring_speed = 1.5
+shader_parameter/ring_strength = 0.8
+shader_parameter/ring_sharpness = 2.5
+shader_parameter/angular_chaos = 0.15
+
+[sub_resource type="Curve" id="Curve_gtryj"]
+_data = [Vector2(0, 0.34630358), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_3y7pu"]
+curve = SubResource("Curve_gtryj")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_wu64i"]
+direction = Vector3(0, 1, 0)
+spread = 80.0
+initial_velocity_min = 0.5
+initial_velocity_max = 1.0
+gravity = Vector3(0, -1, 0)
+damping_min = 2.0
+damping_max = 2.0
+scale_min = 1.5
+scale_max = 2.5
+scale_curve = SubResource("CurveTexture_3y7pu")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3y7pu"]
+render_priority = 0
+shader = ExtResource("5_87v63")
+shader_parameter/mist_color = Color(0.95, 0.98, 1, 1)
+shader_parameter/mist_tex = ExtResource("6_3y7pu")
+shader_parameter/base_alpha = 0.35
+
+[sub_resource type="QuadMesh" id="QuadMesh_1vdfq"]
+material = SubResource("ShaderMaterial_3y7pu")
+size = Vector2(0.1, 0.1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ft4p8"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("7_87v63")
+shader_parameter/water_color = Color(0.6, 0.85, 0.95, 1)
+shader_parameter/rim_color = Color(1, 1, 1, 1)
+shader_parameter/wobble_amp = 0.2
+shader_parameter/wobble_freq = 4.0
+shader_parameter/wobble_speed = 3.0
+shader_parameter/rim_power = 2.5
+shader_parameter/transparency = 0.42999999038864
+
+[sub_resource type="Curve" id="Curve_6sqt2"]
+_data = [Vector2(0, 0.67315185), 0.0, 0.0, 0, 0, Vector2(1, 0.28404677), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_87v63"]
+curve = SubResource("Curve_6sqt2")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ft4p8"]
+direction = Vector3(0, 1, 0)
+spread = 40.0
+initial_velocity_min = 2.5
+initial_velocity_max = 4.5
+gravity = Vector3(0, -12, 0)
+scale_min = 0.59999996
+scale_max = 1.1999999
+scale_curve = SubResource("CurveTexture_87v63")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_s1tdf"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("7_87v63")
+shader_parameter/water_color = Color(0.6, 0.85, 0.95, 1)
+shader_parameter/rim_color = Color(1, 1, 1, 1)
+shader_parameter/wobble_amp = 0.2
+shader_parameter/wobble_freq = 4.0
+shader_parameter/wobble_speed = 3.0
+shader_parameter/rim_power = 2.5
+shader_parameter/transparency = 0.11999999731776
+
+[sub_resource type="Curve" id="Curve_87v63"]
+_data = [Vector2(0, 0.67315185), 0.0, 0.0, 0, 0, Vector2(1, 0.28404677), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_ft4p8"]
+curve = SubResource("Curve_87v63")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_s1tdf"]
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 2.0
+initial_velocity_max = 2.6
+gravity = Vector3(0, -6, 0)
+scale_min = 1.8
+scale_max = 2.8
+scale_curve = SubResource("CurveTexture_ft4p8")
+
+[node name="WaterSplash" type="Node3D" unique_id=301299818 node_paths=PackedStringArray("foam_ring", "spray", "mist", "crown_blobs")]
+script = ExtResource("1_gtryj")
+foam_ring = NodePath("FoamRing")
+spray = NodePath("WaterBlobs")
+mist = NodePath("Mist")
+crown_blobs = NodePath("CrownBlobs")
+
+[node name="CrownMesh" type="MeshInstance3D" parent="." unique_id=1403608827]
+visible = false
+mesh = SubResource("PlaneMesh_gtryj")
+surface_material_override/0 = SubResource("ShaderMaterial_1p3fm")
+
+[node name="FoamRing" type="MeshInstance3D" parent="." unique_id=791217171]
+mesh = SubResource("PlaneMesh_g7bqw")
+surface_material_override/0 = SubResource("ShaderMaterial_avaiv")
+
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=197718496]
+emitting = false
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+transform_align = 2
+process_material = SubResource("ParticleProcessMaterial_wu64i")
+draw_pass_1 = SubResource("QuadMesh_1vdfq")
+
+[node name="WaterBlobs" type="GPUParticles3D" parent="." unique_id=1743840544]
+material_override = SubResource("ShaderMaterial_ft4p8")
+emitting = false
+amount = 10
+lifetime = 0.7
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_ft4p8")
+draw_pass_1 = ExtResource("6_6sqt2")
+
+[node name="CrownBlobs" type="GPUParticles3D" parent="." unique_id=1558094120]
+material_override = SubResource("ShaderMaterial_s1tdf")
+emitting = false
+amount = 5
+lifetime = 0.75
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_s1tdf")
+draw_pass_1 = ExtResource("6_6sqt2")

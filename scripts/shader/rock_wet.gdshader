@@ -25,6 +25,8 @@ uniform float wet_albedo_mult   : hint_range(0.0, 1.0) = 0.55;
 uniform float wet_metallic      : hint_range(0.0, 1.0) = 0.1;
 uniform float wet_falloff_power : hint_range(0.5, 4.0) = 1.5;
 
+global uniform float ambient_wetness;
+
 varying vec3 world_position;
 
 void vertex() {
@@ -40,7 +42,7 @@ float wetness_from(vec3 wf_pos, float wf_radius, float wf_height, vec3 world_pos
 }
 
 float calc_wetness(vec3 world_pos) {
-	float max_wet = 0.0;
+	float max_wet = ambient_wetness;  // <-- statt 0.0 starten
 	if (waterfall_count > 0) max_wet = max(max_wet, wetness_from(waterfall_pos_0, waterfall_radius_0, waterfall_height_0, world_pos));
 	if (waterfall_count > 1) max_wet = max(max_wet, wetness_from(waterfall_pos_1, waterfall_radius_1, waterfall_height_1, world_pos));
 	if (waterfall_count > 2) max_wet = max(max_wet, wetness_from(waterfall_pos_2, waterfall_radius_2, waterfall_height_2, world_pos));

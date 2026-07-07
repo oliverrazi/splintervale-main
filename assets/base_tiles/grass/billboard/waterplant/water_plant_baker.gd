@@ -13,6 +13,17 @@ extends Node3D
 @export var plant_texture: Texture2D
 @export var shader: Shader
 
+
+@export_group("Editor-Anzeige")
+## Zeichnet das Marker-Polygon als Linien (plus optionale Fuellflaeche) im
+## Editor-Viewport. Reine Editor-Hilfe, wird nie gespeichert oder mitgebakt.
+@export var show_area: bool = true : set = _set_show_area
+@export var area_color: Color = Color(0.35, 0.85, 1.0, 1.0)
+## Halbtransparente Flaechen-Fuellung zusaetzlich zum Umriss.
+@export var fill_area: bool = true
+## Linien durch Geometrie hindurch zeichnen (immer sichtbar).
+@export var area_always_on_top: bool = true
+
 @export_group("Mesh")
 @export var plant_height: float = 0.35
 @export var plant_width: float = 0.18
@@ -89,9 +100,111 @@ extends Node3D
 
 const PREVIEW_NAME := "_WaterPlantPreview"
 
+const AREA_NAME := "_WaterPlantAreaViz"
+
+var _area_viz_hash: int = 0
+
 func _ready() -> void:
-	if Engine.is_editor_hint() and show_preview:
-		_rebuild_preview()
+	if Engine.is_editor_hint():
+		if show_preview:
+			_rebuild_preview()
+		# Erzwingt beim Oeffnen der Szene einen ersten Viz-Aufbau.
+		_area_viz_hash = 0
+		
+## Laeuft nur im Editor. Erkennt Aenderungen an Marker-Positionen oder
+## Viz-Einstellungen ueber einen Hash und baut die Anzeige nur dann neu.
+func _process(_delta: float) -> void:
+	if not Engine.is_editor_hint():
+		return
+	if not show_area:
+		return
+	var pts := _collect_marker_points()
+	var h := hash([pts, area_color, fill_area, area_always_on_top, y_offset])
+	if h != _area_viz_hash:
+		_area_viz_hash = h
+		_rebuild_area_viz(pts)
+
+func _set_show_area(v: bool) -> void:
+	show_area = v
+	if Engine.is_editor_hint():
+		if v:
+			_area_viz_hash = 0  # naechster _process baut neu
+		else:
+			_clear_area_viz()
+
+func _collect_marker_points() -> PackedVector3Array:
+	var pts := PackedVector3Array()
+	for child in get_children():
+		if child is Marker3D:
+			pts.push_back(child.position)
+	return pts
+
+func _clear_area_viz() -> void:
+	var existing := get_node_or_null(AREA_NAME)
+	if existing:
+		existing.free()
+
+func _rebuild_area_viz(points: PackedVector3Array) -> void:
+	_clear_area_viz()
+	if points.size() < 3:
+		return
+
+	# Bake-Ebene: Durchschnitts-Y der Marker + y_offset (identisch zur
+	# Berechnung in _scatter_positions -> die Anzeige zeigt exakt die Hoehe,
+	# auf der die Pflanzen landen).
+	var base_y := 0.0
+	for p in points:
+		base_y += p.y
+	base_y = base_y / float(points.size()) + y_offset
+
+	var line_mat := StandardMaterial3D.new()
+	line_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	line_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	line_mat.albedo_color = area_color
+	line_mat.no_depth_test = area_always_on_top
+	line_mat.render_priority = 10
+
+	var im := ImmediateMesh.new()
+
+	# --- Geschlossener Umriss auf Bake-Hoehe ---
+	im.surface_begin(Mesh.PRIMITIVE_LINE_STRIP, line_mat)
+	for p in points:
+		im.surface_add_vertex(Vector3(p.x, base_y, p.z))
+	im.surface_add_vertex(Vector3(points[0].x, base_y, points[0].z))
+	im.surface_end()
+
+	# --- Vertikale Stummel: Marker-Position -> Bake-Ebene ---
+	# Macht sichtbar, welcher Marker zu welcher Ecke gehoert, auch wenn
+	# Marker hoeher/tiefer liegen als die Bake-Ebene.
+	im.surface_begin(Mesh.PRIMITIVE_LINES, line_mat)
+	for p in points:
+		im.surface_add_vertex(p)
+		im.surface_add_vertex(Vector3(p.x, base_y, p.z))
+	im.surface_end()
+
+	# --- Halbtransparente Fuellflaeche (trianguliert) ---
+	if fill_area:
+		var poly2d := PackedVector2Array()
+		for p in points:
+			poly2d.push_back(Vector2(p.x, p.z))
+		var tris := Geometry2D.triangulate_polygon(poly2d)
+		if not tris.is_empty():
+			var fill_mat: StandardMaterial3D = line_mat.duplicate()
+			fill_mat.albedo_color = Color(
+				area_color.r, area_color.g, area_color.b, area_color.a * 0.15)
+			fill_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+			im.surface_begin(Mesh.PRIMITIVE_TRIANGLES, fill_mat)
+			for idx in tris:
+				var v := poly2d[idx]
+				im.surface_add_vertex(Vector3(v.x, base_y, v.y))
+			im.surface_end()
+
+	var mi := MeshInstance3D.new()
+	mi.name = AREA_NAME
+	mi.mesh = im
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	mi.owner = null  # nie in die Szene speichern
 
 func _set_bake(v: bool) -> void:
 	if v and Engine.is_editor_hint():
@@ -225,16 +338,19 @@ func _build_data() -> WaterPlantData:
 	data.instance_count = total_count
 	return data
 
-## Verteilt scatter_count Positionen im Polygon (aus den Marker-XZ-Punkten),
-## geclustert um zufaellige Zentren, mit Anteil freier Streuung (looseness).
-## Y-Hoehe = Durchschnitt der Marker-Y + y_offset (flacher Grund).
+## Verteilt scatter_count Positionen im Polygon, geclustert um zufaellige
+## Zentren, mit Anteil freier Streuung (looseness).
+## WICHTIG: arbeitet in WELT-Koordinaten (global_position der Marker).
+## Die gebackenen Daten sind dadurch unabhaengig davon, wo Baker- und
+## Runtime-Node im Baum/Raum stehen.
 func _scatter_positions(markers: Array[Marker3D], rng: RandomNumberGenerator) -> Array:
-	# Polygon als 2D-XZ-Punkte (lokale Koordinaten relativ zum Baker).
+	# Polygon als 2D-XZ-Punkte in WELT-Koordinaten.
 	var poly := PackedVector2Array()
 	var y_sum := 0.0
 	for m in markers:
-		poly.push_back(Vector2(m.position.x, m.position.z))
-		y_sum += m.position.y
+		var gp := m.global_position
+		poly.push_back(Vector2(gp.x, gp.z))
+		y_sum += gp.y
 	var base_y := y_sum / float(markers.size()) + y_offset
 
 	# Bounding-Box des Polygons fuer Kandidaten-Wuerfeln.
@@ -268,12 +384,10 @@ func _scatter_positions(markers: Array[Marker3D], rng: RandomNumberGenerator) ->
 	while result.size() < scatter_count and attempts < max_attempts:
 		attempts += 1
 		var pt: Vector2
-		# Anteil looseness frei streuen, Rest geclustert.
 		if rng.randf() < scatter_looseness:
 			pt = Vector2(rng.randf_range(min_x, max_x), rng.randf_range(min_z, max_z))
 		else:
 			var center: Vector2 = centers[rng.randi() % centers.size()]
-			# Gaussartiger Versatz: zwei randf summiert -> Haeufung zur Mitte.
 			var ang := rng.randf() * TAU
 			var r := (rng.randf() + rng.randf()) * 0.5 * cluster_radius
 			pt = center + Vector2(cos(ang), sin(ang)) * r
@@ -281,7 +395,6 @@ func _scatter_positions(markers: Array[Marker3D], rng: RandomNumberGenerator) ->
 		if not Geometry2D.is_point_in_polygon(pt, poly):
 			continue
 
-		# Weicher Mindestabstand: nur exakte Ueberlappung verhindern.
 		if min_d_sq > 0.0:
 			var too_close := false
 			for q in placed_2d:
@@ -327,21 +440,27 @@ func _do_bake() -> void:
 	if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(dir)):
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
 
-	# FLAG_CHANGE_PATH sorgt dafuer, dass die in-memory Resource den neuen
-	# Pfad uebernimmt, statt eine veraltete gecachte Version zu behalten.
+	# Verdraengt eine evtl. im Editor gecachte alte Version dieses Pfads,
+	# bevor gespeichert wird. FLAG_CHANGE_PATH allein reicht dafuer nicht
+	# zuverlaessig, wenn der Pfad bereits von einer anderen Instanz belegt ist.
+	data.take_over_path(output_path)
+
 	var err := ResourceSaver.save(data, output_path,
 		ResourceSaver.FLAG_CHANGE_PATH)
-	if err == OK:
-		print("WaterPlantBaker: %d Pflanzen gebakt -> %s" % [data.instance_count, output_path])
-		if Engine.is_editor_hint():
-			var fs := EditorInterface.get_resource_filesystem()
-			if fs:
-				fs.update_file(output_path)
-		# Vorschau gleich mit aktualisieren.
-		if show_preview:
-			_rebuild_preview()
-	else:
-		push_error("WaterPlantBaker: Speichern fehlgeschlagen (err %d)" % err)
+	if err != OK:
+		push_error("WaterPlantBaker: Speichern fehlgeschlagen (err %d) -> %s" % [err, output_path])
+		return
+
+	print("WaterPlantBaker: %d Pflanzen in %d Chunks gebakt -> %s"
+		% [data.instance_count, data.chunks.size(), output_path])
+
+	if Engine.is_editor_hint():
+		var fs := EditorInterface.get_resource_filesystem()
+		if fs:
+			fs.update_file(output_path)
+
+	if show_preview:
+		_rebuild_preview()
 
 # --- Editor-Vorschau ---
 
@@ -358,10 +477,14 @@ func _rebuild_preview() -> void:
 	if data == null:
 		return
 	# Container-Node, darunter eine MultiMeshInstance3D pro Chunk.
+	# Die gebackenen Transforms sind WELT-Koordinaten -> Container per
+	# top_level aus der Baker-Transform ausklinken und auf Identity setzen.
 	var container := Node3D.new()
 	container.name = PREVIEW_NAME
 	add_child(container)
 	container.owner = null
+	container.top_level = true
+	container.global_transform = Transform3D.IDENTITY
 	for chunk in data.chunks:
 		var mmi := MultiMeshInstance3D.new()
 		mmi.multimesh = chunk.multimesh

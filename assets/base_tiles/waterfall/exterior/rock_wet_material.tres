@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://ba2b4hpakxrhc"]
+
+[ext_resource type="Shader" uid="uid://dtwohdng56o83" path="res://scripts/shader/rock_wet.gdshader" id="1_fvei4"]
+[ext_resource type="Texture2D" uid="uid://b2vl6vpmdb3nn" path="res://assets/base_tiles/waterfall/exterior/stone-wall/stone-wall-albedo.tres" id="2_uucgb"]
+[ext_resource type="Texture2D" uid="uid://bn8aqpdxnkydl" path="res://assets/base_tiles/waterfall/exterior/stone-wall/stone-wall-normal.tres" id="3_2ms5n"]
+
+[resource]
+resource_name = "Material.001"
+render_priority = 0
+shader = ExtResource("1_fvei4")
+shader_parameter/albedo_tex = ExtResource("2_uucgb")
+shader_parameter/normal_tex = ExtResource("3_2ms5n")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/roughness_base = 0.85
+shader_parameter/metallic_base = 0.0
+shader_parameter/normal_strength = 1.7470000829825
+shader_parameter/uv_scale = Vector3(1, 1, 1)
+shader_parameter/wet_roughness = 0.25
+shader_parameter/wet_albedo_mult = 0.55
+shader_parameter/wet_metallic = 0.1
+shader_parameter/wet_falloff_power = 1.5

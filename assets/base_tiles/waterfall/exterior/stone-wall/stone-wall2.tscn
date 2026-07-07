@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://4vds8oac0wcy"]
+
+[ext_resource type="ArrayMesh" uid="uid://dba6yte85qm4" path="res://assets/base_tiles/waterfall/exterior/stone-wall2.tres" id="1_sxa6i"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sxa6i"]
+size = Vector3(4.543976, 6.7302246, 2.3443604)
+
+[node name="StoneWall" type="MeshInstance3D" unique_id=847082327]
+mesh = ExtResource("1_sxa6i")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1007308205]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1107540931]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.010147095, 2.8651123, -0.18060303)
+shape = SubResource("BoxShape3D_sxa6i")

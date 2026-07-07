@@ -33,6 +33,11 @@ extends Node3D
 ## Für per-Layer Modulation: get_layer("weapon").modulate = ...
 @export var modulate: Color = Color.WHITE : set = _set_modulate
 
+## Render-Layer (VisualInstance3D.layers) für ALLE erzeugten Sprite-Layer.
+## Für den Player auf NUR Layer 2 stellen, damit Lichter ihn per
+## light_cull_mask gezielt aus-/einschließen können (HD-2D Licht-Trennung).
+@export_flags_3d_render var render_layers: int = 1 : set = _set_render_layers
+
 @export var billboard_mode: SmoothPixelSprite3D.BillboardMode = SmoothPixelSprite3D.BillboardMode.FULL : set = _set_billboard_mode
 @export_range(0.0, 0.5, 0.01) var tilt_amount: float = 0.15 : set = _set_tilt_amount
 @export var filter_algorithm: SmoothPixelSprite3D.FilterAlgorithm = SmoothPixelSprite3D.FilterAlgorithm.SMOOTHSTEP : set = _set_filter_algorithm
@@ -63,7 +68,7 @@ func set_layer(layer_key: String, tex: Texture2D, priority: int = -1, depth_bias
 
 	if priority < 0:
 		priority = _get_default_priority(layer_key)
-		
+
 	if depth_bias < 0.0:
 		depth_bias = _get_default_depth_bias(layer_key)
 
@@ -80,6 +85,7 @@ func set_layer(layer_key: String, tex: Texture2D, priority: int = -1, depth_bias
 	var sprite := SmoothPixelSprite3D.new()
 	sprite.name = "Layer_" + layer_key
 	sprite.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	sprite.layers = render_layers
 
 
 	# Shared Properties setzen BEVOR add_child
@@ -212,6 +218,11 @@ func _set_modulate(value: Color) -> void:
 	modulate = value
 	for sprite: SmoothPixelSprite3D in _layers.values():
 		sprite.modulate = value
+
+func _set_render_layers(value: int) -> void:
+	render_layers = value
+	for sprite: SmoothPixelSprite3D in _layers.values():
+		sprite.layers = render_layers
 
 func _set_billboard_mode(value: SmoothPixelSprite3D.BillboardMode) -> void:
 	billboard_mode = value

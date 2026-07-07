@@ -168,7 +168,7 @@ func _apply_dimensions() -> void:
 	# === SideSpray: Seitlich entlang des Falls ===
 	if side_spray:
 		# Position: mittig in der Fallhöhe
-		side_spray.position = Vector3(0, waterfall_height * 0.55, -0.5)
+		side_spray.position = Vector3(0, waterfall_height * 0.8, -0.5)
 		var ss_mat := side_spray.process_material as ParticleProcessMaterial
 		if ss_mat:
 			ss_mat.emission_box_extents = Vector3(
@@ -181,7 +181,7 @@ func _apply_dimensions() -> void:
 	
 	# === ImpactBurst: Splash-Fontäne am Boden ===
 	if impact_burst:
-		impact_burst.position = Vector3(0, waterfall_height * 0.55,-0.5)  # exakt am Aufprall
+		impact_burst.position = Vector3(0, waterfall_height * 0.8,-0.5)  # exakt am Aufprall
 		var ib_mat := impact_burst.process_material as ParticleProcessMaterial
 		if ib_mat:
 			ib_mat.emission_ring_radius = waterfall_width * 0.3

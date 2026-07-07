@@ -6,6 +6,7 @@
 [ext_resource type="AudioStream" uid="uid://34hq5kcf2fgj" path="res://assets/audio/sfx/swoosh1.wav" id="3_ew7rt"]
 [ext_resource type="PackedScene" uid="uid://c6m87rolirnhh" path="res://assets/vfx/hits/impact1.tscn" id="3_nvtkd"]
 [ext_resource type="Script" uid="uid://bkakfqkpy7x0c" path="res://scripts/player_camera.gd" id="3_vd578"]
+[ext_resource type="PackedScene" uid="uid://qde0kj3il507" path="res://assets/vfx/water_splash/water_splash.tscn" id="4_7gdxi"]
 [ext_resource type="AudioStream" uid="uid://rgr5mhpts1j0" path="res://assets/audio/sfx/swoosh2.wav" id="4_u3olo"]
 [ext_resource type="AudioStream" uid="uid://4qpy7rlo1n2j" path="res://assets/audio/sfx/swoosh3.wav" id="5_nvtkd"]
 [ext_resource type="AudioStream" uid="uid://c8tkp48lifuvk" path="res://assets/audio/sfx/hit1.wav" id="7_4wng8"]
@@ -76,7 +77,7 @@ _data = {
 &"walk": SubResource("Animation_c7tqt")
 }
 
-[sub_resource type="Shader" id="Shader_l3e1g"]
+[sub_resource type="Shader" id="Shader_7gdxi"]
 code = "
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
@@ -97,14 +98,14 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_7gdxi"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n4ckg"]
 render_priority = 0
-shader = SubResource("Shader_l3e1g")
+shader = SubResource("Shader_7gdxi")
 shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
 shader_parameter/shadow_opacity = 0.6
 shader_parameter/softness = 0.6
 
-[sub_resource type="QuadMesh" id="QuadMesh_n4ckg"]
+[sub_resource type="QuadMesh" id="QuadMesh_yivxv"]
 size = Vector2(0.5, 0.5)
 orientation = 1
 
@@ -116,13 +117,14 @@ floor_stop_on_slope = false
 script = ExtResource("1_obynr")
 footstep_sounds = Array[AudioStream]([ExtResource("8_gy32l")])
 SPEED = 3.0
-JUMP_VELOCITY = 2.0
+JUMP_VELOCITY = 20.0
 VFRAMES = 13
 invincibility_duration = 0.8
 hurt_blink_speed = 0.2
 hurt_sounds = Array[AudioStream]([ExtResource("7_4wng8")])
 hurt_shake_duration = 0.2
 hurt_zoom_amount = 0.5
+splash_vfx_scene = ExtResource("4_7gdxi")
 levelup_popup_scene = ExtResource("9_ltcqi")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=125148006]
@@ -131,14 +133,17 @@ shape = SubResource("CapsuleShape3D_nl27k")
 
 [node name="charactersprite" type="MeshInstance3D" parent="." unique_id=849256778]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.003, 0.16, 0)
+layers = 2
 cast_shadow = 0
 skeleton = NodePath("../charactersprite2")
 script = ExtResource("14_pqkp8")
+render_layers = 2
 base_texture = ExtResource("2_vd578")
 
 [node name="charactersprite2" type="Sprite3D" parent="." unique_id=1011589882]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.0031206608, 0.15754342, 0)
 visible = false
+layers = 2
 billboard = 1
 alpha_cut = 3
 alpha_scissor_threshold = 1.0
@@ -202,9 +207,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4350574, 0)
 
 [node name="BlobShadow" type="MeshInstance3D" parent="." unique_id=431824574]
 top_level = true
-material_override = SubResource("ShaderMaterial_7gdxi")
+layers = 2
+material_override = SubResource("ShaderMaterial_n4ckg")
 cast_shadow = 0
-mesh = SubResource("QuadMesh_n4ckg")
+mesh = SubResource("QuadMesh_yivxv")
 script = ExtResource("17_klace")
 shadow_depth = 0.5
 shadow_opacity = 0.6

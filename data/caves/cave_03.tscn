@@ -693,7 +693,7 @@ mesh = SubResource("ArrayMesh_voihm")
 
 [node name="Col" type="StaticBody3D" parent="CaveEntrance/Floor" unique_id=691241948]
 
-[node name="Shape" type="CollisionShape3D" parent="CaveEntrance/Floor/Col" unique_id=1336668323]
+[node name="Shape" type="CollisionShape3D" parent="CaveEntrance/Floor/Col" unique_id=1178180260]
 shape = SubResource("ConcavePolygonShape3D_72rfy")
 
 [node name="FloorScatter" type="Node3D" parent="CaveEntrance/Floor" unique_id=1970888684]
@@ -702,15 +702,15 @@ meshes = Array[Mesh]([ExtResource("12_jkbpb"), ExtResource("13_ene8f"), ExtResou
 scale_min = 0.4
 scale_max = 0.7999999999999999
 
-[node name="@MultiMeshInstance3D@65502" type="MultiMeshInstance3D" parent="CaveEntrance/Floor/FloorScatter" unique_id=1694006600]
+[node name="@MultiMeshInstance3D@69591" type="MultiMeshInstance3D" parent="CaveEntrance/Floor/FloorScatter" unique_id=1881777818]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_j12fi")
 
-[node name="@MultiMeshInstance3D@65503" type="MultiMeshInstance3D" parent="CaveEntrance/Floor/FloorScatter" unique_id=1889754020]
+[node name="@MultiMeshInstance3D@69592" type="MultiMeshInstance3D" parent="CaveEntrance/Floor/FloorScatter" unique_id=1820939949]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_8smqk")
 
-[node name="@MultiMeshInstance3D@65504" type="MultiMeshInstance3D" parent="CaveEntrance/Floor/FloorScatter" unique_id=851962936]
+[node name="@MultiMeshInstance3D@69593" type="MultiMeshInstance3D" parent="CaveEntrance/Floor/FloorScatter" unique_id=1177389175]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_iol2a")
 
@@ -1855,7 +1855,7 @@ mesh = SubResource("ArrayMesh_emtyk")
 
 [node name="Col" type="StaticBody3D" parent="CaveIsland/Floor" unique_id=1890078605]
 
-[node name="Shape" type="CollisionShape3D" parent="CaveIsland/Floor/Col" unique_id=1629660761]
+[node name="Shape" type="CollisionShape3D" parent="CaveIsland/Floor/Col" unique_id=1800217607]
 shape = SubResource("ConcavePolygonShape3D_2ip5y")
 
 [node name="FloorScatter" type="Node3D" parent="CaveIsland/Floor" unique_id=1318321553]
@@ -1864,15 +1864,15 @@ meshes = Array[Mesh]([ExtResource("12_jkbpb"), ExtResource("13_ene8f"), ExtResou
 scale_min = 0.4
 scale_max = 0.7999999999999999
 
-[node name="Scatter_1" type="MultiMeshInstance3D" parent="CaveIsland/Floor/FloorScatter" unique_id=658455201]
+[node name="Scatter_1" type="MultiMeshInstance3D" parent="CaveIsland/Floor/FloorScatter" unique_id=937231607]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_6v271")
 
-[node name="Scatter_0" type="MultiMeshInstance3D" parent="CaveIsland/Floor/FloorScatter" unique_id=1755572224]
+[node name="Scatter_0" type="MultiMeshInstance3D" parent="CaveIsland/Floor/FloorScatter" unique_id=1177030379]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_0i22h")
 
-[node name="Scatter_2" type="MultiMeshInstance3D" parent="CaveIsland/Floor/FloorScatter" unique_id=1896387654]
+[node name="Scatter_2" type="MultiMeshInstance3D" parent="CaveIsland/Floor/FloorScatter" unique_id=70109825]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_dton2")
 
@@ -2376,7 +2376,7 @@ mesh = SubResource("ArrayMesh_tm6n0")
 
 [node name="Col" type="StaticBody3D" parent="CaveIsland2/Floor" unique_id=1344910843]
 
-[node name="@CollisionShape3D@65506" type="CollisionShape3D" parent="CaveIsland2/Floor/Col" unique_id=1287803657]
+[node name="@CollisionShape3D@69595" type="CollisionShape3D" parent="CaveIsland2/Floor/Col" unique_id=1199626915]
 shape = SubResource("ConcavePolygonShape3D_1ptoy")
 
 [node name="FloorScatter" type="Node3D" parent="CaveIsland2/Floor" unique_id=120453860]
@@ -2385,15 +2385,15 @@ meshes = Array[Mesh]([ExtResource("12_jkbpb"), ExtResource("13_ene8f"), ExtResou
 scale_min = 0.4
 scale_max = 0.7999999999999999
 
-[node name="@MultiMeshInstance3D@65507" type="MultiMeshInstance3D" parent="CaveIsland2/Floor/FloorScatter" unique_id=1444317790]
+[node name="@MultiMeshInstance3D@69596" type="MultiMeshInstance3D" parent="CaveIsland2/Floor/FloorScatter" unique_id=761257933]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_a08yk")
 
-[node name="@MultiMeshInstance3D@65508" type="MultiMeshInstance3D" parent="CaveIsland2/Floor/FloorScatter" unique_id=1219221454]
+[node name="@MultiMeshInstance3D@69597" type="MultiMeshInstance3D" parent="CaveIsland2/Floor/FloorScatter" unique_id=188087253]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_rjscg")
 
-[node name="@MultiMeshInstance3D@65509" type="MultiMeshInstance3D" parent="CaveIsland2/Floor/FloorScatter" unique_id=474370213]
+[node name="@MultiMeshInstance3D@69598" type="MultiMeshInstance3D" parent="CaveIsland2/Floor/FloorScatter" unique_id=1215839165]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_km12q")
 
@@ -2824,7 +2824,7 @@ mesh = SubResource("ArrayMesh_bbltp")
 
 [node name="Col" type="StaticBody3D" parent="Cave Mainchamber/Floor" unique_id=1529055118]
 
-[node name="Shape" type="CollisionShape3D" parent="Cave Mainchamber/Floor/Col" unique_id=2052095192]
+[node name="Shape" type="CollisionShape3D" parent="Cave Mainchamber/Floor/Col" unique_id=190149279]
 shape = SubResource("ConcavePolygonShape3D_e10u3")
 
 [node name="FloorScatter" type="Node3D" parent="Cave Mainchamber/Floor" unique_id=1335491247]
@@ -2833,15 +2833,15 @@ meshes = Array[Mesh]([ExtResource("12_jkbpb"), ExtResource("13_ene8f"), ExtResou
 scale_min = 0.4
 scale_max = 0.7999999999999999
 
-[node name="Scatter_1" type="MultiMeshInstance3D" parent="Cave Mainchamber/Floor/FloorScatter" unique_id=1055883870]
+[node name="Scatter_1" type="MultiMeshInstance3D" parent="Cave Mainchamber/Floor/FloorScatter" unique_id=647897014]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_eqw0f")
 
-[node name="Scatter_2" type="MultiMeshInstance3D" parent="Cave Mainchamber/Floor/FloorScatter" unique_id=367109593]
+[node name="Scatter_2" type="MultiMeshInstance3D" parent="Cave Mainchamber/Floor/FloorScatter" unique_id=374209066]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_aknp0")
 
-[node name="Scatter_0" type="MultiMeshInstance3D" parent="Cave Mainchamber/Floor/FloorScatter" unique_id=1654439660]
+[node name="Scatter_0" type="MultiMeshInstance3D" parent="Cave Mainchamber/Floor/FloorScatter" unique_id=1779409745]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_6p5j1")
 
@@ -4425,7 +4425,7 @@ mesh = SubResource("ArrayMesh_yful2")
 
 [node name="Col" type="StaticBody3D" parent="CaveCorridor/Floor" unique_id=1006029799]
 
-[node name="Shape" type="CollisionShape3D" parent="CaveCorridor/Floor/Col" unique_id=1595893129]
+[node name="Shape" type="CollisionShape3D" parent="CaveCorridor/Floor/Col" unique_id=1164750718]
 shape = SubResource("ConcavePolygonShape3D_nwma2")
 
 [node name="FloorScatter" type="Node3D" parent="CaveCorridor/Floor" unique_id=1600057984]
@@ -4434,15 +4434,15 @@ meshes = Array[Mesh]([ExtResource("12_jkbpb"), ExtResource("13_ene8f"), ExtResou
 scale_min = 0.4
 scale_max = 0.7999999999999999
 
-[node name="Scatter_2" type="MultiMeshInstance3D" parent="CaveCorridor/Floor/FloorScatter" unique_id=1172076707]
+[node name="Scatter_2" type="MultiMeshInstance3D" parent="CaveCorridor/Floor/FloorScatter" unique_id=1684969332]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_kq5tw")
 
-[node name="Scatter_0" type="MultiMeshInstance3D" parent="CaveCorridor/Floor/FloorScatter" unique_id=801909697]
+[node name="Scatter_0" type="MultiMeshInstance3D" parent="CaveCorridor/Floor/FloorScatter" unique_id=1903301655]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_2mj56")
 
-[node name="Scatter_1" type="MultiMeshInstance3D" parent="CaveCorridor/Floor/FloorScatter" unique_id=427961118]
+[node name="Scatter_1" type="MultiMeshInstance3D" parent="CaveCorridor/Floor/FloorScatter" unique_id=1653552321]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_stg7e")
 
@@ -7455,3 +7455,4 @@ loot_entries = Array[ExtResource("28_qgxme")]([SubResource("Resource_a08yk")])
 
 [node name="Node" type="Node" parent="." unique_id=2009473707]
 script = ExtResource("36_dlui0")
+hud_enabled = false

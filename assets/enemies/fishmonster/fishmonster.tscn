@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://rspqxjx2uft"]
+
+[ext_resource type="Script" uid="uid://bm4dhdo2gkl0c" path="res://assets/enemies/fishmonster/fishmonster.gd" id="1_5ix11"]
+[ext_resource type="PackedScene" uid="uid://qde0kj3il507" path="res://assets/vfx/water_splash/water_splash.tscn" id="2_j66wl"]
+[ext_resource type="PackedScene" uid="uid://cntp80ppy8jmc" path="res://assets/enemies/assets/EnemyHPBar.tscn" id="2_w0gh3"]
+[ext_resource type="PackedScene" uid="uid://jrf05g6oulvw" path="res://assets/vfx/deaths/DeathVFX1.tscn" id="3_j66wl"]
+[ext_resource type="Texture2D" uid="uid://8h6qgalo3cmn" path="res://assets/enemies/fishmonster/fishmonster.png" id="3_m8uxo"]
+[ext_resource type="PackedScene" path="res://assets/enemies/assets/AshDeath.tscn" id="4_mja2u"]
+[ext_resource type="Shader" uid="uid://cxt6wye5plc75" path="res://assets/characters/shaders/pixel_art_smooth_v4.gdshader" id="8_0itvq"]
+[ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="10_mvaqj"]
+[ext_resource type="Script" uid="uid://t0nj2pggtkdt" path="res://scripts/blob_shadow.gd" id="11_s3n0n"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_55a57"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mja2u"]
+render_priority = 0
+shader = ExtResource("8_0itvq")
+shader_parameter/sprite_texture = ExtResource("3_m8uxo")
+shader_parameter/frame_coords = Vector2(0, 0)
+shader_parameter/frame_size = Vector2(0.1, 0.25)
+shader_parameter/flip_h = false
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/billboard_mode = 0
+shader_parameter/tilt_amount = 0.15
+shader_parameter/aa_sharpness = 1.7
+shader_parameter/filter_mode = 0
+shader_parameter/frame_bleed_guard = 0.5
+shader_parameter/depth_bias = 0.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_52e3q"]
+size = Vector2(1.28, 1.28)
+
+[sub_resource type="Shader" id="Shader_fg6ma"]
+code = "
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
+
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.05, 1.0);
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.35;
+uniform float softness : hint_range(0.0, 1.0) = 0.4;
+
+void fragment() {
+	vec2 uv = UV * 2.0 - 1.0;
+	float dist = length(uv);
+	float inner = 1.0 - softness;
+	float alpha = 1.0 - smoothstep(inner, 1.0, dist);
+	alpha *= alpha;
+
+	ALBEDO = shadow_color.rgb;
+	ALPHA = alpha * shadow_opacity;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cqd1l"]
+render_priority = 0
+shader = SubResource("Shader_fg6ma")
+shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
+shader_parameter/shadow_opacity = 0.6
+shader_parameter/softness = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_rrayt"]
+size = Vector2(0.5, 0.3)
+orientation = 1
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_w0gh3"]
+radius = 0.7763672
+
+[node name="Fishmonster" type="CharacterBody3D" unique_id=277428464]
+process_mode = 1
+collision_layer = 17
+collision_mask = 37
+script = ExtResource("1_5ix11")
+water_enter_vfx = ExtResource("2_j66wl")
+water_leap_vfx = ExtResource("2_j66wl")
+max_health = 150
+knockback_strength = 3.0
+exp_reward = 50
+hp_bar_scene = ExtResource("2_w0gh3")
+death_vfx_scene = ExtResource("3_j66wl")
+ash_death_scene = ExtResource("4_mja2u")
+VFRAMES = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1697415159]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.06611407, 0)
+shape = SubResource("CapsuleShape3D_55a57")
+
+[node name="Sprite3D" type="MeshInstance3D" parent="." unique_id=1477774203]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_mja2u")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_52e3q")
+script = ExtResource("10_mvaqj")
+texture = ExtResource("3_m8uxo")
+hframes = 10
+vframes = 4
+aa_sharpness = 1.7
+
+[node name="BlobShadow" type="MeshInstance3D" parent="." unique_id=1138457998]
+top_level = true
+material_override = SubResource("ShaderMaterial_cqd1l")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_rrayt")
+script = ExtResource("11_s3n0n")
+shadow_opacity = 0.6
+softness = 0.6
+z_offset = 0.1
+ground_offset = 0.02
+
+[node name="AttackArea" type="Area3D" parent="." unique_id=368922330]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea" unique_id=1402347193]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_w0gh3")

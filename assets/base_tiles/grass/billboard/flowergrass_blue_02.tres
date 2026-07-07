@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ScatterProfile" format=3 uid="uid://dcwal0a4uvjbh"]
+
+[ext_resource type="Script" uid="uid://d4fhfdq6uyl1n" path="res://assets/base_tiles/grass/billboard/scatter_profile.gd" id="1_cqygy"]
+[ext_resource type="Texture2D" uid="uid://dgg41qihvma4y" path="res://assets/base_tiles/grass/billboard/flowergrass_blue.png" id="2_jdoqv"]
+
+[resource]
+script = ExtResource("1_cqygy")
+texture = ExtResource("2_jdoqv")
+density_weight = 0.0
+scale = Vector2(0.075, 0.15)
+color_variation = 0.5
+noise_color_cool = Color(0.3572921, 0.30010876, 0.99999017, 1)
+noise_color_warm = Color(0.88405204, 0, 0.3767958, 1)
+metadata/_custom_type_script = "uid://d4fhfdq6uyl1n"

@@ -1,0 +1,330 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://byr5ffeogbugp"]
+
+[sub_resource type="Shader" id="Shader_htj8y"]
+code = "shader_type spatial;
+render_mode blend_mix;
+
+uniform sampler2D DEPTH_TEXTURE : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
+
+// --- Wasserfarben ---
+uniform vec4 color_deep    : source_color = vec4(0.06, 0.18, 0.42, 1.0);
+uniform vec4 color_shallow : source_color = vec4(0.18, 0.55, 0.65, 1.0);
+uniform vec4 color_fresnel : source_color = vec4(0.55, 0.82, 0.95, 1.0);
+
+uniform vec4 color_shore : source_color = vec4(0.95, 0.95, 0.95, 1.0);
+
+uniform float water_alpha_shallow : hint_range(0.0, 1.0, 0.01) = 0.55;
+uniform float water_alpha_deep    : hint_range(0.0, 1.0, 0.01) = 0.88;
+
+// --- Foam / Ränder ---
+uniform vec4  foam_color     : source_color = vec4(0.92, 0.97, 1.0, 1.0);
+uniform float edge_scale     : hint_range(0.0, 3.0, 0.01) = 0.5;
+uniform float foam_sharpness : hint_range(1.0, 8.0, 0.1)  = 3.0;
+
+// --- Wellen / Normalmap ---
+uniform sampler2D wave            : hint_default_white, filter_linear, repeat_enable;
+uniform sampler2D texture_normal  : hint_normal,        filter_linear, repeat_enable;
+uniform sampler2D texture_normal2 : hint_normal,        filter_linear, repeat_enable;
+uniform vec2  wave_direction  = vec2(1.0,  0.4);
+uniform vec2  wave_direction2 = vec2(-0.3, 1.0);
+uniform float time_scale  : hint_range(0.0, 0.2, 0.005) = 0.018;
+uniform float noise_scale  = 10.0;
+uniform float height_scale = 0.15;
+uniform float normal_strength : hint_range(0.0, 2.0, 0.05) = 0.8;
+
+// --- Tiefe ---
+uniform float beers_law : hint_range(0.1, 6.0, 0.05) = 2.5;
+
+// --- Refraktion (dezent für JRPG-Stil) ---
+uniform float refraction_strength : hint_range(0.0, 1.0, 0.01) = 0.15;
+
+// --- Fresnel ---
+uniform float fresnel_power : hint_range(1.0, 10.0, 0.1) = 4.5;
+uniform float fresnel_blend : hint_range(0.0, 1.0, 0.01) = 0.35;
+
+// --- Fake-Wolken-Reflexion (prozedural, isotropes FBM + Double Warp) ---
+uniform vec4  reflection_color : source_color = vec4(0.72, 0.85, 1.0, 1.0);
+uniform float reflection_brighten : hint_range(0.0, 1.0, 0.01) = 0.30;
+uniform float reflection_base     : hint_range(0.0, 1.0, 0.01) = 0.85;
+uniform float reflection_strength : hint_range(0.0, 1.0, 0.01) = 0.15;
+uniform float reflection_scale : hint_range(1.0, 200.0, 0.5) = 45.0;
+// Nur noch minimale Streckung — (1,1) = perfekt runde Ballen
+uniform vec2  reflection_stretch = vec2(1.0, 1.15);
+uniform vec2  reflection_dir     = vec2(0.6, 1.0);
+uniform float reflection_speed : hint_range(0.0, 0.1, 0.001) = 0.006;
+uniform float reflection_distort : hint_range(0.0, 2.0, 0.05) = 0.6;
+uniform float reflection_coverage : hint_range(0.0, 1.0, 0.01) = 0.58;
+uniform float reflection_softness : hint_range(0.01, 0.5, 0.01) = 0.18;
+uniform float reflection_warp : hint_range(0.0, 1.5, 0.01) = 0.65;
+uniform float reflection_core_threshold : hint_range(0.0, 0.5, 0.01) = 0.14;
+uniform float reflection_core_boost : hint_range(0.0, 1.0, 0.01) = 0.45;
+
+// --- Kleine Zwischenwolken (Wisps) ---
+uniform float reflection_wisp_strength : hint_range(0.0, 1.0, 0.01) = 0.4;
+uniform float reflection_wisp_scale_ratio : hint_range(0.1, 0.8, 0.01) = 0.32;
+uniform float reflection_wisp_coverage : hint_range(0.0, 1.0, 0.01) = 0.68;
+
+// --- Sparkles / Glints (dezent-edel) ---
+// Werden als EMISSION ausgegeben -> lichtunabhängig, gleichmäßig über die
+// gesamte Wasserfläche sichtbar (\"Sonnen-Glitzern\"). Vorher lagen sie in
+// ALBEDO und waren nur dort sichtbar, wo ein Licht die Fläche traf.
+uniform vec4  sparkle_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float sparkle_intensity : hint_range(0.0, 3.0, 0.05) = 1.1;
+uniform float sparkle_scale : hint_range(0.5, 40.0, 0.5) = 4.0;
+uniform float sparkle_speed : hint_range(0.0, 0.2, 0.005) = 0.035;
+uniform float sparkle_threshold : hint_range(0.5, 0.99, 0.005) = 0.90;
+uniform float sparkle_softness  : hint_range(0.001, 0.2, 0.001) = 0.03;
+
+// --- Wellenkamm-Highlight ---
+uniform float crest_strength : hint_range(0.0, 0.5, 0.01) = 0.10;
+
+// --- Surface ---
+uniform float metallic  : hint_range(0.0, 1.0) = 0.05;
+uniform float roughness : hint_range(0.0, 1.0) = 0.06;
+
+varying float height;
+varying vec3  world_pos;
+
+// -------------------------------------------------------
+
+float fresnel_f(float power, vec3 normal, vec3 view) {
+    return pow(1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0), power);
+}
+
+// Rotationsmatrix für Oktaven-Dekorrelation
+mat2 rot2(float a) {
+    float s = sin(a);
+    float c = cos(a);
+    return mat2(vec2(c, -s), vec2(s, c));
+}
+
+// Isotropes FBM: jede Oktave rotiert gesampelt → Richtungs-Bias der
+// Quelltextur mittelt sich heraus, Ballen statt Streifen.
+float fbm_iso(vec2 uv) {
+    float v = 0.0;
+    float a = 0.5;
+    mat2 r = rot2(0.65); // ~37° pro Oktave
+    for (int i = 0; i < 4; i++) {
+        v += a * texture(wave, uv).r;
+        uv = r * uv * 2.17 + vec2(13.7, 7.3);
+        a *= 0.5;
+    }
+    return v; // grob 0..~0.94
+}
+
+// Screen-Blend: hellt dunkle Basis absolut auf, sättigt weich gegen Weiß
+vec3 blend_screen(vec3 base, vec3 lift) {
+    return 1.0 - (1.0 - base) * (1.0 - lift);
+}
+
+// -------------------------------------------------------
+
+void vertex() {
+    world_pos  = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    height     = texture(wave, world_pos.xz / noise_scale + TIME * time_scale).r;
+    VERTEX.y  += height * height_scale;
+}
+
+void fragment() {
+    // --- Tiefe auslesen ---
+    float raw_depth = texture(DEPTH_TEXTURE, SCREEN_UV).r;
+    vec4 scene_ndc  = vec4(SCREEN_UV * 2.0 - 1.0, raw_depth, 1.0);
+    vec4 scene_view = INV_PROJECTION_MATRIX * scene_ndc;
+    scene_view /= scene_view.w;
+    float scene_z   = scene_view.z; // View-Space, negativ
+
+    float water_z   = VERTEX.z;
+
+    float depth_diff = water_z - scene_z;
+    depth_diff = max(depth_diff, 0.0);
+
+    // Beer's Law für Tiefenfarbe
+    float depth_blend       = clamp(1.0 - exp(depth_diff * -beers_law), 0.0, 1.0);
+    float depth_blend_power = clamp(pow(depth_blend, 2.5), 0.0, 1.0);
+
+    // Foam-Maske
+    float foam = pow(clamp(1.0 - depth_diff / edge_scale, 0.0, 1.0), foam_sharpness);
+
+    // --- Normalmaps ---
+    vec2 t1 = TIME * wave_direction  * time_scale;
+    vec2 t2 = TIME * wave_direction2 * time_scale;
+    vec3 n1 = texture(texture_normal,  world_pos.xz / noise_scale + t1).rgb;
+    vec3 n2 = texture(texture_normal2, world_pos.xz / noise_scale + t2).rgb;
+    vec3 normal_map_val = mix(n1, n2, 0.5);
+    vec2 normal_offset  = (normal_map_val.xy * 2.0 - 1.0) * normal_strength;
+
+    float fr = fresnel_f(fresnel_power, NORMAL, VIEW);
+
+    float shore_fade = clamp(1.0 - depth_diff / (edge_scale * 4.0), 0.0, 1.0);
+    shore_fade = pow(shore_fade, 1.5);
+
+    // --- Refraktion (near shore unterdrückt) ---
+    float refr_fade = (1.0 - depth_blend_power) * refraction_strength * 0.015;
+    refr_fade *= (1.0 - shore_fade);
+    vec2  ref_uv     = SCREEN_UV + normal_offset * refr_fade;
+    vec3  screen_col = textureLod(SCREEN_TEXTURE, ref_uv, depth_blend_power * 2.5).rgb;
+
+    // --- Basisfarbe: Tiefe + Fresnel-Tönung ---
+    vec3 depth_col = mix(color_shallow.rgb, color_deep.rgb, depth_blend_power);
+    vec3 water_col = mix(screen_col, depth_col, depth_blend_power * 0.9);
+    water_col = mix(water_col, color_fresnel.rgb, fr * fresnel_blend);
+
+    // --- Fake-Wolken-Reflexion ---
+    vec2 wind = normalize(reflection_dir);
+    mat2 wind_rot = mat2(vec2(wind.y, -wind.x), vec2(wind.x, wind.y));
+    vec2 base_uv = (wind_rot * world_pos.xz) / (reflection_scale * reflection_stretch);
+    base_uv.y += TIME * reflection_speed;
+    base_uv   += normal_offset * reflection_distort * 0.05;
+
+    // Zweistufiges Domain Warping — Warp-Layer ebenfalls rotiert gesampelt
+    mat2 wr = rot2(1.1);
+    vec2 warp1 = vec2(
+        texture(wave, wr * base_uv * 1.3 + vec2(0.0, TIME * reflection_speed * 0.4)).r,
+        texture(wave, wr * base_uv * 1.3 + vec2(41.3, 23.7)).r
+    ) - 0.5;
+    vec2 warp2 = vec2(
+        texture(wave, wr * wr * base_uv * 2.6 + warp1 * 0.5 + vec2(7.7, 91.1)).r,
+        texture(wave, wr * wr * base_uv * 2.6 + warp1 * 0.5 + vec2(59.9, 17.3)).r
+    ) - 0.5;
+    vec2 cloud_uv = base_uv + (warp1 + warp2 * 0.5) * reflection_warp * 0.3;
+
+    // Hauptwolken
+    float cloud_density = fbm_iso(cloud_uv);
+    float cloud_body = smoothstep(reflection_coverage,
+                                  reflection_coverage + reflection_softness,
+                                  cloud_density);
+    float cloud_core = smoothstep(reflection_coverage + reflection_core_threshold,
+                                  reflection_coverage + reflection_core_threshold + reflection_softness * 1.5,
+                                  cloud_density);
+
+    // Kleine Zwischenwolken
+    vec2 wisp_uv = base_uv / reflection_wisp_scale_ratio + vec2(31.7, 67.1)
+                 + warp2 * reflection_warp * 0.25;
+    float wisp_density = fbm_iso(wisp_uv);
+    float wisp_body = smoothstep(reflection_wisp_coverage,
+                                 reflection_wisp_coverage + reflection_softness,
+                                 wisp_density);
+    wisp_body *= (1.0 - cloud_body) * reflection_wisp_strength;
+
+    float refl_amount = clamp(reflection_base + fr * reflection_strength, 0.0, 1.0);
+    refl_amount *= (1.0 - shore_fade);
+
+    float cloud_mask = clamp(cloud_body + wisp_body * 0.6, 0.0, 1.0) * refl_amount;
+    float core_mask  = cloud_core * refl_amount;
+
+    // Screen-Blend: hellt auch dunkles Wasser sichtbar auf
+    vec3 cloud_lift = reflection_color.rgb
+                    * (cloud_mask * reflection_brighten
+                     + core_mask  * reflection_brighten * reflection_core_boost);
+    water_col = blend_screen(water_col, cloud_lift);
+
+    // --- Sparkles: zwei gegenläufige Noise-Layer, multipliziert ---
+    vec2 sp_uv1 = world_pos.xz / sparkle_scale + vec2( 1.0, 0.35) * TIME * sparkle_speed
+                + normal_offset * 0.03;
+    vec2 sp_uv2 = world_pos.xz / (sparkle_scale * 1.37) + vec2(-0.6, -1.0) * TIME * sparkle_speed
+                - normal_offset * 0.03;
+    float sp = texture(wave, sp_uv1).r * texture(wave, sp_uv2).r;
+    float sparkle = smoothstep(sparkle_threshold - sparkle_softness,
+                               sparkle_threshold + sparkle_softness, sp);
+    sparkle *= (1.0 - foam);
+    sparkle *= (1.0 - shore_fade); // kein Glitzern im Ufer-/Foam-Bereich
+
+    // --- Wellenkamm-Highlight ---
+    water_col *= 1.0 + (height - 0.5) * crest_strength;
+
+    // --- Shore + Foam ---
+    vec3 final_col = mix(water_col, color_shore.rgb, shore_fade * 0.6);
+    final_col = mix(final_col, foam_color.rgb, foam);
+
+    // --- Alpha ---
+    float water_alpha = mix(water_alpha_shallow, water_alpha_deep, depth_blend_power);
+    float alpha       = mix(water_alpha, 1.0, foam);
+    alpha = clamp(alpha + sparkle, 0.0, 1.0);
+
+    ALBEDO     = final_col;
+    // Sparkles als Emission: leuchten lichtunabhängig auf der GESAMTEN
+    // Wasserfläche — flächiges \"Sonnen-Glitzern\" statt Scheinwerfer-Fleck.
+    EMISSION   = sparkle_color.rgb * sparkle * sparkle_intensity;
+    METALLIC   = metallic;
+    ROUGHNESS = roughness;
+    SPECULAR   = 0.92;
+    NORMAL_MAP = normal_map_val;
+    ALPHA      = alpha;
+}
+"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1xg6l"]
+noise_type = 3
+frequency = 0.0096
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_g2662"]
+noise = SubResource("FastNoiseLite_1xg6l")
+seamless = true
+as_normal_map = true
+bump_strength = 17.4
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ilsgk"]
+noise_type = 3
+frequency = 0.0212
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_n2o85"]
+noise = SubResource("FastNoiseLite_ilsgk")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_etepy"]
+seamless = true
+
+[resource]
+render_priority = 0
+shader = SubResource("Shader_htj8y")
+shader_parameter/color_deep = Color(0.19345921, 0.3526013, 0.42677712, 1)
+shader_parameter/color_shallow = Color(0.12188073, 0.40929636, 0.4883176, 1)
+shader_parameter/color_fresnel = Color(0.25006714, 0.35832575, 0.47050577, 1)
+shader_parameter/color_shore = Color(1, 1, 1, 1)
+shader_parameter/water_alpha_shallow = 0.11999999731776
+shader_parameter/water_alpha_deep = 0.88
+shader_parameter/foam_color = Color(3.465414e-06, 0.26206055, 0.38158777, 1)
+shader_parameter/edge_scale = 0.1499999966472
+shader_parameter/foam_sharpness = 2.10000001639132
+shader_parameter/wave = SubResource("NoiseTexture2D_etepy")
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_g2662")
+shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_n2o85")
+shader_parameter/wave_direction = Vector2(1, -3)
+shader_parameter/wave_direction2 = Vector2(-1, -3)
+shader_parameter/time_scale = 0.00999999977648
+shader_parameter/noise_scale = 10.0
+shader_parameter/height_scale = 0.03
+shader_parameter/normal_strength = 0.55000000819566
+shader_parameter/beers_law = 0.40000000596048
+shader_parameter/refraction_strength = 0.15
+shader_parameter/fresnel_power = 4.5
+shader_parameter/fresnel_blend = 0.35
+shader_parameter/reflection_color = Color(0.75, 0.88, 1, 1)
+shader_parameter/reflection_brighten = 0.3
+shader_parameter/reflection_base = 0.85
+shader_parameter/reflection_strength = 0.15
+shader_parameter/reflection_scale = 28.0
+shader_parameter/reflection_stretch = Vector2(1, 2.4)
+shader_parameter/reflection_dir = Vector2(0.6, 1)
+shader_parameter/reflection_speed = 0.008
+shader_parameter/reflection_distort = 0.6
+shader_parameter/reflection_coverage = 0.58
+shader_parameter/reflection_softness = 0.14
+shader_parameter/reflection_warp = 0.65
+shader_parameter/reflection_core_threshold = 0.16
+shader_parameter/reflection_core_boost = 0.45
+shader_parameter/reflection_wisp_strength = 0.4
+shader_parameter/reflection_wisp_scale_ratio = 0.32
+shader_parameter/reflection_wisp_coverage = 0.68
+shader_parameter/sparkle_color = Color(1, 1, 1, 1)
+shader_parameter/sparkle_intensity = 1.1
+shader_parameter/sparkle_scale = 4.0
+shader_parameter/sparkle_speed = 0.035
+shader_parameter/sparkle_threshold = 0.9
+shader_parameter/sparkle_softness = 0.03
+shader_parameter/crest_strength = 0.1
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.30000001425

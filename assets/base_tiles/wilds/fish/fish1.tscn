@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bdylafwho67ax" path="res://assets/base_tiles/wilds/fish/fish1.png" id="2_8sk5c"]
 [ext_resource type="Script" uid="uid://crfecglphqydl" path="res://assets/characters/shaders/smooth_pixel_sprite_3d.gd" id="2_co4vf"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_8sk5c"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_co4vf"]
 render_priority = 0
 shader = ExtResource("1_hq68m")
 shader_parameter/sprite_texture = ExtResource("2_8sk5c")
@@ -23,7 +23,8 @@ shader_parameter/depth_bias = 0.0
 size = Vector2(0.32, 0.32)
 
 [node name="Fish1" type="MeshInstance3D" unique_id=612612051]
-material_override = SubResource("ShaderMaterial_8sk5c")
+transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_co4vf")
 mesh = SubResource("QuadMesh_ao5u6")
 script = ExtResource("2_co4vf")
 texture = ExtResource("2_8sk5c")

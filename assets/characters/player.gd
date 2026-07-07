@@ -1154,16 +1154,31 @@ func _finish_drowning() -> void:
 	unlock_safe_position()  
 	
 func _spawn_splash_vfx() -> void:
-	if splash_vfx_scene != null:
-		var splash := splash_vfx_scene.instantiate() as Node3D
-		get_tree().current_scene.add_child(splash)
-		splash.global_position = global_position
+	if splash_vfx_scene == null:
+		_spawn_inline_splash()  # dein bestehender Fallback
+		return
+
+	var splash := splash_vfx_scene.instantiate()
+	get_tree().current_scene.add_child(splash)
+
+	# Splash sitzt auf der Wasseroberfläche am Eintauchpunkt.
+	# global_position des Players = Eintauchpunkt (Player steht im Wasser).
+	var impact_point := global_position
+	impact_point.y += 0.15 
+
+	if splash.has_method("play"):
+		# WaterSplash-API: Eintauchen = direction +1
+		splash.global_position = impact_point
+		splash.play(impact_point, 1.0, 1.0)
+	else:
+		# Fallback für Fremd-Scenes: alte Logik
+		splash.global_position = impact_point
 		for child in splash.get_children():
 			if child is GPUParticles3D:
 				child.emitting = true
-		get_tree().create_timer(2.0).timeout.connect(splash.queue_free)
-	else:
-		_spawn_inline_splash()
+
+	# Aufräumen nach Lebensdauer (bei nicht-gepoolter Scene)
+	get_tree().create_timer(2.0).timeout.connect(splash.queue_free)
 
 func _spawn_inline_splash() -> void:
 	# Fallback ohne Scene — minimaler Splash aus Code

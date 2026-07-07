@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://c2litdaekjqq"]
+
+[ext_resource type="ArrayMesh" uid="uid://bvq4omkweglr0" path="res://assets/base_tiles/waterfall/exterior/stone-wall1-hole.tres" id="1_brwbq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_38juf"]
+size = Vector3(1.3656082, 5.7910767, 2.1408691)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_brwbq"]
+size = Vector3(1.5278473, 3.9315872, 2.1408691)
+
+[node name="StoneWallHole" type="MeshInstance3D" unique_id=847082327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13731468, -0.0509727, -0.6625161)
+mesh = ExtResource("1_brwbq")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=382696278]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=745209748]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4979172, 3.1304321, -0.20178223)
+shape = SubResource("BoxShape3D_38juf")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D" unique_id=1356873831]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.249779, 3.1304321, -0.20178223)
+shape = SubResource("BoxShape3D_38juf")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="StaticBody3D" unique_id=1737624346]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20538318, 4.087497, -0.20178223)
+shape = SubResource("BoxShape3D_brwbq")

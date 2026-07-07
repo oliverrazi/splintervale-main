@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ScatterProfile" format=3 uid="uid://cl0fdslmih8vp"]
+
+[ext_resource type="Script" uid="uid://d4fhfdq6uyl1n" path="res://assets/base_tiles/grass/billboard/scatter_profile.gd" id="1_k4qts"]
+[ext_resource type="Texture2D" uid="uid://bs3ldrkdxvc75" path="res://assets/base_tiles/grass/billboard/grassblade.png" id="2_pfvl8"]
+
+[resource]
+script = ExtResource("1_k4qts")
+texture = ExtResource("2_pfvl8")
+scale = Vector2(0.025, 0.25)
+metadata/_custom_type_script = "uid://d4fhfdq6uyl1n"

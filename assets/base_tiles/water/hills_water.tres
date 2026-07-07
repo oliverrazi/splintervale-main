@@ -1,0 +1,57 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://drjosqf2na6ot"]
+
+[ext_resource type="Shader" uid="uid://dhjf85jsxhxnm" path="res://scenes/water2.gdshader" id="1_cu01e"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_b0o2m"]
+noise_type = 3
+frequency = 0.0214
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_86uv1"]
+noise = SubResource("FastNoiseLite_b0o2m")
+seamless = true
+as_normal_map = true
+seamless_blend_skirt = 0.203
+bump_strength = 6.3
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_vel6r"]
+noise_type = 3
+frequency = 0.0116
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_wrl2n"]
+noise = SubResource("FastNoiseLite_vel6r")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ub2iy"]
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_cu01e")
+shader_parameter/color_deep = Color(0.063223265, 0.16905645, 0.18941051, 1)
+shader_parameter/color_shallow = Color(0.59717613, 0.59717613, 0.5971761, 0.40784314)
+shader_parameter/color_fresnel = Color(0.2775726, 0.50047505, 0.43747196, 1)
+shader_parameter/water_alpha_shallow = 0.56999998725936
+shader_parameter/water_alpha_deep = 0.66999998502416
+shader_parameter/foam_color = Color(2.1779165e-06, 0.20427036, 0.30201152, 1)
+shader_parameter/edge_scale = 0.08999999798832
+shader_parameter/foam_sharpness = 8.0
+shader_parameter/wave = SubResource("NoiseTexture2D_ub2iy")
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_86uv1")
+shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_wrl2n")
+shader_parameter/wave_direction = Vector2(2, 0)
+shader_parameter/wave_direction2 = Vector2(2, 0)
+shader_parameter/time_scale = 0.00499999988824
+shader_parameter/noise_scale = 15.0
+shader_parameter/height_scale = 0.1
+shader_parameter/normal_strength = 0.0
+shader_parameter/beers_law = 0.35000000521542
+shader_parameter/depth_offset = 2.23
+shader_parameter/refraction_strength = 0.46999998949456
+shader_parameter/fresnel_power = 4.5000000521542
+shader_parameter/fresnel_blend = 0.43999999016512
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.04
+shader_parameter/near = 1.0
+shader_parameter/far = 50.0

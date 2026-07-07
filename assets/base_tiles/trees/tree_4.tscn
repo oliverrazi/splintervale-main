@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cysfft4v05mkn"]
+[gd_scene format=3 uid="uid://cysfft4v05mkn"]
 
 [ext_resource type="PackedScene" uid="uid://d3n3nfis6upmk" path="res://assets/base_tiles/tree4.glb" id="1_rl31k"]
 [ext_resource type="ArrayMesh" uid="uid://c5vjv6y8jcaq" path="res://assets/base_tiles/trees/deadtree_1.tres" id="2_4g0md"]
 
-[node name="tree4" instance=ExtResource("1_rl31k")]
+[node name="tree4" unique_id=1030768715 instance=ExtResource("1_rl31k")]
 
 [node name="Cube" parent="." index="0"]
 mesh = ExtResource("2_4g0md")

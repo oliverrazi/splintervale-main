@@ -2,5 +2,14 @@
 
 [ext_resource type="ArrayMesh" uid="uid://bog1pghba5tq4" path="res://assets/base_tiles/waterfall/exterior/stone-wall/stone-wall1.tres" id="1_hp70m"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_38juf"]
+size = Vector3(4.543976, 6.7302246, 2.1408691)
+
 [node name="StoneWall" type="MeshInstance3D" unique_id=847082327]
 mesh = ExtResource("1_hp70m")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=382696278]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=745209748]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.010147095, 2.8651123, -0.20178223)
+shape = SubResource("BoxShape3D_38juf")

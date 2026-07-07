@@ -93,7 +93,7 @@ curve = SubResource("Curve_71m7h")
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_jhr4c"]
 emission_shape_scale = Vector3(2, 1, 1)
 emission_shape = 3
-emission_box_extents = Vector3(0.7, 0.03, 0.05)
+emission_box_extents = Vector3(1.17775, 0.03, 0.05)
 velocity_pivot = Vector3(0, 0.8, 0)
 direction = Vector3(0, 0.5, 1)
 spread = 12.0
@@ -117,11 +117,11 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_iwsl1"]
 material = SubResource("StandardMaterial3D_u7lrm")
-size = Vector2(0.05, 0.05)
+size = Vector2(0.084125, 0.084125)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_kkha8"]
 emission_shape = 3
-emission_box_extents = Vector3(1.8, 1.206, 0.05)
+emission_box_extents = Vector3(3.0285, 2.186, 0.05)
 velocity_pivot = Vector3(0.5, -1.5, 0.2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jhr4c"]
@@ -132,7 +132,7 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_62wc4"]
 material = SubResource("StandardMaterial3D_jhr4c")
-size = Vector2(0.04, 0.04)
+size = Vector2(0.0673, 0.0673)
 
 [sub_resource type="Curve" id="Curve_iwsl1"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.8316327, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -152,7 +152,7 @@ curve = SubResource("Curve_kkha8")
 emission_shape = 6
 emission_ring_axis = Vector3(0, 0, 1)
 emission_ring_height = 0.05
-emission_ring_radius = 0.6
+emission_ring_radius = 1.0095
 emission_ring_inner_radius = 0.0
 emission_ring_cone_angle = 90.0
 velocity_pivot = Vector3(0, 3.5, 0)
@@ -176,7 +176,7 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_r1udh"]
 material = SubResource("StandardMaterial3D_pgh4t")
-size = Vector2(0.06, 0.06)
+size = Vector2(0.10095, 0.10095)
 
 [sub_resource type="QuadMesh" id="QuadMesh_80ai0"]
 
@@ -223,7 +223,7 @@ curve = SubResource("Curve_pgh4t")
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_pgh4t"]
 emission_shape_scale = Vector3(0.71, 0.05, 0.6)
 emission_shape = 3
-emission_box_extents = Vector3(3.2, 0.02, 2.8)
+emission_box_extents = Vector3(6.057, 0.02, 4.711)
 angle_min = -179.99998
 angle_max = 180.00002
 direction = Vector3(0, 0.1, 0)
@@ -249,9 +249,12 @@ vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("8_8gyd8")
 billboard_mode = 1
 billboard_keep_scale = true
+proximity_fade_enabled = true
+proximity_fade_distance = 0.5
 
 [sub_resource type="QuadMesh" id="QuadMesh_13hcx"]
 material = SubResource("StandardMaterial3D_r1udh")
+size = Vector2(1.6825, 1.6825)
 
 [sub_resource type="SphereMesh" id="SphereMesh_80ai0"]
 radius = 0.3
@@ -312,7 +315,7 @@ mesh = SubResource("QuadMesh_7iart")
 surface_material_override/0 = SubResource("ShaderMaterial_u7lrm")
 
 [node name="ImpactFoam" type="MeshInstance3D" parent="." unique_id=537655665]
-transform = Transform3D(7, 0, 0, 0, 0.95452476, -5.9549327, 0, 3.5623343, 1.5956196, 0, 0, 0)
+transform = Transform3D(7, 0, 0, 0, 0.9317486, -5.4091845, 0, 3.4773328, 1.4493868, 0, 0, 0)
 mesh = SubResource("PlaneMesh_2sedo")
 
 [node name="TopMist" type="GPUParticles3D" parent="." unique_id=572923237]
@@ -324,14 +327,14 @@ process_material = SubResource("ParticleProcessMaterial_jhr4c")
 draw_pass_1 = SubResource("QuadMesh_iwsl1")
 
 [node name="SideSpray" type="GPUParticles3D" parent="." unique_id=108726130]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0.05)
+transform = Transform3D(0.54615116, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, -0.5)
 amount = 50
 lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_kkha8")
 draw_pass_1 = SubResource("QuadMesh_62wc4")
 
 [node name="ImpactBurst" type="GPUParticles3D" parent="." unique_id=269716020]
-transform = Transform3D(0.66051507, 0, 0, 0, 0.5664373, 0, 0, 0, 0.2741659, 0, 3.0166087, 0)
+transform = Transform3D(0.66051507, 0, 0, 0, 0.5664373, 0, 0, 0, 0.2741659, 0, 4.8, -0.5)
 amount = 80
 process_material = SubResource("ParticleProcessMaterial_62wc4")
 draw_pass_1 = SubResource("QuadMesh_r1udh")
@@ -366,7 +369,7 @@ process_material = SubResource("ParticleProcessMaterial_pgh4t")
 draw_pass_1 = SubResource("QuadMesh_13hcx")
 
 [node name="ImpactCore" type="MeshInstance3D" parent="." unique_id=1049957804]
-transform = Transform3D(3.3, 0, 0, 0, 1.08, 0, 0, 0, 0.8, 0, 0, 0)
+transform = Transform3D(3.3, 0, 0, 0, 1.1, 0, 0, 0, 0.8, 0, 0, 0)
 mesh = SubResource("SphereMesh_80ai0")
 surface_material_override/0 = SubResource("ShaderMaterial_a6y8a")
 

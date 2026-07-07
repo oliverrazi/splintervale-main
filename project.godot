@@ -207,3 +207,7 @@ waterfall_height_2={
 "type": "float",
 "value": 0.001
 }
+ambient_wetness={
+"type": "float",
+"value": 0.5
+}

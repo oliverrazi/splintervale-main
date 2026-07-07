@@ -92,6 +92,13 @@ extends Node3D
 @export var ssao_intensity: float = 2.0
 @export var ssao_radius: float = 1.5
 
+@export_group("Reflexionen")
+@export var ssr_enabled: bool = true:
+	set(v):
+		ssr_enabled = v
+		if is_instance_valid(_environment):
+			_environment.ssr_enabled = v
+
 @export_group("Debug")
 ## Prints the live DoF values once per second — useful for verifying that
 ## inspector changes are actually propagating to the camera.
@@ -241,7 +248,11 @@ func _setup_environment() -> void:
 	_environment.ssil_intensity = 0.8
 	_environment.ssil_radius = 3.0
 
-	_environment.ssr_enabled = false
+	_environment.ssr_enabled         = ssr_enabled 
+	_environment.ssr_max_steps       = 64
+	_environment.ssr_fade_in         = 0.15
+	_environment.ssr_fade_out        = 2.0
+	_environment.ssr_depth_tolerance = 0.2
 
 	_world_env = WorldEnvironment.new()
 	_world_env.name = "WorldEnvironment"
