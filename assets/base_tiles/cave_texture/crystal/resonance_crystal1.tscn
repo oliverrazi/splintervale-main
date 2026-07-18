@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://chc85pvrvka3v"]
+
+[ext_resource type="ArrayMesh" uid="uid://bb1pabp8tn0p6" path="res://assets/base_tiles/cave_texture/crystal/resonance_crystal1.tres" id="1_7ydn6"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_7ydn6"]
+height = 2.8889465
+radius = 0.9736328
+
+[node name="ResonanceCrystal1" type="Node3D" unique_id=1698846439]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1261619029]
+mesh = ExtResource("1_7ydn6")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1401889218]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=324124647]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4790802, 0)
+shape = SubResource("CylinderShape3D_7ydn6")

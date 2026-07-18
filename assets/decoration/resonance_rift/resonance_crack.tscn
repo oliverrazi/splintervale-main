@@ -1,0 +1,117 @@
+[gd_scene format=3 uid="uid://dufg1xfypor6w"]
+
+[ext_resource type="Script" uid="uid://dcq8rxwlegp73" path="res://assets/decoration/resonance_rift/resonance_rift.gd" id="1_w6oqt"]
+[ext_resource type="Shader" uid="uid://bu760mrcb5nsk" path="res://assets/decoration/resonance_rift/resonance_crack.gdshader" id="2_c1i1e"]
+[ext_resource type="Shader" uid="uid://d35eium3uvvpl" path="res://assets/decoration/resonance_rift/resonance_beam.gdshader" id="3_i3rgw"]
+[ext_resource type="Shader" uid="uid://dnbols3exmvar" path="res://assets/decoration/resonance_rift/resonance_mote.gdshader" id="4_tk4ci"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a10qg"]
+render_priority = 0
+shader = ExtResource("2_c1i1e")
+shader_parameter/core_color = Color(1, 1, 1, 1)
+shader_parameter/edge_color = Color(0.5, 0.75, 1, 1)
+shader_parameter/intensity = 3.0
+shader_parameter/crack_scale = 3.5
+shader_parameter/crack_width = 0.045
+shader_parameter/warp_amount = 0.35
+shader_parameter/core_strength = 1.2
+shader_parameter/core_tightness = 9.0
+shader_parameter/anim_speed = 0.5
+shader_parameter/radial_softness = 0.55
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_qc558"]
+material = SubResource("ShaderMaterial_a10qg")
+size = Vector2(0.7, 0.7)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sknx7"]
+render_priority = 0
+shader = ExtResource("3_i3rgw")
+shader_parameter/core_color = Color(1, 1, 1, 1)
+shader_parameter/edge_color = Color(0.55, 0.78, 1, 1)
+shader_parameter/intensity = 1.5330000728175
+shader_parameter/opacity = 0.85
+shader_parameter/beam_height = 1.6
+shader_parameter/falloff_power = 2.0
+shader_parameter/back_face_dim = 0.3
+shader_parameter/anim_speed = 0.35
+shader_parameter/streak_scale = 6.0
+shader_parameter/stretch_scale = 1.2
+shader_parameter/ray_coverage = 0.35
+shader_parameter/ray_softness = 0.45
+shader_parameter/ray_strength = 1.0
+shader_parameter/use_mask = false
+shader_parameter/mask_size = 0.5
+shader_parameter/mask_spread = 0.8
+shader_parameter/mask_blur = 3.0
+shader_parameter/edge_softness = 1.0
+shader_parameter/core_power = 2.5
+shader_parameter/sway_amount = 0.03
+shader_parameter/sway_speed = 0.7
+shader_parameter/soft_distance = 0.15
+shader_parameter/fade_near = 0.15
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_xfula"]
+material = SubResource("ShaderMaterial_sknx7")
+top_radius = 0.15
+bottom_radius = 0.05
+height = 1.6
+radial_segments = 24
+cap_top = false
+cap_bottom = false
+
+[sub_resource type="Gradient" id="Gradient_p7od3"]
+offsets = PackedFloat32Array(0, 0.51970446, 1)
+colors = PackedColorArray(0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_5xlgl"]
+gradient = SubResource("Gradient_p7od3")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_1vc4d"]
+particle_flag_align_y = true
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 0.02
+emission_ring_radius = 0.14
+emission_ring_inner_radius = 0.04
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, 1, 0)
+spread = 10.0
+initial_velocity_min = 0.08
+initial_velocity_max = 0.14999999
+gravity = Vector3(0, 0, 0)
+scale_min = 0.5
+color_ramp = SubResource("GradientTexture1D_5xlgl")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uwpdc"]
+render_priority = 0
+shader = ExtResource("4_tk4ci")
+shader_parameter/mote_color = Color(0.8, 0.92, 1, 1)
+shader_parameter/mote_intensity = 2.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_4urao"]
+material = SubResource("ShaderMaterial_uwpdc")
+size = Vector2(0.025, 0.025)
+
+[node name="ResonanceRift" type="Node3D" unique_id=246435455]
+script = ExtResource("1_w6oqt")
+
+[node name="Crack" type="MeshInstance3D" parent="." unique_id=1765520222]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = SubResource("PlaneMesh_qc558")
+
+[node name="Beam" type="MeshInstance3D" parent="." unique_id=22020070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CylinderMesh_xfula")
+
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=263410706]
+amount = 20
+lifetime = 4.0
+preprocess = 2.5
+randomness = 0.5
+process_material = SubResource("ParticleProcessMaterial_1vc4d")
+draw_pass_1 = SubResource("QuadMesh_4urao")
+
+[node name="RiftLight" type="OmniLight3D" parent="." unique_id=939089860]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+light_color = Color(0.72, 0.86, 1, 1)
+omni_range = 4.0

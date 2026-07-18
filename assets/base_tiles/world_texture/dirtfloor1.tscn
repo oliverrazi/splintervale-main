@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://ctgnby14ufit0"]
+
+[ext_resource type="ArrayMesh" uid="uid://dnfm6e1fm0nuq" path="res://assets/base_tiles/world_texture/dirtfloor1.tres" id="1_hhows"]
+[ext_resource type="Material" uid="uid://sre20iql3c8u" path="res://assets/base_tiles/world_texture/m_cliff.tres" id="2_v124n"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fggsu"]
+size = Vector3(1.9919434, 1.9805298, 2.0276337)
+
+[node name="Dirtfloor1" type="MeshInstance3D" unique_id=610570081]
+mesh = ExtResource("1_hhows")
+surface_material_override/0 = ExtResource("2_v124n")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=2069801297]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1641596917]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.010375977, 1.0059509, 0.0029678345)
+shape = SubResource("BoxShape3D_fggsu")

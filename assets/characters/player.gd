@@ -100,6 +100,8 @@ var _drown_flip_state: bool = false
 
 @onready var sword_spin: SwordSpinComponent = $SwordSpinComponent
 
+@onready var step_up: StepUpComponent = $StepUpComponent
+
 var _nearby_npc: NPC = null
 var _nearby_chest: TreasureChest = null
 
@@ -359,6 +361,9 @@ func _physics_process(delta: float) -> void:
 	_recover_from_stuck()
 	
 	move_and_slide()
+
+	if step_up:
+		step_up.try_step_up(delta)
 	
 	_update_safe_position(delta)
 

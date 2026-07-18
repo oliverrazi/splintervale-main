@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://ug3fwtkhvgqp"]
+
+[ext_resource type="ArrayMesh" uid="uid://dyjyvgbiqgm0l" path="res://assets/base_tiles/world_texture/dirtwall1_concav.tres" id="1_v5ugj"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v5ugj"]
+size = Vector3(0.8372803, 2.0354004, 0.8200989)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d6r71"]
+size = Vector3(0.8372803, 2.0354004, 0.7108307)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yrxo4"]
+size = Vector3(0.8372803, 2.0354004, 0.5780182)
+
+[node name="Dirtwall1_concav" type="MeshInstance3D" unique_id=610570081]
+mesh = ExtResource("1_v5ugj")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=472643687]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=476342866]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0060424805, 0.9935303, 0.15977478)
+shape = SubResource("BoxShape3D_v5ugj")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D" unique_id=812964917]
+transform = Transform3D(0.92405975, 0, 0.382248, 0, 1, 0, -0.382248, 0, 0.92405975, -0.6083424, 0.9935303, 0.19075075)
+shape = SubResource("BoxShape3D_d6r71")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="StaticBody3D" unique_id=256108010]
+transform = Transform3D(0.86548376, 0, -0.50093687, 0, 1, 0, 0.50093687, 0, 0.86548376, 0.5670785, 0.9935303, 0.1946637)
+shape = SubResource("BoxShape3D_yrxo4")

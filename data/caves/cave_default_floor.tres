@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cvkt6qcboqfji"]
+
+[ext_resource type="Texture2D" uid="uid://g44kaj4a801j" path="res://assets/base_tiles/cave_texture/cave-floor1_cave_floor2.png" id="1_p8j5a"]
+[ext_resource type="Texture2D" uid="uid://cjrarn44nv4su" path="res://assets/base_tiles/cave_texture/cave-floor1_cave_floor2_normal.png" id="2_u5scq"]
+
+[resource]
+resource_name = "Material.001"
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("1_p8j5a")
+roughness = 0.7272727
+normal_enabled = true
+normal_scale = 4.0
+normal_texture = ExtResource("2_u5scq")

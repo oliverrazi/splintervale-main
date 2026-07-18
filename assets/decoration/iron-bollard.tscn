@@ -1,21 +1,34 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4jclyx4oukn0"]
+[gd_scene format=3 uid="uid://b4jclyx4oukn0"]
 
 [ext_resource type="Script" uid="uid://eargwxyah7bh" path="res://scripts/world/vector_anchor_targetable_3D.gd" id="1_gmpj2"]
 [ext_resource type="PackedScene" uid="uid://bbtbs8b0ou0vv" path="res://assets/decoration/iron-bollard.glb" id="1_mafh4"]
+[ext_resource type="PackedScene" uid="uid://ctexc5fbvqjjc" path="res://assets/decoration/crystals/blue-flame.tscn" id="3_bu0v4"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gmpj2"]
 height = 1.6254883
 radius = 0.09863281
 
-[node name="IronBollard" type="StaticBody3D"]
+[node name="IronBollard" type="StaticBody3D" unique_id=2018864423]
 script = ExtResource("1_gmpj2")
 
-[node name="AnchorPoint" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4368333, 0)
+[node name="AnchorPoint" type="Marker3D" parent="." unique_id=53159362]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2563357, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1194625954]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8469238, 0)
 shape = SubResource("CylinderShape3D_gmpj2")
 
-[node name="iron-bollard" parent="." instance=ExtResource("1_mafh4")]
+[node name="iron-bollard" parent="." unique_id=2126116574 instance=ExtResource("1_mafh4")]
 transform = Transform3D(0.2, 0, 0, 0, 0.3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="BlueFlame" parent="." unique_id=348602345 instance=ExtResource("3_bu0v4")]
+transform = Transform3D(0.31178656, 0, 0, 0, 0.23587418, 0, 0, 0, 0.7786318, 0.0026700199, 1.591341, 0.050696835)
+
+[node name="BlueFlame2" parent="." unique_id=503979277 instance=ExtResource("3_bu0v4")]
+transform = Transform3D(0.31178656, 0, 0, 0, 0.23587418, 0, 0, 0, 0.7786318, 0.0026700199, 1.591341, -0.020769402)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=366166621]
+transform = Transform3D(1, 0, 9.0208685e-09, 0, 1, 0, -9.0208685e-09, 0, 1, 0, 1.705903, 0)
+light_color = Color(9.818673e-06, 0.7502854, 0.98424083, 1)
+light_energy = 3.748
+omni_range = 1.3

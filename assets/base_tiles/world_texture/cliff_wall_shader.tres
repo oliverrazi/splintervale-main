@@ -1,0 +1,143 @@
+[gd_resource type="Shader" format=3 uid="uid://bsekgoj7lanp2"]
+
+[resource]
+code = "shader_type spatial;
+
+// ============================================================
+// Cliff-Shader (World-Space Triplanar) — Godot 4.5 — v2
+//
+// Fels:  Triplanar in Weltkoordinaten (keine UVs noetig,
+//        nahtlos ueber Module, skalierungsunabhaengig)
+// Gras:  HOEHENBASIERTER SAUM — Gras erscheint in den obersten
+//        grass_band_depth Metern unterhalb der Modul-Oberkante
+//        und \"haengt\" mit Noise-Kante unterschiedlich weit runter.
+//        Deterministisch: unabhaengig von Normalen & Topologie.
+//
+// Texturformat wie Terrain3D:
+//   Albedo: RGB = Albedo, A = Height (ungenutzt)
+//   Normal: RGB = Normal (OpenGL/Y+), A = Roughness
+// ============================================================
+
+// --- Fels ---
+uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D rock_normal_rough : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float rock_uv_scale : hint_range(0.05, 20.0) = 2.0; // Kacheln pro Meter
+uniform float triplanar_sharpness : hint_range(1.0, 16.0) = 6.0;
+uniform float rock_normal_strength : hint_range(0.0, 2.0) = 1.0;
+
+// --- Gras-Saum ---
+uniform sampler2D grass_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float grass_uv_scale : hint_range(0.05, 20.0) = 2.0;
+uniform vec4 grass_tint : source_color = vec4(1.0);
+uniform float grass_roughness : hint_range(0.0, 1.0) = 0.95;
+
+// Lokale Hoehe der Modul-Oberkante (Origin am Fuss, Designhoehe 1.0 -> 1.0)
+uniform float grass_top_level = 1.0;
+// Wie weit der Saum ab Oberkante nach unten reicht (in METERN, Welt)
+uniform float grass_band_depth : hint_range(0.0, 1.0) = 0.08;
+// Weichheit der Saum-Unterkante (Meter)
+uniform float grass_band_softness : hint_range(0.001, 0.3) = 0.03;
+// Noise laesst den Saum unregelmaessig weit runterhaengen
+uniform float grass_band_noise : hint_range(0.0, 0.5) = 0.06;
+uniform float grass_noise_scale : hint_range(0.1, 30.0) = 8.0;
+
+// --- Makro-Variation ---
+uniform float macro_scale : hint_range(0.01, 2.0) = 0.15;
+uniform float macro_strength : hint_range(0.0, 0.5) = 0.12;
+
+varying vec3 v_world_pos;
+varying vec3 v_world_normal;
+varying float v_dist_top; // Meter unterhalb der Modul-Oberkante (skalierungskorrigiert)
+
+
+void vertex() {
+	v_world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	v_world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
+	// Y-Skalierung des Nodes herausrechnen, damit der Saum in echten
+	// Metern definiert ist — egal wie hoch das Modul gestreckt wurde.
+	float scale_y = length(MODEL_MATRIX[1].xyz);
+	v_dist_top = (grass_top_level - VERTEX.y) * scale_y;
+}
+
+
+float hash2(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float value_noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	float a = hash2(i);
+	float b = hash2(i + vec2(1.0, 0.0));
+	float c = hash2(i + vec2(0.0, 1.0));
+	float d = hash2(i + vec2(1.0, 1.0));
+	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+
+void fragment() {
+	vec3 wn = normalize(v_world_normal);
+	vec3 wp = v_world_pos;
+
+	// --- Triplanar-Gewichte ---
+	vec3 w = pow(abs(wn), vec3(triplanar_sharpness));
+	w /= (w.x + w.y + w.z);
+
+	vec2 uv_x = wp.zy;
+	vec2 uv_y = wp.xz;
+	vec2 uv_z = wp.xy;
+
+	// --- Fels-Albedo ---
+	vec3 rock_col =
+		texture(rock_albedo, uv_x * rock_uv_scale).rgb * w.x +
+		texture(rock_albedo, uv_y * rock_uv_scale).rgb * w.y +
+		texture(rock_albedo, uv_z * rock_uv_scale).rgb * w.z;
+
+	// --- Fels-Normalen (Whiteout-Blend) + Roughness aus Alpha ---
+	vec4 sx = texture(rock_normal_rough, uv_x * rock_uv_scale);
+	vec4 sy = texture(rock_normal_rough, uv_y * rock_uv_scale);
+	vec4 sz = texture(rock_normal_rough, uv_z * rock_uv_scale);
+	float rock_rough = sx.a * w.x + sy.a * w.y + sz.a * w.z;
+
+	vec3 tnx = sx.rgb * 2.0 - 1.0;
+	vec3 tny = sy.rgb * 2.0 - 1.0;
+	vec3 tnz = sz.rgb * 2.0 - 1.0;
+	tnx = vec3(tnx.xy + wn.zy, abs(tnx.z) * wn.x);
+	tny = vec3(tny.xy + wn.xz, abs(tny.z) * wn.y);
+	tnz = vec3(tnz.xy + wn.xy, abs(tnz.z) * wn.z);
+	vec3 rock_wn = normalize(
+		tnx.zyx * w.x +
+		tny.xzy * w.y +
+		tnz.xyz * w.z);
+	rock_wn = normalize(mix(wn, rock_wn, rock_normal_strength));
+
+	// --- Gras-Saum: rein hoehenbasiert ---
+	// Noise variiert, wie weit der Saum an dieser Stelle runterhaengt.
+	// Noise auf XZ gesampelt: an senkrechten Flaechen ergibt das
+	// vertikale \"Straehnen\" — wirkt wie herabhaengendes Gras.
+	float hang = value_noise(wp.xz * grass_noise_scale) * grass_band_noise;
+	float band = grass_band_depth + hang;
+	float grass_mask = 1.0 - smoothstep(
+		band - grass_band_softness,
+		band + grass_band_softness,
+		v_dist_top);
+
+	// Gras triplanar sampeln (kein Stretch am senkrechten Saum)
+	vec3 grass_col = (
+		texture(grass_albedo, uv_x * grass_uv_scale).rgb * w.x +
+		texture(grass_albedo, uv_y * grass_uv_scale).rgb * w.y +
+		texture(grass_albedo, uv_z * grass_uv_scale).rgb * w.z
+	) * grass_tint.rgb;
+
+	// --- Makro-Variation ---
+	float mv = value_noise(wp.xz * macro_scale);
+	float macro_mul = mix(1.0 - macro_strength, 1.0 + macro_strength, mv);
+
+	// --- Kombinieren ---
+	vec3 final_wn = normalize(mix(rock_wn, wn, grass_mask));
+	ALBEDO = mix(rock_col, grass_col, grass_mask) * macro_mul;
+	ROUGHNESS = mix(rock_rough, grass_roughness, grass_mask);
+	NORMAL = normalize((VIEW_MATRIX * vec4(final_wn, 0.0)).xyz);
+}
+"

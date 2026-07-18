@@ -44,6 +44,19 @@ class_name GrassSystem
 		density = v
 		if Engine.is_editor_hint(): _mark_dirty()
 
+@export_group("Editor Preview")
+## Dichte-Faktor NUR im Editor (nicht im Spiel, nicht beim Backen).
+## Reduziert die Halmzahl beim Bearbeiten drastisch → schnelle Vorschau.
+## 1.0 = volle Dichte, 0.25 = ein Viertel. Form bleibt erkennbar, Neuaufbau
+## wird um ein Vielfaches schneller.
+@export_range(0.01, 1.0) var editor_density_factor: float = 0.25:
+	set(v):
+		editor_density_factor = clampf(v, 0.01, 1.0)
+		if Engine.is_editor_hint(): _mark_dirty()
+## Wartezeit (Sekunden) nach der letzten Änderung, bevor im Editor neu generiert
+## wird. Verhindert Neuaufbau bei JEDER Mausbewegung beim Punktesetzen.
+@export var editor_debounce_time: float = 0.4
+
 # ============================================================
 #  CHUNKING (neu)
 # ============================================================
@@ -206,6 +219,7 @@ var _chunk_root: Node3D                       # Container für alle Chunk-Instan
 var _materials: Array[ShaderMaterial] = []    # Ein Material pro Profil
 var _debug_mesh: MeshInstance3D
 var _dirty := false
+var _debounce_gen: int = 0
 var _task_id: int = -1
 var _generation_id: int = 0
 var _shared_quad: QuadMesh                    # Ein Mesh für alle MultiMeshes
@@ -361,15 +375,31 @@ func _set_param_all(param: String, value) -> void:
 # ============================================================
 
 func _mark_dirty() -> void:
-	if not _dirty:
-		_dirty = true
-		call_deferred("_flush_dirty")
+	# Debounced: Bei jeder Änderung wird ein neuer Timer gestartet und ein
+	# Generations-Zähler erhöht. Nur der jüngste Timer löst die Generierung aus
+	# (ältere Callbacks erkennen an der Generation, dass sie veraltet sind).
+	if not Engine.is_editor_hint():
+		# Im Spiel: sofort (kommt praktisch nur bei Laufzeit-Änderungen vor).
+		if not _dirty:
+			_dirty = true
+			call_deferred("_flush_dirty")
+		return
+
+	if not is_inside_tree():
+		return
+	_debounce_gen += 1
+	var my_gen := _debounce_gen
+	var timer := get_tree().create_timer(editor_debounce_time)
+	timer.timeout.connect(func() -> void:
+		# Nur ausführen, wenn seitdem keine neue Änderung kam.
+		if my_gen == _debounce_gen:
+			_flush_dirty()
+	)
 
 func _flush_dirty() -> void:
-	if _dirty:
-		_dirty = false
-		_rebuild_materials()
-		_generate()
+	_dirty = false
+	_rebuild_materials()
+	_generate()
 
 
 # ============================================================
@@ -465,7 +495,7 @@ func _do_bake() -> void:
 	DirAccess.make_dir_recursive_absolute(abs_dir)
 
 	var t0 := Time.get_ticks_usec()
-	var params := _snapshot_params()
+	var params := _snapshot_params(true)  # true = volle Dichte, kein Editor-Faktor
 	var result := _compute(params)
 	if result.is_empty() or not result.has("chunks"):
 		push_warning("GrassSystem '%s': Bake fehlgeschlagen (keine Daten)." % name)
@@ -566,7 +596,7 @@ func _clear_bake_file() -> void:
 #  SNAPSHOT (thread-sicher)
 # ============================================================
 
-func _snapshot_params() -> Dictionary:
+func _snapshot_params(full_density: bool = false) -> Dictionary:
 	var prof_snaps: Array = []
 	for p in _resolve_profiles():
 		prof_snaps.append(p.snapshot())
@@ -577,9 +607,15 @@ func _snapshot_params() -> Dictionary:
 	# Überschneidende ScatterZones einsammeln (Main-Thread, thread-sicher als Snapshot).
 	var zone_snaps := _collect_zone_snapshots()
 
+	# Effektive Dichte: im Editor reduziert (schnelle Vorschau), außer wenn
+	# full_density erzwungen ist (Backen) — dann immer volle Dichte.
+	var eff_density := density
+	if Engine.is_editor_hint() and not full_density:
+		eff_density = density * editor_density_factor
+
 	return {
 		"shape_points": shape_points.duplicate(),
-		"density": density,
+		"density": eff_density,
 		"global_position": global_position,
 		"chunk_size": chunk_size,
 		"edge_falloff_distance": edge_falloff_distance,

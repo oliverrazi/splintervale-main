@@ -147,7 +147,7 @@ func _ready() -> void:
 	_load_portrait_shader()
 	_load_smooth_pixel_script()
 	_clear_existing_children()
-	_build_ui()
+	#_build_ui()
 	
 	call_deferred("_connect_to_player_data")
 	call_deferred("_connect_to_inventory")

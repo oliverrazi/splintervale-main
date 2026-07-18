@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bc7030h2c0041"]
+
+[ext_resource type="ArrayMesh" uid="uid://dlp2sem770dd2" path="res://assets/base_tiles/world_texture/dirtwall1_ramp.tres" id="1_evvfl"]
+
+[node name="Dirtwall1_ramp" type="MeshInstance3D" unique_id=610570081]
+transform = Transform3D(1, 0, 0, 0, 0.9982055, -0.059881307, 0, 0.059881307, 0.9982055, 0, 0, 0)
+mesh = ExtResource("1_evvfl")

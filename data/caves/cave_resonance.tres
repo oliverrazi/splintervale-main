@@ -1,0 +1,29 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cfy7juf454qy3"]
+
+[ext_resource type="Shader" uid="uid://ne8uojtpl12w" path="res://scripts/shader/cave/cave_resonance.gdshader" id="1_2wphb"]
+[ext_resource type="Texture2D" uid="uid://bq1snhp4y6ko2" path="res://assets/base_tiles/cave_texture/cave-wall2_cave_floor2.png" id="2_t4u57"]
+[ext_resource type="Texture2D" uid="uid://cpllsprjn1ar8" path="res://assets/base_tiles/cave_texture/cave-wall2_cave_floor2_normal.png" id="3_0bf4f"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_2wphb")
+shader_parameter/albedo_tex = ExtResource("2_t4u57")
+shader_parameter/normal_tex = ExtResource("3_0bf4f")
+shader_parameter/base_color = Color(1, 1, 1, 1)
+shader_parameter/base_roughness = 1.0
+shader_parameter/normal_strength = 2.0
+shader_parameter/vertex_color_influence = 1.0
+shader_parameter/vein_scale = 1.0
+shader_parameter/vein_width = 0.00499999988824
+shader_parameter/vein_softness = 0.05300000216824
+shader_parameter/vein_ambient = 0.0400000019
+shader_parameter/vein_color = Color(0.55, 0.82, 1, 1)
+shader_parameter/pulse_color = Color(0.9, 0.96, 1, 1)
+shader_parameter/pulse_speed = 1.7530000832675001
+shader_parameter/pulse_width = 0.50000001723023
+shader_parameter/pulse_fade = 1.5000000679901202
+shader_parameter/pulse_intensity = 2.9390001396025
+shader_parameter/pulse_direction = Vector2(1, 0.3)
+shader_parameter/pulse_spacing = 12.0
+shader_parameter/glow_spread = 0.15
+shader_parameter/roughness_reduction = 0.5

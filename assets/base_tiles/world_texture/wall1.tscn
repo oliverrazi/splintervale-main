@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dr1xd613psa1e"]
+
+[ext_resource type="ArrayMesh" uid="uid://dm5ccchj4yvj2" path="res://assets/base_tiles/world_texture/wall1.tres" id="1_svh07"]
+
+[node name="Wall1" type="MeshInstance3D" unique_id=908736836]
+mesh = ExtResource("1_svh07")

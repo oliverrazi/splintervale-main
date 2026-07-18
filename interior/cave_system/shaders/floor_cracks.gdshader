@@ -17,6 +17,13 @@ uniform float crack_progress : hint_range(0.0, 1.0) = 0.0;
 uniform float base_crack_progress : hint_range(0.0, 1.0) = 0.35;
 uniform vec2 crack_center = vec2(0.5, 0.5);
 
+uniform float roughness : hint_range(0.0, 1.0) = 0.45;
+uniform float metallic : hint_range(0.0, 1.0) = 0.0;
+
+uniform sampler2D normal_texture : hint_normal;
+uniform float normal_scale : hint_range(-16.0, 16.0) = 1.0;
+uniform bool use_normal_map = false;
+
 void fragment() {
 	vec3 albedo = texture(base_texture, UV).rgb * base_color.rgb;
 
@@ -41,7 +48,14 @@ void fragment() {
 
 	// Risse abdunkeln
 	albedo = mix(albedo, albedo * (1.0 - crack_darkness), crack_mask);
+	
+	if (use_normal_map) {
+	    NORMAL_MAP = texture(normal_texture, UV).rgb;
+	    NORMAL_MAP_DEPTH = normal_scale;
+	}
+
 
 	ALBEDO = albedo;
-	ROUGHNESS = 1.0;
+	ROUGHNESS = roughness;
+	METALLIC = metallic;
 }

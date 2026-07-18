@@ -60,6 +60,8 @@ var _charge_locked_dir_mode: int = 0
 @export var launch_arc_height: float = 2.5
 @export var launch_invincible: bool = true
 @export var use_idle_frame_on_land: bool = true
+@export var launch_step_up_max: float = 2.2  
+@export var landing_snap_height: float = 0.6 
 
 # === LAUNCH DAMAGE ===
 @export_group("Launch Damage")
@@ -887,10 +889,36 @@ func _start_launch() -> void:
 
 	# Durchflug: Endpunkt ist der an der Zielposition gespiegelte Startpunkt.
 	# Das Ziel ist damit IMMER der Scheitelpunkt der Flugbahn.
-	# Durchflug: Endpunkt ist der an der Zielposition gespiegelte Startpunkt.
-	# Das Ziel ist damit IMMER der Scheitelpunkt der Flugbahn.
 	var end_pos: Vector3 = target_pos * 2.0 - start_pos
 	end_pos.y = start_pos.y
+
+	# ─── Landeflächen-Korrektur ───
+	# Liegt am Endpunkt Boden HÖHER als der Start (Plattform/Ebene), Endpunkt anheben.
+	# Sonst zielt die Parabel IN die Ebene hinein und der Wand-Check löst einen
+	# falschen Bounce aus ("zurückgeschoben"-Bug).
+	var space_state := _player.get_world_3d().direct_space_state
+	var dest_excludes: Array = [_player.get_rid()]
+	if _current_target is CollisionObject3D:
+		dest_excludes.append(_current_target.get_rid())
+
+	var dest_ray := PhysicsRayQueryParameters3D.create(
+		end_pos + Vector3(0, 2.5, 0),
+		end_pos + Vector3(0, -4.0, 0)
+	)
+	dest_ray.collision_mask = _player.collision_mask
+	dest_ray.exclude = dest_excludes
+	dest_ray.hit_back_faces = false
+
+	var dest_hit := space_state.intersect_ray(dest_ray)
+	if not dest_hit.is_empty():
+		var dest_collider = dest_hit.get("collider")
+		var dest_is_enemy: bool = dest_collider is Enemy \
+			or (dest_collider != null and is_instance_valid(dest_collider) \
+			and (dest_collider.is_in_group("enemies") or dest_collider.is_in_group("enemy")))
+		if not dest_is_enemy:
+			var y_diff: float = dest_hit.position.y - start_pos.y
+			if y_diff > 0.02 and y_diff <= launch_step_up_max:
+				end_pos.y = dest_hit.position.y + 0.02
 
 	_state = State.LAUNCHING
 	_launch_progress = 0.0
@@ -920,49 +948,6 @@ func _start_launch() -> void:
 
 	_play_sound(launch_sound)
 	launch_started.emit()
-
-func _check_launch_destination(candidate: Vector3, exclude_rids: Array) -> Dictionary:
-	var space_state := _player.get_world_3d().direct_space_state
-	# Weiter nach oben strahlen, damit auch erhöhte Plattformen erkannt werden
-	var ray_start: Vector3 = candidate + Vector3(0, 2.5, 0)
-	var ray_end: Vector3 = candidate + Vector3(0, -4.0, 0)
-
-	var ray_query := PhysicsRayQueryParameters3D.create(ray_start, ray_end)
-	ray_query.collision_mask = _player.collision_mask
-	ray_query.exclude = exclude_rids
-	ray_query.hit_back_faces = false
-
-	var hit := space_state.intersect_ray(ray_query)
-	if hit.is_empty():
-		# Kein Boden → Klippe/Abgrund. Als "valid aber in_air" zurückgeben,
-		# damit der Flug startet und danach gefallen wird.
-		return {"valid": false, "reason": "kein Boden", "position": candidate, "in_air": true}
-
-	var ground_y: float = hit.position.y
-	var y_diff: float = ground_y - candidate.y
-
-	# Stufe nach oben jetzt großzügig erlaubt (Plattform hochspringen)
-	if y_diff > 2.2:
-		return {"valid": false, "reason": "Boden zu hoch (+%.2fm)" % y_diff, "position": candidate}
-	# Nach unten: tiefer Boden = ok, wir fallen halt. Nur sehr tief = "in_air"
-	var landing_in_air: bool = y_diff < -2.0
-
-	# Kopffreiheit am Zielpunkt
-	var head_check_pos: Vector3 = Vector3(candidate.x, ground_y + 0.9, candidate.z)
-	var shape_query := PhysicsShapeQueryParameters3D.new()
-	var sphere := SphereShape3D.new()
-	sphere.radius = 0.25
-	shape_query.shape = sphere
-	shape_query.transform = Transform3D(Basis(), head_check_pos)
-	shape_query.collision_mask = _player.collision_mask
-	shape_query.exclude = exclude_rids
-
-	var head_results := space_state.intersect_shape(shape_query, 1)
-	if head_results.size() > 0:
-		return {"valid": false, "reason": "Kopfhöhe blockiert", "position": candidate}
-
-	var landing: Vector3 = Vector3(candidate.x, ground_y + 0.02, candidate.z)
-	return {"valid": true, "reason": "Bodenkontakt", "position": landing, "in_air": landing_in_air}
 
 func _process_launching(delta: float) -> void:
 	_launch_time += delta
@@ -1060,20 +1045,44 @@ func _process_launching(delta: float) -> void:
 				_fall_velocity.z = 0.0
 				new_pos.x = _player.global_position.x
 				new_pos.z = _player.global_position.z
-			elif bounce_enabled:
-				_start_bounce(new_pos)
-				return
 			else:
-				_face_target(_launch_target_pos)
-				if _player.has_method("_show_idle"):
-					_player._show_idle()
-				if "_attack_cooldown_timer" in _player:
-					_player._attack_cooldown_timer = 0.0
-				_cleanup_all_indicators()
-				_state = State.IDLE
-				_current_target = null
-				ability_cancelled.emit("collision")
-				return
+				# ─── Landeflächen-Check vor dem Bounce ───
+				# Absteigende Flughälfte + Boden knapp unter/über new_pos
+				# = das ist eine höhere Ebene, keine Wand → landen statt bouncen.
+				if _launch_progress >= 0.5:
+					var land_ray := PhysicsRayQueryParameters3D.create(
+						new_pos + Vector3(0, landing_snap_height + 0.3, 0),
+						new_pos + Vector3(0, -0.1, 0)
+					)
+					land_ray.collision_mask = _player.collision_mask
+					land_ray.exclude = [_player.get_rid()]
+					var land_hit := space_state.intersect_ray(land_ray)
+					if not land_hit.is_empty():
+						var land_collider = land_hit.get("collider")
+						var land_is_enemy: bool = land_collider is Enemy \
+							or (land_collider != null and is_instance_valid(land_collider) \
+							and (land_collider.is_in_group("enemies") or land_collider.is_in_group("enemy")))
+						if not land_is_enemy:
+							var surf_y: float = land_hit.position.y
+							if surf_y >= new_pos.y - 0.1 and surf_y <= new_pos.y + landing_snap_height:
+								_player.global_position = Vector3(new_pos.x, surf_y + 0.02, new_pos.z)
+								_complete_launch()
+								return
+
+				if bounce_enabled:
+					_start_bounce(new_pos)
+					return
+				else:
+					_face_target(_launch_target_pos)
+					if _player.has_method("_show_idle"):
+						_player._show_idle()
+					if "_attack_cooldown_timer" in _player:
+						_player._attack_cooldown_timer = 0.0
+					_cleanup_all_indicators()
+					_state = State.IDLE
+					_current_target = null
+					ability_cancelled.emit("collision")
+					return
 
 	_player.global_position = new_pos
 

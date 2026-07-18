@@ -13,6 +13,7 @@
 [ext_resource type="Shader" uid="uid://c80sqbj38uerv" path="res://assets/base_tiles/waterfall/waterfall1/waterfall_godray.gdshader" id="11_u7lrm"]
 [ext_resource type="Texture2D" uid="uid://bkofvgwwil4g4" path="res://assets/base_tiles/waterfall/waterfall1/godray_motes.png" id="12_iwsl1"]
 [ext_resource type="Texture2D" uid="uid://cawmr3y6kexk1" path="res://assets/base_tiles/waterfall/waterfall1/godray_streaks.png" id="13_pgh4t"]
+[ext_resource type="AudioStream" uid="uid://bhbpvvt2n2jw3" path="res://assets/audio/sfx/nature/waterfall.mp3" id="14_iwsl1"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_7iart"]
 subdivide_width = 4
@@ -121,7 +122,7 @@ size = Vector2(0.084125, 0.084125)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_kkha8"]
 emission_shape = 3
-emission_box_extents = Vector3(3.0285, 2.186, 0.05)
+emission_box_extents = Vector3(3.0285, 1.458, 0.05)
 velocity_pivot = Vector3(0.5, -1.5, 0.2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jhr4c"]
@@ -176,7 +177,7 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="QuadMesh_r1udh"]
 material = SubResource("StandardMaterial3D_pgh4t")
-size = Vector2(0.10095, 0.10095)
+size = Vector2(0.050475, 0.050475)
 
 [sub_resource type="QuadMesh" id="QuadMesh_80ai0"]
 
@@ -237,6 +238,8 @@ angular_velocity_curve = SubResource("CurveTexture_80ai0")
 gravity = Vector3(0, 0.1, 0)
 damping_min = 0.5
 damping_max = 1.0
+scale_min = 0.29999998
+scale_max = 0.39999998
 scale_curve = SubResource("CurveTexture_r1udh")
 color = Color(0.9490196, 0.96862745, 1, 1)
 alpha_curve = SubResource("CurveTexture_iwsl1")
@@ -327,7 +330,7 @@ process_material = SubResource("ParticleProcessMaterial_jhr4c")
 draw_pass_1 = SubResource("QuadMesh_iwsl1")
 
 [node name="SideSpray" type="GPUParticles3D" parent="." unique_id=108726130]
-transform = Transform3D(0.54615116, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, -0.5)
+transform = Transform3D(0.54615116, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, -0.5)
 amount = 50
 lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_kkha8")
@@ -361,9 +364,8 @@ mesh = SubResource("QuadMesh_80ai0")
 surface_material_override/0 = SubResource("ShaderMaterial_13hcx")
 
 [node name="ImpactMist" type="GPUParticles3D" parent="." unique_id=1870513670]
-transform = Transform3D(0.6501964, 0, 0, 0, 1, 0, 0, 0, 0.5493317, 0, 0.15, -0.2)
-amount = 20
-lifetime = 2.0
+transform = Transform3D(0.3821051, 0, 0, 0, 1, 0, 0, 0, 0.39089382, 0, 0.15, -0.2)
+amount = 60
 speed_scale = 0.5
 process_material = SubResource("ParticleProcessMaterial_pgh4t")
 draw_pass_1 = SubResource("QuadMesh_13hcx")
@@ -376,3 +378,9 @@ surface_material_override/0 = SubResource("ShaderMaterial_a6y8a")
 [node name="OuterFoamHalo" type="MeshInstance3D" parent="." unique_id=912127627]
 transform = Transform3D(4.4, 0, 0, 0, 0.42261824, -3.9877546, 0, 0.9063078, 1.8595203, 0, 0.01, 0)
 mesh = SubResource("PlaneMesh_pgh4t")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1966880118]
+process_mode = 3
+stream = ExtResource("14_iwsl1")
+volume_db = 8.0
+autoplay = true

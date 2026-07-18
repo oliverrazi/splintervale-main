@@ -232,14 +232,6 @@ func _find_player() -> void:
 	# Retry next frame
 	get_tree().process_frame.connect(_find_player, CONNECT_ONE_SHOT)
 
-func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and event.keycode == KEY_F9:
-		print("--- CullMask Debug ---")
-		print("Key cull_mask (binär): ", String.num_int64(_key_light.light_cull_mask, 2))
-		if is_instance_valid(player):
-			for child in player.find_children("*", "VisualInstance3D", true, false):
-				print(child.name, " -> layers (binär): ", String.num_int64(child.layers, 2))
-
 
 ## --- Public API -------------------------------------------------------------
 

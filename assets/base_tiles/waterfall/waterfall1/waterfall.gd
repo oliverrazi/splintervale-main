@@ -168,12 +168,12 @@ func _apply_dimensions() -> void:
 	# === SideSpray: Seitlich entlang des Falls ===
 	if side_spray:
 		# Position: mittig in der Fallhöhe
-		side_spray.position = Vector3(0, waterfall_height * 0.8, -0.5)
+		side_spray.position = Vector3(0, waterfall_height * 0.7, -0.5)
 		var ss_mat := side_spray.process_material as ParticleProcessMaterial
 		if ss_mat:
 			ss_mat.emission_box_extents = Vector3(
 				waterfall_width * 0.9,
-				waterfall_height * 0.4,
+				waterfall_height * 0.2,
 				0.05
 			)
 		var size_factor: float = clamp(waterfall_width * 0.5, 0.5, 2.0)
@@ -187,8 +187,8 @@ func _apply_dimensions() -> void:
 			ib_mat.emission_ring_radius = waterfall_width * 0.3
 			ib_mat.emission_ring_inner_radius = 0.0
 			ib_mat.emission_ring_height = 0.05
-		var size_factor: float = clamp(waterfall_width * 0.5, 0.5, 2.0)
-		_set_particle_quad_size(impact_burst, 0.06 * size_factor)
+		var size_factor: float = clamp(waterfall_width * 0.5,waterfall_height * 0.1, 2.0)
+		_set_particle_quad_size(impact_burst, 0.03 * size_factor)
 	
 	# === ImpactMist: dichte Bodenwolke ===
 	if impact_mist:
@@ -201,7 +201,7 @@ func _apply_dimensions() -> void:
 				waterfall_width * 1.4
 			)
 		# Mist-Puffs skalieren mit Wasserfall-Größe
-		var size_factor: float = clamp(waterfall_width * 0.65,waterfall_width *  1.0, waterfall_width * 0.5)
+		var size_factor: float = clamp(waterfall_width * 0.65,waterfall_width *  1.2, waterfall_width * 0.5)
 		_set_particle_quad_size(impact_mist, 1.0 * size_factor)
 	
 	# === PoolRipples: konzentrische Wellen ===

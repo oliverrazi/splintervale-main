@@ -159,6 +159,7 @@ func _emit_break_dust() -> void:
 		var mat := ShaderMaterial.new()
 		mat.shader = shader
 		mat.set_shader_parameter("opacity", 0.9)
+		mat.set_shader_parameter("roughness", 0.45)
 		mat.set_shader_parameter("noise_offset", Vector2(randf() * 10.0, randf() * 10.0))
 		quad.material_override = mat
 		materials.append(mat)
@@ -236,6 +237,13 @@ func _make_crack_material() -> ShaderMaterial:
 		mat.set_shader_parameter("base_color", sm.albedo_color)
 		if sm.albedo_texture:
 			mat.set_shader_parameter("base_texture", sm.albedo_texture)
+		# PBR-Parameter übernehmen, damit der Deckel optisch zum Nachbarboden passt
+		mat.set_shader_parameter("roughness", sm.roughness)
+		mat.set_shader_parameter("metallic", sm.metallic)
+		if sm.normal_enabled and sm.normal_texture:
+			mat.set_shader_parameter("use_normal_map", true)
+			mat.set_shader_parameter("normal_texture", sm.normal_texture)
+			mat.set_shader_parameter("normal_scale", sm.normal_scale)
 	return mat
 
 
@@ -397,19 +405,13 @@ func _schedule_despawn() -> void:
 
 func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> ArrayMesh:
 	# Dünnes extrudiertes Polygon: obere Cap + Seiten + untere Cap.
+	# Inkl. Tangenten (ARRAY_TANGENT), damit Normal Maps funktionieren.
 	var mesh := ArrayMesh.new()
 	var idx := Geometry2D.triangulate_polygon(poly)
 	if idx.is_empty():
 		return mesh
 
-	# ── Top Cap ──
-	# ── Top Cap ──
-	var tv := PackedVector3Array()
-	var tn := PackedVector3Array()
-	var tuv := PackedVector2Array()
-	var tuv2 := PackedVector2Array()   # NEU: normalisierte UVs für Risse
-
-	# Bounding-Box des Polygons für 0-1 Normalisierung
+	# Bounding-Box des Polygons für 0-1 Normalisierung (UV2 / Risse)
 	var min_p := poly[0]
 	var max_p := poly[0]
 	for p in poly:
@@ -419,18 +421,27 @@ func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> Array
 	span.x = maxf(span.x, 0.0001)
 	span.y = maxf(span.y, 0.0001)
 
+	# ── Top Cap ──
+	var tv := PackedVector3Array()
+	var tn := PackedVector3Array()
+	var tt := PackedFloat32Array()     # Tangenten: 4 Floats pro Vertex
+	var tuv := PackedVector2Array()
+	var tuv2 := PackedVector2Array()   # normalisierte UVs für Risse
+
 	for p in poly:
 		tv.append(Vector3(p.x, y, p.y))
 		tn.append(Vector3.UP)
+		# UV: u wächst mit +X, v mit +Z → Tangente +X, Binormale +Z ⇒ w = -1
+		tt.append(1.0); tt.append(0.0); tt.append(0.0); tt.append(-1.0)
 		tuv.append(Vector2(p.x, p.y) * 0.25)
-		# normalisiert 0-1 über den Deckel
 		tuv2.append(Vector2((p.x - min_p.x) / span.x, (p.y - min_p.y) / span.y))
 	var top_arr := []
 	top_arr.resize(Mesh.ARRAY_MAX)
 	top_arr[Mesh.ARRAY_VERTEX] = tv
 	top_arr[Mesh.ARRAY_NORMAL] = tn
+	top_arr[Mesh.ARRAY_TANGENT] = tt
 	top_arr[Mesh.ARRAY_TEX_UV] = tuv
-	top_arr[Mesh.ARRAY_TEX_UV2] = tuv2   # NEU
+	top_arr[Mesh.ARRAY_TEX_UV2] = tuv2
 	top_arr[Mesh.ARRAY_INDEX] = idx
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, top_arr)
 	if top_material:
@@ -439,6 +450,7 @@ func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> Array
 	# ── Seiten + Bottom in einer zweiten Surface ──
 	var sv := PackedVector3Array()
 	var sn := PackedVector3Array()
+	var st := PackedFloat32Array()
 	var suv := PackedVector2Array()
 	var si := PackedInt32Array()
 	var pc := poly.size()
@@ -449,6 +461,10 @@ func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> Array
 		var mid := (a + b) * 0.5
 		var outward := (mid - center).normalized()
 		var normal := Vector3(outward.x, 0, outward.y)
+		# Tangente entlang der Kante (u-Richtung), Binormale soll nach unten
+		# zeigen (v wächst nach unten) → w-Vorzeichen daraus ableiten.
+		var edge_dir := Vector3(b.x - a.x, 0.0, b.y - a.y).normalized()
+		var w := 1.0 if normal.cross(edge_dir).dot(Vector3.DOWN) > 0.0 else -1.0
 		var tl := Vector3(a.x, y, a.y)
 		var tr := Vector3(b.x, y, b.y)
 		var bl := Vector3(a.x, y - depth, a.y)
@@ -457,6 +473,7 @@ func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> Array
 		sv.append(tl); sv.append(tr); sv.append(bl); sv.append(br)
 		for _k in range(4):
 			sn.append(normal)
+			st.append(edge_dir.x); st.append(edge_dir.y); st.append(edge_dir.z); st.append(w)
 		suv.append(Vector2(0, 0)); suv.append(Vector2(1, 0))
 		suv.append(Vector2(0, 1)); suv.append(Vector2(1, 1))
 		si.append(base + 0); si.append(base + 2); si.append(base + 1)
@@ -467,8 +484,9 @@ func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> Array
 	for p in poly:
 		sv.append(Vector3(p.x, y - depth, p.y))
 		sn.append(Vector3.DOWN)
+		# N = DOWN, T = +X, v wächst mit +Z → cross(N,T) = +Z ⇒ w = +1
+		st.append(1.0); st.append(0.0); st.append(0.0); st.append(1.0)
 		suv.append(Vector2(p.x, p.y) * 0.25)
-	# umgekehrte Winding für nach unten zeigende Fläche
 	for t in range(0, idx.size(), 3):
 		si.append(bottom_base + idx[t])
 		si.append(bottom_base + idx[t + 2])
@@ -478,6 +496,7 @@ func _build_slab_mesh(poly: PackedVector2Array, y: float, depth: float) -> Array
 	side_arr.resize(Mesh.ARRAY_MAX)
 	side_arr[Mesh.ARRAY_VERTEX] = sv
 	side_arr[Mesh.ARRAY_NORMAL] = sn
+	side_arr[Mesh.ARRAY_TANGENT] = st
 	side_arr[Mesh.ARRAY_TEX_UV] = suv
 	side_arr[Mesh.ARRAY_INDEX] = si
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, side_arr)
