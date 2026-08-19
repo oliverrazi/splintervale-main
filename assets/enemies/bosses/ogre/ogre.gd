@@ -49,6 +49,7 @@ var _armor: int
 @export var roar_vfx_scene: PackedScene              # Cone Richtung Kamera (baust du)
 @export var roar_vfx_height: float = 1.0
 @export var roar_sound: AudioStream
+@export var armor_break_music_fade: float = 0.8
 var _roar_vfx_done: bool = false
 
 @export_group("Armor Break Cutscene")
@@ -56,7 +57,6 @@ var _roar_vfx_done: bool = false
 @export var roar_shake_strength: float = 0.22
 @export var roar_shake_duration: float = 0.7
 @export var cutscene_zoom: float = 0.9    
-var _phase2_zone = null
 
 
 
@@ -78,6 +78,8 @@ var _cs_mount: Node3D = null
 var _cs_cam: Camera3D = null
 var _prev_cam: Camera3D = null
 var _roar_shake_time: float = 0.0
+
+const BOSS_MUSIC_OWNER := "boss"
 
 @export_group("Facing Style")
 @export var angled_sideview: bool = true
@@ -342,8 +344,7 @@ var _state_timer: float = 0.0
 
 var _arena_active: bool = false
 @onready var _boss_bar: Node = $BossHealthBar 
-var _boss_zone = null
-var _intro_zone = null
+
 
 var _intro_done: bool = false
 var _intro_running: bool = false
@@ -1158,44 +1159,37 @@ func _on_arena_exit() -> void:
 		_boss_bar.vanish()
 		
 func _start_intro_music() -> void:
-	if intro_music == null or MusicManager == null:
+	if intro_music == null:
 		return
-
-	if _intro_zone == null:
-		_intro_zone = MusicZone.new()
-		_intro_zone.music_track = intro_music
-		_intro_zone.zone_priority = intro_music_priority
-		_intro_zone.crossfade_duration = intro_music_crossfade
-
-	MusicManager.enter_zone(_intro_zone)
+	MusicManager.push_music(BOSS_MUSIC_OWNER, intro_music,
+		intro_music_priority, intro_music_crossfade)
 
 
 func _stop_intro_music() -> void:
-	if _intro_zone and MusicManager:
-		_intro_zone.crossfade_duration = intro_to_boss_music_crossfade
-		MusicManager.exit_zone(_intro_zone)
+	pass
 
 
 func _transition_intro_music_to_boss_music() -> void:
-	_stop_intro_music()
-	_start_boss_music()
+	# Track-Wechsel innerhalb desselben Owners → fällt NIE auf die
+	# Overworld-Zone zurück, auch nicht in einer Timing-Lücke.
+	if boss_music == null:
+		return
+	MusicManager.push_music(BOSS_MUSIC_OWNER, boss_music,
+		boss_music_priority, intro_to_boss_music_crossfade)
 
 
 func _start_boss_music() -> void:
-	if boss_music == null or MusicManager == null:
+	if boss_music == null:
 		return
-	if _boss_zone == null:
-		_boss_zone = MusicZone.new()
-		_boss_zone.music_track = boss_music
-		_boss_zone.zone_priority = boss_music_priority
-		_boss_zone.crossfade_duration = boss_music_crossfade
-	MusicManager.enter_zone(_boss_zone)
+	MusicManager.push_music(BOSS_MUSIC_OWNER, boss_music,
+		boss_music_priority, boss_music_crossfade)
+
 
 func _stop_boss_music() -> void:
-	if _boss_zone and MusicManager:
-		MusicManager.exit_zone(_boss_zone)
-	if _phase2_zone and MusicManager: 
-		MusicManager.exit_zone(_phase2_zone)
+	MusicManager.pop_music(BOSS_MUSIC_OWNER)
+
+
+
 
 func _update_boss_bar() -> void:
 	if _boss_bar and _boss_bar.has_method("set_health"):
@@ -1651,8 +1645,9 @@ func _enter_armor_break_sit() -> void:
 	velocity = Vector3.ZERO
 	_face_camera()
 	_play_anim(armor_break_sit_anim, 1.0)
-	_stop_boss_music()
-	_camera_focus(true)     # Kamera gleitet schon zum Oger – ohne Freeze
+	# Dramatische Pause: Boss-Owner hält Stille, Overworld blitzt nicht durch.
+	MusicManager.push_silence(BOSS_MUSIC_OWNER, boss_music_priority, armor_break_music_fade)
+	_camera_focus(true)
 
 func _process_armor_break_sit(delta: float) -> void:
 	velocity.x = 0.0
@@ -1841,14 +1836,10 @@ func _get_camera_pan_position_for_focus(focus: Vector3) -> Vector3:
 	return cam_pos + pan_delta
 
 func _start_phase2_music() -> void:
-	if phase2_boss_music == null or MusicManager == null:
+	if phase2_boss_music == null:
 		return
-	if _phase2_zone == null:
-		_phase2_zone = MusicZone.new()
-		_phase2_zone.music_track = phase2_boss_music
-		_phase2_zone.zone_priority = boss_music_priority + 10   # schlägt Boss-Zone
-		_phase2_zone.crossfade_duration = boss_music_crossfade
-	MusicManager.enter_zone(_phase2_zone)
+	MusicManager.push_music(BOSS_MUSIC_OWNER, phase2_boss_music,
+		boss_music_priority, 0.0) 
 	
 func vector_anchor_blocks() -> bool:
 	return _is_phase2() and not _is_dead and not _in_armor_break() and not _in_finisher
@@ -1897,7 +1888,8 @@ func _die() -> void:
 		return
 	if _finisher_director and _finisher_director.has_method("start_finisher"):
 		_in_finisher = true
-		_stop_boss_music()
+		# _stop_boss_music() hier ENTFERNT — Boss-Owner bleibt aktiv,
+		# damit der Finisher/das Outro nahtlos übernehmen kann.
 		_finisher_director.start_finisher(self, _get_player())
 		await _finisher_director.finisher_complete
 		_in_finisher = false
@@ -1997,6 +1989,8 @@ func _spawn_death_scene(scene: PackedScene) -> Node3D:
 
 	return inst
 
+func play_outro_music(track: AudioStream) -> void:
+	MusicManager.push_music(BOSS_MUSIC_OWNER, track, boss_music_priority, 1.0)
 
 func _start_generic_death_vfx(inst: Node3D) -> void:
 	for ap in inst.find_children("*", "AnimationPlayer", true, false):

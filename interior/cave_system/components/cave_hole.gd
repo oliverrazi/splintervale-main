@@ -21,9 +21,9 @@ func get_hole_polygon() -> PackedVector2Array:
 	var result := PackedVector2Array()
 	for child in get_children():
 		if child is Marker3D:
-			# Position relativ zum PARENT (CavePiece), inkl. eigener Node-Position
-			var world_offset : Variant= position + child.position
-			result.append(Vector2(world_offset.x, world_offset.z))
+			# Transform des CaveHole korrekt anwenden (Rotation + Skalierung!)
+			var local_in_parent: Vector3 = transform * child.position
+			result.append(Vector2(local_in_parent.x, local_in_parent.z))
 	return result
 
 

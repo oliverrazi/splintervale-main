@@ -466,6 +466,9 @@ func _find_chain_target() -> Node3D:
 				continue
 			if node.has_method("is_vector_anchor_targetable") and not node.is_vector_anchor_targetable():
 				continue
+				
+			if node.has_method("is_vector_anchor_chainable") and not node.is_vector_anchor_chainable():
+				continue
 
 			var target_pos: Vector3 = _get_target_anchor_position(node)
 			var to_target: Vector3 = target_pos - origin

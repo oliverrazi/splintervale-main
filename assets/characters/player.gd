@@ -79,15 +79,17 @@ var _is_holding_item: bool = false
 
 @export_group("Fall Recovery")
 @export var fall_hp_loss_percent: float = 0.1  # 10%
-@export var safe_position_update_interval: float = 0.2
 @export var fall_respawn_invincibility: float = 1.5
 @export var drown_duration: float = 0.7
 @export var drown_flip_interval: float = 0.1
 @export var drown_frame: int = 92
 @export var splash_vfx_scene: PackedScene
+@export var safe_position_setback: float = 0.4
+
+@export_group("Platform Carry")
+@export var platform_carry_reach: float = 0.35
 
 var _last_safe_position: Vector3
-var _safe_position_timer: float = 0.0
 
 var _is_drowning: bool = false
 var _drown_timer: float = 0.0
@@ -163,10 +165,15 @@ var _safe_position_locked: bool = false
 @onready var dodge_component: DodgeComponent = $DodgeComponent
 @onready var vector_anchor: VectorAnchorComponent = $VectorAnchorComponent
 @onready var sword: SwordComponent = $SwordComponent
+@onready var ladder_component: LadderComponent = $LadderComponent
+@onready var synergy_manager: SynergyManager = get_node_or_null("SynergyManager")
+
 
 
 func _ready() -> void:
 	add_to_group("player")
+	if synergy_manager and not synergy_manager.resonance_refunded.is_connected(_on_resonance_refunded):
+		synergy_manager.resonance_refunded.connect(_on_resonance_refunded)
 	_last_safe_position = global_position
 	#GOD-MODE
 	#GameManager.player_data.add_exp(99999999)
@@ -251,6 +258,42 @@ func _spawn_levelup_popup(new_level: int) -> void:
 	else:
 		get_tree().create_timer(2.0).timeout.connect(popup.queue_free)
 
+func _on_resonance_refunded(amount: int) -> void:
+	if GameManager == null or GameManager.player_data == null:
+		return
+	var pd: PlayerData = GameManager.player_data
+	pd.current_resonance = min(pd.max_resonance, pd.current_resonance + float(amount))
+	pd.resonance_changed.emit(int(pd.current_resonance), pd.max_resonance)
+	_spawn_resonance_gain_popup(amount)
+
+
+func _spawn_resonance_gain_popup(amount: int) -> void:
+	if amount <= 0 or head_anchor == null:
+		return
+	var label := Label3D.new()
+	label.text = "+%d RP" % amount
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.fixed_size = true
+	label.pixel_size = 0.0002          # ← Größe tunen (miniature scale!)
+	label.font_size = 56
+	label.outline_size = 10
+	label.modulate = Color(0.7, 0.9, 1.0, 1.0)          # Resonanz-Blau
+	label.outline_modulate = Color(0.02, 0.05, 0.12, 1.0)
+	label.render_priority = 20
+	label.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
+	get_tree().current_scene.add_child(label)
+
+	var start_pos: Vector3 = head_anchor.global_position + Vector3(0.0, 0.12, 0.0)
+	label.global_position = start_pos
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "global_position", start_pos + Vector3(0.0, 0.22, 0.0), 0.9) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(label, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN).set_delay(0.35)
+	tween.tween_property(label, "outline_modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN).set_delay(0.35)
+	tween.chain().tween_callback(label.queue_free)
 
 func set_frozen(frozen: bool) -> void:
 	_is_frozen = frozen
@@ -281,9 +324,14 @@ func _physics_process(delta: float) -> void:
 	if _is_launched:
 		_process_launch(delta)
 		return
+		
+	if ladder_component and ladder_component.is_active():
+		ladder_component.process_climb(delta)
+		return
 
 	if GameManager and GameManager.player_data:
-		GameManager.player_data.process_regeneration(delta)
+		var in_combat: bool = CombatManager.is_in_combat() if has_node("/root/CombatManager") else false
+		GameManager.player_data.process_regeneration(delta, in_combat)
 		
 	_update_hand_visibility() 
 
@@ -291,12 +339,14 @@ func _physics_process(delta: float) -> void:
 		if not is_on_floor():
 			velocity.y -= gravity * delta
 		move_and_slide()
+		_apply_platform_carry(delta)
 		return
 	
 	if dodge_component and dodge_component.is_dodging():
 		# Während Dodge: Schwert-Taste prüfen → Spin-Combo
 		_check_sword_spin_input()
 		move_and_slide()
+		_apply_platform_carry(delta) 
 		return
 
 	if vector_anchor and vector_anchor.is_active():
@@ -339,6 +389,10 @@ func _physics_process(delta: float) -> void:
 	var input_dir: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if input_dir.length_squared() > 0.01:
 		input_dir = input_dir.normalized()
+	
+	if ladder_component and not _is_action_locked():
+		if ladder_component.try_mount(input_dir):
+			return
 
 	var yaw: float = $SpringArm3D.rotation.y
 	var forward := Vector3(sin(yaw), 0, cos(yaw))
@@ -361,6 +415,8 @@ func _physics_process(delta: float) -> void:
 	_recover_from_stuck()
 	
 	move_and_slide()
+	
+	_apply_platform_carry(delta)  
 
 	if step_up:
 		step_up.try_step_up(delta)
@@ -373,6 +429,42 @@ func _physics_process(delta: float) -> void:
 	else:
 		_update_animation(input_dir, delta)
 
+func _apply_platform_carry(delta: float) -> void:
+	# Kein is_on_floor()-Gate mehr: beim Schaukeln verliert der Fuß kurz Kontakt,
+	# das Gate würde den Carry genau dann abwürgen. Der Ray unten mit Toleranz
+	# entscheidet zuverlässig, ob wir auf der Plattform stehen.
+	var platform := _get_carrying_platform()
+	if platform == null:
+		return
+	var carry: Vector3 = platform.get_drift_velocity()
+	global_position += Vector3(carry.x, 0.0, carry.z) * delta
+
+
+func _get_carrying_platform() -> Node:
+	var space := get_world_3d().direct_space_state
+	var from := global_position + Vector3(0.0, 0.1, 0.0)
+	var to := global_position - Vector3(0.0, platform_carry_reach, 0.0)
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	var hit := space.intersect_ray(query)
+	if hit.is_empty():
+		return null
+	var node := hit.get("collider") as Node
+	# Vom Collider nach oben suchen, bis eine FloatingPlatform gefunden wird.
+	while node != null:
+		if node.has_method("get_drift_velocity"):
+			return node
+		node = node.get_parent()
+	return null
+
+func _get_floor_collider() -> Object:
+	for i in range(get_slide_collision_count()):
+		var col := get_slide_collision(i)
+		# Nur echte Böden (nach oben zeigende Normale) zählen.
+		if col.get_normal().y > 0.5:
+			return col.get_collider()
+	return null
 
 func _do_charge_movement(delta: float) -> void:
 	# Schwerkraft beibehalten (falls auf Slope/in Luft)
@@ -404,6 +496,7 @@ func _do_charge_movement(delta: float) -> void:
 	_last_dir_mode = vector_anchor.get_charge_locked_dir_mode()
 
 	move_and_slide()
+	_apply_platform_carry(delta) 
 	
 # ─── Vector Anchor ───
 
@@ -562,6 +655,8 @@ func reset_death_state() -> void:
 		vector_anchor.cancel()
 	if sword:
 		sword.cancel()
+	if ladder_component and ladder_component.is_active():
+		ladder_component.cancel()
 
 	_show_idle()
 
@@ -612,10 +707,14 @@ func take_damage(amount: int, from_position: Vector3) -> void:
 		return
 	if _invincibility_timer > 0.0:
 		return
+	if ladder_component and ladder_component.is_active():
+		ladder_component.cancel()
 	if vector_anchor and vector_anchor.is_charging():
 		vector_anchor.cancel()
 
 	GameManager.player_data.take_damage(amount)
+	if synergy_manager:
+		synergy_manager.on_player_hit()
 
 	var knockback_dir := (global_position - from_position).normalized()
 	knockback_dir.y = 0
@@ -1059,10 +1158,8 @@ func unlock_safe_position() -> void:
 	_safe_position_locked = false
 
 
-func _update_safe_position(delta: float) -> void:
-	if _safe_position_locked:   # ← NEU
-		return
-	if not is_on_floor():
+func _update_safe_position(_delta: float) -> void:
+	if _safe_position_locked:
 		return
 	if _is_knocked_back or _is_hurt_flashing:
 		return
@@ -1072,20 +1169,58 @@ func _update_safe_position(delta: float) -> void:
 		return
 	if sword_spin and sword_spin.is_spinning():
 		return
-	if _is_standing_on_unsafe_floor():   # ← NEU
+	if ladder_component and ladder_component.is_active():
 		return
 
-	_safe_position_timer -= delta
-	if _safe_position_timer <= 0.0:
-		_last_safe_position = global_position
-		_safe_position_timer = safe_position_update_interval
+	var ground := _ground_collider_at(global_position)
+	if ground == null:
+		return
+	if _collider_or_ancestor_has_method(ground, "get_drift_velocity"):
+		return  # bewegliche Plattform -> nie speichern
+	if _collider_or_ancestor_in_group(ground, "unsafe_floor"):
+		return
 
-func _is_standing_on_unsafe_floor() -> bool:
-	for i in range(get_slide_collision_count()):
-		var col := get_slide_collision(i)
-		var collider := col.get_collider()
-		if collider and collider.is_in_group("unsafe_floor"):
+	var candidate := global_position
+
+	var h_vel := Vector2(velocity.x, velocity.z)
+	if h_vel.length_squared() > 0.25:   # winzige Deadzone gegen Zittern
+		var back := -Vector3(velocity.x, 0.0, velocity.z).normalized()
+		var shifted := global_position + back * safe_position_setback
+		var shifted_ground := _ground_collider_at(shifted)
+		if shifted_ground != null \
+		and not _collider_or_ancestor_has_method(shifted_ground, "get_drift_velocity") \
+		and not _collider_or_ancestor_in_group(shifted_ground, "unsafe_floor"):
+			candidate = Vector3(shifted.x, global_position.y, shifted.z)
+
+	_last_safe_position = candidate
+	
+func _ground_collider_at(xz: Vector3) -> Node:
+	# Ray nach unten an beliebiger X/Z-Stelle, Y-Referenz = aktuelle Player-Höhe.
+	var space := get_world_3d().direct_space_state
+	var from := Vector3(xz.x, global_position.y + 0.1, xz.z)
+	var to := Vector3(xz.x, global_position.y - platform_carry_reach, xz.z)
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	var hit := space.intersect_ray(query)
+	if hit.is_empty():
+		return null
+	return hit.get("collider") as Node
+
+
+func _collider_or_ancestor_has_method(node: Node, method_name: String) -> bool:
+	while node != null:
+		if node.has_method(method_name):
 			return true
+		node = node.get_parent()
+	return false
+
+
+func _collider_or_ancestor_in_group(node: Node, group_name: String) -> bool:
+	while node != null:
+		if node.is_in_group(group_name):
+			return true
+		node = node.get_parent()
 	return false
 
 func respawn_after_fall() -> void:
@@ -1109,6 +1244,8 @@ func respawn_after_fall() -> void:
 		sword.cancel()
 	if sword_spin and sword_spin.is_spinning():
 		sword_spin.cancel() if sword_spin.has_method("cancel") else null
+	if ladder_component and ladder_component.is_active():
+		ladder_component.cancel()
 	
 	# Sprite auf Drown-Pose
 	character.frame = drown_frame
@@ -1142,7 +1279,7 @@ func _finish_drowning() -> void:
 		return
 
 	# Teleport an sichere Position
-	global_position = _last_safe_position
+	global_position = _resolve_safe_respawn_position()
 	velocity = Vector3.ZERO
 
 	# Invincibility nach Respawn
@@ -1158,6 +1295,22 @@ func _finish_drowning() -> void:
 	_show_idle()
 	unlock_safe_position()  
 	
+func _resolve_safe_respawn_position() -> Vector3:
+	var space := get_world_3d().direct_space_state
+	var from := _last_safe_position + Vector3(0.0, 1.0, 0.0)
+	var to := _last_safe_position - Vector3(0.0, 2.0, 0.0)
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	var hit := space.intersect_ray(query)
+	if hit.is_empty():
+		return _last_safe_position
+	var ground_y: float = hit.position.y
+	if absf(ground_y - _last_safe_position.y) > 1.0:
+		return _last_safe_position
+	return Vector3(_last_safe_position.x, ground_y + 0.02, _last_safe_position.z)
+
+
 func _spawn_splash_vfx() -> void:
 	if splash_vfx_scene == null:
 		_spawn_inline_splash()  # dein bestehender Fallback
@@ -1418,6 +1571,7 @@ func set_cinematic_mode(active: bool) -> void:
 	if active:
 		if sword and sword.has_method("cancel") and sword.is_attacking(): sword.cancel()
 		if vector_anchor and vector_anchor.is_active(): vector_anchor.cancel()
+		if ladder_component and ladder_component.is_active(): ladder_component.cancel()
 		velocity = Vector3.ZERO
 		_is_knocked_back = false
 		set_frozen(true)
@@ -1491,6 +1645,33 @@ func cinematic_walk_to(target: Vector3, speed: float, anim_speed_scale: float = 
 	_anim_time = 0.0
 	_show_idle()
  
+func cinematic_run_to(target: Vector3, speed: float, anim_speed_scale: float = 1.0) -> void:
+	var start := global_position
+	var flat := target - start
+	flat.y = 0.0
+	if flat.length() < 0.001:
+		return
+
+	cinematic_face(flat.normalized())
+	var dist := flat.length()
+	var duration := dist / maxf(speed, 0.01)
+
+	_is_moving = true
+	_anim_time = 0.0
+	var elapsed := 0.0
+	while elapsed < duration:
+		var dt := get_process_delta_time()
+		elapsed += dt
+		var k: float = clampf(elapsed / duration, 0.0, 1.0)
+		var e: float = k * k * (3.0 - 2.0 * k)
+		global_position = start.lerp(target, e)
+		_animate_run_8dir(dt * anim_speed_scale)
+		await get_tree().process_frame
+
+	global_position = target
+	_is_moving = false
+	_anim_time = 0.0
+	_show_idle()
  
 # --- Silhouette: Sprite stark abdunkeln / wiederherstellen -----------
 func cinematic_set_dark(color: Color) -> void:

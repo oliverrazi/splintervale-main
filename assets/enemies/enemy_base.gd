@@ -14,6 +14,7 @@ class_name Enemy
 @export_group("Detection")
 @export var detection_range: float = 5.0
 @export var lose_interest_range: float = 12.0
+@export var max_height_difference: float = 0.75 
 @export var freeze_distance: float = 17.0
 @export var unfreeze_distance: float = 17.0
 
@@ -868,6 +869,13 @@ func get_player() -> Node3D:
 	if _player_ref == null or not is_instance_valid(_player_ref):
 		_player_ref = get_tree().get_first_node_in_group("player")
 	return _player_ref
+	
+func _is_within_height(target: Node3D) -> bool:
+	if max_height_difference <= 0.0:
+		return true
+	if target == null or not is_instance_valid(target):
+		return false
+	return absf(global_position.y - target.global_position.y) <= max_height_difference
 	
 
 func _exit_tree() -> void:

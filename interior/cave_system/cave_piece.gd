@@ -584,48 +584,154 @@ func _point_to_segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var closest := a + ab * t
 	return p.distance_to(closest)
 	
-# ─── NEU: Triangulation einer Cap MIT Löchern ───
 func _triangulate_with_holes(outer: PackedVector2Array,
 		holes: Array) -> Dictionary:
-	# Gibt {verts: PackedVector2Array, indices: PackedInt32Array} zurück.
-	# Wenn keine Löcher: normale Triangulation.
 	if holes.is_empty():
 		return {
 			"verts": outer,
 			"indices": Geometry2D.triangulate_polygon(outer),
 		}
 
-	# Loch-Polygone einsammeln
-	var hole_polys: Array[PackedVector2Array] = []
+	# Alle Löcher in EINEM Boolean-Durchgang aus dem Boden stanzen.
+	# clip_polygons normalisiert Wicklung selbst und liefert bei
+	# innenliegenden Löchern Außenkontur (CCW) + Loch-Ring (CW).
+	var contours: Array[PackedVector2Array] = [outer]
 	for h in holes:
 		var hp: PackedVector2Array = h["polygon"]
-		# Loch muss entgegengesetzt zum äußeren Polygon orientiert sein
-		if Geometry2D.is_polygon_clockwise(hp) == Geometry2D.is_polygon_clockwise(outer):
-			hp.reverse()
-		hole_polys.append(hp)
+		var next: Array[PackedVector2Array] = []
+		for c in contours:
+			var res := Geometry2D.clip_polygons(c, hp)
+			for r in res:
+				next.append(r)
+		contours = next
 
-	# Brücken-Verfahren: jedes Loch über eine Brücke ans äußere Polygon nähen.
-	var merged: PackedVector2Array = _stitch_holes(outer, hole_polys)
+	# Outer-Ring (größte Fläche) vom Rest trennen. Alle anderen sind Löcher.
+	var outer_idx := 0
+	var max_area := -1.0
+	for i in range(contours.size()):
+		var a := _signed_area(contours[i])
+		if absf(a) > max_area:
+			max_area = absf(a)
+			outer_idx = i
+
+	var outer_ring: PackedVector2Array = contours[outer_idx]
+	var hole_rings: Array[PackedVector2Array] = []
+	for i in range(contours.size()):
+		if i != outer_idx:
+			hole_rings.append(contours[i])
+
+	return _triangulate_ringed(outer_ring, hole_rings)
+
+
+func _signed_area(poly: PackedVector2Array) -> float:
+	var area := 0.0
+	var n := poly.size()
+	for i in range(n):
+		var a := poly[i]
+		var b := poly[(i + 1) % n]
+		area += a.x * b.y - b.x * a.y
+	return area * 0.5
+
+
+func _triangulate_ringed(outer_ring: PackedVector2Array,
+		hole_rings: Array[PackedVector2Array]) -> Dictionary:
+	# Outer CCW, Löcher CW erzwingen (das erwartet der Ohr-Verketter).
+	if _signed_area(outer_ring) < 0.0:
+		outer_ring.reverse()
+	for i in range(hole_rings.size()):
+		if _signed_area(hole_rings[i]) > 0.0:
+			hole_rings[i].reverse()
+
+	# Jedes Loch über eine Brücke zum nächstgelegenen Outer-Punkt einnähen —
+	# ABER die Brücke wird gegen alle bereits gelegten Brücken auf Schnitt
+	# geprüft. Das ist der Schritt, der beim alten _stitch_holes fehlte und
+	# der die Reihenfolge-abhängigen Kreuzungen erzeugt hat.
+	var merged: PackedVector2Array = outer_ring.duplicate()
+	var bridges: Array = []   # Array von [Vector2, Vector2] zum Schnitt-Check
+
+	for ring in hole_rings:
+		var beste_brücke := _finde_kreuzungsfreie_bruecke(merged, ring, bridges)
+		if beste_brücke.is_empty():
+			push_error("CavePiece '%s': kein kreuzungsfreier Brückenpunkt für ein Loch gefunden." % name)
+			continue
+		var mi: int = beste_brücke["merged_idx"]
+		var hi: int = beste_brücke["hole_idx"]
+
+		var neu := PackedVector2Array()
+		for k in range(mi + 1):
+			neu.append(merged[k])
+		for k in range(ring.size() + 1):
+			neu.append(ring[(hi + k) % ring.size()])
+		neu.append(merged[mi])
+		for k in range(mi + 1, merged.size()):
+			neu.append(merged[k])
+
+		bridges.append([merged[mi], ring[hi]])
+		merged = neu
+
 	var indices := Geometry2D.triangulate_polygon(merged)
+	if indices.is_empty():
+		push_error("CavePiece '%s': triangulate_polygon nach Verkettung leer." % name)
 
-	# Triangle-Filtering: Dreiecke, deren Schwerpunkt IN einem Loch liegt, raus
-	var filtered := PackedInt32Array()
-	for t in range(0, indices.size(), 3):
-		var p0 := merged[indices[t]]
-		var p1 := merged[indices[t + 1]]
-		var p2 := merged[indices[t + 2]]
-		var centroid := (p0 + p1 + p2) / 3.0
-		var in_hole := false
-		for hp in hole_polys:
-			if Geometry2D.is_point_in_polygon(centroid, hp):
-				in_hole = true
+	return { "verts": merged, "indices": indices }
+
+
+func _finde_kreuzungsfreie_bruecke(merged: PackedVector2Array,
+		ring: PackedVector2Array, bestehende: Array) -> Dictionary:
+	# Alle Brücken-Kandidaten nach Länge sortiert durchgehen, die erste
+	# nehmen, die keine bestehende Brücke und keine Polygonkante schneidet.
+	var kandidaten: Array = []
+	for mi in range(merged.size()):
+		for hi in range(ring.size()):
+			kandidaten.append({
+				"merged_idx": mi, "hole_idx": hi,
+				"dist": merged[mi].distance_squared_to(ring[hi]),
+			})
+	kandidaten.sort_custom(func(a, b): return a["dist"] < b["dist"])
+
+	for kand in kandidaten:
+		var pm: Vector2 = merged[kand["merged_idx"]]
+		var ph: Vector2 = ring[kand["hole_idx"]]
+		var frei := true
+
+		# Gegen bestehende Brücken prüfen
+		for br in bestehende:
+			if _segmente_kreuzen(pm, ph, br[0], br[1]):
+				frei = false
 				break
-		if not in_hole:
-			filtered.append(indices[t])
-			filtered.append(indices[t + 1])
-			filtered.append(indices[t + 2])
+		if not frei:
+			continue
 
-	return { "verts": merged, "indices": filtered }
+		# Gegen Kanten des merged-Polygons prüfen (außer die am Brückenpunkt)
+		for i in range(merged.size()):
+			var a := merged[i]
+			var b := merged[(i + 1) % merged.size()]
+			if a == pm or b == pm:
+				continue
+			if _segmente_kreuzen(pm, ph, a, b):
+				frei = false
+				break
+		if not frei:
+			continue
+
+		# Gegen Kanten des Loch-Rings prüfen (außer die am Loch-Brückenpunkt)
+		for i in range(ring.size()):
+			var a := ring[i]
+			var b := ring[(i + 1) % ring.size()]
+			if a == ph or b == ph:
+				continue
+			if _segmente_kreuzen(pm, ph, a, b):
+				frei = false
+				break
+		if frei:
+			return kand
+
+	return {}
+
+
+func _segmente_kreuzen(a1: Vector2, a2: Vector2, b1: Vector2, b2: Vector2) -> bool:
+	var r :Variant = Geometry2D.segment_intersects_segment(a1, a2, b1, b2)
+	return r != null
 
 # ─── NEU: Lochwände (nach unten extrudiert, Normalen nach innen) ───
 func _add_hole_walls(mesh: ArrayMesh, holes: Array) -> void:
@@ -705,46 +811,7 @@ func _add_hole_walls(mesh: ArrayMesh, holes: Array) -> void:
 		mesh.surface_set_material(surf_idx,
 			wall_mat if wall_mat else (side_material if side_material else _default_mat(Color(0.15, 0.12, 0.1))))
 
-# ─── NEU: Löcher über Brücken ins äußere Polygon einnähen ───
-func _stitch_holes(outer: PackedVector2Array,
-		holes: Array[PackedVector2Array]) -> PackedVector2Array:
-	# Vereinfachtes Brücken-Stitching: verbindet jedes Loch mit dem äußeren
-	# Polygon über den nächstgelegenen Punkt. Für konvexe/leicht konkave
-	# Höhlenböden robust genug.
-	var result := outer.duplicate()
 
-	for hole in holes:
-		# Finde das Punktpaar (outer_i, hole_j) mit minimaler Distanz
-		var best_outer := 0
-		var best_hole := 0
-		var best_dist := INF
-		for oi in range(result.size()):
-			for hj in range(hole.size()):
-				var d := result[oi].distance_squared_to(hole[hj])
-				if d < best_dist:
-					best_dist = d
-					best_outer = oi
-					best_hole = hj
-
-		# Brücke einfügen: outer[...best_outer] + hole-loop ab best_hole
-		# + zurück zur Brücke + Rest von outer
-		var bridged := PackedVector2Array()
-		for i in range(best_outer + 1):
-			bridged.append(result[i])
-		# Loch im Kreis ab best_hole durchlaufen
-		for k in range(hole.size() + 1):
-			var idx := (best_hole + k) % hole.size()
-			bridged.append(hole[idx])
-		# zurück zum Brücken-Startpunkt am äußeren Polygon
-		bridged.append(result[best_outer])
-		# Rest des äußeren Polygons
-		for i in range(best_outer + 1, result.size()):
-			bridged.append(result[i])
-
-		result = bridged
-
-	return result
-	
 func _collect_holes() -> Array:
 	var holes := []
 	for child in get_children():

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://c8t264h30tdxp"]
+
+[ext_resource type="ArrayMesh" uid="uid://demu0cmroidu8" path="res://assets/base_tiles/cave_texture/boulders/boulder1.res" id="1_s6gip"]
+
+[node name="Boulder1" type="MeshInstance3D" unique_id=524052591]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+mesh = ExtResource("1_s6gip")

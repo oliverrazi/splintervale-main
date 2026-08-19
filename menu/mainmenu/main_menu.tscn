@@ -13,7 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://jshv8qvs86vn" path="res://assets/decoration/griffin/menu-griffin.tscn" id="10_o6okc"]
 [ext_resource type="PackedScene" uid="uid://b8mf8juvjuq0b" path="res://assets/base_tiles/trees/pinetree5.tscn" id="10_pfmj8"]
 [ext_resource type="Texture2D" uid="uid://cwq2pqdfke1oa" path="res://menu/mainmenu/griffinblade6.png" id="11_8rv8s"]
-[ext_resource type="AudioStream" uid="uid://ddixwky0jfybg" path="res://assets/audio/music/The Griffonblade Saga.mp3" id="13_1vfm6"]
+[ext_resource type="AudioStream" uid="uid://j1wjsmssiqlp" path="res://assets/audio/music/griffinblade-intro.mp3" id="14_g44bh"]
 
 [sub_resource type="Gradient" id="Gradient_wukud"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -624,7 +624,7 @@ custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1143094838]
-stream = ExtResource("13_1vfm6")
+stream = ExtResource("14_g44bh")
 volume_db = -4.402
 autoplay = true
 playback_type = 1

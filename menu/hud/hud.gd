@@ -76,6 +76,23 @@ const DELAY_GRADIENT_STOPS: Array = [
 	Color("f5e4a0"),   # heller Gold-Schimmer (Top-Highlight)
 ]
 
+# Synergie-Icons: echte Texturen (sobald vorhanden), sonst Fallback-Kästchen
+const SYNERGY_ICON_PATHS := {
+	"sword_spin":  "res://assets/icons/sword.png",
+	"dive_strike": "res://assets/icons/shift-boots.png",
+}
+const SYNERGY_PLACEHOLDER := {
+	"sword_spin":  {"abbr": "SP", "color": Color("5478ad")},
+	"dive_strike": {"abbr": "DV", "color": Color("8a6ec4")},
+}
+const COMBO_WIDGET_WIDTH: float = 200.0
+const COMBO_TIMER_HEIGHT: float = 10.0
+const SYNERGY_ICON_SIZE: float = 34.0
+const SYNERGY_ICON_MAX_VISIBLE: int = 5
+const COMBO_MARGIN: float = 20.0
+const TIMER_COLOR_FULL := Color(0.5, 0.78, 1.0, 1.0)   # blau (voll)
+const TIMER_COLOR_LOW  := Color(1.0, 0.4, 0.25, 1.0)   # rot (fast leer)
+
 const COMBO_FONT_PATH: String = "res://menu/assets/fonts/Cinzel-Bold.ttf"
 
 @export_group("Delay Bar")
@@ -132,6 +149,13 @@ var _combo_label: Label = null
 var _multiplier_label: Label = null
 var _combo_vbox: VBoxContainer = null
 var _current_combo_count: int = 0
+var _synergy_manager: Node = null
+var _combo_timer_frame: Panel = null
+var _combo_timer_fill: Panel = null
+var _synergy_icon_row: HBoxContainer = null
+var _synergy_icons_cache: Dictionary = {}
+
+
 
 var _heart_icon: Texture2D = null
 var _resonance_icon: Texture2D = null
@@ -147,7 +171,7 @@ func _ready() -> void:
 	_load_portrait_shader()
 	_load_smooth_pixel_script()
 	_clear_existing_children()
-	#_build_ui()
+	_build_ui()
 	
 	call_deferred("_connect_to_player_data")
 	call_deferred("_connect_to_inventory")
@@ -173,6 +197,7 @@ func _process(_delta: float) -> void:
 	_update_slot_w_interaction_state()
 	_update_hp_display()
 	_update_resonance_display()
+	_update_combo_timer()
 
 
 func _load_font() -> void:
@@ -917,51 +942,109 @@ func _build_combo_widget() -> void:
 	var cinzel_font: FontFile = null
 	if ResourceLoader.exists(COMBO_FONT_PATH):
 		cinzel_font = load(COMBO_FONT_PATH) as FontFile
-	
-	# Container — oben Mitte
+
+	# Container — oben RECHTS, fest gepinnt
 	_combo_widget = Control.new()
-	_combo_widget.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_combo_widget.offset_top = 20
-	_combo_widget.custom_minimum_size = Vector2(200, 100)
-	_combo_widget.size = Vector2(200, 100)
-	_combo_widget.position.x -= 100  # Zentrieren (halbe Breite)
+	_combo_widget.anchor_left = 1.0
+	_combo_widget.anchor_right = 1.0
+	_combo_widget.anchor_top = 0.0
+	_combo_widget.anchor_bottom = 0.0
+	_combo_widget.offset_left = -COMBO_WIDGET_WIDTH - COMBO_MARGIN
+	_combo_widget.offset_right = -COMBO_MARGIN
+	_combo_widget.offset_top = COMBO_MARGIN
+	_combo_widget.offset_bottom = COMBO_MARGIN + 170.0
 	_combo_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_combo_widget.modulate.a = 0.0  # Initial unsichtbar
+	_combo_widget.modulate.a = 0.0
 	_hud_root.add_child(_combo_widget)
-	
-	# VBoxContainer für Combo + Multiplier
+
 	_combo_vbox = VBoxContainer.new()
 	_combo_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_combo_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	_combo_vbox.add_theme_constant_override("separation", 2)
+	_combo_vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+	_combo_vbox.add_theme_constant_override("separation", 4)
 	_combo_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_combo_widget.add_child(_combo_vbox)
-	
-	# Combo-Label (große römische Zahl, gold mit outline)
-	_combo_label = Label.new()
-	_combo_label.text = ""
-	_combo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_combo_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_combo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3, 1.0))
-	_combo_label.add_theme_color_override("font_outline_color", Color(0.05, 0.02, 0.0, 1.0))
-	_combo_label.add_theme_constant_override("outline_size", 6)
-	_combo_label.add_theme_font_size_override("font_size", 64)
-	if cinzel_font:
-		_combo_label.add_theme_font_override("font", cinzel_font)
-	_combo_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_combo_vbox.add_child(_combo_label)
-	
-	# Multiplier-Label (kleine Prozentangabe darunter)
+
+	# ── Row 1: Multiplier (klein, rechtsbündig) ──
+	var mult_row := HBoxContainer.new()
+	mult_row.alignment = BoxContainer.ALIGNMENT_END
+	mult_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_combo_vbox.add_child(mult_row)
+
 	_multiplier_label = Label.new()
 	_multiplier_label.text = ""
-	_multiplier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_multiplier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_multiplier_label.add_theme_color_override("font_outline_color", Color(0.05, 0.02, 0.0, 1.0))
 	_multiplier_label.add_theme_constant_override("outline_size", 3)
-	_multiplier_label.add_theme_font_size_override("font_size", 24)
+	_multiplier_label.add_theme_font_size_override("font_size", 22)
 	if cinzel_font:
 		_multiplier_label.add_theme_font_override("font", cinzel_font)
 	_multiplier_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_combo_vbox.add_child(_multiplier_label)
+	mult_row.add_child(_multiplier_label)
+
+	# ── Row 2: große römische Combo-Zahl (rechtsbündig) ──
+	var combo_row := HBoxContainer.new()
+	combo_row.alignment = BoxContainer.ALIGNMENT_END
+	combo_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_combo_vbox.add_child(combo_row)
+
+	_combo_label = Label.new()
+	_combo_label.text = ""
+	_combo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_combo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3, 1.0))
+	_combo_label.add_theme_color_override("font_outline_color", Color(0.05, 0.02, 0.0, 1.0))
+	_combo_label.add_theme_constant_override("outline_size", 6)
+	_combo_label.add_theme_font_size_override("font_size", 56)
+	if cinzel_font:
+		_combo_label.add_theme_font_override("font", cinzel_font)
+	_combo_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	combo_row.add_child(_combo_label)
+
+	# ── Row 3: Timer-Bar (volle Breite) ──
+	_combo_timer_frame = Panel.new()
+	_combo_timer_frame.custom_minimum_size = Vector2(COMBO_WIDGET_WIDTH, COMBO_TIMER_HEIGHT)
+	_combo_timer_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame_sb := StyleBoxFlat.new()
+	frame_sb.bg_color = Color("0a0604")
+	frame_sb.border_color = Color("5c3d1e")
+	frame_sb.set_border_width_all(1)
+	frame_sb.set_corner_radius_all(2)
+	_combo_timer_frame.add_theme_stylebox_override("panel", frame_sb)
+	_combo_vbox.add_child(_combo_timer_frame)
+
+	var timer_inner := Control.new()
+	timer_inner.set_anchors_preset(Control.PRESET_FULL_RECT)
+	timer_inner.offset_left = 2
+	timer_inner.offset_right = -2
+	timer_inner.offset_top = 2
+	timer_inner.offset_bottom = -2
+	timer_inner.clip_contents = true
+	timer_inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_combo_timer_frame.add_child(timer_inner)
+
+	_combo_timer_fill = Panel.new()
+	# Links gepinnt, volle Höhe; Breite über anchor_right (0..1) live gesetzt
+	_combo_timer_fill.anchor_left = 0.0
+	_combo_timer_fill.anchor_right = 0.0
+	_combo_timer_fill.anchor_top = 0.0
+	_combo_timer_fill.anchor_bottom = 1.0
+	_combo_timer_fill.offset_left = 0.0
+	_combo_timer_fill.offset_right = 0.0
+	_combo_timer_fill.offset_top = 0.0
+	_combo_timer_fill.offset_bottom = 0.0
+	_combo_timer_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fill_sb := StyleBoxFlat.new()
+	fill_sb.bg_color = Color.WHITE   # via modulate eingefärbt
+	fill_sb.set_corner_radius_all(1)
+	_combo_timer_fill.add_theme_stylebox_override("panel", fill_sb)
+	_combo_timer_fill.modulate = TIMER_COLOR_FULL
+	timer_inner.add_child(_combo_timer_fill)
+
+	# ── Row 4: Synergie-Icon-Reihe (rechtsbündig, neueste rechts) ──
+	_synergy_icon_row = HBoxContainer.new()
+	_synergy_icon_row.alignment = BoxContainer.ALIGNMENT_END
+	_synergy_icon_row.add_theme_constant_override("separation", 4)
+	_synergy_icon_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_combo_vbox.add_child(_synergy_icon_row)
 	
 func update_combo(combo: int, multiplier: float) -> void:
 	if combo <= 0:
@@ -983,6 +1066,112 @@ func update_combo(combo: int, multiplier: float) -> void:
 	elif was_change:
 		_play_combo_penalty_animation()
 
+func _on_chain_changed(combo: int, multiplier: float, memory: Array) -> void:
+	update_combo(combo, multiplier)
+	_update_synergy_icons(memory)
+
+
+func _update_combo_timer() -> void:
+	if _synergy_manager == null or _combo_timer_fill == null:
+		return
+	if not _synergy_manager.has_method("get_timer_normalized"):
+		return
+	if _current_combo_count <= 0:
+		return
+	var n: float = _synergy_manager.get_timer_normalized()
+	_combo_timer_fill.anchor_right = n
+	_combo_timer_fill.offset_right = 0.0
+	_combo_timer_fill.modulate = TIMER_COLOR_LOW.lerp(TIMER_COLOR_FULL, clamp(n, 0.0, 1.0))
+
+
+func _update_synergy_icons(memory: Array) -> void:
+	if _synergy_icon_row == null:
+		return
+	for child in _synergy_icon_row.get_children():
+		child.queue_free()
+	if memory.is_empty():
+		return
+	# Nur die letzten N zeigen (neueste rechts)
+	var start: int = max(0, memory.size() - SYNERGY_ICON_MAX_VISIBLE)
+	for i in range(start, memory.size()):
+		_synergy_icon_row.add_child(_make_synergy_icon(str(memory[i])))
+
+
+func _make_synergy_icon(id: String) -> Control:
+	# Einheitlicher gerahmter Slot (wie die Hotbar-Slots), Icon oder Fallback drin.
+	var slot := PanelContainer.new()
+	slot.custom_minimum_size = Vector2(SYNERGY_ICON_SIZE, SYNERGY_ICON_SIZE)
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(C_BG_DEEP.r, C_BG_DEEP.g, C_BG_DEEP.b, 0.85)
+	sb.border_color = Color(C_AMBER, 0.9)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(5)
+	sb.shadow_color = Color(0, 0, 0, 0.5)
+	sb.shadow_size = 3
+	sb.shadow_offset = Vector2(0, 1)
+	# Innenabstand, damit Icon/Text nicht am Rahmen kleben
+	sb.set_content_margin_all(3)
+	slot.add_theme_stylebox_override("panel", sb)
+
+	var tex: Texture2D = _resolve_synergy_icon(id)
+	if tex != null:
+		var rect := TextureRect.new()
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		rect.texture = tex
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.add_child(rect)
+	else:
+		# Fallback: farbig hinterlegtes Kürzel, aber IM Rahmen
+		var abbr: String = "?"
+		var col: Color = Color("5c3d1e")
+		if SYNERGY_PLACEHOLDER.has(id):
+			abbr = SYNERGY_PLACEHOLDER[id]["abbr"]
+			col = SYNERGY_PLACEHOLDER[id]["color"]
+		else:
+			abbr = id.substr(0, 2).to_upper()
+
+		# Farbfläche als Hintergrund im Slot
+		var tint := Panel.new()
+		tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var tint_sb := StyleBoxFlat.new()
+		tint_sb.bg_color = Color(col.r, col.g, col.b, 0.7)
+		tint_sb.set_corner_radius_all(3)
+		tint.add_theme_stylebox_override("panel", tint_sb)
+		slot.add_child(tint)
+
+		var lbl := Label.new()
+		lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.text = abbr
+		lbl.add_theme_color_override("font_color", Color("f5e4a0"))
+		lbl.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+		lbl.add_theme_constant_override("shadow_offset_x", 1)
+		lbl.add_theme_constant_override("shadow_offset_y", 1)
+		lbl.add_theme_font_size_override("font_size", 13)
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if _font:
+			lbl.add_theme_font_override("font", _font)
+		tint.add_child(lbl)
+
+	return slot
+
+
+func _resolve_synergy_icon(id: String) -> Texture2D:
+	if _synergy_icons_cache.has(id):
+		return _synergy_icons_cache[id]
+	var tex: Texture2D = null
+	if SYNERGY_ICON_PATHS.has(id):
+		var path: String = SYNERGY_ICON_PATHS[id]
+		if ResourceLoader.exists(path):
+			tex = load(path) as Texture2D
+	_synergy_icons_cache[id] = tex
+	return tex
+
 
 func _show_combo() -> void:
 	if _combo_widget == null or _combo_widget.modulate.a >= 1.0:
@@ -1000,24 +1189,23 @@ func _hide_combo() -> void:
 
 
 func _play_combo_pop_animation() -> void:
-	if _combo_vbox == null:
+	if _combo_label == null:
 		return
-	_combo_vbox.pivot_offset = _combo_vbox.size * 0.5
-	_combo_vbox.scale = Vector2(1.4, 1.4)
+	_combo_label.pivot_offset = _combo_label.size * 0.5
+	_combo_label.scale = Vector2(1.35, 1.35)
 	var tween := create_tween()
-	tween.tween_property(_combo_vbox, "scale", Vector2.ONE, 0.18) \
+	tween.tween_property(_combo_label, "scale", Vector2.ONE, 0.18) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _play_combo_penalty_animation() -> void:
-	if _combo_vbox == null:
+	if _combo_label == null:
 		return
-	var original_pos: Vector2 = _combo_vbox.position
+	var base: Vector2 = _combo_label.position
 	var tween := create_tween()
-	tween.tween_property(_combo_vbox, "position", original_pos + Vector2(6, 0), 0.04)
-	tween.tween_property(_combo_vbox, "position", original_pos + Vector2(-6, 0), 0.04)
-	tween.tween_property(_combo_vbox, "position", original_pos + Vector2(4, 0), 0.04)
-	tween.tween_property(_combo_vbox, "position", original_pos, 0.04)
+	tween.tween_property(_combo_label, "position", base + Vector2(5, 0), 0.04)
+	tween.tween_property(_combo_label, "position", base + Vector2(-5, 0), 0.04)
+	tween.tween_property(_combo_label, "position", base, 0.04)
 
 
 func _to_roman(num: int) -> String:
@@ -1056,56 +1244,30 @@ func _color_for_multiplier(mult: float) -> Color:
 		return Color(1.0, 0.3, 0.2, 1.0)
 		
 func _connect_to_synergy_manager() -> void:
-	# Warte einen Frame, damit Player + Components garantiert ready sind
 	await get_tree().process_frame
 
 	var player: Node = get_tree().get_first_node_in_group("player")
 	if player == null:
 		push_warning("HUD: Kein Player für SynergyManager-Connection gefunden")
 		return
-	
+
 	var synergy_manager: Node = player.get_node_or_null("SynergyManager")
 	if synergy_manager == null:
 		push_warning("HUD: Kein SynergyManager am Player gefunden")
 		return
-		
+
+	_synergy_manager = synergy_manager
+
+	# Initialer Stand
 	if synergy_manager.has_method("get_combo_count"):
-		var combo: int = synergy_manager.get_combo_count()
-		var mult: float = synergy_manager.get_current_multiplier()
-		update_combo(combo, mult)
-	
-	# Combo-Widget Connection (eigene Methode am HUD) //KOMMENTAR NACH VIDEO WIEDER RAUS
-	if not synergy_manager.combo_changed.is_connected(update_combo):
-		synergy_manager.combo_changed.connect(update_combo)
-	
-	# Heat-Bar Connection (separate Komponente am Player)
-	var heat_bar: Node = player.get_node_or_null("HeatBar3D")
-	if heat_bar == null:
-		push_warning("HUD: Keine HeatBar3D am Player gefunden")
-		return
-	print("OK")
-	if not synergy_manager.heat_changed.is_connected(_on_heat_changed):
-		synergy_manager.heat_changed.connect(_on_heat_changed.bind(heat_bar))
-	if not synergy_manager.overheat_started.is_connected(_on_overheat_started):
-		synergy_manager.overheat_started.connect(_on_overheat_started.bind(heat_bar))
-	if not synergy_manager.overheat_ended.is_connected(_on_overheat_ended):
-		synergy_manager.overheat_ended.connect(_on_overheat_ended.bind(heat_bar))
+		update_combo(synergy_manager.get_combo_count(), synergy_manager.get_current_multiplier())
+	if synergy_manager.has_method("get_memory"):
+		_update_synergy_icons(synergy_manager.get_memory())
 
-
-func _on_heat_changed(heat: float, max_h: float, heat_bar: Node) -> void:
-	if is_instance_valid(heat_bar):
-		heat_bar.set_heat(heat / max_h)
-
-
-func _on_overheat_started(_duration: float, heat_bar: Node) -> void:
-	if is_instance_valid(heat_bar):
-		heat_bar.start_overheat()
-
-
-func _on_overheat_ended(heat_bar: Node) -> void:
-	if is_instance_valid(heat_bar):
-		heat_bar.end_overheat()
-
+	# chain_changed(combo, multiplier, memory)
+	if synergy_manager.has_signal("chain_changed"):
+		if not synergy_manager.chain_changed.is_connected(_on_chain_changed):
+			synergy_manager.chain_changed.connect(_on_chain_changed)
 
 
 func hide_for_intro() -> void:

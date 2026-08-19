@@ -1,28 +1,29 @@
 extends RefCounted
 class_name SynergyResult
 
-## Ergebnis einer Synergie-Anfrage. Wird vom SynergyManager an die
-## anfragende Component zurückgegeben.
+## Ergebnis eines plan_synergy()-Aufrufs. Rein informativ — wird beim CAST
+## (nicht beim Hit) an die anfragende Component zurückgegeben, damit sie die
+## Kosten berechnen und den Schadens-Multiplier für DIESE Synergie kennt.
+##
+## allowed ist praktisch immer true, bleibt aber
+## als sauberer Hook erhalten (z.B. falls später doch mal ein Block nötig wird).
 
-## Darf die Synergie überhaupt ausgeführt werden?
+## Darf die Synergie ausgeführt werden? (Aktuell immer true.)
 var allowed: bool = true
 
-## Damage-Multiplikator. Standard 1.0, kann auch unter 1.0 sein bei Penalty.
-var damage_multiplier: float = 1.0
-
-## Aktueller Combo-Stand nach diesem Use (für UI).
+## Combo-Stand, DEN diese Synergie erreichen wird, wenn sie trifft (= aktueller
+## Combo + 1). Für Schadensberechnung und UI-Vorschau.
 var combo_count: int = 0
 
-## Wurde mit diesem Use Overheat ausgelöst?
-var triggered_overheat: bool = false
+## Schadens-Multiplier für diese Synergie (basiert auf combo_count).
+var damage_multiplier: float = 1.0
 
-## Klassifikation für Logging/Debugging
-enum Reason { FRESH, VARIATION, REPEAT_IN_HISTORY, DIRECT_REPEAT, BLOCKED_OVERHEAT }
-var reason: Reason = Reason.FRESH
+## Zusätzliche RP-Kosten OBEN DRAUF auf die eigene Basis-Kost der Component.
+## Steigt linear mit der Chain-Position: erster Cast 0, dann +surcharge, +2×, …
+var cost_surcharge: float = 0.0
 
 
 func _to_string() -> String:
-	var reason_name: String = ["FRESH", "VARIATION", "REPEAT_IN_HISTORY", "DIRECT_REPEAT", "BLOCKED_OVERHEAT"][reason]
-	return "[SynergyResult allowed=%s mult=%.2fx combo=%d overheat=%s reason=%s]" % [
-		allowed, damage_multiplier, combo_count, triggered_overheat, reason_name
+	return "[SynergyResult allowed=%s combo=%d mult=%.2fx surcharge=%.1f]" % [
+		allowed, combo_count, damage_multiplier, cost_surcharge
 	]

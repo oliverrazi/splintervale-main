@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://bdrqw8032wlxi"]
+
+[ext_resource type="Script" uid="uid://eargwxyah7bh" path="res://scripts/world/vector_anchor_targetable_3D.gd" id="1_bqxgc"]
+[ext_resource type="PackedScene" uid="uid://bbtbs8b0ou0vv" path="res://assets/decoration/iron-bollard.glb" id="2_kuq3h"]
+[ext_resource type="PackedScene" uid="uid://ctexc5fbvqjjc" path="res://assets/decoration/crystals/blue-flame.tscn" id="3_4cyep"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_gmpj2"]
+height = 1.6254883
+radius = 0.09863281
+
+[node name="IronBollardWeakLight" type="StaticBody3D" unique_id=2018864423]
+script = ExtResource("1_bqxgc")
+chainable = false
+
+[node name="AnchorPoint" type="Marker3D" parent="." unique_id=53159362]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2563357, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1194625954]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8469238, 0)
+shape = SubResource("CylinderShape3D_gmpj2")
+
+[node name="iron-bollard" parent="." unique_id=2126116574 instance=ExtResource("2_kuq3h")]
+transform = Transform3D(0.2, 0, 0, 0, 0.3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="BlueFlame" parent="." unique_id=348602345 instance=ExtResource("3_4cyep")]
+transform = Transform3D(0.31178656, 0, 0, 0, 0.23587418, 0, 0, 0, 0.7786318, 0.0026700199, 1.591341, 0.050696835)
+visible = false
+
+[node name="BlueFlame2" parent="." unique_id=503979277 instance=ExtResource("3_4cyep")]
+transform = Transform3D(0.31178656, 0, 0, 0, 0.23587418, 0, 0, 0, 0.7786318, 0.0026700199, 1.591341, -0.020769402)
+visible = false

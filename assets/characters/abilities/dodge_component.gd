@@ -317,9 +317,13 @@ func _process_dodge(delta: float) -> void:
 	
 	_dodge_timer -= delta
 	
-	# Bewegung
+	# Horizontale Dodge-Bewegung
 	_player.velocity.x = _dodge_direction.x * dodge_speed
 	_player.velocity.z = _dodge_direction.z * dodge_speed
+	
+	# Vertikal: Gravity immer anwenden, damit der Player über Klippen fällt
+	if not _player.is_on_floor():
+		_player.velocity.y -= _get_gravity() * delta
 	
 	# Afterimages spawnen
 	if afterimage_enabled:
@@ -331,10 +335,6 @@ func _process_dodge(delta: float) -> void:
 	
 	# Frame anzeigen
 	_show_dodge_frame()
-	
-	if not _cinematic_dodge_active:
-		_player.velocity.x = _dodge_direction.x * dodge_speed
-		_player.velocity.z = _dodge_direction.z * dodge_speed
 	
 	# Dodge beenden -> Fade-Out starten
 	if _dodge_timer <= 0.0:
@@ -378,14 +378,27 @@ func _process_fade_out(delta: float) -> void:
 		_end_fade_out()
 		return
 	
-	# Geschwindigkeit linear reduzieren
+	# Horizontale Geschwindigkeit linear reduzieren
 	var fade_progress: float = _fade_timer / velocity_fade_duration
 	_player.velocity.x = _dodge_direction.x * dodge_speed * fade_progress
 	_player.velocity.z = _dodge_direction.z * dodge_speed * fade_progress
 	
+	# Vertikal: weiterhin Gravity
+	if not _player.is_on_floor():
+		_player.velocity.y -= _get_gravity() * delta
+	
 	# Weiterhin Dodge-Frame zeigen während Fade-Out
 	_show_dodge_frame()
 
+
+func _get_gravity() -> float:
+	# Projektweite Gravity aus den Physics-Settings; falls der Player einen
+	# eigenen Wert hält, diesen bevorzugen.
+	if _player.has_method("get_gravity_value"):
+		return _player.get_gravity_value()
+	if "gravity" in _player:
+		return _player.gravity
+	return ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 
 func _end_fade_out() -> void:
 	_is_fading_out = false

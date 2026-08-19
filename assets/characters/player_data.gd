@@ -32,6 +32,7 @@ signal skill_points_changed(points: int)
 @export var base_attack_speed: int = 3   # Beeinflusst Angriffsgeschwindigkeit
 
 @export var resonance_regen_rate: float = 20.0      # Resonance pro Sekunde
+@export var resonance_regen_rate_combat: float = 2.0  
 @export var resonance_regen_delay: float = 1.5  
 
 # === GOLD ===
@@ -94,14 +95,14 @@ func get_attack_speed_multiplier() -> float:
 	# Basis 1.0, wird schneller mit mehr Punkten
 	return 1.0 + (base_attack_speed * (ATTACK_SPEED_PER_POINT/2))
 
-func process_regeneration(delta: float) -> void:#
+func process_regeneration(delta: float, in_combat: bool = false) -> void:
 	if _resonance_regen_timer > 0.0:
 		_resonance_regen_timer -= delta
 		return
 	if current_resonance < max_resonance:
-		var regen_amount: float = resonance_regen_rate * delta
+		var rate: float = resonance_regen_rate_combat if in_combat else resonance_regen_rate
+		var regen_amount: float = rate * delta
 		current_resonance = min(max_resonance, current_resonance + regen_amount)
-		# Signal nur bei ganzzahligen Änderungen für Performance
 		resonance_changed.emit(int(current_resonance), max_resonance)
 
 # ============ STAT POINT ALLOCATION ============
@@ -259,6 +260,7 @@ func to_dict() -> Dictionary:
 		"current_hp": current_hp,
 		"current_resonance": current_resonance,
 		"resonance_regen_rate": resonance_regen_rate,
+		"resonance_regen_rate_combat": resonance_regen_rate_combat,
 		"resonance_regen_delay": resonance_regen_delay,
 		"base_vitality": base_vitality,
 		"base_strength": base_strength,
@@ -274,6 +276,7 @@ func from_dict(data: Dictionary) -> void:
 	level = data.get("level", 1)
 	current_exp = data.get("current_exp", 0)
 	resonance_regen_rate = data.get("resonance_regen_rate", 5.0)
+	resonance_regen_rate_combat = data.get("resonance_regen_rate_combat", 4.0)
 	resonance_regen_delay = data.get("resonance_regen_delay", 1.5)
 	base_vitality = data.get("base_vitality", 6)
 	base_strength = data.get("base_strength", 3)

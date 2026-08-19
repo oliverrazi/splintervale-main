@@ -9,7 +9,12 @@ extends Node3D
 ##
 ## Platziere darunter MeshInstance3D-Nodes (frei rotiert/skaliert). Beim Bake
 ## werden sie nach Mesh-Ressource gruppiert -> ein MultiMesh + (optional) eine
-## gecookte Collision-Shape pro Modell. Editor-Nodes bleiben unangetastet.
+## gecookte Collision-Shape + das eingefrorene Material pro Modell.
+## Editor-Nodes bleiben unangetastet.
+##
+## v2: Material-Transfer. Das Surface-Override-/Instanz-Material der Quell-
+##     MeshInstance3D wird pro Gruppe abgegriffen und gespeichert, sonst waeren
+##     gebakte MultiMeshes materiallos (weiss).
 ##
 ## Sichtbarkeit/Streaming macht dieses Tool NICHT. -> BakedPropRuntime + dein
 ## bestehendes Zone-System.
@@ -75,20 +80,31 @@ func _bake() -> void:
 		push_warning("BakedPropBaker: keine MeshInstance3D mit Mesh unter '%s'." % name)
 		return
 
-	var buckets: Dictionary = {}   # Mesh -> Array[MeshInstance3D]
+	# Gruppierung nach Mesh UND Material.
+	# Ein MultiMesh hat GENAU EIN Material fuer alle Instanzen. Instanzen mit
+	# gleichem Mesh, aber unterschiedlichem Material (eigenes Override vs. geerbt)
+	# muessen daher in getrennte MultiMeshes - sonst erbt die ganze Gruppe das
+	# Material der ersten Instanz, und Objekte mit abweichendem Material rendern
+	# falsch. Der Bucket-Key kombiniert Mesh und effektives Material.
+	var buckets: Dictionary = {}   # key -> Array[MeshInstance3D]
+	var bucket_meshes: Dictionary = {}  # key -> Mesh (fuer den Bake-Aufruf)
 	for mi in sources:
 		var mesh: Mesh = mi.mesh
-		if not buckets.has(mesh):
-			buckets[mesh] = []
-		buckets[mesh].append(mi)
+		var mat := _extract_material(mi)
+		var key := [mesh, mat]  # Array als zusammengesetzter Dictionary-Key
+		if not buckets.has(key):
+			buckets[key] = []
+			bucket_meshes[key] = mesh
+		buckets[key].append(mi)
 
 	var rng := RandomNumberGenerator.new()
 	rng.seed = color_seed
 
 	var data := BakedPropData.new()
 
-	for mesh in buckets.keys():
-		var instances: Array = buckets[mesh]
+	for key in buckets.keys():
+		var instances: Array = buckets[key]
+		var mesh: Mesh = bucket_meshes[key]
 		var group := _bake_group(mesh, instances, rng)
 		data.groups.append(group)
 
@@ -108,11 +124,35 @@ func _bake_group(mesh: Mesh, instances: Array, rng: RandomNumberGenerator) -> Ba
 	var group := BakedPropGroup.new()
 	group.source_mesh_path = _mesh_key(mesh)
 
+	# --- Material einfrieren ---
+	# MultiMeshInstance3D rendert NICHT die Per-Instance-Overrides der Quell-
+	# Nodes. Ohne diesen Transfer waeren gebakte Props materiallos (weiss).
+	# Prioritaet: material_override > Surface-Override[0] > Mesh-Surface-Material.
+	# Wenn das Mesh sein Material selbst traegt und kein Override existiert,
+	# bleibt material == null und das MMI rendert korrekt aus dem Mesh.
+	group.material = _extract_material(instances[0] as MeshInstance3D)
+	if group.material == null and _mesh_has_no_material(mesh):
+		push_warning(
+			"BakedPropBaker: Modell '%s' hat weder Override noch Mesh-Material - MMI bleibt weiss."
+			% group.source_mesh_path)
+
 	# --- MultiMesh ---
 	# WICHTIG: frische MultiMesh, use_colors VOR instance_count.
+	#
+	# KRITISCH fuer Vertex-Color-Shader (z.B. der Wand-Shader mit COLOR-Maske):
+	# MultiMesh-Instanz-Farben und Mesh-Vertex-Farben teilen sich denselben
+	# COLOR-Input im Shader. Ist use_colors=false, ist COLOR im Shader NICHT
+	# die Mesh-Vertex-Farbe, sondern undefiniert (oft schwarz) -> Masken-Logik
+	# wie "1.0 - min(COLOR.g, COLOR.b)" kippt auf 1.0 -> Gras ueberall.
+	# Ist use_colors=true mit Instanz-Farbe, wird die Vertex-Farbe MULTIPLIZIERT
+	# und die Maske ebenfalls verfaelscht.
+	# Loesung: Bei aktiver Variation Instanz-Farbe setzen (fuer Shader, die COLOR
+	# als Tint nutzen). Bei INAKTIVER Variation trotzdem use_colors=true und
+	# pro Instanz WEISS setzen -> COLOR ist garantiert (1,1,1), die Maske liest
+	# "unbemalt" korrekt UND der Multiplikator ist neutral (Vertex-Farbe bleibt).
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = enable_color_variation
+	mm.use_colors = true  # IMMER an: garantiert definiertes COLOR im Shader.
 	mm.mesh = mesh
 	mm.instance_count = instances.size()
 
@@ -124,6 +164,8 @@ func _bake_group(mesh: Mesh, instances: Array, rng: RandomNumberGenerator) -> Ba
 		mm.set_instance_transform(i, local_xform)
 		if enable_color_variation:
 			mm.set_instance_color(i, _jittered_color(rng))
+		else:
+			mm.set_instance_color(i, Color.WHITE)  # neutral, Vertex-Farbe bleibt
 		group.transforms.append(local_xform)
 
 	group.multimesh = mm
@@ -133,6 +175,31 @@ func _bake_group(mesh: Mesh, instances: Array, rng: RandomNumberGenerator) -> Ba
 		group.collision_shape = _cook_shape(mesh)
 
 	return group
+
+
+## Greift das effektive Material einer Quell-Instanz ab.
+## Reihenfolge entspricht der Godot-Renderprioritaet.
+func _extract_material(mi: MeshInstance3D) -> Material:
+	if mi == null:
+		return null
+	# 1) Node-weiter Override (hoechste Prioritaet beim Rendern).
+	if mi.material_override != null:
+		return mi.material_override
+	# 2) Surface-Override an der Instanz (dein Cliff-Material sitzt hier).
+	for s in mi.get_surface_override_material_count():
+		var m := mi.get_surface_override_material(s)
+		if m != null:
+			return m
+	# 3) Material direkt im Mesh (Surface 0).
+	if mi.mesh != null and mi.mesh.get_surface_count() > 0:
+		return mi.mesh.surface_get_material(0)
+	return null
+
+
+func _mesh_has_no_material(mesh: Mesh) -> bool:
+	if mesh == null or mesh.get_surface_count() == 0:
+		return true
+	return mesh.surface_get_material(0) == null
 
 
 func _cook_shape(mesh: Mesh) -> Shape3D:
@@ -160,10 +227,18 @@ func _jittered_color(rng: RandomNumberGenerator) -> Color:
 
 func _collect_instances() -> Array[MeshInstance3D]:
 	var result: Array[MeshInstance3D] = []
-	for child in get_children():
-		if child is MeshInstance3D and child.mesh != null:
-			result.append(child)
+	_collect_recursive(self, result)
 	return result
+
+
+func _collect_recursive(node: Node, result: Array[MeshInstance3D]) -> void:
+	for child in node.get_children():
+		if child is MeshInstance3D and (child as MeshInstance3D).mesh != null:
+			result.append(child)
+		# Rekursiv in Node3D-Gruppen absteigen (deine Ordner-Struktur).
+		if child.get_child_count() > 0:
+			_collect_recursive(child, result)
+	return
 
 
 func _mesh_key(mesh: Mesh) -> String:

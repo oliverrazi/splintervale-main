@@ -490,8 +490,7 @@ func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
 		var source_pos: Vector3 = hit_area.get_meta("source_position", _player.global_position)
 
 		if _synergy_manager != null:
-			var mult: float = _synergy_manager.get_damage_multiplier_for_external_hit()
-			print(mult)
+			var mult: float = _synergy_manager.get_damage_multiplier()
 			actual_damage = int(round(float(actual_damage) * mult))
 		
 		if not _hit_already:
@@ -500,7 +499,7 @@ func _on_slash_hit(body: Node3D, hit_area: Area3D) -> void:
 			#_hit_already = true
 			
 			if _synergy_manager != null:
-				_synergy_manager.extend_combo_on_normal_hit()
+				_synergy_manager.on_normal_hit()
 				
 			# Impact-VFX zwischen Spieler und Enemy spawnen
 			var impact_pos: Vector3 = (_player.global_position + body.global_position) / 2.0

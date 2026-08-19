@@ -12,6 +12,8 @@ extends Node
 
 const CONFIG_PATH: String = "user://settings.cfg"
 
+
+
 # ── Audio (0.0 – 1.0) ──────────────────────────────────────────
 var master_volume: float = 0.8 : set = _set_master_volume
 var music_volume: float  = 0.7 : set = _set_music_volume
@@ -19,6 +21,7 @@ var sfx_volume: float    = 0.8 : set = _set_sfx_volume
 
 # ── Display ────────────────────────────────────────────────────
 var fullscreen: bool = false : set = _set_fullscreen
+var vsync_enabled: bool = true : set = _set_vsync_enabled
 
 # ── Graphics: Depth of Field ───────────────────────────────────
 # bokeh_shape: 0 = Box, 1 = Hexagon, 2 = Circle
@@ -52,6 +55,8 @@ func load_settings() -> void:
 		return
 	
 	_loading = true
+	fullscreen        = cfg.get_value("display", "fullscreen",    fullscreen)
+	vsync_enabled     = cfg.get_value("display", "vsync_enabled", vsync_enabled)
 	master_volume     = cfg.get_value("audio",    "master_volume",     master_volume)
 	music_volume      = cfg.get_value("audio",    "music_volume",      music_volume)
 	sfx_volume        = cfg.get_value("audio",    "sfx_volume",        sfx_volume)
@@ -66,6 +71,8 @@ func save_settings() -> void:
 	if _loading:
 		return
 	var cfg := ConfigFile.new()
+	cfg.set_value("display", "fullscreen",    fullscreen)
+	cfg.set_value("display", "vsync_enabled", vsync_enabled)
 	cfg.set_value("audio",    "master_volume",     master_volume)
 	cfg.set_value("audio",    "music_volume",      music_volume)
 	cfg.set_value("audio",    "sfx_volume",        sfx_volume)
@@ -112,6 +119,12 @@ func apply_display() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		
+	if vsync_enabled:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
+	else:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	
 
 
 func apply_graphics() -> void:
@@ -141,6 +154,11 @@ func _set_master_volume(v: float) -> void:
 		_apply_bus("Master", master_volume)
 		save_settings()
 
+func _set_vsync_enabled(v: bool) -> void:
+	vsync_enabled = v
+	if not _loading:
+		apply_display()
+		save_settings()
 
 func _set_music_volume(v: float) -> void:
 	music_volume = clamp(v, 0.0, 1.0)

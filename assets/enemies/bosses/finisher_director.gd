@@ -638,13 +638,10 @@ func _wait_for_anim(anim_name: String, fallback_time: float = 2.0) -> void:
 		elapsed += get_process_delta_time()
 
 func _play_outro() -> void:
-	if outro_song == null: return
-	var audio := AudioStreamPlayer.new()
-	audio.stream = outro_song
-	audio.volume_db = outro_volume_db
-	add_child(audio)
-	audio.play()
-	audio.finished.connect(audio.queue_free)
+	if outro_song == null:
+		return
+	if _boss and _boss.has_method("play_outro_music"):
+		_boss.play_outro_music(outro_song)
 
 func _to_boss_dir() -> Vector3:
 	var d := _boss.global_position - _player.global_position

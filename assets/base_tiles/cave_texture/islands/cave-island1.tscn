@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://c6cbtkgs7mwlx"]
+
+[ext_resource type="ArrayMesh" uid="uid://d25cx522qnmf1" path="res://assets/base_tiles/cave_texture/islands/cave-island1.tres" id="1_7lawu"]
+[ext_resource type="Material" uid="uid://bx6fhh86r502r" path="res://assets/base_tiles/cave_texture/cave_texture_floor_wet.tres" id="2_8vgko"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_8vgko"]
+height = 0.51000977
+radius = 1.9931641
+
+[node name="CaveIsland1" type="MeshInstance3D" unique_id=1116277702]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+cast_shadow = 0
+mesh = ExtResource("1_7lawu")
+surface_material_override/0 = ExtResource("2_8vgko")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1946476847]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=80662622]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.010375977, 0.047547698)
+shape = SubResource("CylinderShape3D_8vgko")

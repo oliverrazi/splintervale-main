@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://c2a6mbtqyi4on"]
+
+[ext_resource type="ArrayMesh" uid="uid://bo6qhp0qiq23j" path="res://assets/base_tiles/cave_texture/cave_wall3.res" id="1_cg3r3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ltsm5"]
+size = Vector3(4.729478, 6.2839355, 2.389183)
+
+[node name="Wall3" type="Node3D" unique_id=1304516681]
+
+[node name="3Wall" type="MeshInstance3D" parent="." unique_id=1307193880]
+transform = Transform3D(0.3, 0, 0, 0, 0.29999998, 0, 0, 0, 0.29999998, 0, 0, 0)
+mesh = ExtResource("1_cg3r3")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="3Wall" unique_id=64109253]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="3Wall/StaticBody3D" unique_id=1509426871]
+transform = Transform3D(1.0000001, -4.137425e-07, 0, 9.0417174e-11, 1, 9.102527e-12, -7.450581e-09, 1.8184284e-08, 1, 0.07587666, 3.0972886, -0.17533588)
+shape = SubResource("BoxShape3D_ltsm5")

@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://bvc4qmuw144ew"]
+
+[ext_resource type="ArrayMesh" uid="uid://bcdvdobdtkb80" path="res://assets/decoration/torch/torch1.tres" id="1_rk1dt"]
+[ext_resource type="Script" uid="uid://7strykw3p2ir" path="res://assets/decoration/torch/torch.gd" id="3_4jm6a"]
+[ext_resource type="PackedScene" uid="uid://c2e5gk3u4gfdo" path="res://assets/vfx/flame/fire1.tscn" id="3_la3fo"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4jm6a"]
+height = 2.8408203
+radius = 0.6513672
+
+[node name="Torch1" type="MeshInstance3D" unique_id=280329830]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -0.008792043, 0, 0.0071047246)
+mesh = ExtResource("1_rk1dt")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1340131004 node_paths=PackedStringArray("light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9140835, 0)
+light_specular = 0.05
+script = ExtResource("3_4jm6a")
+light = NodePath(".")
+base_energy = 1.915
+flicker_amount = 0.4
+shimmer_amount = 0.35
+
+[node name="Fire1" parent="." unique_id=1907195060 instance=ExtResource("3_la3fo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.004022956, 2.8780713, -0.10862075)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=993545765]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.010050774, 0, -0.09936094)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=780414735]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5336914, 0)
+shape = SubResource("CylinderShape3D_4jm6a")

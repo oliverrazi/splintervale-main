@@ -5,7 +5,7 @@ class_name SwordSpinComponent
 ## Aktivierung: Während eines aktiven Dodges (oder dessen Fade-Outs) Schwert-Taste drücken.
 ## Verhalten: Spieler bewegt sich kontrollierbar in Dodge-Richtung weiter, dreht sich
 ## mit dem Schwert und schädigt Enemies in einem kleinen Radius.
-## Endet wenn RP auf 0 oder Sicherheits-Timeout erreicht. Danach 2s RP-Regen-Sperre.
+## Endet nach fester Dauer (spin_duration) oder Sicherheits-Timeout.
 
 signal spin_started
 signal spin_ended
@@ -18,9 +18,12 @@ signal spin_ended
 
 # === ACTIVATION ===
 @export_group("Activation")
+## Mindest-RP, damit sich der Cast überhaupt lohnt (Basis-Kost + Surcharge müssen bezahlbar sein).
 @export var min_resonance_to_start: int = 5
-@export var resonance_drain_per_second: float = 20.0
-@export var regen_lockout_after_spin: float = 2.0
+## Basis-Kost der Synergie OBEN DRAUF aufs Relikt (Dodge zieht schon 8). Default 0.
+@export var synergy_resonance_cost: float = 0.0
+## Feste Spin-Dauer.
+@export var spin_duration: float = 1.5
 
 # === MOVEMENT ===
 @export_group("Movement")
@@ -32,6 +35,8 @@ signal spin_ended
 # === DAMAGE ===
 @export_group("Damage")
 @export var damage_multiplier: float = 1.3
+## Attunement-Anteil: base_attunement × diesem Faktor kommt on top.
+@export var attunement_damage_factor: float = 1.0
 @export var hit_radius: float = 0.5
 @export var hit_height_offset: float = 0.3
 @export var per_enemy_hit_cooldown: float = 0.4
@@ -97,8 +102,6 @@ var _slash_alternate_flip: bool = false
 var _afterimage_timer: float = 0.0
 
 var _has_registered_hit: bool = false
-var _projected_combo: int = 0
-var _projected_multiplier: float = 1.0
 
 const SYNERGY_ID: String = "sword_spin"
 
@@ -157,21 +160,26 @@ func try_start_spin() -> bool:
 		return false
 	if _dodge == null or not _dodge.is_dodging():
 		return false
-	if not _has_enough_resonance():
-		return false
 	
-	# Synergy-Manager: Heat + History updaten, Multiplier merken
+	# Kosten planen: Basis + Surcharge aus der Chain-Position
+	var surcharge: float = 0.0
 	if _synergy_manager != null:
-		var result := _synergy_manager.register_synergy_use(SYNERGY_ID)
-		if not result.allowed:
+		var plan := _synergy_manager.plan_synergy(SYNERGY_ID)
+		if not plan.allowed:
 			return false
-		_current_damage_multiplier = result.damage_multiplier
-		_projected_combo = result.combo_count
-		_projected_multiplier = result.damage_multiplier
+		_current_damage_multiplier = plan.damage_multiplier
+		surcharge = plan.cost_surcharge
 	else:
 		_current_damage_multiplier = 1.0
-		_projected_combo = 0
-		_projected_multiplier = 1.0
+	
+	var total_cost: float = synergy_resonance_cost + surcharge
+	
+	# Bezahlbar? (Mindest-Schwelle UND genug für die tatsächlichen Kosten)
+	if not _can_afford(total_cost):
+		return false
+	
+	# Kosten abziehen (das Relikt/Dodge hat sein Fixum schon separat gezogen)
+	_pay_resonance(total_cost)
 	
 	_has_registered_hit = false
 	_start_spin()
@@ -221,13 +229,12 @@ func _process_spin(delta: float) -> void:
 	
 	_spin_time += delta
 	
-	# ─── RP draining ───
-	var drain: float = resonance_drain_per_second * delta
-	if not _drain_resonance(drain):
+	# ─── Feste Dauer statt RP-Drain ───
+	if _spin_time >= spin_duration:
 		_end_spin()
 		return
 	
-	# Sicherheits-Timeout
+	# Sicherheits-Timeout (falls spin_duration mal absurd hoch gesetzt wird)
 	if _spin_time >= max_duration:
 		_end_spin()
 		return
@@ -246,7 +253,6 @@ func _process_spin(delta: float) -> void:
 	# ─── Sprite Frame (rotiert durch 8 Richtungen) ───
 	_update_spin_frame()
 	
-	# ─── VFX-Timing ───
 	# ─── Slash-Loop: alle slash_spawn_interval einen neuen full-cone Slash ───
 	_slash_spawn_timer += delta
 	if _slash_spawn_timer >= slash_spawn_interval:
@@ -274,12 +280,6 @@ func _end_spin() -> void:
 	_is_spinning = false
 	_spin_time = 0.0
 	
-	# RP-Regen-Sperre verlängern
-	if GameManager != null and GameManager.player_data != null:
-		var pd: PlayerData = GameManager.player_data
-		if "_resonance_regen_timer" in pd:
-			pd._resonance_regen_timer = regen_lockout_after_spin
-	
 	# Velocity sofort weichknicken — kein abruptes Stehen, aber auch keine
 	# Restbewegung in den nächsten Frame schleppen
 	if _player:
@@ -293,16 +293,9 @@ func _end_spin() -> void:
 	spin_ended.emit()
 
 func _end_spin_interrupted() -> void:
-	# Variante von _end_spin: Spieler wurde getroffen → Spin sofort beenden,
-	# RP nicht weiter verbrauchen, aber Regen-Lockout trotzdem setzen,
-	# damit der Spin nicht direkt erneut gespammt werden kann.
+	# Variante von _end_spin: Spieler wurde getroffen → Spin sofort beenden.
 	_is_spinning = false
 	_spin_time = 0.0
-	
-	if GameManager != null and GameManager.player_data != null:
-		var pd: PlayerData = GameManager.player_data
-		if "_resonance_regen_timer" in pd:
-			pd._resonance_regen_timer = regen_lockout_after_spin
 	
 	# Velocity NICHT auf 0 setzen — der Knockback aus take_damage soll wirken
 	# Idle-Frame auch nicht setzen — der Player wird gleich Hurt-Frame zeigen
@@ -313,24 +306,22 @@ func _end_spin_interrupted() -> void:
 # RESONANCE
 # ============================================
 
-func _has_enough_resonance() -> bool:
+func _can_afford(cost: float) -> bool:
 	if GameManager == null or GameManager.player_data == null:
 		return false
-	return GameManager.player_data.current_resonance >= float(min_resonance_to_start)
-
-
-func _drain_resonance(amount: float) -> bool:
-	if GameManager == null or GameManager.player_data == null:
-		return true
-	
 	var pd: PlayerData = GameManager.player_data
-	if pd.current_resonance <= 0.0:
-		return false
-	
+	# Genug für die tatsächlichen Kosten UND über der Mindestschwelle
+	return pd.current_resonance >= cost and pd.current_resonance >= float(min_resonance_to_start)
+
+
+func _pay_resonance(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	if GameManager == null or GameManager.player_data == null:
+		return
+	var pd: PlayerData = GameManager.player_data
 	pd.current_resonance = max(0.0, pd.current_resonance - amount)
 	pd.resonance_changed.emit(int(pd.current_resonance), pd.max_resonance)
-	
-	return pd.current_resonance > 0.0
 
 
 # ============================================
@@ -395,8 +386,6 @@ func _damage_enemies_in_radius() -> void:
 	var center: Vector3 = _player.global_position + Vector3(0, hit_height_offset, 0)
 	var radius_sq: float = hit_radius * hit_radius
 	
-	# (Block, der vorher hier oben falsch stand — ist gelöscht)
-	
 	for group in ["enemies", "enemy"]:
 		for node in _player.get_tree().get_nodes_in_group(group):
 			if not (node is Node3D):
@@ -422,14 +411,13 @@ func _damage_enemies_in_radius() -> void:
 			if not node.has_method("take_damage"):
 				continue
 			
-			# Synergie beim ersten Hit überhaupt registrieren — hier unten,
-			# nach allen Validierungen und nur wenn wirklich ein Enemy getroffen wird
+			# Synergie beim ersten Hit registrieren — danach nur Timer refreshen
 			if _synergy_manager != null:
 				if not _has_registered_hit:
-					_synergy_manager.register_synergy_hit(_projected_combo, _projected_multiplier)
+					_synergy_manager.commit_synergy_hit(SYNERGY_ID)
 					_has_registered_hit = true
 				else:
-					_synergy_manager.refresh_combo_timer()
+					_synergy_manager.refresh_timer()
 			
 			var damage: int = _calculate_damage()
 			# skip_hitstop = true, damit Combat flüssig bleibt
@@ -448,11 +436,14 @@ func _calculate_damage() -> int:
 		sword_base = _sword.attack_damage
 	
 	var normal_damage: int = sword_base
+	var attunement: int = 0
 	if GameManager != null and GameManager.player_data != null:
 		normal_damage = GameManager.player_data.get_attack_damage(sword_base)
+		attunement = GameManager.player_data.base_attunement
 	
-	var with_combo: float = float(normal_damage) * damage_multiplier
-	with_combo *= _current_damage_multiplier
+	# Sword (mit Strength eingebacken) + Attunement-Anteil, dann Multipliers
+	var base_total: float = float(normal_damage) + float(attunement) * attunement_damage_factor
+	var with_combo: float = base_total * damage_multiplier * _current_damage_multiplier
 	return int(round(with_combo))
 
 
@@ -493,16 +484,10 @@ func _spawn_slash() -> void:
 		hit_area.monitoring = false
 		hit_area.monitorable = false
 	
-	# Material-Override aus der Szene wird respektiert — keine Color-Overrides hier.
-	# Falls du Farben pro Spawn ändern willst, mach das in der spin_slashVFX.tscn
-	# direkt am SurfaceMaterialOverride.
-	
 	# Animation abspielen — selbstaufräumend, ohne externen Timer
 	var anim: AnimationPlayer = slash.get_node_or_null("Node3D/AnimationPlayer") as AnimationPlayer
 	if anim and anim.has_animation("slash"):
 		anim.play("slash")
-		# Wenn die Animation fertig ist, Slash entfernen — synchron zur tatsächlichen
-		# Anim-Länge, ohne dass ein Timer das früher abschneidet.
 		anim.animation_finished.connect(func(_anim_name: StringName):
 			if is_instance_valid(slash):
 				slash.queue_free()

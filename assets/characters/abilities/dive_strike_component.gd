@@ -33,8 +33,12 @@ signal dive_cancelled(reason: String)
 @export var dive_bounce_up: float = 6.0
 
 @export_group("Dive Strike Damage")
-@export var dive_resonance_damage_divisor: float = 4.0
-@export var dive_resonance_regen_lockout: float = 2.0
+## Basis-Kost der Synergie OBEN DRAUF aufs Relikt (VectorAnchor). Default 0.
+@export var synergy_resonance_cost: float = 0.0
+## Mindest-RP, damit sich der Cast lohnt.
+@export var min_resonance_to_start: int = 5
+## Attunement-Anteil: base_attunement × diesem Faktor kommt on top.
+@export var attunement_damage_factor: float = 1.5
 @export var dive_aoe_radius: float = 0.0
 @export var dive_aoe_damage_factor: float = 0.6
 @export var dive_knockback_strength: float = 1.5
@@ -148,36 +152,46 @@ func try_start_dive() -> bool:
 	if _state != State.IDLE:
 		return false
 	
-	# Synergy-Manager: Heat + History updaten, Multiplier merken
+	# Kosten planen: Basis + Surcharge aus der Chain-Position
+	var surcharge: float = 0.0
 	if _synergy_manager != null:
-		var result := _synergy_manager.register_synergy_use(SYNERGY_ID)
-		if not result.allowed:
+		var plan := _synergy_manager.plan_synergy(SYNERGY_ID)
+		if not plan.allowed:
 			return false
-		_current_damage_multiplier = result.damage_multiplier
-		_projected_combo = result.combo_count
-		_projected_multiplier = result.damage_multiplier
+		_current_damage_multiplier = plan.damage_multiplier
+		surcharge = plan.cost_surcharge
 	else:
 		_current_damage_multiplier = 1.0
-		_projected_combo = 0
-		_projected_multiplier = 1.0
+	
+	var total_cost: float = synergy_resonance_cost + surcharge
+	
+	# Bezahlbar?
+	if not _can_afford(total_cost):
+		return false
+	
+	# Kosten abziehen (kein All-RP-Dump mehr — nur die tatsächliche Synergie-Kost)
+	_pay_resonance(total_cost)
 	
 	_has_registered_hit = false
-	
-	# Resonance verbrauchen
-	_dive_resonance_used = 0.0
-	if GameManager != null and GameManager.player_data != null:
-		var pd: PlayerData = GameManager.player_data
-		_dive_resonance_used = max(0.0, pd.current_resonance)
-		pd.current_resonance = 0.0
-		
-		if "_resonance_regen_timer" in pd:
-			pd._resonance_regen_timer = dive_resonance_regen_lockout
-		
-		pd.resonance_changed.emit(0, pd.max_resonance)
 	
 	_start_dive_hang()
 	return true
 
+func _can_afford(cost: float) -> bool:
+	if GameManager == null or GameManager.player_data == null:
+		return false
+	var pd: PlayerData = GameManager.player_data
+	return pd.current_resonance >= cost and pd.current_resonance >= float(min_resonance_to_start)
+
+
+func _pay_resonance(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	if GameManager == null or GameManager.player_data == null:
+		return
+	var pd: PlayerData = GameManager.player_data
+	pd.current_resonance = max(0.0, pd.current_resonance - amount)
+	pd.resonance_changed.emit(int(pd.current_resonance), pd.max_resonance)
 
 ## Notbremse — bricht den Dive ab, falls von außen nötig (z.B. Spieler stirbt)
 func cancel(reason: String = "cancelled") -> void:
@@ -416,13 +430,13 @@ func _try_hit_dive_enemy(enemy: Node, is_aoe: bool) -> void:
 	if "_is_dead" in enemy and enemy._is_dead:
 		return
 	
-	# Synergie beim ersten Hit registrieren — danach nur noch Combo-Timer refreshen
+	# Synergie beim ersten Hit registrieren — danach nur noch Timer refreshen
 	if _synergy_manager != null:
 		if not _has_registered_hit:
-			_synergy_manager.register_synergy_hit(_projected_combo, _projected_multiplier)
+			_synergy_manager.commit_synergy_hit(SYNERGY_ID)
 			_has_registered_hit = true
 		else:
-			_synergy_manager.refresh_combo_timer()
+			_synergy_manager.refresh_timer()
 	
 	var direct_damage: int = _calculate_dive_damage()
 	var damage: int = direct_damage if not is_aoe else int(round(direct_damage * dive_aoe_damage_factor))
@@ -475,12 +489,15 @@ func _calculate_dive_damage() -> int:
 		sword_base = _player.sword.attack_damage
 	
 	var normal_damage: int = sword_base
-	if GameManager != null and GameManager.player_data != null and GameManager.player_data.has_method("get_attack_damage"):
-		normal_damage = GameManager.player_data.get_attack_damage(sword_base)
+	var attunement: int = 0
+	if GameManager != null and GameManager.player_data != null:
+		if GameManager.player_data.has_method("get_attack_damage"):
+			normal_damage = GameManager.player_data.get_attack_damage(sword_base)
+		attunement = GameManager.player_data.base_attunement
 	
-	var resonance_bonus: int = int(floor(_dive_resonance_used / dive_resonance_damage_divisor))
-	
-	var total: float = float(normal_damage + resonance_bonus) * _current_damage_multiplier
+	# Sword (Strength eingebacken) + Attunement-Anteil, dann Combo-Multiplier
+	var base_total: float = float(normal_damage) + float(attunement) * attunement_damage_factor
+	var total: float = base_total * _current_damage_multiplier
 	return int(round(total))
 
 

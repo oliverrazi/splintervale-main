@@ -2,19 +2,20 @@
 class_name BakedPropGroup
 extends Resource
 
-## Alles, was zu EINEM Prop-Modell gehoert (Wand, Farn, Felsen, ...).
-## Pro einzigartigem Mesh genau eine Gruppe -> genau ein Draw Call (pro Surface).
+## Eine gebakte Modell-Gruppe: MultiMesh (Darstellung), geteilte Collision-Shape
+## und deren Instanz-Transforms, plus das beim Bake eingefrorene Material.
+##
+## WICHTIG (v2): material haelt das Surface-Override-/Instanz-Material der Quell-
+## MeshInstance3D fest. MultiMeshInstance3D rendert NICHT die Per-Instance-
+## Overrides der urspruenglichen Nodes - ohne dieses Feld waeren gebakte Props
+## materiallos (weiss). Das Runtime setzt es als material_override aufs MMI.
 
-## MultiMesh: traegt Mesh + alle Instance-Transforms + Color-Buffer.
-@export var multimesh: MultiMesh
-
-## Fertig gecookte Collision-Shape fuer dieses Modell, oder null (keine Collision).
-## ConvexPolygonShape3D (billig) ODER ConcavePolygonShape3D (Trimesh, genau).
-## Beim Bake erzeugt und serialisiert -> Laufzeit weist nur noch zu, kein Cook.
-@export var collision_shape: Shape3D
-
-## Quell-Pfad des Meshes, rein zur Anzeige/Debug.
 @export var source_mesh_path: String = ""
-
-## Globale (baker-lokale) Transforms pro Instanz fuer die CollisionShape3Ds.
+@export var multimesh: MultiMesh
+@export var collision_shape: Shape3D
 @export var transforms: Array[Transform3D] = []
+
+## Beim Bake abgegriffenes Material der Quell-Instanzen (Override oder Mesh-Mat).
+## Kann null sein, wenn das Mesh sein Material bereits selbst traegt UND kein
+## Override existierte - dann rendert das MMI korrekt aus dem Mesh.
+@export var material: Material

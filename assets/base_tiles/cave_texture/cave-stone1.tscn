@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dxoq7h87rst71"]
+
+[ext_resource type="ArrayMesh" uid="uid://b1rbv1trj6bqs" path="res://assets/base_tiles/cave_texture/cave_stone1.res" id="1_8842v"]
+
+[node name="CaveStone1" type="MeshInstance3D" unique_id=1545346250]
+transform = Transform3D(1, 0, 0, 0, 2.1086545, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("1_8842v")

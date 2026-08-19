@@ -13,7 +13,7 @@ resource_name = "Material.001"
 cull_mode = 2
 albedo_texture = ExtResource("1_1hpgf")
 metallic = 0.42727274
-roughness = 0.6
+roughness = 0.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uojpx"]
 resource_name = "Material.003"

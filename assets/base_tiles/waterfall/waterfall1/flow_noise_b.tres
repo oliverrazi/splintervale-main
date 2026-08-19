@@ -6,6 +6,5 @@ frequency = 0.025
 fractal_octaves = 3
 
 [resource]
-width = 256
 noise = SubResource("FastNoiseLite_owop0")
 seamless = true

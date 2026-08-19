@@ -26,7 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://bfvlkx0qdj5rf" path="res://assets/characters/spin-slashVFX.tscn" id="20_v8d2g"]
 [ext_resource type="Script" uid="uid://c7q5sqryg1ckw" path="res://assets/characters/abilities/dive_strike_component.gd" id="21_wwds4"]
 [ext_resource type="Script" uid="uid://bgt58as4cpe0p" path="res://assets/characters/synergy/synergy_manager.gd" id="26_l3e1g"]
-[ext_resource type="PackedScene" uid="uid://tvv0pkxfema8" path="res://assets/characters/synergy/heat_bar_3d.tscn" id="27_7gdxi"]
+[ext_resource type="Script" uid="uid://clsg5pcnq7y4l" path="res://assets/characters/abilities/ladder_component.gd" id="26_yivxv"]
 [ext_resource type="Script" uid="uid://bq6njycj63gq0" path="res://assets/characters/step_up_component.gd" id="28_n4ckg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nl27k"]
@@ -78,7 +78,7 @@ _data = {
 &"walk": SubResource("Animation_c7tqt")
 }
 
-[sub_resource type="Shader" id="Shader_n4ckg"]
+[sub_resource type="Shader" id="Shader_yivxv"]
 code = "
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_draw_opaque, shadows_disabled;
@@ -99,14 +99,14 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_yivxv"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oh2fw"]
 render_priority = 0
-shader = SubResource("Shader_n4ckg")
+shader = SubResource("Shader_yivxv")
 shader_parameter/shadow_color = Color(0, 0, 0.05, 1)
 shader_parameter/shadow_opacity = 0.6
 shader_parameter/softness = 0.6
 
-[sub_resource type="QuadMesh" id="QuadMesh_oh2fw"]
+[sub_resource type="QuadMesh" id="QuadMesh_tqprt"]
 size = Vector2(0.5, 0.5)
 orientation = 1
 
@@ -126,6 +126,7 @@ hurt_sounds = Array[AudioStream]([ExtResource("7_4wng8")])
 hurt_shake_duration = 0.2
 hurt_zoom_amount = 0.5
 splash_vfx_scene = ExtResource("4_7gdxi")
+safe_position_setback = 0.6
 levelup_popup_scene = ExtResource("9_ltcqi")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=125148006]
@@ -209,9 +210,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4350574, 0)
 [node name="BlobShadow" type="MeshInstance3D" parent="." unique_id=431824574]
 top_level = true
 layers = 2
-material_override = SubResource("ShaderMaterial_yivxv")
+material_override = SubResource("ShaderMaterial_oh2fw")
 cast_shadow = 0
-mesh = SubResource("QuadMesh_oh2fw")
+mesh = SubResource("QuadMesh_tqprt")
 script = ExtResource("17_klace")
 shadow_depth = 0.5
 shadow_opacity = 0.6
@@ -271,7 +272,6 @@ hit_sounds = Array[AudioStream]([ExtResource("7_4wng8"), ExtResource("8_m1lp5"),
 
 [node name="SwordSpinComponent" type="Node" parent="." unique_id=353969117]
 script = ExtResource("19_v8d2g")
-regen_lockout_after_spin = 0.0
 SPIN_FPS = 24.0
 slash_scene = ExtResource("20_v8d2g")
 spin_impact_scene = ExtResource("10_6cbrt")
@@ -281,15 +281,16 @@ swoosh_sounds = Array[AudioStream]([ExtResource("3_ew7rt"), ExtResource("4_u3olo
 script = ExtResource("21_wwds4")
 dive_bounce_force = 6.0
 dive_bounce_up = 3.0
-dive_resonance_regen_lockout = 0.0
 dive_impact_scene = ExtResource("10_6cbrt")
 dive_strike_sound = ExtResource("3_ew7rt")
 dive_impact_sound = ExtResource("7_4wng8")
 
+[node name="LadderComponent" type="Node" parent="." unique_id=1078187680]
+script = ExtResource("26_yivxv")
+climb_speed = 1.0
+
 [node name="SynergyManager" type="Node" parent="." unique_id=296921735]
 script = ExtResource("26_l3e1g")
-
-[node name="HeatBar3D" parent="." unique_id=626743291 instance=ExtResource("27_7gdxi")]
 
 [node name="StepUpComponent" type="Node" parent="." unique_id=783899725 node_paths=PackedStringArray("body")]
 script = ExtResource("28_n4ckg")

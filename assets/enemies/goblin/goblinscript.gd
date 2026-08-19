@@ -298,14 +298,15 @@ func _setup_detection() -> void:
 
 
 func _check_player_detection() -> void:
-	
-	
-	
 	if _group != null and not _was_recently_damaged():
 		return
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
+
+	if not _was_recently_damaged() and not _is_within_height(player):
+		return
+
 	var distance := global_position.distance_to(player.global_position)
 	var effective_range := lose_interest_range if _was_recently_damaged() else detection_range
 	if distance <= effective_range:
@@ -323,7 +324,8 @@ func _was_recently_damaged() -> bool:
 
 func _on_detection_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player") or body.name == "Player":
-		_target = body
+		if _is_within_height(body):
+			_target = body
 
 
 func _on_detection_body_exited(_body: Node3D) -> void:
@@ -494,7 +496,7 @@ func _process_chase(delta: float) -> void:
 	to_target.y = 0
 	var dist := to_target.length()
 
-	if dist > lose_interest_range:
+	if dist > lose_interest_range or not _is_within_height(_target):
 		_reset_stuck_detection()
 		_target = null
 		_enter_state(State.PATROL_IDLE)
@@ -567,7 +569,7 @@ func _process_circle_idle(delta: float) -> void:
 	to_target.y = 0
 	var dist := to_target.length()
 
-	if dist > lose_interest_range:
+	if dist > lose_interest_range or not _is_within_height(_target):
 		_target = null
 		_enter_state(State.PATROL_IDLE)
 		return
@@ -597,7 +599,7 @@ func _process_circle_strafe(delta: float) -> void:
 	to_target.y = 0
 	var dist := to_target.length()
 
-	if dist > lose_interest_range:
+	if dist > lose_interest_range or not _is_within_height(_target):
 		_reset_stuck_detection()
 		_target = null
 		_enter_state(State.PATROL_IDLE)
@@ -692,8 +694,6 @@ func _process_attack_charge(delta: float) -> void:
 		velocity.x = _charge_direction.x * _charge_speed_current
 		velocity.z = _charge_direction.z * _charge_speed_current
 
-	if not _has_hit_player:
-		_check_charge_hit()
 
 	_show_attack_strike_frame()
 

@@ -74,7 +74,7 @@ void vertex() {
 	v_dist_top = (grass_top_level - VERTEX.y) * scale_y;
 	// Rot gemalt (1,0,0): Blau- und Gruenkanal fallen auf 0.
 	// Unbemalt liest sich als Weiss (1,1,1) -> paint = 0.
-	v_grass_paint = 1.0 - min(COLOR.b, COLOR.g);
+	v_grass_paint = clamp(COLOR.r - max(COLOR.g, COLOR.b), 0.0, 1.0);
 }
 
 

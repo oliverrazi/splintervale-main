@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cvqqpam7s5xxd"]
+
+[ext_resource type="ArrayMesh" uid="uid://dhsvg0esmed5a" path="res://assets/buildings/fences/cave-fence1.res" id="1_pa7qe"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_46qx5"]
+size = Vector3(0.12719727, 0.6401367, 0.703125)
+
+[node name="CaveFence2" type="Node3D" unique_id=1094326386]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=155502007]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 0, 0)
+mesh = ExtResource("1_pa7qe")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1846209353]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1090031026]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.020874023, 0.30249023, 0.0126953125)
+shape = SubResource("BoxShape3D_46qx5")

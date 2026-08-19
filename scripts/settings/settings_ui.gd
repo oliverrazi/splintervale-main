@@ -84,6 +84,7 @@ var _dof_jitter_check: CheckButton    = null
 
 # Display
 var _fullscreen_check: CheckButton    = null
+var _vsync_check: CheckButton         = null
 
 var _toast_panel: PanelContainer = null
 var _toast_label: Label          = null
@@ -384,6 +385,7 @@ func _build_tab_content_area(parent: HBoxContainer) -> void:
 	var s_music: float     = 0.7
 	var s_sfx: float       = 0.8
 	var s_fullscreen: bool = false
+	var s_vsync: bool      = false
 	var s_dof_shape: int   = 1
 	var s_dof_quality: int = 2
 	var s_dof_jitter: bool = false
@@ -394,6 +396,7 @@ func _build_tab_content_area(parent: HBoxContainer) -> void:
 		s_music       = st.music_volume
 		s_sfx         = st.sfx_volume
 		s_fullscreen  = st.fullscreen
+		s_vsync       = st.vsync_enabled
 		s_dof_shape   = st.dof_bokeh_shape
 		s_dof_quality = st.dof_bokeh_quality
 		s_dof_jitter  = st.dof_use_jitter
@@ -415,10 +418,10 @@ func _build_tab_content_area(parent: HBoxContainer) -> void:
 	_tab_focusables.append([_dof_shape_option, _dof_quality_option, _dof_jitter_check])
 	
 	# DISPLAY
-	var display_panel := _build_display_panel(s_fullscreen)
+	var display_panel := _build_display_panel(s_fullscreen, s_vsync)
 	_tab_content.add_child(display_panel)
 	_tab_panels.append(display_panel)
-	_tab_focusables.append([_fullscreen_check])
+	_tab_focusables.append([_fullscreen_check, _vsync_check])
 	
 	# CONTROLS (Placeholder)
 	var controls_panel := _build_controls_panel()
@@ -542,7 +545,7 @@ func _build_graphics_panel(s_shape: int, s_quality: int, s_jitter: bool) -> Cont
 
 
 # ── DISPLAY PANEL ─────────────────────────────────────────────
-func _build_display_panel(s_fullscreen: bool) -> Control:
+func _build_display_panel(s_fullscreen: bool, s_vsync: bool) -> Control:
 	var panel := Control.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -556,6 +559,9 @@ func _build_display_panel(s_fullscreen: bool) -> Control:
 	
 	_fullscreen_check = _build_toggle_row(vbox, "Fullscreen", s_fullscreen)
 	_fullscreen_check.toggled.connect(_on_fullscreen_toggled)
+	
+	_vsync_check = _build_toggle_row(vbox, "VSync", s_vsync)
+	_vsync_check.toggled.connect(_on_vsync_toggled)
 	
 	return panel
 
@@ -1121,6 +1127,14 @@ func _on_fullscreen_toggled(pressed: bool) -> void:
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
+func _on_vsync_toggled(pressed: bool) -> void:
+	if has_node("/root/Settings"):
+		get_node("/root/Settings").vsync_enabled = pressed
+		return
+	if pressed:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
+	else:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 
 func _on_dof_shape_selected(idx: int) -> void:
 	if has_node("/root/Settings"):

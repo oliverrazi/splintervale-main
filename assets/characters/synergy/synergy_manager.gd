@@ -1,304 +1,287 @@
 extends Node
 class_name SynergyManager
 
-## Verwaltet das Overheat- und Combo-System für Synergie-Moves.
+## Synergy Flow / Resonance Chain
 ##
-## Mechaniken:
-## - Combo wird nur durch Variation erhöht (frische Synergie = +1)
-## - Combo wird nur registriert, wenn die Synergie auch trifft
-## - Folge-Hits derselben Synergie refreshen nur den Combo-Timer
-## - Direkte Wiederholung (A→A): 0.50x, dann Overheat
-## - In History (A→B→A oder A→wait→A): 0.85x, Combo-Reset
-## - History ist zeitbasiert pro Eintrag (10s default)
-## - Combo verfällt nach 5s ohne Hit
-## - Heat decayt nach 3s Delay nach letzter Synergie
+## Grundprinzip:
+##   Wiederholung ist IMMER erlaubt. Variation wird über die RP-Ökonomie belohnt.
+##
+## Der Manager ist das ÖKONOMIE-HIRN und rein rechnend:
+##   - Er zieht selbst KEIN RP ab und gutschreibt selbst KEIN RP.
+##   - Kosten (Surcharge) zieht die Component beim Cast selbst ab.
+##   - Refunds meldet der Manager per Signal (resonance_refunded) → der Player
+##     schreibt gut und zeigt "+N RP" über Daryn.
+##
+## Drei gekoppelte Kurven, alle von der Combo getrieben:
+##   Multiplier : 1.0 + mult_per_combo × (combo-1)      (Cap)   → immer steigend
+##   Surcharge  : synergy_surcharge × combo_position             → immer steigend
+##   Refund     : refund_base(distinct) × (1 + flow × (combo-1)) → Combo × Vielfalt
+##
+## Das Wettrennen: Wiederholung (distinct=1) → Refund ~0, Surcharge läuft weg
+## → man trocknet aus. Variation (hohes distinct) → Refund überholt die Surcharge
+## → Chain hält länger.
 
-signal heat_changed(heat: float, max_heat: float)
-signal overheat_started(duration: float)
-signal overheat_ended()
-signal combo_changed(combo: int, multiplier: float)
-signal synergy_blocked(synergy_id: String, reason: int)
+# ─── Signals ───
 
-# === HEAT SYSTEM ===
-@export_group("Heat")
-@export var max_heat: float = 100.0
-@export var heat_decay_per_second: float = 8.0
-@export var heat_decay_delay: float = 3.0          ## Sekunden nach Synergie-Hit, bevor Decay startet
-@export var heat_for_variation_early: float = 10.0  ## Combo 2-3
-@export var heat_for_variation_late: float = 5.0    ## Combo 4+
-@export var heat_for_history_repeat: float = 40.0   ## A→B→A
-@export var heat_for_direct_repeat: float = 100.0   ## A→A → Overheat
+## Combo/Multiplier/Memory haben sich geändert (Commit oder Reset).
+## memory ist eine Kopie der aktuellen ID-Reihenfolge (ältestes zuerst) für die Icon-Reihe.
+signal chain_changed(combo: int, multiplier: float, memory: Array)
 
-# === COMBO MEMORY ===
-@export_group("Combo Memory")
-@export var combo_memory_duration: float = 5.0     ## Sekunden bis Combo verfällt
-@export var combo_normal_hit_floor: float = 2.0
-@export var history_entry_duration: float = 10.0   ## Sekunden bis ein History-Eintrag verschwindet
-
-# === OVERHEAT ===
-@export_group("Overheat")
-@export var overheat_duration: float = 12.0
-
-# === HISTORY ===
-@export_group("History")
-@export var history_size: int = 7
-
-# === MULTIPLIERS ===
-@export_group("Multipliers")
-@export var multiplier_combo_1: float = 1.00
-@export var multiplier_combo_2: float = 1.10
-@export var multiplier_combo_3: float = 1.20
-@export var multiplier_combo_4: float = 1.25
-@export var multiplier_combo_5plus: float = 1.30
-@export var multiplier_combo_cap: float = 1.35
-@export var multiplier_history_repeat: float = 0.85
-@export var multiplier_direct_repeat: float = 0.50
+## Ein Variations-Refund wurde gewährt. Der Player schreibt gut + zeigt Popup.
+signal resonance_refunded(amount: int)
 
 
-# === RUNTIME STATE ===
-var _heat: float = 0.0
-var _is_overheating: bool = false
-var _overheat_remaining: float = 0.0
-var _combo_count: int = 0
-var _combo_timer: float = 0.0           ## Wie lange noch bis Combo verfällt
-var _heat_decay_delay_remaining: float = 0.0  ## Noch verbleibende Verzögerung bis Decay startet
+# ══════════════════════════════════════════════════════════════
+#  EXPORTS — MULTIPLIER
+# ══════════════════════════════════════════════════════════════
+@export_group("Multiplier")
+## Zuwachs pro Combo-Stufe (0.03 = +3% je Combo). Steigt bei JEDER Synergie,
+## egal ob Wiederholung oder Variation.
+@export var multiplier_per_combo: float = 0.03
+## Obergrenze des Multipliers.
+@export var multiplier_cap: float = 2.0
 
-var _is_in_penalty: bool = false
-var _penalty_multiplier: float = 1.0
 
-## History speichert Synergie-IDs MIT verbleibender Zeit (in Sekunden).
-## Format: [{"id": String, "time_left": float}, ...] — neueste am Ende.
-var _history: Array[Dictionary] = []
+# ══════════════════════════════════════════════════════════════
+#  EXPORTS — KOSTEN (SURCHARGE)
+# ══════════════════════════════════════════════════════════════
+@export_group("Cost Surcharge")
+## Zusatzkosten pro Chain-Position, linear. Erster Cast einer Chain: +0,
+## dann +surcharge, +2×surcharge, … (das Relikt-Fixum zahlt die Component separat).
+@export var synergy_surcharge: float = 3.0
+
+
+# ══════════════════════════════════════════════════════════════
+#  EXPORTS — REFUND (VARIATIONS-BELOHNUNG)
+# ══════════════════════════════════════════════════════════════
+@export_group("Refund")
+## Wie viele Synergien im Erinnerungsfenster liegen. Größer = breiteres Kit
+## nötig, um hohe Vielfalt zu erreichen. Demo hat effektiv 4 Synergien.
+@export var memory_size: int = 8
+## Basis-Refund pro distinct-Wert (Index = Anzahl UNTERSCHIEDLICHER Synergien
+## im Fenster). Index 1 = reine Wiederholung (A→A→A) → 0. Index 2 = A→B (der
+## "gute Variation"-Wechsel der Demo). Index 4 = A→B→C→D (großer Payoff).
+## Wird bei Bedarf am oberen Ende geklemmt.
+@export var refund_per_distinct: Array[float] = [
+	0.0,   # distinct 0 (kommt bei aktiver Chain nicht vor)
+	0.0,   # distinct 1 — reine Wiederholung: kein Refund
+	6.0,   # distinct 2 — A→B
+	12.0,  # distinct 3 — A→B→C
+	20.0,  # distinct 4 — A→B→C→D
+	26.0,  # distinct 5
+	30.0,  # distinct 6
+	34.0,  # distinct 7
+	38.0,  # distinct 8
+]
+## Wie stark die Combo den Refund zusätzlich verstärkt (0.15 = +15% je Combo-Stufe).
+## Sorgt für die Eskalation +5 → +8 → +12 → +20 bei längeren Chains.
+@export var refund_flow_growth: float = 0.15
+
+
+# ══════════════════════════════════════════════════════════════
+#  EXPORTS — TIMER (CHAIN-LEBENSDAUER)
+# ══════════════════════════════════════════════════════════════
+@export_group("Chain Timer")
+## Volle Chain-Zeit. Jeder Synergie-Treffer setzt den Timer hierauf zurück.
+@export var chain_duration: float = 4.0
+## Zeit, die ein NORMALER Treffer dem Timer gibt (gedeckelt auf chain_duration).
+## Überbrückt die Setup-Lücken zwischen zwei Synergien.
+@export var normal_hit_time_bonus: float = 0.4
+## Zeit, die abgezogen wird, wenn der PLAYER getroffen wird.
+@export var player_hit_time_penalty: float = 1.5
+
+
+# ══════════════════════════════════════════════════════════════
+#  EXPORTS — DEBUG
+# ══════════════════════════════════════════════════════════════
+@export_group("Debug")
+## Prints an Cast/Commit/Refund/Reset. Zum Validieren an, danach aus.
+@export var debug_prints: bool = true
+
+
+# ══════════════════════════════════════════════════════════════
+#  RUNTIME STATE
+# ══════════════════════════════════════════════════════════════
+var _combo_count: int = 0                 ## Chain-Position / Flow-Wert
+var _timer: float = 0.0                   ## Verbleibende Chain-Zeit
+var _multiplier: float = 1.0              ## Gehaltener Multiplier (fällt erst bei Reset)
+var _memory: Array[String] = []           ## Ring-Buffer der IDs, ältestes zuerst
+
+
+func _ready() -> void:
+	# Chain-Reset bei Kampfende — Manager subscribed sich selbst.
+	if has_node("/root/CombatManager"):
+		if not CombatManager.combat_ended.is_connected(_on_combat_ended):
+			CombatManager.combat_ended.connect(_on_combat_ended)
 
 
 func _process(delta: float) -> void:
-	if _is_overheating:
-		_overheat_remaining -= delta
-		if _overheat_remaining <= 0.0:
-			_end_overheat()
+	if _combo_count <= 0:
 		return
-	
-	# History-Einträge timer-basiert ablaufen lassen
-	var history_changed: bool = false
-	for i in range(_history.size() - 1, -1, -1):
-		_history[i]["time_left"] -= delta
-		if _history[i]["time_left"] <= 0.0:
-			_history.remove_at(i)
-			history_changed = true
-	
-	# Combo-Timer ticken
-	if _combo_count > 0:
-		_combo_timer -= delta
-		if _combo_timer <= 0.0:
-			_combo_count = 0
-			_is_in_penalty = false
-			_penalty_multiplier = 1.0
-			combo_changed.emit(_combo_count, 1.0)
-	
-	# Heat-Decay-Delay
-	if _heat_decay_delay_remaining > 0.0:
-		_heat_decay_delay_remaining -= delta
-	elif _heat > 0.0:
-		# Decay läuft erst nachdem die Verzögerung abgelaufen ist
-		_heat = max(0.0, _heat - heat_decay_per_second * delta)
-		heat_changed.emit(_heat, max_heat)
+	_timer -= delta
+	if _timer <= 0.0:
+		if debug_prints:
+			print("[Synergy] Timer abgelaufen → Chain-Reset (war combo=%d)" % _combo_count)
+		_reset_chain()
 
 
-# ============================================
-# PUBLIC API
-# ============================================
+# ══════════════════════════════════════════════════════════════
+#  PUBLIC API — Synergie-Components
+# ══════════════════════════════════════════════════════════════
 
-func register_synergy_hit(projected_combo: int, projected_multiplier: float) -> void:
-	if _is_overheating:
-		return
-	
-	_combo_count = projected_combo
-	_combo_timer = combo_memory_duration
-	combo_changed.emit(_combo_count, projected_multiplier)
-
-func register_synergy_use(synergy_id: String) -> SynergyResult:
+## CAST: read-only. Liefert projizierten Combo/Multiplier für DIESE Synergie
+## und die Zusatzkosten (Surcharge). Ändert KEINEN State.
+## Die Component addiert cost_surcharge auf ihre eigene Basis-Kost und zieht ab.
+func plan_synergy(_id: String) -> SynergyResult:
 	var result := SynergyResult.new()
-	
-	if _is_overheating:
-		result.allowed = false
-		result.reason = SynergyResult.Reason.BLOCKED_OVERHEAT
-		result.combo_count = _combo_count
-		synergy_blocked.emit(synergy_id, result.reason)
-		return result
-	
-	var direct_repeat: bool = not _history.is_empty() and _history[-1]["id"] == synergy_id
-	var in_history: bool = _is_in_history(synergy_id)
-	
-	# Heat-Decay zurücksetzen — Spieler ist aktiv
-	_heat_decay_delay_remaining = heat_decay_delay
-	
-	if direct_repeat:
-		# A → A: Heat sofort voll, Overheat triggert
-		result.allowed = true
-		result.damage_multiplier = multiplier_direct_repeat
-		result.reason = SynergyResult.Reason.DIRECT_REPEAT
-		result.triggered_overheat = true
-		_add_heat(heat_for_direct_repeat)
-		# History reset auf [A] — wir merken uns nur die aktuelle Synergie
-		_history.clear()
-		_history.append({"id": synergy_id, "time_left": history_entry_duration})
-		result.combo_count = 1
-		
-		_is_in_penalty = true
-		_penalty_multiplier = multiplier_direct_repeat
-		_combo_count = 1
-		_combo_timer = combo_memory_duration
-		
-		# Bei A→A: UI sofort updaten (siehe Patch von gestern wegen Overheat-Block)
-		combo_changed.emit(_combo_count, multiplier_direct_repeat)
-	elif in_history:
-		# A → B → A: Heat-Penalty, Combo wird beim Hit auf 1 gesetzt
-		result.allowed = true
-		result.damage_multiplier = multiplier_history_repeat
-		result.reason = SynergyResult.Reason.REPEAT_IN_HISTORY
-		_add_heat(heat_for_history_repeat)
-		_history.clear()
-		_history.append({"id": synergy_id, "time_left": history_entry_duration})
-		result.combo_count = 1
-		
-		# Penalty-State aktivieren
-		_is_in_penalty = true
-		_penalty_multiplier = multiplier_history_repeat
-	else:
-		# Frische Variation
-		_is_in_penalty = false
-		_penalty_multiplier = 1.0
-		
-		var projected_combo: int = _combo_count + 1
-		result.allowed = true
-		result.damage_multiplier = _get_multiplier_for_combo(projected_combo)
-		result.combo_count = projected_combo
-		
-		if projected_combo == 1:
-			result.reason = SynergyResult.Reason.FRESH
-			_add_heat(heat_for_variation_early)
-		else:
-			result.reason = SynergyResult.Reason.VARIATION
-			var heat_inc: float = heat_for_variation_early if projected_combo <= 3 else heat_for_variation_late
-			_add_heat(heat_inc)
-		
-		_history.append({"id": synergy_id, "time_left": history_entry_duration})
-		while _history.size() > history_size:
-			_history.pop_front()
-	
+	result.allowed = true
+	result.combo_count = _combo_count + 1
+	result.damage_multiplier = _multiplier_for(_combo_count + 1)
+	# Surcharge nach aktueller Chain-Position: combo 0 → 0, combo 1 → surcharge, …
+	result.cost_surcharge = synergy_surcharge * float(_combo_count)
+
+	if debug_prints:
+		print("[Synergy] CAST id=%s → projected combo=%d mult=%.2fx surcharge=%.1f"
+			% [_id, result.combo_count, result.damage_multiplier, result.cost_surcharge])
 	return result
 
 
-## Wird vom Component aufgerufen, wenn ein WEITERER Hit derselben Synergie trifft
-## (also nicht der erste). Refresht nur den Combo-Timer, ändert keinen anderen State.
-func refresh_combo_timer() -> void:
-	if _is_overheating:
-		return
+## ERSTER gelandeter Treffer einer Synergie: Chain vorrücken. Rechnet aus dem
+## AKTUELLEN State (nicht aus einer stale Projektion) — robust gegen Timer-Ablauf
+## zwischen Cast und Hit. Meldet den Refund per Signal.
+func commit_synergy_hit(id: String) -> void:
+	_combo_count += 1
+	_multiplier = _multiplier_for(_combo_count)
+	_timer = chain_duration
+
+	_memory.append(id)
+	while _memory.size() > memory_size:
+		_memory.pop_front()
+
+	var distinct: int = _count_distinct()
+	var refund: int = _compute_refund(distinct)
+
+	if debug_prints:
+		print("[Synergy] HIT id=%s → combo=%d mult=%.2fx distinct=%d refund=%d  memory=%s"
+			% [id, _combo_count, _multiplier, distinct, refund, str(_memory)])
+
+	_emit_chain_changed()
+
+	if refund > 0:
+		resonance_refunded.emit(refund)
+
+
+## WEITERER Treffer derselben Synergie-Ausführung: nur Timer refreshen.
+## (Mehrere Treffer eines Casts zählen als EIN Treffer.)
+func refresh_timer() -> void:
 	if _combo_count <= 0:
 		return
-	_combo_timer = combo_memory_duration
-	# Heat-Decay auch refreshen — Spieler ist aktiv
-	_heat_decay_delay_remaining = heat_decay_delay
+	_timer = chain_duration
 
 
-## Aktueller Multiplier basierend auf Combo-Stand (für UI).
-func get_current_multiplier() -> float:
-	if _combo_count == 0:
-		return 1.0
-	return _get_multiplier_for_combo(_combo_count)
+# ══════════════════════════════════════════════════════════════
+#  PUBLIC API — Normale Angriffe (SwordComponent)
+# ══════════════════════════════════════════════════════════════
+
+## Normaler Treffer während einer aktiven Chain: etwas Zeit dazu (gedeckelt).
+## Hält die Chain über die Setup-Lücken zwischen Synergien am Leben.
+func on_normal_hit() -> void:
+	if _combo_count <= 0:
+		return
+	_timer = minf(chain_duration, _timer + normal_hit_time_bonus)
 
 
-func get_heat_normalized() -> float:
-	return _heat / max_heat
+## Multiplier für externe Treffer (normale Angriffe profitieren von der Chain).
+func get_damage_multiplier() -> float:
+	return _multiplier
 
 
-func is_overheating() -> bool:
-	return _is_overheating
+# ══════════════════════════════════════════════════════════════
+#  PUBLIC API — Player
+# ══════════════════════════════════════════════════════════════
+
+## Player wurde getroffen: Chain-Zeit-Malus. Kann die Chain killen.
+func on_player_hit() -> void:
+	if _combo_count <= 0:
+		return
+	_timer -= player_hit_time_penalty
+	if _timer <= 0.0:
+		if debug_prints:
+			print("[Synergy] Player-Treffer → Timer leer → Chain-Reset")
+		_reset_chain()
 
 
-func get_overheat_remaining() -> float:
-	return _overheat_remaining if _is_overheating else 0.0
-
+# ══════════════════════════════════════════════════════════════
+#  PUBLIC GETTERS — HUD (Polling für Timer)
+# ══════════════════════════════════════════════════════════════
 
 func get_combo_count() -> int:
 	return _combo_count
 
+func get_current_multiplier() -> float:
+	return _multiplier
 
-# ============================================
-# INTERNAL
-# ============================================
+## 0.0 – 1.0, für die Timer-Bar.
+func get_timer_normalized() -> float:
+	if chain_duration <= 0.0:
+		return 0.0
+	return clampf(_timer / chain_duration, 0.0, 1.0)
 
-func _is_in_history(synergy_id: String) -> bool:
-	for entry in _history:
-		if entry["id"] == synergy_id:
-			return true
-	return false
+## Kopie der ID-Reihenfolge (ältestes zuerst) für die Synergie-Icon-Reihe.
+func get_memory() -> Array:
+	return _memory.duplicate()
 
-
-func _remove_history_entry(synergy_id: String) -> void:
-	for i in range(_history.size() - 1, -1, -1):
-		if _history[i]["id"] == synergy_id:
-			_history.remove_at(i)
-			return  # Es kann nur einen geben (Duplikate verhindern wir beim Append)
+func is_chain_active() -> bool:
+	return _combo_count > 0
 
 
-func _get_multiplier_for_combo(combo: int) -> float:
-	match combo:
-		1: return multiplier_combo_1
-		2: return multiplier_combo_2
-		3: return multiplier_combo_3
-		4: return multiplier_combo_4
-		5: return multiplier_combo_5plus
-		_: return multiplier_combo_cap
+# ══════════════════════════════════════════════════════════════
+#  INTERNAL
+# ══════════════════════════════════════════════════════════════
 
-
-func _add_heat(amount: float) -> void:
-	if _is_overheating:
+func _on_combat_ended() -> void:
+	if _combo_count <= 0:
 		return
-	
-	_heat = min(max_heat, _heat + amount)
-	heat_changed.emit(_heat, max_heat)
-	
-	if _heat >= max_heat:
-		_start_overheat()
+	if debug_prints:
+		print("[Synergy] Kampf beendet → Chain-Reset")
+	_reset_chain()
 
 
-func _start_overheat() -> void:
-	_is_overheating = true
-	_overheat_remaining = overheat_duration
-	overheat_started.emit(overheat_duration)
-
-
-func _end_overheat() -> void:
-	_is_overheating = false
-	_overheat_remaining = 0.0
-	_heat = 0.0
-	_history.clear()
+func _reset_chain() -> void:
 	_combo_count = 0
-	_combo_timer = 0.0
-	_heat_decay_delay_remaining = 0.0
-	_is_in_penalty = false
-	_penalty_multiplier = 1.0
-	overheat_ended.emit()
-	heat_changed.emit(_heat, max_heat)
-	combo_changed.emit(_combo_count, 1.0)
-	
-func extend_combo_on_normal_hit() -> void:
-	if _is_overheating:
-		return
-	if _combo_count <= 0:
-		return
-	if _is_in_penalty:
-		return
-	print(_combo_count)
-	_combo_timer = max(_combo_timer, combo_normal_hit_floor)
+	_timer = 0.0
+	_multiplier = 1.0
+	_memory.clear()
+	_emit_chain_changed()
 
 
-func get_damage_multiplier_for_external_hit() -> float:
-	if _is_in_penalty:
-		return _penalty_multiplier
-	if _is_overheating:
+func _emit_chain_changed() -> void:
+	chain_changed.emit(_combo_count, _multiplier, _memory.duplicate())
+
+
+func _multiplier_for(combo: int) -> float:
+	if combo <= 0:
 		return 1.0
-	if _combo_count <= 0:
-		return 1.0
-	return _get_multiplier_for_combo(_combo_count)
+	return minf(multiplier_cap, 1.0 + multiplier_per_combo * float(combo - 1))
+
+
+func _count_distinct() -> int:
+	var seen: Dictionary = {}
+	for id in _memory:
+		seen[id] = true
+	return seen.size()
+
+
+func _compute_refund(distinct: int) -> int:
+	var base: float = _refund_base_for_distinct(distinct)
+	if base <= 0.0:
+		return 0
+	var scaled: float = base * (1.0 + refund_flow_growth * float(_combo_count - 1))
+	return int(round(scaled))
+
+
+func _refund_base_for_distinct(distinct: int) -> float:
+	if refund_per_distinct.is_empty():
+		return 0.0
+	var idx: int = clampi(distinct, 0, refund_per_distinct.size() - 1)
+	return refund_per_distinct[idx]

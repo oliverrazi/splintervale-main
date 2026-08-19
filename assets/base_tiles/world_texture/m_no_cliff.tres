@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dfjn62gongxj8"]
+
+[ext_resource type="Texture2D" uid="uid://dhs7u8cai3sfn" path="res://assets/base_tiles/world_texture/dirtwall1_wall1_wall1-full!.png" id="1_b0ldr"]
+[ext_resource type="Texture2D" uid="uid://brhpqveegca8n" path="res://assets/base_tiles/world_texture/dirtwall1_wall1_wall1-full!_specular(1).png" id="2_cu3sk"]
+
+[resource]
+resource_name = "Material"
+cull_mode = 2
+albedo_texture = ExtResource("1_b0ldr")
+normal_enabled = true
+normal_texture = ExtResource("2_cu3sk")

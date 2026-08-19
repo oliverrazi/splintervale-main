@@ -23,6 +23,8 @@ extends Node3D
 
 var _baked_nodes: Array[Node] = []
 
+signal bake_finished
+
 
 func _ready() -> void:
 	if not Engine.is_editor_hint() and bake_on_ready:
@@ -86,6 +88,8 @@ func bake() -> void:
 		_baked_nodes.append(mmi)
 		idx += 1
 
+
+	bake_finished.emit()
 	print("MultiMeshBaker: %d Mesh-Typen → %d Draw Calls (vorher: %d)" % [
 		idx, idx, mesh_map.values().reduce(func(a, b): return a + b.size(), 0)
 	])

@@ -3,10 +3,9 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cbxwv55ohx85u"
-path.s3tc="res://.godot/imported/oven_stone.png-eb02787177bc91a50221f407e155d5b1.s3tc.ctex"
+path="res://.godot/imported/oven_stone.png-eb02787177bc91a50221f407e155d5b1.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 generator_parameters={
 "md5": "806d2ed498d2545d8310cd68aa724153"
@@ -15,11 +14,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/decoration/oven_stone.png"
-dest_files=["res://.godot/imported/oven_stone.png-eb02787177bc91a50221f407e155d5b1.s3tc.ctex"]
+dest_files=["res://.godot/imported/oven_stone.png-eb02787177bc91a50221f407e155d5b1.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

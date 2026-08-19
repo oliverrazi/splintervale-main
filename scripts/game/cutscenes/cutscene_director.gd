@@ -108,6 +108,13 @@ var _dimmed: Dictionary = {}
 
 
 func _ready() -> void:
+	
+	if music:
+		music.bus = "Music"
+	if wind:
+		wind.bus = "SFX"
+	if charge_sfx:
+		charge_sfx.bus = "SFX"
 	# --- Startzustand HART setzen ------------------------------------
 	if fade_overlay:
 		fade_overlay.color = Color(0, 0, 0, 1)
